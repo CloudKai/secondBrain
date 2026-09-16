@@ -6,7 +6,7 @@ from backend.main import app
 class StubGraph:
     async def ainvoke(self, state, config):
         assert state == {
-            "raw_text": "",
+            "raw_text": "Article title https://example.com/article",
             "simplified_summary": "",
             "mermaid_code": "",
             "nodes": [],

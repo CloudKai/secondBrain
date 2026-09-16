@@ -26,7 +26,7 @@ async def health() -> dict[str, str]:
 )
 async def process_link(payload: ProcessLinkRequest) -> ProcessLinkResponse:
     initial_state: DeepFeynmanState = {
-        "raw_text": "",
+        "raw_text": payload.raw_text or "",
         "simplified_summary": "",
         "mermaid_code": "",
         "nodes": [],
