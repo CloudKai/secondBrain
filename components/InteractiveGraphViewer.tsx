@@ -12,11 +12,13 @@ type InteractiveGraphViewerProps = {
   nodes: readonly GraphNode[];
   edges: readonly GraphEdge[];
   direction?: GraphDirection;
+  onNodePress?: (nodeId: string | null) => void;
 };
 
 type WebViewMessage =
   | { type: 'ready' }
-  | { type: 'error'; message: string };
+  | { type: 'error'; message: string }
+  | { type: 'nodePress'; nodeId: string | null };
 
 function forInlineScript(value: unknown): string {
   return JSON.stringify(value)
@@ -211,6 +213,14 @@ function buildHtml(
                 edges,
                 onNodesChange,
                 onEdgesChange,
+                onNodeClick: (_, node) => notify({
+                  type: 'nodePress',
+                  nodeId: node.id
+                }),
+                onPaneClick: () => notify({
+                  type: 'nodePress',
+                  nodeId: null
+                }),
                 nodesDraggable: true,
                 nodesConnectable: false,
                 elementsSelectable: true,
@@ -258,6 +268,7 @@ export function InteractiveGraphViewer({
   nodes,
   edges,
   direction = 'TB',
+  onNodePress,
 }: InteractiveGraphViewerProps) {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -274,6 +285,7 @@ export function InteractiveGraphViewer({
         setError(message.message);
         setIsReady(true);
       }
+      if (message.type === 'nodePress') onNodePress?.(message.nodeId);
     } catch {
       setError('The graph returned an invalid status message.');
       setIsReady(true);
@@ -295,6 +307,7 @@ export function InteractiveGraphViewer({
           </View>
         ) : null}
         <WebView
+          accessibilityLabel="Interactive concept map. Pinch to zoom, drag to pan, or tap a concept for details."
           source={source}
           originWhitelist={['*']}
           onMessage={handleMessage}

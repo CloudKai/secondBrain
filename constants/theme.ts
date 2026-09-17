@@ -8,6 +8,9 @@ export const colors = {
   accent: '#A7F3D0',
   accentStrong: '#34D399',
   accentInk: '#062D22',
+  accentBlue: '#60A5FA',
+  accentPurple: '#C4B5FD',
+  warning: '#FBBF24',
   danger: '#FDA4AF',
 } as const;
 

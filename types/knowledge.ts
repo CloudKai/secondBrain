@@ -48,6 +48,14 @@ export type ProcessLinkResponse = {
 };
 
 export type KnowledgeItem = ProcessLinkResponse & {
+  id: string;
   title: string;
   source_links: string[];
+  saved_at: string;
+  is_demo?: boolean;
+};
+
+export type LearningProgress = {
+  completed_lesson_steps: readonly number[];
+  mastered_edge_ids: readonly string[];
 };
