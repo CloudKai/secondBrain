@@ -1,7 +1,7 @@
 # Second Brain mobile app
 
 Expo Router and TypeScript client for receiving shared web links, selecting a
-folder, and rendering the processed Feynman summary and Mermaid diagram.
+folder, and rendering the processed Feynman summary and adaptive diagram.
 
 ## Configure the backend
 

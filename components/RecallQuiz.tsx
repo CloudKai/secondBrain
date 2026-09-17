@@ -74,7 +74,7 @@ export function RecallQuiz({
         </View>
         <Text style={styles.completeKicker}>RECALL ROUND COMPLETE</Text>
         <Text style={styles.completeTitle}>
-          {masteredCount === edges.length ? 'You know this map.' : 'Your memory is warming up.'}
+          {masteredCount === edges.length ? 'You know these connections.' : 'Your memory is warming up.'}
         </Text>
         <Text style={styles.completeBody}>
           {masteredCount} of {edges.length} connections are currently marked as mastered.

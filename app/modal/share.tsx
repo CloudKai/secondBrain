@@ -115,8 +115,8 @@ export default function ShareReceiverModal() {
           <Text style={styles.kicker}>SAVE TO SECOND BRAIN</Text>
           <Text style={styles.title}>Turn this into a lesson</Text>
           <Text style={styles.subtitle}>
-            Choose a learning path. We’ll simplify the article, map the ideas,
-            and build a recall round.
+            Choose a learning path. We’ll simplify the article, visualize the
+            ideas, and build a recall round.
           </Text>
 
           <View style={styles.linkPreview}>

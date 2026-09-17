@@ -10,22 +10,35 @@ import {
   View,
 } from 'react-native';
 
-import { InteractiveGraphViewer, type GraphDirection } from '@/components/InteractiveGraphViewer';
+import {
+  AdaptiveDiagramViewer,
+  type GraphDirection,
+} from '@/components/AdaptiveDiagramViewer';
 import { LearningDeck } from '@/components/LearningDeck';
 import { RecallQuiz } from '@/components/RecallQuiz';
 import { demoKnowledgeItem } from '@/constants/demoKnowledge';
 import { colors, spacing } from '@/constants/theme';
 import { useKnowledge } from '@/state/KnowledgeContext';
-import { folders, type FolderId } from '@/types/knowledge';
+import {
+  folders,
+  type DiagramType,
+  type FolderId,
+} from '@/types/knowledge';
 
-type LearningMode = 'learn' | 'map' | 'recall' | 'source';
+type LearningMode = 'learn' | 'visual' | 'recall' | 'source';
 
 const modes: readonly { id: LearningMode; label: string; icon: SFSymbol }[] = [
   { id: 'learn', label: 'Learn', icon: 'sparkles' },
-  { id: 'map', label: 'Map', icon: 'point.3.connected.trianglepath.dotted' },
+  { id: 'visual', label: 'Visual', icon: 'point.3.connected.trianglepath.dotted' },
   { id: 'recall', label: 'Recall', icon: 'questionmark.circle' },
   { id: 'source', label: 'Source', icon: 'arrow.up.right' },
 ];
+
+const diagramLabels: Record<DiagramType, string> = {
+  flow: 'Flow',
+  hierarchy: 'Hierarchy',
+  network: 'Network',
+};
 
 function isFolderId(value: string): value is FolderId {
   return folders.some((folder) => folder.id === value);
@@ -70,6 +83,10 @@ export default function FolderDetailScreen() {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [mode, setMode] = useState<LearningMode>('learn');
   const [direction, setDirection] = useState<GraphDirection>('TB');
+  const [diagramSelection, setDiagramSelection] = useState<{
+    itemId: string;
+    type: DiagramType;
+  } | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [showOriginalText, setShowOriginalText] = useState(false);
 
@@ -78,6 +95,12 @@ export default function FolderDetailScreen() {
       (candidate) => candidate.id === (selectedItemId ?? routeItemId),
     ) ??
     folderItems[0];
+  const activeDiagram =
+    diagramSelection?.itemId === item?.id ? diagramSelection.type : null;
+  const resolvedDiagram =
+    activeDiagram && item?.diagram_options.includes(activeDiagram)
+      ? activeDiagram
+      : (item?.diagram_type ?? 'network');
   const points = useMemo(
     () => (item ? lessonPoints(item.simplified_summary) : []),
     [item],
@@ -128,7 +151,7 @@ export default function FolderDetailScreen() {
         <Text style={styles.emptyTitle}>Your next idea starts here.</Text>
         <Text style={styles.emptyBody}>
           Share an article into this folder and Second Brain will turn it into a
-          lesson, concept map, and recall round.
+          lesson, adaptive diagram, and recall round.
         </Text>
         <View style={styles.emptySteps}>
           {['Share an article', 'Choose this folder', 'Learn it actively'].map(
@@ -175,7 +198,7 @@ export default function FolderDetailScreen() {
 
   const exploreNode = (nodeId: string | null) => {
     setSelectedNodeId(nodeId);
-    setMode('map');
+    setMode('visual');
   };
 
   return (
@@ -210,6 +233,7 @@ export default function FolderDetailScreen() {
                 onPress={() => {
                   setSelectedItemId(candidate.id);
                   setMode('learn');
+                  setDiagramSelection(null);
                   setSelectedNodeId(null);
                 }}
                 style={[
@@ -325,43 +349,97 @@ export default function FolderDetailScreen() {
         </View>
       ) : null}
 
-      {mode === 'map' ? (
+      {mode === 'visual' ? (
         <View style={styles.modeContent}>
-          <View style={styles.sectionHeadingRow}>
-            <View style={styles.modeHeadingCompact}>
-              <Text style={styles.modeEyebrow}>CONCEPT MAP</Text>
-              <Text style={styles.modeTitle}>Tap a node to unpack it</Text>
-            </View>
-            <View style={styles.directionToggle}>
-              {(['TB', 'LR'] as const).map((value) => (
+          <View style={styles.modeHeading}>
+            <Text style={styles.modeEyebrow}>VISUAL EXPLORER</Text>
+            <Text style={styles.modeTitle}>See the idea from another angle</Text>
+            <Text style={styles.modeBody}>
+              Start with the suggested view, then switch layouts to expose a
+              different pattern in the same concepts.
+            </Text>
+          </View>
+
+          <View accessibilityRole="tablist" style={styles.diagramSwitcher}>
+            {item.diagram_options.map((option) => {
+              const isSelected = resolvedDiagram === option;
+              return (
                 <Pressable
-                  accessibilityLabel={
-                    value === 'TB' ? 'Top to bottom layout' : 'Left to right layout'
-                  }
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: direction === value }}
-                  key={value}
-                  onPress={() => setDirection(value)}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: isSelected }}
+                  key={option}
+                  onPress={() => {
+                    setDiagramSelection({ itemId: item.id, type: option });
+                    setSelectedNodeId(null);
+                  }}
                   style={[
-                    styles.directionButton,
-                    direction === value && styles.directionButtonActive,
+                    styles.diagramOption,
+                    isSelected && styles.diagramOptionActive,
                   ]}
                 >
-                  <SymbolView
-                    accessible={false}
-                    name={value === 'TB' ? 'arrow.down' : 'arrow.right'}
-                    size={17}
-                    tintColor={
-                      direction === value ? colors.accentStrong : colors.textMuted
-                    }
-                    weight="bold"
-                  />
+                  <Text
+                    style={[
+                      styles.diagramOptionText,
+                      isSelected && styles.diagramOptionTextActive,
+                    ]}
+                  >
+                    {diagramLabels[option]}
+                  </Text>
+                  {option === item.diagram_type ? (
+                    <View style={styles.suggestedDot} />
+                  ) : null}
                 </Pressable>
-              ))}
-            </View>
+              );
+            })}
           </View>
-          <Text style={styles.graphHint}>Pinch to zoom · drag nodes · pan the canvas</Text>
-          <InteractiveGraphViewer
+
+          <View style={styles.diagramMetaRow}>
+            <View>
+              <Text style={styles.diagramActiveLabel}>ACTIVE VIEW</Text>
+              <Text style={styles.diagramActiveValue}>
+                {diagramLabels[resolvedDiagram]}
+                {resolvedDiagram === item.diagram_type ? ' · suggested' : ''}
+              </Text>
+            </View>
+            {resolvedDiagram !== 'network' ? (
+              <View style={styles.directionToggle}>
+                {(['TB', 'LR'] as const).map((value) => (
+                  <Pressable
+                    accessibilityLabel={
+                      value === 'TB'
+                        ? 'Top to bottom layout'
+                        : 'Left to right layout'
+                    }
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: direction === value }}
+                    key={value}
+                    onPress={() => setDirection(value)}
+                    style={[
+                      styles.directionButton,
+                      direction === value && styles.directionButtonActive,
+                    ]}
+                  >
+                    <SymbolView
+                      accessible={false}
+                      name={value === 'TB' ? 'arrow.down' : 'arrow.right'}
+                      size={17}
+                      tintColor={
+                        direction === value
+                          ? colors.accentStrong
+                          : colors.textMuted
+                      }
+                      weight="bold"
+                    />
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+          </View>
+          <Text style={styles.graphHint}>
+            Pinch to zoom · drag nodes · pan the canvas · tap to inspect
+          </Text>
+          <AdaptiveDiagramViewer
+            diagramType={resolvedDiagram}
             direction={direction}
             edges={item.edges}
             nodes={item.nodes}
@@ -393,7 +471,7 @@ export default function FolderDetailScreen() {
                   ))
                 ) : (
                   <Text style={styles.connectionEmpty}>
-                    This concept stands on its own in the current map.
+                    This concept stands on its own in the current diagram.
                   </Text>
                 )}
               </>
@@ -552,7 +630,6 @@ const styles = StyleSheet.create({
   modeLabelActive: { color: colors.text },
   modeContent: { marginTop: spacing.xl },
   modeHeading: { marginBottom: spacing.lg },
-  modeHeadingCompact: { flex: 1, paddingRight: spacing.sm },
   modeEyebrow: { color: colors.accentStrong, fontSize: 10, fontWeight: '900', letterSpacing: 1.5 },
   modeTitle: { color: colors.text, fontSize: 24, lineHeight: 30, fontWeight: '700', letterSpacing: -0.4, marginTop: 5 },
   modeBody: { color: colors.textMuted, fontSize: 13, lineHeight: 20, marginTop: 7 },
@@ -561,7 +638,15 @@ const styles = StyleSheet.create({
   nextModeCopy: { flex: 1, marginLeft: spacing.md },
   nextModeKicker: { color: colors.accentPurple, fontSize: 9, fontWeight: '900', letterSpacing: 1 },
   nextModeTitle: { color: colors.text, fontSize: 15, fontWeight: '700', marginTop: 3 },
-  sectionHeadingRow: { flexDirection: 'row', alignItems: 'center' },
+  diagramSwitcher: { flexDirection: 'row', gap: 8 },
+  diagramOption: { flex: 1, minHeight: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, paddingHorizontal: 10, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  diagramOptionActive: { borderColor: '#286B56', backgroundColor: '#10241E' },
+  diagramOptionText: { color: colors.textMuted, fontSize: 12, fontWeight: '700' },
+  diagramOptionTextActive: { color: colors.accent },
+  suggestedDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.accentStrong },
+  diagramMetaRow: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.md },
+  diagramActiveLabel: { color: colors.textMuted, fontSize: 9, fontWeight: '800', letterSpacing: 1.1 },
+  diagramActiveValue: { color: colors.text, fontSize: 14, fontWeight: '700', marginTop: 3 },
   directionToggle: { flexDirection: 'row', padding: 3, borderRadius: 12, backgroundColor: colors.surface },
   directionButton: { width: 38, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
   directionButtonActive: { backgroundColor: colors.surfaceRaised },

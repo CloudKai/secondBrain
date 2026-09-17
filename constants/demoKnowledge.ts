@@ -14,8 +14,8 @@ export const demoKnowledgeItem: KnowledgeItem = {
     '- Every tool result becomes a new observation that changes what the agent should do next.',
     '- Memory, evaluation, and guardrails keep the loop useful, measurable, and safe.',
   ].join('\n'),
-  mermaid_code:
-    'graph TD\nGoal[Goal] --> Plan[Choose next action]\nPlan --> Tool[Use a tool]\nTool --> Observe[Observe result]\nObserve --> Plan\nMemory[Memory] --> Plan\nEvaluate[Evaluation] --> Goal',
+  diagram_type: 'flow',
+  diagram_options: ['flow', 'hierarchy', 'network'],
   nodes: [
     { id: 'goal', label: 'Goal' },
     { id: 'plan', label: 'Choose next action' },
@@ -28,9 +28,8 @@ export const demoKnowledgeItem: KnowledgeItem = {
     { id: 'e1', source: 'goal', target: 'plan', label: 'guides' },
     { id: 'e2', source: 'plan', target: 'tool', label: 'selects' },
     { id: 'e3', source: 'tool', target: 'observe', label: 'produces' },
-    { id: 'e4', source: 'observe', target: 'plan', label: 'updates' },
-    { id: 'e5', source: 'memory', target: 'plan', label: 'informs' },
-    { id: 'e6', source: 'evaluate', target: 'goal', label: 'checks' },
+    { id: 'e4', source: 'goal', target: 'memory', label: 'retains context' },
+    { id: 'e5', source: 'goal', target: 'evaluate', label: 'defines success' },
   ],
   source_links: [
     'https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/',

@@ -58,7 +58,7 @@ export default function HomeScreen() {
 
         <Text style={styles.title}>Learn what{`\n`}you save.</Text>
         <Text style={styles.subtitle}>
-          Turn dense ideas into a guided lesson, a living concept map, and a
+          Turn dense ideas into a guided lesson, an adaptive visual, and a
           quick recall challenge.
         </Text>
 
@@ -73,7 +73,7 @@ export default function HomeScreen() {
           <Text style={styles.heroBody}>
             {latestItem
               ? `${getProgress(latestItem.id).completed_lesson_steps.length} lesson ideas reviewed · ${getProgress(latestItem.id).mastered_edge_ids.length} connections mastered`
-              : 'Open a guided demo with concept cards, an explorable map, and active-recall prompts.'}
+              : 'Open a guided demo with concept cards, an explorable visual, and active-recall prompts.'}
           </Text>
           <Pressable
             accessibilityRole="button"

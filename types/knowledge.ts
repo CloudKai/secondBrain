@@ -37,12 +37,15 @@ export type GraphEdge = {
   label: string | null;
 };
 
+export type DiagramType = 'flow' | 'hierarchy' | 'network';
+
 export type ProcessLinkResponse = {
   folder_id: string;
   source_url: string;
   raw_text: string;
   simplified_summary: string;
-  mermaid_code: string;
+  diagram_type: DiagramType;
+  diagram_options: DiagramType[];
   nodes: GraphNode[];
   edges: GraphEdge[];
 };
