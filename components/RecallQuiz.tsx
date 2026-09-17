@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing } from '@/constants/theme';
@@ -63,7 +64,13 @@ export function RecallQuiz({
     return (
       <View style={styles.completeCard}>
         <View style={styles.completeOrb}>
-          <Text style={styles.completeOrbText}>✓</Text>
+          <SymbolView
+            accessible={false}
+            name="checkmark"
+            size={27}
+            tintColor={colors.accentInk}
+            weight="bold"
+          />
         </View>
         <Text style={styles.completeKicker}>RECALL ROUND COMPLETE</Text>
         <Text style={styles.completeTitle}>
@@ -183,7 +190,6 @@ const styles = StyleSheet.create({
   knowButtonText: { color: '#21172F', fontSize: 14, fontWeight: '800' },
   completeCard: { alignItems: 'center', padding: spacing.xl, borderRadius: 26, borderWidth: 1, borderColor: '#286B56', backgroundColor: '#0F211D' },
   completeOrb: { width: 58, height: 58, alignItems: 'center', justifyContent: 'center', borderRadius: 29, backgroundColor: colors.accentStrong },
-  completeOrbText: { color: colors.accentInk, fontSize: 27, fontWeight: '900' },
   completeKicker: { color: colors.accent, fontSize: 10, fontWeight: '900', letterSpacing: 1.6, marginTop: spacing.md },
   completeTitle: { color: colors.text, fontSize: 25, lineHeight: 32, fontWeight: '700', textAlign: 'center', marginTop: spacing.sm },
   completeBody: { color: colors.textMuted, fontSize: 14, lineHeight: 21, textAlign: 'center', marginTop: spacing.sm },

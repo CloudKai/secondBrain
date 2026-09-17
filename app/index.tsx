@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import {
   Pressable,
   ScrollView,
@@ -91,7 +92,13 @@ export default function HomeScreen() {
             <Text style={styles.heroActionText}>
               {latestItem ? 'Resume lesson' : 'Try the interactive demo'}
             </Text>
-            <Text style={styles.heroActionArrow}>→</Text>
+            <SymbolView
+              accessible={false}
+              name="arrow.right"
+              size={20}
+              tintColor={colors.accentInk}
+              weight="bold"
+            />
           </Pressable>
         </View>
 
@@ -149,7 +156,13 @@ export default function HomeScreen() {
                 <View style={styles.folderCopy}>
                   <View style={styles.folderTitleRow}>
                     <Text style={styles.folderName}>{folder.name}</Text>
-                    <Text style={styles.folderArrow}>›</Text>
+                    <SymbolView
+                      accessible={false}
+                      name="chevron.right"
+                      size={16}
+                      tintColor={colors.textMuted}
+                      weight="semibold"
+                    />
                   </View>
                   <Text style={styles.folderDescription} numberOfLines={2}>
                     {folder.description}
@@ -207,7 +220,16 @@ export default function HomeScreen() {
                     <Text style={styles.recentMeta}>
                       {item.nodes.length} concepts
                     </Text>
-                    <Text style={styles.recentArrow}>Open →</Text>
+                    <View style={styles.recentAction}>
+                      <Text style={styles.recentArrow}>Open</Text>
+                      <SymbolView
+                        accessible={false}
+                        name="arrow.right"
+                        size={12}
+                        tintColor={colors.accentStrong}
+                        weight="bold"
+                      />
+                    </View>
                   </View>
                 </Pressable>
               ))}
@@ -217,7 +239,13 @@ export default function HomeScreen() {
 
         <View style={styles.shareCoach}>
           <View style={styles.shareCoachIcon}>
-            <Text style={styles.shareCoachIconText}>↗</Text>
+            <SymbolView
+              accessible={false}
+              name="square.and.arrow.up"
+              size={20}
+              tintColor={colors.accentBlue}
+              weight="semibold"
+            />
           </View>
           <View style={styles.shareCoachCopy}>
             <Text style={styles.shareCoachTitle}>Save from anywhere</Text>
@@ -251,7 +279,6 @@ const styles = StyleSheet.create({
   heroBody: { color: '#B8CEC6', fontSize: 13, lineHeight: 20, marginTop: spacing.sm, maxWidth: 330 },
   heroAction: { minHeight: 51, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg, paddingHorizontal: spacing.md, borderRadius: 16, backgroundColor: colors.accentStrong },
   heroActionText: { color: colors.accentInk, fontSize: 14, fontWeight: '800' },
-  heroActionArrow: { color: colors.accentInk, fontSize: 20, fontWeight: '800' },
   statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   statCard: { flex: 1, padding: spacing.md, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   statNumber: { color: colors.accentStrong, fontSize: 28, fontWeight: '700', fontVariant: ['tabular-nums'] },
@@ -272,7 +299,6 @@ const styles = StyleSheet.create({
   folderCopy: { flex: 1, marginLeft: spacing.md },
   folderTitleRow: { flexDirection: 'row', alignItems: 'center' },
   folderName: { flex: 1, color: colors.text, fontSize: 17, fontWeight: '700' },
-  folderArrow: { color: colors.textMuted, fontSize: 25, lineHeight: 25 },
   folderDescription: { color: colors.textMuted, fontSize: 12, lineHeight: 17, marginTop: 3 },
   folderMetaRow: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm },
   folderMeta: { color: '#748094', fontSize: 10, fontWeight: '600' },
@@ -286,10 +312,10 @@ const styles = StyleSheet.create({
   recentTitle: { color: colors.text, fontSize: 16, lineHeight: 22, fontWeight: '600', marginTop: spacing.sm },
   recentFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: spacing.md },
   recentMeta: { color: colors.textMuted, fontSize: 10 },
+  recentAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   recentArrow: { color: colors.accentStrong, fontSize: 11, fontWeight: '700' },
   shareCoach: { flexDirection: 'row', marginTop: 42, padding: spacing.md, borderRadius: 20, backgroundColor: '#10151F' },
   shareCoachIcon: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: colors.surfaceRaised },
-  shareCoachIconText: { color: colors.accentBlue, fontSize: 20, fontWeight: '700' },
   shareCoachCopy: { flex: 1, marginLeft: spacing.md },
   shareCoachTitle: { color: colors.text, fontSize: 14, fontWeight: '700' },
   shareCoachBody: { color: colors.textMuted, fontSize: 12, lineHeight: 18, marginTop: 4 },

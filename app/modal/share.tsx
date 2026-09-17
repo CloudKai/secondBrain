@@ -5,6 +5,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import { useShareIntentContext } from 'expo-share-intent';
+import { SymbolView } from 'expo-symbols';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -120,7 +121,13 @@ export default function ShareReceiverModal() {
 
           <View style={styles.linkPreview}>
             <View style={styles.linkIcon}>
-              <Text style={styles.linkIconText}>↗</Text>
+              <SymbolView
+                accessible={false}
+                name="arrow.up.right"
+                size={18}
+                tintColor={colors.accentBlue}
+                weight="semibold"
+              />
             </View>
             <View style={styles.linkCopy}>
               <Text style={styles.linkLabel}>CAPTURED SOURCE</Text>
@@ -173,7 +180,15 @@ export default function ShareReceiverModal() {
                     <Text style={styles.folderDescription}>{folder.description}</Text>
                   </View>
                   <View style={[styles.radio, isSelected && styles.radioSelected]}>
-                    {isSelected ? <Text style={styles.radioCheck}>✓</Text> : null}
+                    {isSelected ? (
+                      <SymbolView
+                        accessible={false}
+                        name="checkmark"
+                        size={13}
+                        tintColor={colors.accentInk}
+                        weight="bold"
+                      />
+                    ) : null}
                   </View>
                 </Pressable>
               );
@@ -182,7 +197,13 @@ export default function ShareReceiverModal() {
 
           {!sharedUrl || error ? (
             <View style={styles.errorCard}>
-              <Text style={styles.errorIcon}>!</Text>
+              <SymbolView
+                accessible={false}
+                name="exclamationmark.circle.fill"
+                size={16}
+                tintColor={colors.danger}
+                weight="bold"
+              />
               <Text style={styles.error}>
                 {!sharedUrl
                   ? 'The shared content does not contain a URL.'
@@ -216,7 +237,15 @@ export default function ShareReceiverModal() {
             <Text style={styles.submitText}>
               {isSubmitting ? 'Creating lesson…' : 'Build my lesson'}
             </Text>
-            {!isSubmitting ? <Text style={styles.submitArrow}>→</Text> : null}
+            {!isSubmitting ? (
+              <SymbolView
+                accessible={false}
+                name="arrow.right"
+                size={20}
+                tintColor={colors.accentInk}
+                weight="bold"
+              />
+            ) : null}
           </Pressable>
         </BottomSheetView>
       </BottomSheet>
@@ -234,7 +263,6 @@ const styles = StyleSheet.create({
   subtitle: { color: colors.textMuted, fontSize: 13, lineHeight: 19, marginTop: 6 },
   linkPreview: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 16, backgroundColor: '#10151F', marginTop: spacing.md },
   linkIcon: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center', borderRadius: 12, backgroundColor: colors.surfaceRaised },
-  linkIconText: { color: colors.accentBlue, fontSize: 18, fontWeight: '700' },
   linkCopy: { flex: 1, marginLeft: 12 },
   linkLabel: { color: colors.textMuted, fontSize: 9, fontWeight: '800', letterSpacing: 1.1 },
   linkHost: { color: colors.text, fontSize: 13, fontWeight: '700', marginTop: 2 },
@@ -252,13 +280,11 @@ const styles = StyleSheet.create({
   folderIconTextPurple: { color: colors.accentPurple },
   radio: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: '#5C6678', alignItems: 'center', justifyContent: 'center' },
   radioSelected: { borderColor: colors.accentStrong, backgroundColor: colors.accentStrong },
-  radioCheck: { color: colors.accentInk, fontSize: 13, fontWeight: '900' },
   folderText: { flex: 1, marginLeft: 12 },
   folderName: { color: colors.text, fontSize: 16, fontWeight: '600' },
   folderDescription: { color: colors.textMuted, fontSize: 12, marginTop: 3 },
   errorCard: { flexDirection: 'row', alignItems: 'center', padding: 11, borderRadius: 14, backgroundColor: '#301A20', marginTop: spacing.sm },
-  errorIcon: { color: colors.danger, fontSize: 15, fontWeight: '900', marginRight: 9 },
-  error: { flex: 1, color: colors.danger, fontSize: 12, lineHeight: 17 },
+  error: { flex: 1, color: colors.danger, fontSize: 12, lineHeight: 17, marginLeft: 9 },
   processingRow: { flexDirection: 'row', alignItems: 'center', paddingTop: spacing.sm },
   processingCopy: { marginLeft: 10 },
   processingTitle: { color: colors.text, fontSize: 12, fontWeight: '700' },
@@ -267,5 +293,4 @@ const styles = StyleSheet.create({
   submitDisabled: { opacity: 0.38 },
   submitPressed: { transform: [{ scale: 0.985 }] },
   submitText: { color: colors.accentInk, fontSize: 16, fontWeight: '800' },
-  submitArrow: { color: colors.accentInk, fontSize: 21, fontWeight: '800' },
 });

@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
+import { SymbolView, type SFSymbol } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import {
   Linking,
@@ -19,11 +20,11 @@ import { folders, type FolderId } from '@/types/knowledge';
 
 type LearningMode = 'learn' | 'map' | 'recall' | 'source';
 
-const modes: readonly { id: LearningMode; label: string; glyph: string }[] = [
-  { id: 'learn', label: 'Learn', glyph: '✦' },
-  { id: 'map', label: 'Map', glyph: '⌘' },
-  { id: 'recall', label: 'Recall', glyph: '?' },
-  { id: 'source', label: 'Source', glyph: '↗' },
+const modes: readonly { id: LearningMode; label: string; icon: SFSymbol }[] = [
+  { id: 'learn', label: 'Learn', icon: 'sparkles' },
+  { id: 'map', label: 'Map', icon: 'point.3.connected.trianglepath.dotted' },
+  { id: 'recall', label: 'Recall', icon: 'questionmark.circle' },
+  { id: 'source', label: 'Source', icon: 'arrow.up.right' },
 ];
 
 function isFolderId(value: string): value is FolderId {
@@ -105,7 +106,13 @@ export default function FolderDetailScreen() {
   if (!folder) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.emptyGlyph}>?</Text>
+        <SymbolView
+          accessible={false}
+          name="questionmark.circle"
+          size={38}
+          tintColor={colors.accentStrong}
+          weight="bold"
+        />
         <Text style={styles.emptyTitle}>Folder not found</Text>
       </View>
     );
@@ -142,7 +149,13 @@ export default function FolderDetailScreen() {
             style={({ pressed }) => [styles.demoButton, pressed && styles.pressed]}
           >
             <Text style={styles.demoButtonText}>Explore a demo lesson</Text>
-            <Text style={styles.demoButtonArrow}>→</Text>
+            <SymbolView
+              accessible={false}
+              name="arrow.right"
+              size={20}
+              tintColor={colors.accentInk}
+              weight="bold"
+            />
           </Pressable>
         ) : null}
       </View>
@@ -251,9 +264,13 @@ export default function FolderDetailScreen() {
               onPress={() => setMode(candidate.id)}
               style={[styles.modeTab, isActive && styles.modeTabActive]}
             >
-              <Text style={[styles.modeGlyph, isActive && styles.modeGlyphActive]}>
-                {candidate.glyph}
-              </Text>
+              <SymbolView
+                accessible={false}
+                name={candidate.icon}
+                size={15}
+                tintColor={isActive ? colors.accentStrong : '#697487'}
+                weight={isActive ? 'bold' : 'semibold'}
+              />
               <Text style={[styles.modeLabel, isActive && styles.modeLabelActive]}>
                 {candidate.label}
               </Text>
@@ -285,13 +302,25 @@ export default function FolderDetailScreen() {
             style={({ pressed }) => [styles.nextModeCard, pressed && styles.pressed]}
           >
             <View style={styles.nextModeIcon}>
-              <Text style={styles.nextModeIconText}>?</Text>
+              <SymbolView
+                accessible={false}
+                name="questionmark.circle"
+                size={20}
+                tintColor={colors.accentPurple}
+                weight="bold"
+              />
             </View>
             <View style={styles.nextModeCopy}>
               <Text style={styles.nextModeKicker}>READY FOR A CHALLENGE?</Text>
               <Text style={styles.nextModeTitle}>Test the connections</Text>
             </View>
-            <Text style={styles.nextModeArrow}>→</Text>
+            <SymbolView
+              accessible={false}
+              name="arrow.right"
+              size={20}
+              tintColor={colors.accentPurple}
+              weight="semibold"
+            />
           </Pressable>
         </View>
       ) : null}
@@ -318,14 +347,15 @@ export default function FolderDetailScreen() {
                     direction === value && styles.directionButtonActive,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.directionText,
-                      direction === value && styles.directionTextActive,
-                    ]}
-                  >
-                    {value === 'TB' ? '↓' : '→'}
-                  </Text>
+                  <SymbolView
+                    accessible={false}
+                    name={value === 'TB' ? 'arrow.down' : 'arrow.right'}
+                    size={17}
+                    tintColor={
+                      direction === value ? colors.accentStrong : colors.textMuted
+                    }
+                    weight="bold"
+                  />
                 </Pressable>
               ))}
             </View>
@@ -370,7 +400,13 @@ export default function FolderDetailScreen() {
             ) : (
               <View style={styles.connectionPrompt}>
                 <View style={styles.connectionPromptIcon}>
-                  <Text style={styles.connectionPromptIconText}>◎</Text>
+                  <SymbolView
+                    accessible={false}
+                    name="scope"
+                    size={20}
+                    tintColor={colors.accentStrong}
+                    weight="semibold"
+                  />
                 </View>
                 <View style={styles.connectionPromptCopy}>
                   <Text style={styles.connectionPromptTitle}>Choose a concept</Text>
@@ -432,7 +468,13 @@ export default function FolderDetailScreen() {
                     {link}
                   </Text>
                 </View>
-                <Text style={styles.sourceArrow}>↗</Text>
+                <SymbolView
+                  accessible={false}
+                  name="arrow.up.right"
+                  size={18}
+                  tintColor={colors.accentBlue}
+                  weight="semibold"
+                />
               </Pressable>
             ))}
           </View>
@@ -474,7 +516,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: spacing.lg, paddingTop: 8, paddingBottom: 72 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, backgroundColor: colors.background },
   emptyScreen: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, backgroundColor: colors.background },
-  emptyGlyph: { color: colors.accentStrong, fontSize: 38, fontWeight: '900' },
   emptyOrb: { width: 92, height: 92, alignItems: 'center', justifyContent: 'center', borderRadius: 46, borderWidth: 1, borderColor: '#285B4D', backgroundColor: '#10241E', marginBottom: spacing.lg },
   emptyOrbCore: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.accentStrong, transform: [{ rotate: '45deg' }] },
   folderKicker: { color: colors.accentStrong, fontSize: 10, fontWeight: '900', letterSpacing: 1.7 },
@@ -487,7 +528,6 @@ const styles = StyleSheet.create({
   emptyStepText: { color: colors.text, fontSize: 14, fontWeight: '600', marginLeft: spacing.sm },
   demoButton: { alignSelf: 'stretch', minHeight: 54, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, borderRadius: 17, backgroundColor: colors.accentStrong, marginTop: spacing.xl },
   demoButtonText: { color: colors.accentInk, fontSize: 15, fontWeight: '800' },
-  demoButtonArrow: { color: colors.accentInk, fontSize: 21, fontWeight: '800' },
   topMeta: { flexDirection: 'row', alignItems: 'center' },
   demoBadge: { marginLeft: spacing.sm, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: '#2B2440' },
   demoBadgeText: { color: colors.accentPurple, fontSize: 9, fontWeight: '900', letterSpacing: 1 },
@@ -508,8 +548,6 @@ const styles = StyleSheet.create({
   modeTabs: { flexDirection: 'row', padding: 5, borderRadius: 18, backgroundColor: colors.surface, marginTop: spacing.lg },
   modeTab: { flex: 1, minHeight: 54, alignItems: 'center', justifyContent: 'center', gap: 2, borderRadius: 14 },
   modeTabActive: { backgroundColor: colors.surfaceRaised },
-  modeGlyph: { color: '#697487', fontSize: 14, fontWeight: '800' },
-  modeGlyphActive: { color: colors.accentStrong },
   modeLabel: { color: '#697487', fontSize: 10, fontWeight: '700' },
   modeLabelActive: { color: colors.text },
   modeContent: { marginTop: spacing.xl },
@@ -520,17 +558,13 @@ const styles = StyleSheet.create({
   modeBody: { color: colors.textMuted, fontSize: 13, lineHeight: 20, marginTop: 7 },
   nextModeCard: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.xl, padding: spacing.md, borderRadius: 19, borderWidth: 1, borderColor: '#3A3450', backgroundColor: '#171421' },
   nextModeIcon: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: '#2A223A' },
-  nextModeIconText: { color: colors.accentPurple, fontSize: 19, fontWeight: '900' },
   nextModeCopy: { flex: 1, marginLeft: spacing.md },
   nextModeKicker: { color: colors.accentPurple, fontSize: 9, fontWeight: '900', letterSpacing: 1 },
   nextModeTitle: { color: colors.text, fontSize: 15, fontWeight: '700', marginTop: 3 },
-  nextModeArrow: { color: colors.accentPurple, fontSize: 21 },
   sectionHeadingRow: { flexDirection: 'row', alignItems: 'center' },
   directionToggle: { flexDirection: 'row', padding: 3, borderRadius: 12, backgroundColor: colors.surface },
   directionButton: { width: 38, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
   directionButtonActive: { backgroundColor: colors.surfaceRaised },
-  directionText: { color: colors.textMuted, fontSize: 17, fontWeight: '800' },
-  directionTextActive: { color: colors.accentStrong },
   graphHint: { color: colors.textMuted, fontSize: 11, marginTop: spacing.md, marginBottom: spacing.sm },
   connectionPanel: { marginTop: spacing.md, padding: spacing.md, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   connectionTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
@@ -544,7 +578,6 @@ const styles = StyleSheet.create({
   connectionEmpty: { color: colors.textMuted, fontSize: 13, lineHeight: 20 },
   connectionPrompt: { flexDirection: 'row', alignItems: 'center' },
   connectionPromptIcon: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: colors.surfaceRaised },
-  connectionPromptIconText: { color: colors.accentStrong, fontSize: 20 },
   connectionPromptCopy: { flex: 1, marginLeft: spacing.md },
   connectionPromptTitle: { color: colors.text, fontSize: 14, fontWeight: '700' },
   connectionPromptBody: { color: colors.textMuted, fontSize: 11, lineHeight: 17, marginTop: 3 },
@@ -555,7 +588,6 @@ const styles = StyleSheet.create({
   sourceCopy: { flex: 1, marginHorizontal: 12 },
   sourceHost: { color: colors.text, fontSize: 13, fontWeight: '700' },
   sourceLink: { color: colors.textMuted, fontSize: 10, lineHeight: 15, marginTop: 3 },
-  sourceArrow: { color: colors.accentBlue, fontSize: 19 },
   originalCard: { marginTop: spacing.md, padding: spacing.md, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: '#10151F' },
   originalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   originalKicker: { color: colors.textMuted, fontSize: 9, fontWeight: '800', letterSpacing: 1.2 },

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing } from '@/constants/theme';
@@ -93,7 +94,13 @@ export function LearningDeck({
               <Text style={styles.conceptLabel}>EXPLORE THIS CONCEPT</Text>
               <Text style={styles.conceptName}>{concept.label}</Text>
             </View>
-            <Text style={styles.conceptArrow}>→</Text>
+            <SymbolView
+              accessible={false}
+              name="arrow.right"
+              size={19}
+              tintColor={colors.accentPurple}
+              weight="semibold"
+            />
           </Pressable>
         ) : null}
 
@@ -107,13 +114,22 @@ export function LearningDeck({
             pressed && styles.pressed,
           ]}
         >
+          {isComplete ? (
+            <SymbolView
+              accessible={false}
+              name="checkmark"
+              size={15}
+              tintColor={colors.accentInk}
+              weight="bold"
+            />
+          ) : null}
           <Text
             style={[
               styles.understoodButtonText,
               isComplete && styles.understoodButtonTextComplete,
             ]}
           >
-            {isComplete ? '✓  Understood' : 'Mark as understood'}
+            {isComplete ? 'Understood' : 'Mark as understood'}
           </Text>
         </Pressable>
       </View>
@@ -130,7 +146,16 @@ export function LearningDeck({
             pressed && styles.pressed,
           ]}
         >
-          <Text style={styles.navButtonText}>← Previous</Text>
+          <View style={styles.navButtonContent}>
+            <SymbolView
+              accessible={false}
+              name="arrow.left"
+              size={13}
+              tintColor={colors.textMuted}
+              weight="semibold"
+            />
+            <Text style={styles.navButtonText}>Previous</Text>
+          </View>
         </Pressable>
         <Text style={styles.pageCount}>
           {visibleIndex + 1} / {points.length}
@@ -148,7 +173,16 @@ export function LearningDeck({
             pressed && styles.pressed,
           ]}
         >
-          <Text style={styles.navButtonText}>Next →</Text>
+          <View style={styles.navButtonContent}>
+            <Text style={styles.navButtonText}>Next</Text>
+            <SymbolView
+              accessible={false}
+              name="arrow.right"
+              size={13}
+              tintColor={colors.textMuted}
+              weight="semibold"
+            />
+          </View>
         </Pressable>
       </View>
     </View>
@@ -226,8 +260,9 @@ const styles = StyleSheet.create({
   conceptCopy: { flex: 1, marginLeft: 11 },
   conceptLabel: { color: colors.textMuted, fontSize: 9, fontWeight: '800', letterSpacing: 1.1 },
   conceptName: { color: colors.text, fontSize: 14, fontWeight: '600', marginTop: 3 },
-  conceptArrow: { color: colors.accentPurple, fontSize: 20 },
   understoodButton: {
+    flexDirection: 'row',
+    gap: 7,
     minHeight: 50,
     alignItems: 'center',
     justifyContent: 'center',
@@ -248,6 +283,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: spacing.md,
   },
+  navButtonContent: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   navButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 },
   navButtonDisabled: { opacity: 0.28 },
   navButtonText: { color: colors.text, fontSize: 13, fontWeight: '600' },
