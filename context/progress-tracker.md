@@ -115,3 +115,30 @@ Supabase project is set up. GitHub issue: https://github.com/CloudKai/secondBrai
   A real public-page capture also passed; this is not hosted storage acceptance.
 - Setup and remaining live checks: `supabase/README.md`. Structured generation
   is ticket 02; the other 14 proposed tickets remain unpublished drafts.
+
+
+## Browser hosted acceptance — ticket #1, 2026-10-03
+
+Status: **verified against the configured hosted Supabase development project**.
+The user supplied its public settings; anonymous sign-ins are enabled and the
+source schema is available. Backend and Vite environment files are configured
+locally and ignored by Git. Native/mobile behavior remains unchanged.
+
+- A real anonymous browser saved a public page, loaded its capture through the
+  API, reloaded, and reopened the same source ID, original URL, text, timestamp,
+  provenance, and pending study status. No fixture routes were used.
+- An isolated second browser had zero owned sources. Cross-owner API read and
+  deletion returned 404. Direct PostgREST SELECT/DELETE returned zero matching
+  rows; the owner's record remained readable afterward.
+- A private-network source was rejected with 422; requests without a bearer
+  session returned 401. Owner deletion succeeded in the UI, and reload plus
+  API read confirmed permanent removal of the temporary verification source.
+- Ticket #1 acceptance is complete. Structured study-note generation, PDF/video
+  ingestion, topic persistence, model assistant/research, and production release
+  remain target work. The native application has no new auth or persistence.
+- Local API/browser servers are available at `http://127.0.0.1:8000` and
+  `http://127.0.0.1:5173`. The backend uses `python -m uvicorn` through the
+  project interpreter to avoid the pre-existing copied entrypoint problem.
+- Evidence is in ignored `output/playwright/supabase-live-*.yml` and
+  `supabase-live-reopened.png`. No session tokens or populated environment
+  files are included in the commit or issue record.

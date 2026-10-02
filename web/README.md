@@ -91,7 +91,9 @@ first capture. Content refresh/version comparison is not implemented.
 
 **Verified locally:** API ownership/capture/validation, SDK session restore
 against HTTP fixtures, Postgres RLS, and desktop/narrow-browser flows.
-**Pending:** live Supabase acceptance; the user has not set up a project.
+**Verified hosted on 2026-10-03:** anonymous save/list/reload/reopen,
+owner deletion, and API/Postgres isolation between separate browser sessions.
+Local Supabase environment files are configured and ignored by Git.
 The anonymous browser session identifies its owner. Clearing browser data can
 remove library access; account linking/recovery is a later slice.
 

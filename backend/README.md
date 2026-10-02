@@ -42,7 +42,8 @@ The source flow uses the public key plus the learner's verified bearer token,
 with application ownership filters and Postgres RLS. It uses no model call,
 service-role key, job queue, or native folder migration. See
 [`supabase/README.md`](../supabase/README.md) for project setup and the reviewed
-migration. Hosted Supabase acceptance is pending project provisioning.
+migration. Hosted anonymous source persistence and ownership acceptance
+passed on 2026-10-03.
 
 Capture permits only public HTTP(S) article hosts, checks every redirect,
 connects to the validated IP with the original TLS identity, and limits each

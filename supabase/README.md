@@ -1,8 +1,9 @@
 # Browser source storage — ticket #1
 
-The migration and application adapters are implemented and checked locally.
-**Live acceptance is pending:** no Supabase project has been supplied. The
-native app still uses its existing in-memory flow.
+The migration and adapters pass local checks. **Hosted acceptance passed on
+2026-10-03:** anonymous capture/save/reload/reopen and cross-user API/RLS
+isolation were verified against the user-configured development project.
+The native app still uses its existing in-memory flow.
 
 ## Set up a development project
 
@@ -30,11 +31,15 @@ native app still uses its existing in-memory flow.
    uv run --project backend uvicorn backend.main:app --reload
    ```
 
+   If the copied virtualenv entrypoint selects the wrong interpreter, use
+   `uv run --project backend python -m uvicorn backend.main:app --reload`
+   instead. This is the command used for the hosted checks.
+
 5. In another terminal, run `npm --prefix web install`, then
    `npm --prefix web run dev`. Vite reads `web/.env.local`; restart it after
    changing configuration. Open `http://127.0.0.1:5173`.
 
-## Live acceptance still needed
+## Live acceptance checks
 
 - Save a public article, inspect its captured text and original link, reload,
   and reopen it. The viewer must continue to say **Study note pending**.
@@ -43,8 +48,9 @@ native app still uses its existing in-memory flow.
   bearer token. Verify deletion is denied across learners and allowed for its owner.
 - Check blocked/unsupported capture feedback and storage-error recovery.
 
-Local tests use external HTTP fixtures and a real embedded Postgres runtime
-with compatible auth roles. They do not prove connectivity to a hosted project.
+Local tests use external HTTP fixtures and an embedded Postgres runtime.
+The separate hosted browser checks passed on 2026-10-03, including owner
+deletion and cross-user denial. The temporary verification source was removed.
 
 ## Ownership and schema boundary
 

@@ -36,12 +36,16 @@ Only ticket 01 is selected. Other proposed tickets are unpublished drafts.
   passed. No hosted storage or model call was made.
 - Generated browser evidence is ignored under `output/playwright/`.
 
-## Pending external acceptance
+## Hosted acceptance — 2026-10-03
 
-The user answered **not set up yet** for Supabase. No project/schema is deployed
-and no populated configuration is committed. See `supabase/README.md` for setup
-and two-session live ownership/save/reload checks. Keep issue #1 open until
-those checks pass. Local fixtures are not hosted acceptance.
+The user supplied public project settings after provisioning on 2026-10-03.
+Anonymous sign-in and the source table were available. Real browser checks
+passed: capture/save, metadata preservation, reload/reopen, separate-user API
+404 and direct PostgREST empty-row denial, private-source 422, missing-session
+401, and owner deletion followed by reload/404. The verification source was
+removed. No mock routes were used in these checks. Ticket #1 is accepted.
+Local environment files remain ignored; this does not deploy the web app or
+complete future note-generation/processing services.
 
 ## Repository boundary
 
@@ -62,4 +66,4 @@ fixes. Re-review found no unresolved Standards findings.
 
 Review found two correctness defects: altered URL identity and rejection of
 valid supplementary Unicode text. Both are fixed and checked. Re-review found
-no remaining actionable Spec findings. Hosted acceptance is still pending.
+no remaining actionable Spec findings. Hosted acceptance passed on 2026-10-03 as recorded above.
