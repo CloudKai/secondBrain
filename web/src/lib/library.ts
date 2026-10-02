@@ -251,5 +251,5 @@ export function canonicalUrl(value: string): string {
   url.hash = "";
   if (url.hostname === "arxiv.org" && url.pathname.startsWith("/pdf/"))
     url.pathname = url.pathname.replace("/pdf/", "/abs/").replace(/\.pdf$/, "");
-  return url.href.replace(/\/$/, "");
+  return url.href;
 }

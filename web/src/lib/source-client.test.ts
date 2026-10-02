@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createSourceClient } from "./source-client";
+import { createSourceClient, sourceSchema } from "./source-client";
 
 const userId = "11111111-1111-4111-8111-111111111111";
 const source = {
@@ -15,6 +15,12 @@ const source = {
   coverage_detail: "Captured the readable page text.",
   study_status: "pending",
 };
+
+test("valid Unicode captures use the server's character limits", () => {
+  const captured = { ...source, captured_text: "🧠".repeat(30_000), title: "🧠".repeat(200), coverage_detail: "🧠".repeat(500) };
+  assert.deepEqual(sourceSchema.parse(captured), captured);
+  assert.throws(() => sourceSchema.parse({ ...captured, captured_text: captured.captured_text + "a" }));
+});
 
 test("an anonymous browser reopens its owned source using the persisted session", async () => {
   const values = new Map<string, string>();

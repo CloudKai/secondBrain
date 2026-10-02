@@ -1,6 +1,7 @@
 """Owned browser sources stored through the learner's Supabase token and RLS."""
 
 import json
+import logging
 import os
 from collections.abc import AsyncIterator
 from uuid import UUID
@@ -15,6 +16,7 @@ from backend.source_models import CapturedSource, CaptureSourceRequest, SourcePa
 
 router = APIRouter(prefix="/api/v2/sources", tags=["browser sources"])
 bearer = HTTPBearer(auto_error=False)
+logger = logging.getLogger(__name__)
 
 
 class SourceGateway:
@@ -27,6 +29,7 @@ class SourceGateway:
 
     async def authenticate(self, token: str) -> None:
         self.headers = {"apikey": self.public_key, "Authorization": f"Bearer {token}"}
+        response = None
         try:
             response = await self.client.get(
                 f"{self.project_url}/auth/v1/user", headers=self.headers
@@ -38,9 +41,12 @@ class SourceGateway:
         except HTTPException:
             raise
         except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
+            logger.warning("Source authentication failed: %s (upstream status=%s)",
+                           type(exc).__name__, response.status_code if response else None)
             raise HTTPException(503, "The library session could not be verified. Try again.") from exc
 
     async def request(self, method: str, params: dict, body: dict | None = None) -> list[CapturedSource]:
+        response = None
         try:
             response = await self.client.request(
                 method,
@@ -62,6 +68,8 @@ class SourceGateway:
         except HTTPException:
             raise
         except (httpx.HTTPError, ValueError, ValidationError) as exc:
+            logger.warning("Source storage %s failed: %s (upstream status=%s)",
+                           method, type(exc).__name__, response.status_code if response else None)
             raise HTTPException(503, "Your sources could not be saved or loaded. Try again.") from exc
 
     async def find(self, **filters: str) -> CapturedSource | None:
@@ -96,6 +104,7 @@ async def save_source(
     try:
         capture = await capture_article(original_url, payload.raw_text)
     except (httpx.HTTPError, ValueError) as exc:
+        logger.warning("Article capture failed: %s", type(exc).__name__)
         raise HTTPException(422, str(exc) if isinstance(exc, ValueError) else "The article could not be captured. Use a public article URL or paste its text.") from exc
     rows = await gateway.request(
         "POST",

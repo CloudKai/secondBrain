@@ -104,13 +104,14 @@ Supabase project is set up. GitHub issue: https://github.com/CloudKai/secondBrai
 - Reviewed browser-only source migration and rollback are in `supabase/`.
   The schema is source-first and independent of native fixed folders; topic,
   note, queue/outbox, and vector tables are deferred to their selected slices.
-- Verified: 12 web tests, build/typecheck, lint; 29 backend tests through the
+- Verified: 13 web tests, build/typecheck, lint; 31 backend tests through the
   project interpreter. The exact pytest entrypoint selects an obsolete external
   interpreter and fails collection (`langchain_openai` missing); the project
   interpreter passes. Existing native/mobile files and v1 behavior were not
   modified by this ticket.
 - Desktop and 390px browser fixtures cover save, captured-text inspection,
-  original-link identity, reload recovery, and unavailable-storage feedback.
+  original-link identity, reload recovery, capture/storage errors, disabled
+  saving, and deletion followed by reload.
   A real public-page capture also passed; this is not hosted storage acceptance.
 - Setup and remaining live checks: `supabase/README.md`. Structured generation
   is ticket 02; the other 14 proposed tickets remain unpublished drafts.

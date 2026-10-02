@@ -21,13 +21,15 @@ Only ticket 01 is selected. Other proposed tickets are unpublished drafts.
 
 - `npm --prefix web run build`: pass (includes strict typecheck).
 - `npm --prefix web run lint`: pass.
-- `npm --prefix web test`: 12 pass, including unchanged migration in embedded
+- `npm --prefix web test`: 13 pass, including unchanged migration in embedded
   Postgres with cross-owner denial, read-only captures, and anonymous-role denial.
 - Exact repository `uv run --project backend --extra dev pytest backend/tests -q`:
   fails collection because the copied pytest entrypoint uses an external
   interpreter without project dependencies (`langchain_openai`).
 - `uv run --project backend --extra dev python -m pytest backend/tests -q`:
-  29 pass, including 14 source API and 15 legacy pipeline checks.
+  31 pass, including 16 source API and 15 legacy pipeline checks. A separate
+  export of the committed backend also passes its source and original v1 tests,
+  independently of pre-existing working-tree changes.
 - Desktop and 390×844 browser checks: save, read captured text, open-original
   URL identity, reload/reopen, storage errors and disabled saving.
 - Real public-page extraction at `https://www.example.com/`: direct capture
@@ -48,3 +50,16 @@ as a dependency of this browser implementation. Pre-existing native changes,
 backend graph/schema changes, skills, and unrelated documentation remain in the
 working tree; this ticket does not stage them. The native v1 route receives only
 source-router registration in the commit.
+
+## Standards
+
+Review found a Unicode length mismatch, missing sanitized backend diagnostics,
+and duplicated URL normalization that could alter query values. All three were
+fixed; regression checks reproduce the Unicode/identity failures before the
+fixes. Re-review found no unresolved Standards findings.
+
+## Spec
+
+Review found two correctness defects: altered URL identity and rejection of
+valid supplementary Unicode text. Both are fixed and checked. Re-review found
+no remaining actionable Spec findings. Hosted acceptance is still pending.

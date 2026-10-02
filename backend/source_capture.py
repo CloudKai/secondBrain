@@ -19,7 +19,7 @@ class UnsupportedSource(ValueError):
 
 def canonical_source_url(url: str) -> str:
     parts = urlsplit(url)
-    return urlunsplit(parts._replace(fragment="")).rstrip("/")
+    return urlunsplit(parts._replace(fragment=""))
 
 
 async def _public_address(url: httpx.URL) -> str:

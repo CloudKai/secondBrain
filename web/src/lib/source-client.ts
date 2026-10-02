@@ -2,16 +2,23 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 const httpUrl = z.string().url().refine((url) => /^https?:\/\//.test(url));
+// Python and Postgres constrain Unicode code points, rather than UTF-16 units.
+function boundedText(min: number, max: number) {
+  return z.string().refine((value) => {
+    const length = Array.from(value).length;
+    return length >= min && length <= max;
+  }, `Expected ${min}–${max} characters.`);
+}
 export const sourceSchema = z.object({
   id: z.string().uuid(),
   original_url: httpUrl,
   canonical_url: httpUrl,
-  title: z.string().min(1).max(200),
-  captured_text: z.string().min(120).max(30_000),
+  title: boundedText(1, 200),
+  captured_text: boundedText(120, 30_000),
   captured_at: z.string().datetime({ offset: true }),
   capture_origin: z.enum(["direct", "reader", "pasted"]),
   coverage: z.enum(["complete", "partial", "unknown"]),
-  coverage_detail: z.string().min(1).max(500),
+  coverage_detail: boundedText(1, 500),
   study_status: z.literal("pending"),
 }).strict();
 export type SavedSource = z.infer<typeof sourceSchema>;

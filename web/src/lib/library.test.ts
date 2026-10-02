@@ -48,6 +48,8 @@ test("URL identity strips fragments and normalizes arXiv abstract and PDF links"
     canonicalUrl(sampleNotes[0].url),
   );
   assert.throws(() => canonicalUrl("javascript:alert(1)"));
+  assert.equal(canonicalUrl("https://example.com/article?path=/chapter/#intro"), "https://example.com/article?path=/chapter/");
+  assert.notEqual(canonicalUrl("https://example.com/article/"), canonicalUrl("https://example.com/article"));
 });
 const valid = {
   folder_id: "ai-engineering",

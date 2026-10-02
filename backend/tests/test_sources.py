@@ -34,6 +34,9 @@ def browser_client(monkeypatch):
         if request.url.host != "supabase.test":
             assert "authorization" not in request.headers
             assert "apikey" not in request.headers
+            if request.url.path == "/identity":
+                return httpx.Response(200, headers={"content-type": "text/plain"},
+                                      text=f"Query: {request.url.query.decode()}\n{ARTICLE_TEXT}")
             if "blocked" in str(request.url):
                 return httpx.Response(403)
             if request.url.path == "/redirect-private":
@@ -166,6 +169,17 @@ def test_partial_capture_is_labelled_and_bounded(browser_client):
     assert len(response.json()["captured_text"]) == 30_000
 
 
+def test_oversized_download_uses_reader_with_unconfirmed_coverage(browser_client):
+    response = browser_client.post(
+        "/api/v2/sources", headers={"Authorization": "Bearer alice"},
+        json={"url": "https://article.test/large"},
+    )
+    assert response.status_code == 201
+    assert response.json()["capture_origin"] == "reader"
+    assert response.json()["coverage"] == "unknown"
+    assert response.json()["captured_text"] == ARTICLE_TEXT.strip()
+
+
 def test_requests_cannot_choose_the_source_owner(browser_client):
     response = browser_client.post(
         "/api/v2/sources", headers={"Authorization": "Bearer alice"},
@@ -214,3 +228,18 @@ def test_unconfigured_storage_is_actionable(browser_client, monkeypatch):
     response = browser_client.get("/api/v2/sources", headers={"Authorization": "Bearer alice"})
     assert response.status_code == 503
     assert "not configured" in response.json()["detail"]
+
+
+def test_capture_preserves_query_values_and_keeps_distinct_resource_identity(browser_client):
+    headers = {"Authorization": "Bearer alice"}
+    first = browser_client.post(
+        "/api/v2/sources", headers=headers,
+        json={"url": "https://article.test/identity?path=/chapter/#intro"},
+    ).json()
+    assert first["captured_text"].startswith("Query: path=/chapter/\n")
+    assert first["canonical_url"] == "https://article.test/identity?path=/chapter/"
+    other = browser_client.post(
+        "/api/v2/sources", headers=headers,
+        json={"url": "https://article.test/identity?path=/chapter"},
+    ).json()
+    assert other["id"] != first["id"]
