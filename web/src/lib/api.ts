@@ -13,7 +13,13 @@ export function noteFromSavedSource(
       study.note?.references.some(
         (r) =>
           Array.from(source.captured_text).slice(r.start, r.end).join("") !==
-          r.excerpt,
+            r.excerpt ||
+          (source.source_kind === "pdf"
+            ? !source.document?.pages.some(
+                (p) =>
+                  p.page === r.page && r.start >= p.start && r.end <= p.end,
+              )
+            : r.page != null),
       ))
   ) {
     throw new Error(
@@ -24,10 +30,12 @@ export function noteFromSavedSource(
     id: source.id,
     title: source.title,
     subtitle: studyLabel(study),
-    author: new URL(source.original_url).hostname,
+    author: source.original_url
+      ? new URL(source.original_url).hostname
+      : (source.document?.filename ?? "Uploaded PDF"),
     year: `Captured ${new Date(source.captured_at).toLocaleDateString("en", { dateStyle: "medium" })}`,
-    url: source.original_url,
-    kind: "Article",
+    url: source.original_url ?? "",
+    kind: source.source_kind === "pdf" ? "PDF" : "Article",
     color: "mint",
     overview: study?.note?.overview.text ?? studyMessage(study),
     concepts:

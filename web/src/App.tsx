@@ -30,6 +30,8 @@ import {
   X,
 } from "lucide-react";
 import { sampleNotes, topicTitles } from "./data";
+import CapturedSourceText from "./components/CapturedSourceText";
+
 import type { Note, Page, PanelTab, Topic } from "./types";
 import {
   canonicalUrl,
@@ -89,6 +91,8 @@ export default function App() {
     [dialog, setDialog] = useState<Dialog>(null),
     [theme, setTheme] = useState("dark"),
     [toast, setToast] = useState("");
+  const [pdfMode, setPdfMode] = useState("upload");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [sourceTab, setSourceTab] = useState("Article"),
     [sourceUrl, setSourceUrl] = useState(""),
     [sourceTitle, setSourceTitle] = useState(""),
@@ -278,39 +282,55 @@ export default function App() {
   function showAdd(url = "") {
     setSourceUrl(url);
     setError("");
-    setSourceTab("Article");
+    setSourceTab(/\.pdf(?:[?#]|$)/i.test(url ?? "") ? "PDF" : "Article");
+    setPdfMode(url ? "url" : "upload");
+    setPdfFile(null);
     setDialog("add");
   }
   async function submitSource(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    let url: string;
-    try {
-      canonicalUrl(sourceUrl);
-      url = new URL(sourceUrl).href;
-    } catch {
-      setError("Enter a valid public http or https URL.");
-      return;
-    }
-    const existing = notes.find(
-      (n) => !n.demo && canonicalUrl(n.url) === canonicalUrl(url),
-    );
-    if (existing) {
-      setDialog(null);
-      openNote(existing);
-      setToast("Already in your library. Opened the existing note.");
-      return;
-    }
-    if (
-      /\.pdf(?:\?|$)/i.test(url) ||
-      /(?:youtube\.com|youtu\.be|zoom\.us|panopto|teams\.microsoft)/i.test(
-        new URL(url).hostname,
-      )
-    ) {
-      setError(
-        "This slice supports web articles. PDF extraction and video transcripts are planned.",
+    const isPDF = sourceTab === "PDF";
+    const uploading = isPDF && pdfMode === "upload";
+    let url = "";
+    if (uploading) {
+      if (!pdfFile) {
+        setError("Choose a selectable-text PDF to upload.");
+        return;
+      }
+    } else {
+      try {
+        canonicalUrl(sourceUrl);
+        url = new URL(sourceUrl).href;
+      } catch {
+        setError("Enter a valid public http or https URL.");
+        return;
+      }
+      const existing = notes.find(
+        (n) => !n.demo && n.url && canonicalUrl(n.url) === canonicalUrl(url),
       );
-      return;
+      if (existing) {
+        setDialog(null);
+        openNote(existing);
+        setToast("Already in your library. Opened the existing note.");
+        return;
+      }
+      if (
+        /(?:youtube\.com|youtu\.be|zoom\.us|panopto|teams\.microsoft)/i.test(
+          new URL(url).hostname,
+        )
+      ) {
+        setError(
+          "Video notes need transcript support, which is planned. Use an article or selectable-text PDF.",
+        );
+        return;
+      }
+      if (!isPDF && /\.pdf(?:[?#]|$)/i.test(url)) {
+        setSourceTab("PDF");
+        setPdfMode("url");
+        setError("Use the PDF form to save this document.");
+        return;
+      }
     }
     if (!sourceClient || storage !== "ready") {
       setError(
@@ -321,17 +341,24 @@ export default function App() {
     setBusy(true);
     try {
       const note = noteFromSavedSource(
-        await sourceClient.save({
-          url,
-          title: sourceTitle,
-          raw_text: rawText || null,
-        }),
+        isPDF
+          ? await sourceClient.savePDF({
+              file: uploading ? (pdfFile ?? undefined) : undefined,
+              url: uploading ? undefined : url,
+              title: sourceTitle,
+            })
+          : await sourceClient.save({
+              url,
+              title: sourceTitle,
+              raw_text: rawText || null,
+            }),
       );
       changeLibrary({ type: "add-sources", notes: [note] });
       setDialog(null);
       setSourceUrl("");
       setSourceTitle("");
       setRawText("");
+      setPdfFile(null);
       openNote(note);
       setToast("Source saved to your private library.");
       await studies.generate(note);
@@ -588,14 +615,18 @@ export default function App() {
               </div>
               <span className="evidence-label">
                 {passage
-                  ? `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
+                  ? passage.page
+                    ? `PDF page ${passage.page} · passage ${passage.id}`
+                    : `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
                   : currentNote.evidenceLabel}
               </span>
-              <p className="evidence-text" id="source-passage" tabIndex={-1}>
-                {passage?.excerpt ||
-                  currentNote.evidence ||
-                  "No captured source text was returned. Open the original to inspect the material."}
-              </p>
+              {passage ? (
+                <p className="evidence-text" id="source-passage" tabIndex={-1}>
+                  {passage.excerpt}
+                </p>
+              ) : (
+                <CapturedSourceText note={currentNote} />
+              )}
               {passage && (
                 <button
                   className="text-button"
@@ -610,14 +641,25 @@ export default function App() {
                   verbatim excerpt or a full-source extraction.
                 </p>
               )}
-              <a
-                className="button secondary full"
-                href={currentNote.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open original <ExternalLink size={15} />
-              </a>
+              {currentNote.url ? (
+                <a
+                  className="button secondary full"
+                  href={
+                    passage?.page
+                      ? `${currentNote.url.split("#")[0]}#page=${passage.page}`
+                      : currentNote.url
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open original <ExternalLink size={15} />
+                </a>
+              ) : (
+                <p className="micro-copy">
+                  Uploaded PDF · saved page text. The original file is not
+                  stored; refer to your local copy for images and layout.
+                </p>
+              )}
             </>
           )}
         </div>
@@ -893,7 +935,7 @@ export default function App() {
                         <span>·</span>{" "}
                         {currentNote.demo
                           ? "Example study note"
-                          : "Article study note"}
+                          : `${currentNote.kind} study note`}
                       </div>
                       <button
                         className="button primary"
@@ -943,7 +985,7 @@ export default function App() {
                 </div>
                 <div className="library-toolbar">
                   <div className="filter-tabs" aria-label="Source filters">
-                    {["All sources", "Article", "Paper"].map((f) => (
+                    {["All sources", "Article", "PDF", "Paper"].map((f) => (
                       <button
                         key={f}
                         aria-pressed={filter === f}
@@ -1073,7 +1115,9 @@ export default function App() {
                   </span>
                   <span>
                     <strong>Found something worth understanding?</strong>
-                    <small>Add a public web article to your library.</small>
+                    <small>
+                      Add an article or selectable-text PDF to your library.
+                    </small>
                   </span>
                   <ArrowRight size={18} />
                 </button>
@@ -1314,22 +1358,27 @@ export default function App() {
                             : currentNote.savedSource.capture_origin ===
                                 "reader"
                               ? "Captured through a page reader"
-                              : "Captured from the public page"}
+                              : currentNote.savedSource.capture_origin ===
+                                  "upload"
+                                ? "You uploaded this PDF"
+                                : "Captured from the public source"}
                         </span>
                       </div>
                       <p className="note-disclosure">
                         {currentNote.savedSource.coverage_detail}
                       </p>
-                      <a
-                        className="text-button"
-                        href={currentNote.url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open original <ExternalLink size={14} />
-                      </a>
+                      {currentNote.url && (
+                        <a
+                          className="text-button"
+                          href={currentNote.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open original <ExternalLink size={14} />
+                        </a>
+                      )}
                       <h3>Captured source text</h3>
-                      <p className="evidence-text">{currentNote.evidence}</p>
+                      <CapturedSourceText note={currentNote} />
                     </section>
                   ) : (
                     <>
@@ -1676,7 +1725,11 @@ export default function App() {
                     aria-pressed={sourceTab === t}
                     key={t}
                     className={sourceTab === t ? "active" : ""}
-                    onClick={() => setSourceTab(t)}
+                    disabled={busy}
+                    onClick={() => {
+                      setSourceTab(t);
+                      setError("");
+                    }}
                   >
                     {t === "Article" ? (
                       <Link2 size={16} />
@@ -1686,29 +1739,85 @@ export default function App() {
                       <FileText size={16} />
                     )}{" "}
                     {t}
-                    {t !== "Article" && <small>Planned</small>}
+                    {t === "Video" && <small>Planned</small>}
                   </button>
                 ))}
               </div>
-              {sourceTab === "Article" ? (
+              {sourceTab !== "Video" ? (
                 <form onSubmit={submitSource}>
                   <p className="modal-intro">
-                    Save a public web article to your private library and reopen
-                    its captured text and generated study note after reload.
-                    Saved notes include citations you can inspect.
+                    {sourceTab === "PDF"
+                      ? "Upload a selectable-text PDF or save a direct public PDF link. Notes cite the original PDF page numbers."
+                      : "Save a public web article to your private library and reopen its captured text and generated study note after reload. Saved notes include citations you can inspect."}
                   </p>
-                  <label className="form-label" htmlFor="source-url">
-                    Article URL
-                  </label>
-                  <input
-                    id="source-url"
-                    type="url"
-                    required
-                    value={sourceUrl}
-                    onChange={(e) => setSourceUrl(e.target.value)}
-                    placeholder="https://example.com/an-interesting-idea"
-                    disabled={busy}
-                  />
+                  {sourceTab === "PDF" && (
+                    <div className="source-input-tabs">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        aria-pressed={pdfMode === "upload"}
+                        className={pdfMode === "upload" ? "active" : ""}
+                        onClick={() => {
+                          setPdfMode("upload");
+                          setError("");
+                        }}
+                      >
+                        Upload PDF
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        aria-pressed={pdfMode === "url"}
+                        className={pdfMode === "url" ? "active" : ""}
+                        onClick={() => {
+                          setPdfMode("url");
+                          setError("");
+                        }}
+                      >
+                        PDF link
+                      </button>
+                    </div>
+                  )}
+                  {sourceTab === "PDF" && pdfMode === "upload" ? (
+                    <>
+                      <label className="form-label" htmlFor="pdf-file">
+                        PDF file
+                      </label>
+                      <input
+                        key="pdf-upload"
+                        id="pdf-file"
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        required
+                        disabled={busy}
+                        aria-describedby="source-support"
+                        onChange={(e) =>
+                          setPdfFile(e.target.files?.[0] ?? null)
+                        }
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <label className="form-label" htmlFor="source-url">
+                        {sourceTab === "PDF" ? "Public PDF URL" : "Article URL"}
+                      </label>
+                      <input
+                        key="source-url"
+                        id="source-url"
+                        type="url"
+                        required
+                        value={sourceUrl}
+                        onChange={(e) => setSourceUrl(e.target.value)}
+                        placeholder={
+                          sourceTab === "PDF"
+                            ? "https://example.com/document.pdf"
+                            : "https://example.com/an-interesting-idea"
+                        }
+                        disabled={busy}
+                        aria-describedby="source-support"
+                      />
+                    </>
+                  )}
                   <label className="form-label" htmlFor="source-title">
                     Title <span>optional</span>
                   </label>
@@ -1720,27 +1829,29 @@ export default function App() {
                     placeholder="Give your source a recognizable name"
                     disabled={busy}
                   />
-                  <details className="paste-details">
-                    <summary>
-                      Have the article text? Paste it as a fallback.
-                    </summary>
-                    <label className="form-label" htmlFor="article-text">
-                      Article text <span>up to 30,000 characters</span>
-                    </label>
-                    <textarea
-                      id="article-text"
-                      rows={5}
-                      value={rawText}
-                      maxLength={30000}
-                      disabled={busy}
-                      onChange={(e) => setRawText(e.target.value)}
-                    />
-                  </details>
-                  <p className="support-copy">
+                  {sourceTab === "Article" && (
+                    <details className="paste-details">
+                      <summary>
+                        Have the article text? Paste it as a fallback.
+                      </summary>
+                      <label className="form-label" htmlFor="article-text">
+                        Article text <span>up to 30,000 characters</span>
+                      </label>
+                      <textarea
+                        id="article-text"
+                        rows={5}
+                        value={rawText}
+                        maxLength={30000}
+                        disabled={busy}
+                        onChange={(e) => setRawText(e.target.value)}
+                      />
+                    </details>
+                  )}
+                  <p className="support-copy" id="source-support">
                     <CircleHelp size={15} />
-                    Public HTTP(S) articles: up to 2 MB per download and 30,000
-                    captured characters. Incomplete coverage is labelled. PDF
-                    and video support are planned.
+                    {sourceTab === "PDF"
+                      ? "Selectable-text PDFs: up to 10 MB, 100 pages and 30,000 captured characters. Missing or omitted text is labelled. Scanned-only and encrypted files are unsupported. Images and layout are not extracted. Uploads retain page text and filename; the original file is not stored."
+                      : "Public HTTP(S) articles: up to 2 MB per download and 30,000 captured characters. Incomplete coverage is labelled. Selectable-text PDFs are available in the PDF tab; videos are planned."}
                   </p>
                   {error && (
                     <p className="form-error" role="alert">
@@ -1749,8 +1860,9 @@ export default function App() {
                   )}
                   {busy && (
                     <p className="processing-status" role="status">
-                      Capturing and saving the article, then requesting its
-                      study note.
+                      Capturing and saving the{" "}
+                      {sourceTab === "PDF" ? "PDF" : "article"}, then requesting
+                      its study note.
                     </p>
                   )}
                   <div className="modal-footer">
@@ -1783,15 +1895,11 @@ export default function App() {
                   <span className="topic-icon tone-purple">
                     <Upload size={28} />
                   </span>
-                  <h3>
-                    {sourceTab === "PDF"
-                      ? "Selectable-text PDFs are next."
-                      : "Transcript-backed videos are next."}
-                  </h3>
+                  <h3>Transcript-backed videos are next.</h3>
                   <p>
-                    {sourceTab === "PDF"
-                      ? "PDF upload, page ranges, and real page citations need a dedicated extraction service. Scanned-only documents will require selectable text."
-                      : "YouTube, Teams, Zoom, and Panopto sources will require an accessible transcript, with upload or paste when retrieval is unavailable. Provider account connections are excluded."}
+                    YouTube, Teams, Zoom, and Panopto sources will require an
+                    accessible transcript, with upload or paste when retrieval
+                    is unavailable. Provider account connections are excluded.
                   </p>
                   <span className="badge">
                     Planned support · unavailable in this slice
@@ -1822,7 +1930,7 @@ export default function App() {
                 </p>
                 <strong>What is still planned</strong>
                 <p>
-                  PDF/video extraction, topic organization for saved articles,
+                  Video extraction, topic organization for saved notes,
                   open-ended AI conversation, live research, and linked
                   accounts.
                 </p>

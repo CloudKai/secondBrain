@@ -169,3 +169,17 @@ that source's note. A request accepted while Redis was stopped remained in the
 persistent outbox. After a processing worker was killed, its lease expired and
 the restarted worker completed attempt two with 13 exact references, one note
 and no remaining dispatch. Disposable verification captures were removed.
+
+
+## Browser PDF study notes — ticket #3, 2026-10-03
+
+Current unit: implementation complete; acceptance and review in progress.
+
+- [x] Owned selectable-text PDF uploads and public links
+- [x] Bounded subprocess extraction, limits and accurate coverage
+- [x] Preserved physical page identity and page-bound citations
+- [x] PDF form, source filtering and uploaded/local-file disclosure
+- [ ] Final backend/web/browser checks and independent code review
+- [ ] Apply reviewed migration and verify hosted PDF generation/reload/ownership
+
+Issue #3 remains open until acceptance is complete. Setup: `docs/pdf-study-setup.md`.

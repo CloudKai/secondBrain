@@ -282,3 +282,19 @@ Capture save and generation request are separate: generation can be recovered
 from the saved-source viewer if the request was not acknowledged. Native APIs,
 fixed folders, topic assignment, vectors and production deployment are unchanged.
 Migration/rollback and development instructions: `docs/study-note-setup.md`.
+
+
+## PDF capture and page evidence — ticket #3
+
+Implemented for the browser; acceptance is in progress. `sources` gains an
+article/PDF discriminator and validated PDF page spans. Uploads use an owned
+SHA-256 identity with no fabricated URL; linked PDFs retain their HTTP(S) URL.
+Only captured text and metadata persist. The original binary is not retained.
+
+The API streams at most 10 MB; public downloads validate/pin each redirect.
+A disposable resource-limited subprocess extracts at most 100 pages and 30,000
+characters. The existing worker claim includes validated page metadata; passage
+splitting stays within each physical page, with server-derived page references.
+Browser validation checks immutable excerpt and page bounds. RLS and queue/retry
+contracts are preserved. Migration rollback refuses while PDF captures exist.
+See `docs/pdf-study-setup.md` for rollout and acceptance requirements.

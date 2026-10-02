@@ -86,3 +86,13 @@ new generated concepts do not create fake graph assignments.
 Hosted generation, citations, reload, ownership isolation and worker recovery
 passed on 2026-10-03. Local desktop/narrow browser checks cover note-to-evidence, reload and
 failed-note recovery. Setup: `docs/study-note-setup.md`.
+
+
+## PDF browser controls — ticket #3
+
+Implemented with acceptance in progress. Add source → PDF offers Upload PDF and
+PDF link, published limits, and unsupported-file feedback. PDF sources have a
+separate filter and reuse the read-only note viewer. Sources shows physical page
+numbers and exact excerpts after citation clicks; full text is grouped by page.
+Linked PDFs open the cited original page; uploads explain that only captured
+page text and filename are retained. Video controls remain labelled planned.

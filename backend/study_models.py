@@ -7,6 +7,7 @@ from uuid import UUID
 from pydantic import Field, model_validator
 
 from backend.schemas import StrictModel
+from backend.source_models import PDFDocument
 
 StudyState = Literal["queued", "processing", "succeeded", "failed"]
 StudyError = Literal[
@@ -50,6 +51,7 @@ class SourceReference(StrictModel):
     start: int = Field(ge=0)
     end: int = Field(gt=0)
     excerpt: str = Field(min_length=1, max_length=1_000)
+    page: int | None = Field(default=None, ge=1, le=100)
 
 
 class StudyNote(DraftStudyNote):
@@ -107,6 +109,7 @@ class WorkerClaim(StrictModel):
     captured_text: str = Field(min_length=120, max_length=30_000)
     lease_token: UUID
     attempt: int = Field(ge=1, le=3)
+    document: PDFDocument | None = None
 
 
 class StudyDispatch(StrictModel):

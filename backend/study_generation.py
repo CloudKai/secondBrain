@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from openai import APITimeoutError
 
 from backend.study_models import DraftStudyNote, SourceReference, StudyError, StudyNote
+from backend.source_models import PDFDocument
 
 
 class GenerationFailure(Exception):
@@ -19,28 +20,40 @@ class GenerationFailure(Exception):
         self.code = code
 
 
-def captured_passages(text: str) -> list[SourceReference]:
+def captured_passages(
+    text: str, document: PDFDocument | None = None
+) -> list[SourceReference]:
     if not 120 <= len(text) <= 30_000:
         raise GenerationFailure("invalid_output")
+    if document and document.pages[-1].end != len(text):
+        raise GenerationFailure("invalid_output")
+    spans = (
+        [(p.start, p.end, p.page) for p in document.pages]
+        if document
+        else [(0, len(text), None)]
+    )
     passages = []
-    start = 0
-    while start < len(text):
-        end = min(start + 900, len(text))
-        if end < len(text):
-            boundary = max(
-                text.rfind("\n", start + 450, end), text.rfind(" ", start + 450, end)
+    for first, last, page in spans:
+        start = first
+        while start < last:
+            end = min(start + 900, last)
+            if end < last:
+                boundary = max(
+                    text.rfind("\n", start + 450, end),
+                    text.rfind(" ", start + 450, end),
+                )
+                if boundary >= 0:
+                    end = boundary + 1
+            passages.append(
+                SourceReference(
+                    id=f"p{len(passages) + 1:04d}",
+                    start=start,
+                    end=end,
+                    excerpt=text[start:end],
+                    page=page,
+                )
             )
-            if boundary >= 0:
-                end = boundary + 1
-        passages.append(
-            SourceReference(
-                id=f"p{len(passages) + 1:04d}",
-                start=start,
-                end=end,
-                excerpt=text[start:end],
-            )
-        )
-        start = end
+            start = end
     return passages
 
 
@@ -122,10 +135,14 @@ class StudyGenerator:
         graph.add_edge("validate_evidence", END)
         self.graph = graph.compile()
 
-    async def generate(self, text: str) -> StudyNote:
+    async def generate(
+        self, text: str, *, document: PDFDocument | None = None
+    ) -> StudyNote:
         try:
             async with asyncio.timeout(65):
-                result = await self.graph.ainvoke({"passages": captured_passages(text)})
+                result = await self.graph.ainvoke(
+                    {"passages": captured_passages(text, document)}
+                )
                 return result["note"]
         except GenerationFailure:
             raise

@@ -34,6 +34,9 @@ def browser_client(monkeypatch):
         if request.url.host != "supabase.test":
             assert "authorization" not in request.headers
             assert "apikey" not in request.headers
+            if request.url.path == "/pdf-file":
+                from backend.tests.test_pdf_sources import pdf_bytes
+                return httpx.Response(200, headers={"content-type": "application/pdf"}, content=pdf_bytes())
             if request.url.path == "/identity":
                 return httpx.Response(200, headers={"content-type": "text/plain"},
                                       text=f"Query: {request.url.query.decode()}\n{ARTICLE_TEXT}")

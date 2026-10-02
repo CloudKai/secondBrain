@@ -63,14 +63,22 @@ function removeSources(state: LibraryState, removed: Note[]): LibraryState {
   };
 }
 
+function sourceIdentity(note: Note): string {
+  return note.savedSource?.original_url === null
+    ? note.savedSource.canonical_url
+    : canonicalUrl(note.url);
+}
+
 export function updateLibrary(
   state: LibraryState,
   action: LibraryAction,
 ): LibraryState {
   switch (action.type) {
     case "load-sources": {
-      const urls = new Set(action.notes.map((note) => canonicalUrl(note.url)));
-      const examples = state.notes.filter((note) => note.demo && !urls.has(canonicalUrl(note.url)));
+      const urls = new Set(action.notes.map((note) => sourceIdentity(note)));
+      const examples = state.notes.filter(
+        (note) => note.demo && !urls.has(sourceIdentity(note)),
+      );
       const notes = [...action.notes, ...examples];
       const remainingIds = new Set(notes.map((note) => note.id));
       const removed = state.notes.filter((note) => !remainingIds.has(note.id));
@@ -78,11 +86,20 @@ export function updateLibrary(
     }
     case "add-sources":
     case "show-examples": {
-      const realUrls = new Set(action.notes.filter((note) => !note.demo).map((note) => canonicalUrl(note.url)));
-      const base = removeSources(state, state.notes.filter((note) => note.demo && realUrls.has(canonicalUrl(note.url))));
-      const urls = new Set(base.notes.map((note) => canonicalUrl(note.url)));
+      const realUrls = new Set(
+        action.notes
+          .filter((note) => !note.demo)
+          .map((note) => sourceIdentity(note)),
+      );
+      const base = removeSources(
+        state,
+        state.notes.filter(
+          (note) => note.demo && realUrls.has(sourceIdentity(note)),
+        ),
+      );
+      const urls = new Set(base.notes.map((note) => sourceIdentity(note)));
       const added = action.notes.filter((note) => {
-        const url = canonicalUrl(note.url);
+        const url = sourceIdentity(note);
         if (urls.has(url)) return false;
         urls.add(url);
         return true;
@@ -107,7 +124,7 @@ export function updateLibrary(
         !topicExists(state, action.target)
       )
         return state;
-      const remap = (id: string) => id === action.source ? action.target : id;
+      const remap = (id: string) => (id === action.source ? action.target : id);
       const names = { ...state.names };
       delete names[action.source];
       return {
@@ -161,7 +178,10 @@ export function updateLibrary(
         state.notes.filter((note) => note.id === action.id),
       );
     case "hide-examples":
-      return removeSources(state, state.notes.filter((note) => note.demo));
+      return removeSources(
+        state,
+        state.notes.filter((note) => note.demo),
+      );
     case "toggle-recall":
       return {
         ...state,
@@ -213,9 +233,9 @@ export function getConnections(
       const a = topics[i],
         b = topics[j];
       const shared = a.notes.filter((n) =>
-        b.notes.some((m) => m.url === n.url),
+        b.notes.some((m) => sourceIdentity(m) === sourceIdentity(n)),
       );
-      const urls = new Set(shared.map((n) => n.url));
+      const urls = new Set(shared.map(sourceIdentity));
       const id = connectionId(a.id, b.id);
       if (urls.size < 2 || rejected.includes(id)) continue;
       result.push({

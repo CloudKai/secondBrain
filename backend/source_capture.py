@@ -22,7 +22,7 @@ def canonical_source_url(url: str) -> str:
     return urlunsplit(parts._replace(fragment=""))
 
 
-async def _public_address(url: httpx.URL) -> str:
+async def public_source_address(url: httpx.URL) -> str:
     port = url.port or (443 if url.scheme == "https" else 80)
     if (
         url.scheme not in ("http", "https")
@@ -51,7 +51,7 @@ async def _download_article(client: httpx.AsyncClient, source_url: str) -> str:
     current = source_url
     for _ in range(5):
         url = httpx.URL(current)
-        address = await _public_address(url)
+        address = await public_source_address(url)
         # Connect to the validated address; retain the original TLS identity.
         # This avoids a second DNS resolution accepting a private address.
         pinned = url.copy_with(host=address)
@@ -68,7 +68,12 @@ async def _download_article(client: httpx.AsyncClient, source_url: str) -> str:
                 current = urljoin(current, location)
                 continue
             response.raise_for_status()
-            content_type = response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+            content_type = (
+                response.headers.get("content-type", "")
+                .split(";", 1)[0]
+                .strip()
+                .lower()
+            )
             if content_type not in ("text/html", "application/xhtml+xml", "text/plain"):
                 raise UnsupportedSource("This source is not a supported web article.")
             body = bytearray()
@@ -77,12 +82,16 @@ async def _download_article(client: httpx.AsyncClient, source_url: str) -> str:
                     raise ValueError("The article exceeds the 2 MB download limit.")
                 body.extend(chunk)
             try:
-                document = bytes(body).decode(response.encoding or "utf-8", errors="replace")
+                document = bytes(body).decode(
+                    response.encoding or "utf-8", errors="replace"
+                )
             except LookupError:
                 document = bytes(body).decode("utf-8", errors="replace")
             if content_type != "text/plain":
                 soup = BeautifulSoup(document, "html.parser")
-                for element in soup(["script", "style", "noscript", "svg", "nav", "footer", "header"]):
+                for element in soup(
+                    ["script", "style", "noscript", "svg", "nav", "footer", "header"]
+                ):
                     element.decompose()
                 return "\n".join(soup.stripped_strings)
             return document.strip()
@@ -96,13 +105,19 @@ def _captured_text(text: str, origin: str) -> dict[str, str]:
     return {
         "captured_text": text[:MAX_CAPTURE_CHARS],
         "capture_origin": origin,
-        "coverage": "partial" if partial else "complete" if origin == "direct" else "unknown",
+        "coverage": "partial"
+        if partial
+        else "complete"
+        if origin == "direct"
+        else "unknown",
         "coverage_detail": (
             "Captured the first 30,000 characters; additional text was omitted."
-            if partial else
-            "Captured the readable text returned by this page." if origin == "direct" else
-            "Captured reader output; full original-page coverage is not confirmed." if origin == "reader" else
-            "User-supplied article text; full original-page coverage is not confirmed."
+            if partial
+            else "Captured the readable text returned by this page."
+            if origin == "direct"
+            else "Captured reader output; full original-page coverage is not confirmed."
+            if origin == "reader"
+            else "User-supplied article text; full original-page coverage is not confirmed."
         ),
     }
 
@@ -112,29 +127,41 @@ async def capture_article(url: str, pasted_text: str | None = None) -> dict[str,
     if urlsplit(original).path.lower().endswith(".pdf"):
         raise UnsupportedSource("PDF capture is planned; use a public web article.")
     try:
-        async with asyncio.timeout(60), httpx.AsyncClient(
-            timeout=httpx.Timeout(25, connect=7),
-            follow_redirects=False,
-            trust_env=False,
-            limits=httpx.Limits(max_keepalive_connections=0),
-        ) as client:
+        async with (
+            asyncio.timeout(60),
+            httpx.AsyncClient(
+                timeout=httpx.Timeout(25, connect=7),
+                follow_redirects=False,
+                trust_env=False,
+                limits=httpx.Limits(max_keepalive_connections=0),
+            ) as client,
+        ):
             try:
-                return _captured_text(await _download_article(client, original), "direct")
+                return _captured_text(
+                    await _download_article(client, original), "direct"
+                )
             except UnsupportedSource:
                 raise
             except (httpx.HTTPError, ValueError):
                 try:
                     return _captured_text(
-                        await _download_article(client, f"https://r.jina.ai/{original}"), "reader"
+                        await _download_article(
+                            client, f"https://r.jina.ai/{original}"
+                        ),
+                        "reader",
                     )
                 except UnsupportedSource as exc:
                     # Original URL passed the public-article check. Reader failure
                     # can use pasted text without weakening that original check.
-                    raise ValueError("The page reader could not return article text.") from exc
+                    raise ValueError(
+                        "The page reader could not return article text."
+                    ) from exc
     except UnsupportedSource:
         raise
     except (httpx.HTTPError, ValueError, TimeoutError) as exc:
         text = (pasted_text or "").strip()
         if len(text.replace(url, "").strip()) >= MIN_TEXT_CHARS:
             return _captured_text(text, "pasted")
-        raise ValueError("The article could not be captured. Use a public URL or paste substantial article text.") from exc
+        raise ValueError(
+            "The article could not be captured. Use a public URL or paste substantial article text."
+        ) from exc

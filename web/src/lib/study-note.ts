@@ -22,6 +22,7 @@ const reference = z
     start: z.number().int().nonnegative(),
     end: z.number().int().positive(),
     excerpt: text(1000),
+    page: z.number().int().min(1).max(100).nullish(),
   })
   .strict();
 const noteSchema = z

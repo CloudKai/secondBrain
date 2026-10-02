@@ -21,7 +21,7 @@ export interface Note {
   author: string;
   year: string;
   url: string;
-  kind: "Article" | "Paper";
+  kind: "Article" | "Paper" | "PDF";
   color: "mint" | "purple" | "peach";
   overview: string;
   concepts: Concept[];

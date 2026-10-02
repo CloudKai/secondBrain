@@ -222,3 +222,18 @@ that source's note. A request accepted while Redis was stopped remained in the
 persistent outbox. After a processing worker was killed, its lease expired and
 the restarted worker completed attempt two with 13 exact references, one note
 and no remaining dispatch. Disposable verification captures were removed.
+
+
+## Selectable-text PDF notes — ticket #3, 2026-10-03
+
+Status: implementation complete; local checks and hosted acceptance in progress.
+Issue: https://github.com/CloudKai/secondBrain/issues/3.
+
+PDF uploads and public PDF links join the owned source/study workflow with
+physical page metadata and exact page-bound references. Inputs are bounded to
+10 MB, 100 pages and 30,000 captured characters; missing/omitted text is labelled.
+Scanned-only, encrypted, oversized and unreadable files receive correction paths.
+Uploads retain captured page text and filename, not the original binary. Source
+identity, RLS, read-only notes, retry limits and worker fencing are preserved.
+Migration/rollback and limits: `docs/pdf-study-setup.md`. Native code is unchanged.
+PDF page-range selection, OCR, videos, topics and research remain target work.
