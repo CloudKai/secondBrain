@@ -27,9 +27,11 @@ The About dialog's outdated planned-generation copy was corrected. Article notes
 and inspectable citations are implemented; PDF/video and other later services
 remain planned. No scope creep or functional mismatch was found.
 
-Re-review found no new spec issue. Hosted persistent worker/browser acceptance
-remains pending migration application. Real model generation and real Redis job
-execution passed independently; these do not establish hosted persistence.
+Re-review found no new spec issue. Subsequent hosted acceptance passed after
+migration application: real worker/browser generation, exact citations, reload,
+idempotency, second-learner isolation, Redis outage and worker crash recovery.
+Provider failure/terminal retry behavior passed deterministic HTTP/SQL/browser
+checks. Temporary verification sources were removed.
 
 Summary: Standards — 2 findings resolved, no remaining material issue.
-Spec — 1 copy finding resolved; hosted acceptance remains the outstanding check.
+Spec — 1 copy finding resolved, no remaining material issue; hosted acceptance passed.

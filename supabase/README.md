@@ -81,8 +81,8 @@ Its owner RPC atomically creates a study and dispatch; learner SELECT has RLS an
 direct learner writes are denied. A server-only worker key is required by the
 worker; the browser/API still use the learner session and public configuration.
 
-Local migration/RLS/retry/lease/rollback checks pass. Hosted generation acceptance
-is pending. Setup and recovery contracts: [`docs/study-note-setup.md`](../docs/study-note-setup.md).
+Local migration/RLS/retry/lease/rollback checks pass. The migration is applied to
+the development project; hosted generation and recovery passed on 2026-10-03. Setup and recovery contracts: [`docs/study-note-setup.md`](../docs/study-note-setup.md).
 The source's legacy pending field remains compatible; `source_studies.status`
 represents generation. The rollback in `rollbacks/202610030002_source_studies.sql`
 deletes generated notes/jobs and retains source captures.

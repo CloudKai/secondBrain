@@ -63,5 +63,5 @@ contract remains compatible and no provider call blocks generation acceptance.
 
 Apply the versioned study migration and run Redis/worker as described in
 [`docs/study-note-setup.md`](../docs/study-note-setup.md). Local SQL/HTTP/browser
-checks pass; hosted study generation acceptance is pending. The native v1
+checks pass; hosted study generation and recovery also passed on 2026-10-03. The native v1
 pipeline remains synchronous.

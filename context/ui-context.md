@@ -69,7 +69,7 @@ These are planned states, not current functionality:
 
 ## Structured browser notes — ticket #2
 
-The supplied browser design now renders locally verified read-only structured
+The supplied browser design now renders verified read-only structured
 article notes: overview, substantive concepts, optional supported examples/
 equations and recall answers. Each section's citations open the matching exact
 captured passage in Sources, focus it and preserve Open original. Location labels
@@ -83,6 +83,6 @@ cycle after failure. Storage errors retain the capture and offer reload. Recall
 marks remain session-only. Real-source topic organization is explicitly planned;
 new generated concepts do not create fake graph assignments.
 
-Hosted generation acceptance is pending; source capture alone is already hosted
-verified. Local desktop/narrow browser checks cover note-to-evidence, reload and
+Hosted generation, citations, reload, ownership isolation and worker recovery
+passed on 2026-10-03. Local desktop/narrow browser checks cover note-to-evidence, reload and
 failed-note recovery. Setup: `docs/study-note-setup.md`.

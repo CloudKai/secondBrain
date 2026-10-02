@@ -257,7 +257,7 @@ locally and ignored by Git. Native/mobile behavior remains unchanged.
 
 ## Browser study processing — ticket #2
 
-Implemented with local acceptance; hosted study generation is pending. Source
+Verified locally and against hosted Supabase on 2026-10-03. Source
 identity and capture remain the ticket #1 contract. An authenticated
 `POST /api/v2/sources/{id}/study` calls an owner-checked SQL function that creates
 `source_studies` and `study_outbox` in one transaction. Repeated requests reuse

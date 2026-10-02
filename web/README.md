@@ -140,8 +140,8 @@ Completed notes are read-only with a variable number of concepts, optional suppo
 examples/equations and recall. Citation buttons open exact captured passages with
 Open original; the browser checks each excerpt against its saved capture.
 
-Local HTTP/SQL and desktop/narrow browser checks pass. Hosted study generation
-acceptance is pending. Follow [`docs/study-note-setup.md`](../docs/study-note-setup.md)
+Local HTTP/SQL and desktop/narrow browser checks pass. Hosted generation,
+citations, reload, ownership isolation and worker recovery passed on 2026-10-03. Follow [`docs/study-note-setup.md`](../docs/study-note-setup.md)
 for the migration and worker; only public Supabase settings belong in the browser.
 This supersedes the pending-note limitation above. Topic assignment/graphs for
 real notes, PDF/video, live chat/research and source refresh remain future work.

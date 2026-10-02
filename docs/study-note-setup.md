@@ -1,20 +1,27 @@
 # Browser study notes — ticket #2
 
-## Verified locally
+## Verified implementation
 
 FastAPI accepts owned study requests, Postgres persists one study/outbox together,
 and an ARQ worker builds read-only English notes through LangGraph/OpenAI.
+54 backend tests and 20 web tests pass; web typecheck/build and lint pass.
 Deterministic checks cover grounded passages, provider failures, bounded retries,
-duplicate requests, lease recovery, ownership and rollback. Browser fixtures cover
-generated notes, citation navigation, reload and retry. Hosted generation acceptance
-is pending; ticket #1's hosted source capture already passed.
+duplicate requests, leases, ownership and rollback. Browser checks cover desktop
+and narrow layouts, citations, reload, failures and retry.
 
-On 2026-10-03, real public-page capture and OpenAI generation passed with exact
-references (the test article's bounded capture was labelled partial). Actual ARQ
-serialization/execution also passed against local Redis. Keys are now configured
-in the ignored backend environment and Redis is running. The study table is not
-yet present in the hosted project; dashboard sign-in is needed to apply the
-reviewed migration and complete persistent worker/browser acceptance.
+Hosted acceptance passed on 2026-10-03 after the user approved applying the
+reviewed migration to AI Study Friends. A real article completed on attempt one;
+citations opened exact excerpts, reload restored the same note, and repeated
+requests reused it. Another anonymous learner could neither read nor generate
+that source's note. A request accepted while Redis was stopped remained in the
+persistent outbox. After a processing worker was killed, its lease expired and
+the restarted worker completed attempt two with 13 exact references, one note
+and no remaining dispatch. Disposable verification captures were removed.
+
+The test articles used bounded captures labelled partial. Citation integrity checks
+confirm exact captured text; they do not establish that every explanation is true.
+The copied pytest executable still selects a stale external interpreter; use
+`uv run --project backend --extra dev python -m pytest backend/tests -q`.
 
 ## Development setup
 

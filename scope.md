@@ -191,7 +191,7 @@ locally and ignored by Git. Native/mobile behavior remains unchanged.
 
 ## Structured browser study notes — ticket #2, 2026-10-03
 
-Status: **implemented and verified locally; hosted generation acceptance pending**.
+Status: **verified locally and against the hosted development project**.
 GitHub issue: https://github.com/CloudKai/secondBrain/issues/2.
 
 - Captured articles request persistent English notes with an overview, variable
@@ -207,15 +207,18 @@ GitHub issue: https://github.com/CloudKai/secondBrain/issues/2.
   build/typecheck and lint; desktop/narrow browser fixtures for citations, reload
   and failure/retry. The exact pytest entrypoint still selects a stale external
   interpreter; `python -m pytest` passes.
-- Live generation still needs the reviewed study migration and running worker/Redis
-  against the configured project. See `docs/study-note-setup.md`. Model and worker
-  secrets are server-only. Ticket #1 hosted capture remains verified.
+- Hosted generation and recovery passed with the applied migration and configured
+  server-only keys. Keep Redis and the worker running for development; see
+  `docs/study-note-setup.md`. Ticket #1 hosted capture remains verified.
 - This unit does not implement PDF/video ingestion, persistent topic organization,
   live assistant/research, source refresh or native integration. Existing native
   changes and v1 contracts are preserved.
 
-Live checks so far: a real public article produced a validated note with exact
-references through OpenAI; real ARQ/Redis UUID job execution passed. Server keys
-are configured locally and Redis runs. Hosted `source_studies` is absent; the
-Supabase dashboard is signed out, so applying the reviewed migration and
-verifying persistent worker/browser processing require dashboard sign-in.
+Hosted acceptance passed on 2026-10-03 after the user approved applying the
+reviewed migration to AI Study Friends. A real article completed on attempt one;
+citations opened exact excerpts, reload restored the same note, and repeated
+requests reused it. Another anonymous learner could neither read nor generate
+that source's note. A request accepted while Redis was stopped remained in the
+persistent outbox. After a processing worker was killed, its lease expired and
+the restarted worker completed attempt two with 13 exact references, one note
+and no remaining dispatch. Disposable verification captures were removed.

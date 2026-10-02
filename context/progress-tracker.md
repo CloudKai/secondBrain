@@ -146,7 +146,7 @@ locally and ignored by Git. Native/mobile behavior remains unchanged.
 
 ## Browser study-note generation — ticket #2, 2026-10-03
 
-Current unit: **implementation and local checks complete; hosted acceptance pending**.
+Current unit: **implementation, review and hosted acceptance complete**.
 
 - [x] Persistent structured article notes with variable concepts and recall
 - [x] Exact captured passages, original links and Unicode-offset validation
@@ -155,14 +155,17 @@ Current unit: **implementation and local checks complete; hosted acceptance pend
 - [x] Read-only viewer, polling, reload and explicit generation retry
 - [x] Local SQL/RLS/rollback, provider HTTP and browser evidence checks
 - [x] 54 backend tests through project Python; 20 web tests; build and lint
-- [ ] Apply reviewed migration and complete hosted generation/worker recovery checks
+- [x] Apply reviewed migration and complete hosted generation/worker recovery checks
 
-Setup: `docs/study-note-setup.md`. Issue #2 stays open until hosted acceptance.
+Setup: `docs/study-note-setup.md`. Issue #2 acceptance is complete.
 This supersedes the browser's pending-generation limitation; native persistence,
 PDF/video, topics and assistant/research remain target work.
 
-Live checks so far: a real public article produced a validated note with exact
-references through OpenAI; real ARQ/Redis UUID job execution passed. Server keys
-are configured locally and Redis runs. Hosted `source_studies` is absent; the
-Supabase dashboard is signed out, so applying the reviewed migration and
-verifying persistent worker/browser processing require dashboard sign-in.
+Hosted acceptance passed on 2026-10-03 after the user approved applying the
+reviewed migration to AI Study Friends. A real article completed on attempt one;
+citations opened exact excerpts, reload restored the same note, and repeated
+requests reused it. Another anonymous learner could neither read nor generate
+that source's note. A request accepted while Redis was stopped remained in the
+persistent outbox. After a processing worker was killed, its lease expired and
+the restarted worker completed attempt two with 13 exact references, one note
+and no remaining dispatch. Disposable verification captures were removed.
