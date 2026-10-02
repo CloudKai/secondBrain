@@ -253,3 +253,32 @@ locally and ignored by Git. Native/mobile behavior remains unchanged.
 - Evidence is in ignored `output/playwright/supabase-live-*.yml` and
   `supabase-live-reopened.png`. No session tokens or populated environment
   files are included in the commit or issue record.
+
+
+## Browser study processing — ticket #2
+
+Implemented with local acceptance; hosted study generation is pending. Source
+identity and capture remain the ticket #1 contract. An authenticated
+`POST /api/v2/sources/{id}/study` calls an owner-checked SQL function that creates
+`source_studies` and `study_outbox` in one transaction. Repeated requests reuse
+one study per source; only an explicit failed-study retry resets its attempt cycle.
+`GET /api/v2/studies` verifies the session, filters ownership and returns strict
+records; learner SELECT uses RLS, learner mutation is restricted to the owner RPC.
+
+The independent ARQ worker uses a server-only Supabase secret key. A 10s dispatcher
+enqueues UUIDs with stable job IDs and reschedules outbox delivery after 30s.
+Postgres atomically claims queued work, increments a maximum-three-attempt cycle,
+and fences completion with a random 120s lease. SQL recovers expired leases,
+records retry/terminal codes and cascades jobs/notes when a source is deleted.
+Redis is localhost transient transport in the development compose configuration.
+
+`study_generation.py` uses an explicit LangGraph state for explain/validate.
+Model calls have no SDK retries and a 65s deadline. Strict structured explanations
+cite server-indexed passage IDs; only server-derived excerpts and code-point
+offsets are persisted. Unsupported examples/equations stay empty. Browser
+validation checks each reference against its immutable capture before rendering.
+
+Capture save and generation request are separate: generation can be recovered
+from the saved-source viewer if the request was not acknowledged. Native APIs,
+fixed folders, topic assignment, vectors and production deployment are unchanged.
+Migration/rollback and development instructions: `docs/study-note-setup.md`.

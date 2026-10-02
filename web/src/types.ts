@@ -1,4 +1,5 @@
 import type { SavedSource } from "./lib/source-client";
+import type { StudyRecord } from "./lib/study-note";
 
 export type Page = "library" | "note" | "topics" | "discover";
 export type PanelTab = "Topic" | "Graph" | "Sources";
@@ -13,6 +14,7 @@ export interface Recall {
 }
 export interface Note {
   savedSource?: SavedSource;
+  study?: StudyRecord;
   id: string;
   title: string;
   subtitle: string;

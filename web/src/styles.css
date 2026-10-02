@@ -45,6 +45,15 @@
 .pending-source { margin-top: 28px; }
 .pending-source > h3 { margin-top: 24px; }
 .pending-source > p { margin: 14px 0; }
+.study-citations { display: inline-flex; gap: 6px; vertical-align: middle; }
+.study-citations .citation { min-width: 28px; min-height: 28px; }
+.study-error { margin-top: 20px; padding: 16px; border: 1px solid var(--danger); border-radius: var(--radius); }
+.study-error p { color: var(--danger); }
+.study-equations { margin-top: 28px; }
+.study-equations .equation { display: block; }
+.study-equations code { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
+.study-equations .equation .citation { position: static; }
+#source-passage:focus { outline: 2px solid var(--accent); outline-offset: 6px; }
 .capture-details { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 18px 0; color: var(--muted); font-size: 13px; }
 :root[data-theme="light"] {
   color-scheme: light;

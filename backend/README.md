@@ -51,3 +51,17 @@ download to 2 MB. Direct and reader attempts share a 60-second deadline;
 captured text is capped at 30,000 characters. Reader/pasted coverage is
 unconfirmed; truncation is partial. Unsupported binary/private URLs do not use
 the fallback. These limits are separate from the preserved native pipeline.
+
+
+## Structured browser notes (ticket #2)
+
+Owned `POST /api/v2/sources/{id}/study` returns persisted 202 status;
+`GET /api/v2/studies` lists owned status/notes. The separate ARQ worker uses
+LangGraph/OpenAI and a server-only Supabase secret key. Postgres owns durable
+outbox delivery, bounded attempts, leases and read-only results. The HTTP capture
+contract remains compatible and no provider call blocks generation acceptance.
+
+Apply the versioned study migration and run Redis/worker as described in
+[`docs/study-note-setup.md`](../docs/study-note-setup.md). Local SQL/HTTP/browser
+checks pass; hosted study generation acceptance is pending. The native v1
+pipeline remains synchronous.

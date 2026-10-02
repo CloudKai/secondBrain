@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { ArrowRight, Check, RotateCcw, Sparkles } from "lucide-react";
 import type { Note } from "../types";
+import { StudyCitations } from "./StructuredStudy";
 export default function RecallCards({
   note,
   mastered,
   onMaster,
+  onCitation,
 }: {
   note: Note;
   mastered: string[];
   onMaster: (id: string) => void;
+  onCitation?: (id: string) => void;
 }) {
   const [index, setIndex] = useState(0),
     [revealed, setRevealed] = useState(false);
@@ -26,7 +29,17 @@ export default function RecallCards({
         </small>
       </div>
       <h3>{card.question}</h3>
-      {revealed && <p className="recall-answer">{card.answer}</p>}
+      {revealed && (
+        <p className="recall-answer">
+          {card.answer}
+          {onCitation && note.study?.note && (
+            <StudyCitations
+              ids={note.study.note.recall[index].citation_ids}
+              onCitation={onCitation}
+            />
+          )}
+        </p>
+      )}
       <div className="recall-actions">
         {!revealed ? (
           <button

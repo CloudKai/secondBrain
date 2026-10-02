@@ -43,6 +43,9 @@ import { AttentionArt, Graph } from "./components/Graph";
 import Modal from "./components/Modal";
 import Assistant from "./components/Assistant";
 import RecallCards from "./components/RecallCards";
+import StructuredStudy from "./components/StructuredStudy";
+import { studyLabel, studyMessage } from "./lib/study-note";
+import { useSourceStudies } from "./lib/use-source-studies";
 
 type Dialog = "add" | "about" | "delete" | "rename" | "assign" | "merge" | null;
 // One auth client owns session recovery, including during StrictMode remounts.
@@ -65,14 +68,14 @@ function readRoute(): { page: Page; noteId: string } {
   };
 }
 export default function App() {
-  const [storage, setStorage] = useState<"loading" | "ready" | "unavailable">("loading");
+  const [storage, setStorage] = useState<"loading" | "ready" | "unavailable">(
+    "loading",
+  );
   const [storageError, setStorageError] = useState("");
   const [storageAttempt, setStorageAttempt] = useState(0);
   const [route, setRoute] = useState(readRoute);
-  const [library, changeLibrary] = useReducer(
-    updateLibrary,
-    undefined,
-    () => createLibrary(sampleNotes, topicTitles),
+  const [library, changeLibrary] = useReducer(updateLibrary, undefined, () =>
+    createLibrary(sampleNotes, topicTitles),
   );
   const [query, setQuery] = useState(""),
     [filter, setFilter] = useState("All sources"),
@@ -99,9 +102,40 @@ export default function App() {
   const [narrow, setNarrow] = useState(
     () => window.matchMedia("(max-width:760px)").matches,
   );
-  const { notes, names, rejected, mastered, topics, connections, filtered, demo } =
-    readLibrary(library, query, filter, sort);
-  const currentNote = notes.find((n) => n.id === route.noteId) || (route.page === "note" ? undefined : notes[0]);
+  const {
+    notes: baseNotes,
+    names,
+    rejected,
+    mastered,
+    topics,
+    connections,
+    filtered: baseFiltered,
+    demo,
+  } = readLibrary(library, query, filter, sort);
+  const studies = useSourceStudies(
+    sourceClient,
+    library.notes,
+    storage === "ready",
+  );
+  const [selectedPassage, setSelectedPassage] = useState<{
+    sourceId: string;
+    id: string;
+  } | null>(null);
+  const enrichNote = (note: Note) =>
+    note.savedSource && studies.records[note.id]
+      ? noteFromSavedSource(note.savedSource, studies.records[note.id])
+      : note;
+  const notes = baseNotes.map(enrichNote);
+  const filtered = baseFiltered.map(enrichNote);
+  const currentNote =
+    notes.find((n) => n.id === route.noteId) ||
+    (route.page === "note" ? undefined : notes[0]);
+  const passage =
+    selectedPassage?.sourceId === currentNote?.id
+      ? currentNote?.study?.note?.references.find(
+          (r) => r.id === selectedPassage?.id,
+        )
+      : undefined;
   const topic = topics.find((t) => t.id === selectedTopic) || topics[0];
   const assignmentTopics = [
     ...new Set([
@@ -115,19 +149,33 @@ export default function App() {
     setStorageError("");
     if (!sourceClient) {
       setStorage("unavailable");
-      setStorageError("Your private library is not connected yet. Examples are available; saving needs library setup.");
+      setStorageError(
+        "Your private library is not connected yet. Examples are available; saving needs library setup.",
+      );
       return;
     }
-    sourceClient.list().then((sources) => {
-      if (!active) return;
-      changeLibrary({ type: "load-sources", notes: sources.map(noteFromSavedSource) });
-      setStorage("ready");
-    }).catch((error: unknown) => {
-      if (!active) return;
-      setStorage("unavailable");
-      setStorageError(error instanceof Error ? error.message : "Your library could not be loaded. Retry connecting.");
-    });
-    return () => { active = false; };
+    sourceClient
+      .list()
+      .then((sources) => {
+        if (!active) return;
+        changeLibrary({
+          type: "load-sources",
+          notes: sources.map((source) => noteFromSavedSource(source)),
+        });
+        setStorage("ready");
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setStorage("unavailable");
+        setStorageError(
+          error instanceof Error
+            ? error.message
+            : "Your library could not be loaded. Retry connecting.",
+        );
+      });
+    return () => {
+      active = false;
+    };
   }, [storageAttempt]);
   useEffect(() => {
     const handler = () => {
@@ -196,6 +244,7 @@ export default function App() {
     setMobileNav(false);
   }
   function openNote(n: Note) {
+    setSelectedPassage(null);
     setSelectedTopic(n.topics[0]);
     if (n.savedSource) {
       setPanelTab("Sources");
@@ -209,12 +258,22 @@ export default function App() {
     setPanelOpen(true);
   }
   function showEvidence(id: string) {
+    setSelectedPassage(null);
     const n = notes.find((n) => n.id === id);
     if (n) {
       go("note", id);
       setPanelTab("Sources");
       setPanelOpen(true);
     }
+  }
+  function inspectPassage(id: string) {
+    if (!currentNote) return;
+    setSelectedPassage({ sourceId: currentNote.id, id });
+    setPanelTab("Sources");
+    setPanelOpen(true);
+    requestAnimationFrame(() =>
+      document.getElementById("source-passage")?.focus(),
+    );
   }
   function showAdd(url = "") {
     setSourceUrl(url);
@@ -233,7 +292,9 @@ export default function App() {
       setError("Enter a valid public http or https URL.");
       return;
     }
-    const existing = notes.find((n) => !n.demo && canonicalUrl(n.url) === canonicalUrl(url));
+    const existing = notes.find(
+      (n) => !n.demo && canonicalUrl(n.url) === canonicalUrl(url),
+    );
     if (existing) {
       setDialog(null);
       openNote(existing);
@@ -252,19 +313,28 @@ export default function App() {
       return;
     }
     if (!sourceClient || storage !== "ready") {
-      setError(storageError || "Wait for your library to connect, then retry saving.");
+      setError(
+        storageError || "Wait for your library to connect, then retry saving.",
+      );
       return;
     }
     setBusy(true);
     try {
-      const note = noteFromSavedSource(await sourceClient.save({ url, title: sourceTitle, raw_text: rawText || null }));
+      const note = noteFromSavedSource(
+        await sourceClient.save({
+          url,
+          title: sourceTitle,
+          raw_text: rawText || null,
+        }),
+      );
       changeLibrary({ type: "add-sources", notes: [note] });
       setDialog(null);
       setSourceUrl("");
       setSourceTitle("");
       setRawText("");
       openNote(note);
-      setToast("Source saved to your private library. Study note pending.");
+      setToast("Source saved to your private library.");
+      await studies.generate(note);
     } catch (err) {
       setError(
         err instanceof Error
@@ -281,7 +351,10 @@ export default function App() {
     setBusy(true);
     try {
       if (currentNote.savedSource) {
-        if (!sourceClient || storage !== "ready") throw new Error("Reconnect your library before removing this source.");
+        if (!sourceClient || storage !== "ready")
+          throw new Error(
+            "Reconnect your library before removing this source.",
+          );
         await sourceClient.remove(currentNote.id);
       }
       changeLibrary({ type: "remove-source", id: currentNote.id });
@@ -289,7 +362,11 @@ export default function App() {
       go("library");
       setToast("Source removed. Its topic connections have updated.");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "The source could not be removed. Try again.");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "The source could not be removed. Try again.",
+      );
     } finally {
       setBusy(false);
     }
@@ -304,7 +381,11 @@ export default function App() {
   function mergeTopics(e: React.FormEvent) {
     e.preventDefault();
     if (!topic || !mergeTarget) return;
-    changeLibrary({ type: "merge-topics", source: topic.id, target: mergeTarget });
+    changeLibrary({
+      type: "merge-topics",
+      source: topic.id,
+      target: mergeTarget,
+    });
     setSelectedTopic(mergeTarget);
     setDialog(null);
     setToast("Topics combined. Original source notes are preserved.");
@@ -457,7 +538,10 @@ export default function App() {
         >
           {panelTab === "Topic" &&
             (currentNote.savedSource ? (
-              <p>This source is saved. Topic organization becomes available with its study note.</p>
+              <p>
+                Topic organization for saved sources is planned. You can inspect
+                this note’s citations under Sources.
+              </p>
             ) : topic ? (
               topicDetails(topic)
             ) : (
@@ -470,7 +554,9 @@ export default function App() {
               <span className="eyebrow">FOLLOW THE CONNECTIONS</span>
               <h2>Your topic map</h2>
               <p className="panel-description">
-                {currentNote.savedSource ? "This saved source has no generated topics yet. The map currently shows example topics." : "Built from what you save. Select a topic to explore it."}
+                {currentNote.savedSource
+                  ? "This saved source has no generated topics yet. The map currently shows example topics."
+                  : "Built from what you save. Select a topic to explore it."}
               </p>
               <Graph
                 topics={topics}
@@ -501,12 +587,23 @@ export default function App() {
                 </div>
               </div>
               <span className="evidence-label">
-                {currentNote.evidenceLabel}
+                {passage
+                  ? `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
+                  : currentNote.evidenceLabel}
               </span>
-              <p className="evidence-text">
-                {currentNote.evidence ||
+              <p className="evidence-text" id="source-passage" tabIndex={-1}>
+                {passage?.excerpt ||
+                  currentNote.evidence ||
                   "No captured source text was returned. Open the original to inspect the material."}
               </p>
+              {passage && (
+                <button
+                  className="text-button"
+                  onClick={() => setSelectedPassage(null)}
+                >
+                  Show full captured text
+                </button>
+              )}
               {currentNote.demo && (
                 <p className="micro-copy">
                   This example note includes paraphrased evidence, not a
@@ -581,7 +678,10 @@ export default function App() {
         <button className="workspace-switch" onClick={() => setDialog("about")}>
           <span className="workspace-avatar">S</span>
           <span>
-            Personal workspace<small>{storage === "ready" ? "Private library" : "Example preview"}</small>
+            Personal workspace
+            <small>
+              {storage === "ready" ? "Private library" : "Example preview"}
+            </small>
           </span>
           <ChevronDown size={14} />
         </button>
@@ -723,12 +823,24 @@ export default function App() {
           </div>
         </header>
         <main id="main-content" ref={mainRef} tabIndex={-1}>
-          <div className="library-connection" role={storage === "unavailable" ? "alert" : "status"}>
+          <div
+            className="library-connection"
+            role={storage === "unavailable" ? "alert" : "status"}
+          >
             <span>
-              {storage === "loading" ? "Connecting your private library…" : storage === "ready" ? "Your saved sources are private and available after reload." : storageError}
+              {storage === "loading"
+                ? "Connecting your private library…"
+                : storage === "ready"
+                  ? "Your saved sources are private and available after reload."
+                  : storageError}
             </span>
             {storage === "unavailable" && (
-              <button className="text-button" onClick={() => setStorageAttempt((attempt) => attempt + 1)}>Retry connection</button>
+              <button
+                className="text-button"
+                onClick={() => setStorageAttempt((attempt) => attempt + 1)}
+              >
+                Retry connection
+              </button>
             )}
           </div>
           {route.page === "library" && (
@@ -751,8 +863,12 @@ export default function App() {
                 <div className="stat-strip">
                   <span>
                     <FileText size={16} />
-                    <strong>{notes.filter((note) => note.savedSource).length}</strong> saved sources
-                    {demo && ` · ${notes.filter((note) => note.demo).length} examples`}
+                    <strong>
+                      {notes.filter((note) => note.savedSource).length}
+                    </strong>{" "}
+                    saved sources
+                    {demo &&
+                      ` · ${notes.filter((note) => note.demo).length} examples`}
                   </span>
                   <span>
                     <Network size={16} />
@@ -918,11 +1034,17 @@ export default function App() {
                         </div>
                         <div className="source-card-footer">
                           <span>
-                            {n.demo ? "Example note" : n.savedSource ? "Saved privately" : "This session"}
+                            {n.demo
+                              ? "Example note"
+                              : n.savedSource
+                                ? "Saved privately"
+                                : "This session"}
                           </span>
                           <span>
                             <BookOpen size={12} />
-                            {n.savedSource ? "Study note pending" : `${n.concepts.length} concepts`}
+                            {n.savedSource
+                              ? studyLabel(n.study)
+                              : `${n.concepts.length} concepts`}
                           </span>
                         </div>
                       </div>
@@ -1067,7 +1189,10 @@ export default function App() {
                       </button>
                       <button
                         className="icon-button"
-                        onClick={() => { setError(""); setDialog("delete"); }}
+                        onClick={() => {
+                          setError("");
+                          setDialog("delete");
+                        }}
                         aria-label="Delete source"
                         disabled={busy}
                       >
@@ -1091,9 +1216,17 @@ export default function App() {
                       <span className={`topic-icon tone-${currentNote.color}`}>
                         <FileText size={18} />
                       </span>
-                      <span>{currentNote.savedSource ? "SAVED SOURCE" : "STUDY NOTE"}</span>
+                      <span>
+                        {currentNote.savedSource && !currentNote.study?.note
+                          ? "SAVED SOURCE"
+                          : "STUDY NOTE"}
+                      </span>
                       <span className="badge">
-                        {currentNote.demo ? "Example" : currentNote.savedSource ? "Study note pending" : "Four-point article"}
+                        {currentNote.demo
+                          ? "Example"
+                          : currentNote.savedSource
+                            ? studyLabel(currentNote.study)
+                            : "Four-point article"}
                       </span>
                     </div>
                     <h1>{currentNote.title}</h1>
@@ -1105,7 +1238,9 @@ export default function App() {
                       <span>·</span>
                       <span>
                         <BookOpen size={13} />
-                        {currentNote.savedSource ? "Read-only source" : "Read-only note"}
+                        {currentNote.savedSource && !currentNote.study?.note
+                          ? "Read-only source"
+                          : "Read-only note"}
                       </span>
                     </div>
                     <div className="topic-chips clickable">
@@ -1118,113 +1253,179 @@ export default function App() {
                       ))}
                     </div>
                   </div>
-                  {currentNote.savedSource ? (
+                  {currentNote.savedSource && studies.error && (
+                    <div className="study-error" role="alert">
+                      <p>{studies.error}</p>
+                      <button className="text-button" onClick={studies.reload}>
+                        Retry loading study notes
+                      </button>
+                    </div>
+                  )}
+                  {currentNote.study?.note ? (
+                    <>
+                      <p className="note-disclosure">
+                        {currentNote.savedSource?.coverage_detail} This note
+                        uses the captured text; verify explanations against the
+                        cited passages.
+                      </p>
+                      <StructuredStudy
+                        note={currentNote.study.note}
+                        onCitation={inspectPassage}
+                      />
+                      <RecallCards
+                        key={`recall-${currentNote.id}`}
+                        note={currentNote}
+                        mastered={mastered}
+                        onMaster={markMaster}
+                        onCitation={inspectPassage}
+                      />
+                    </>
+                  ) : currentNote.savedSource ? (
                     <section className="pending-source">
-                      <h2>Study note pending</h2>
-                      <p>Your source is saved. Structured study notes are not available yet; you can read the captured source below.</p>
+                      <h2>{studyLabel(currentNote.study)}</h2>
+                      <p role="status" aria-live="polite">
+                        {studyMessage(currentNote.study)}
+                      </p>
+                      {(!currentNote.study ||
+                        currentNote.study.status === "failed") && (
+                        <button
+                          className="button primary"
+                          disabled={studies.busy || storage !== "ready"}
+                          onClick={() => void studies.generate(currentNote)}
+                        >
+                          {studies.busy
+                            ? "Requesting generation…"
+                            : currentNote.study
+                              ? "Retry generation"
+                              : "Generate study note"}
+                        </button>
+                      )}
                       <div className="capture-details">
-                        <span className="badge">{currentNote.savedSource.coverage === "partial" ? "Partial capture" : currentNote.savedSource.coverage === "unknown" ? "Coverage unconfirmed" : "Page text captured"}</span>
-                        <span>{currentNote.savedSource.capture_origin === "pasted" ? "You supplied this text" : currentNote.savedSource.capture_origin === "reader" ? "Captured through a page reader" : "Captured from the public page"}</span>
+                        <span className="badge">
+                          {currentNote.savedSource.coverage === "partial"
+                            ? "Partial capture"
+                            : currentNote.savedSource.coverage === "unknown"
+                              ? "Coverage unconfirmed"
+                              : "Page text captured"}
+                        </span>
+                        <span>
+                          {currentNote.savedSource.capture_origin === "pasted"
+                            ? "You supplied this text"
+                            : currentNote.savedSource.capture_origin ===
+                                "reader"
+                              ? "Captured through a page reader"
+                              : "Captured from the public page"}
+                        </span>
                       </div>
-                      <p className="note-disclosure">{currentNote.savedSource.coverage_detail}</p>
-                      <a className="text-button" href={currentNote.url} target="_blank" rel="noreferrer">Open original <ExternalLink size={14} /></a>
+                      <p className="note-disclosure">
+                        {currentNote.savedSource.coverage_detail}
+                      </p>
+                      <a
+                        className="text-button"
+                        href={currentNote.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open original <ExternalLink size={14} />
+                      </a>
                       <h3>Captured source text</h3>
                       <p className="evidence-text">{currentNote.evidence}</p>
                     </section>
                   ) : (
-                  <>
-                  <section className="overview-block">
-                    <span className="section-icon">
-                      <Sparkles size={17} />
-                    </span>
-                    <div>
-                      <h2>The big picture</h2>
-                      <p>
-                        {currentNote.overview}{" "}
-                        <button
-                          className="citation"
-                          onClick={() => showEvidence(currentNote.id)}
-                          aria-label="Inspect source evidence"
-                        >
-                          1
-                        </button>
-                      </p>
-                    </div>
-                  </section>
-                  <section className="concept-section">
-                    <span className="eyebrow">LET’S BREAK IT DOWN</span>
-                    <h2>The ideas to take with you</h2>
-                    {currentNote.concepts.map((c, i) => (
-                      <div className="concept" key={`${c.title}-${i}`}>
-                        <span className="concept-number">
-                          {String(i + 1).padStart(2, "0")}
+                    <>
+                      <section className="overview-block">
+                        <span className="section-icon">
+                          <Sparkles size={17} />
                         </span>
                         <div>
-                          <h3>{c.title}</h3>
+                          <h2>The big picture</h2>
                           <p>
-                            {c.text}{" "}
+                            {currentNote.overview}{" "}
                             <button
                               className="citation"
                               onClick={() => showEvidence(currentNote.id)}
-                              aria-label={`Inspect evidence for key idea ${i + 1}`}
+                              aria-label="Inspect source evidence"
                             >
                               1
                             </button>
                           </p>
+                        </div>
+                      </section>
+                      <section className="concept-section">
+                        <span className="eyebrow">LET’S BREAK IT DOWN</span>
+                        <h2>The ideas to take with you</h2>
+                        {currentNote.concepts.map((c, i) => (
+                          <div className="concept" key={`${c.title}-${i}`}>
+                            <span className="concept-number">
+                              {String(i + 1).padStart(2, "0")}
+                            </span>
+                            <div>
+                              <h3>{c.title}</h3>
+                              <p>
+                                {c.text}{" "}
+                                <button
+                                  className="citation"
+                                  onClick={() => showEvidence(currentNote.id)}
+                                  aria-label={`Inspect evidence for key idea ${i + 1}`}
+                                >
+                                  1
+                                </button>
+                              </p>
+                              <button
+                                className="concept-topic"
+                                onClick={() => openTopic(c.topic)}
+                              >
+                                Explore {names[c.topic] || c.topic}{" "}
+                                <ArrowUpRight size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </section>
+                      {currentNote.equation && (
+                        <div className="equation">
+                          <span>THE IDEA, IN ONE LINE</span>
+                          <code>{currentNote.equation}</code>
                           <button
-                            className="concept-topic"
-                            onClick={() => openTopic(c.topic)}
+                            className="citation"
+                            onClick={() => showEvidence(currentNote.id)}
+                            aria-label="Inspect equation source"
                           >
-                            Explore {names[c.topic] || c.topic}{" "}
-                            <ArrowUpRight size={12} />
+                            1
                           </button>
                         </div>
-                      </div>
-                    ))}
-                  </section>
-                  {currentNote.equation && (
-                    <div className="equation">
-                      <span>THE IDEA, IN ONE LINE</span>
-                      <code>{currentNote.equation}</code>
-                      <button
-                        className="citation"
-                        onClick={() => showEvidence(currentNote.id)}
-                        aria-label="Inspect equation source"
-                      >
-                        1
-                      </button>
-                    </div>
-                  )}
-                  {currentNote.example && (
-                    <section className="example-block">
-                      <h3>
-                        <span className="dot peach" /> Make it concrete
-                      </h3>
-                      <p>{currentNote.example}</p>
-                    </section>
-                  )}
-                  <RecallCards
-                    key={`recall-${currentNote.id}`}
-                    note={currentNote}
-                    mastered={mastered}
-                    onMaster={markMaster}
-                  />
-                  <Assistant
-                    key={`assistant-${currentNote.id}`}
-                    note={currentNote}
-                    notes={notes.filter((note) => !note.savedSource)}
-                    onCitation={showEvidence}
-                    onDiscover={() => go("discover")}
-                  />
-                  </>
+                      )}
+                      {currentNote.example && (
+                        <section className="example-block">
+                          <h3>
+                            <span className="dot peach" /> Make it concrete
+                          </h3>
+                          <p>{currentNote.example}</p>
+                        </section>
+                      )}
+                      <RecallCards
+                        key={`recall-${currentNote.id}`}
+                        note={currentNote}
+                        mastered={mastered}
+                        onMaster={markMaster}
+                      />
+                      <Assistant
+                        key={`assistant-${currentNote.id}`}
+                        note={currentNote}
+                        notes={notes.filter((note) => !note.savedSource)}
+                        onCitation={showEvidence}
+                        onDiscover={() => go("discover")}
+                      />
+                    </>
                   )}
                   <p className="note-disclosure">
                     {currentNote.savedSource
                       ? "This source is stored in your private library. Your anonymous browser session restores it after reload."
                       : currentNote.demo
-                      ? "Curated example note. Evidence is paraphrased; examples are illustrative."
-                      : "Imported through the existing four-point article API. Captured text is available under Sources; passage-aligned citations are planned."}
-                    {!currentNote.savedSource && " Example interactions stay in this browser session."}
+                        ? "Curated example note. Evidence is paraphrased; examples are illustrative."
+                        : "Imported through the existing four-point article API. Captured text is available under Sources; passage-aligned citations are planned."}
+                    {!currentNote.savedSource &&
+                      " Example interactions stay in this browser session."}
                   </p>
                 </article>
                 {panelOpen && notePanel()}
@@ -1232,9 +1433,19 @@ export default function App() {
             ) : (
               <div className="standalone-empty">
                 <BookOpen size={38} />
-                <h1>{storage === "loading" ? "Loading your source…" : "This source is not available."}</h1>
-                <p>{storage === "loading" ? "Restoring your private library." : "Return to your library to choose a saved source or add one."}</p>
-                <button className="text-button" onClick={() => go("library")}>Back to library</button>
+                <h1>
+                  {storage === "loading"
+                    ? "Loading your source…"
+                    : "This source is not available."}
+                </h1>
+                <p>
+                  {storage === "loading"
+                    ? "Restoring your private library."
+                    : "Return to your library to choose a saved source or add one."}
+                </p>
+                <button className="text-button" onClick={() => go("library")}>
+                  Back to library
+                </button>
                 <button className="button primary" onClick={() => showAdd()}>
                   Add source <Plus size={16} />
                 </button>
@@ -1483,7 +1694,8 @@ export default function App() {
                 <form onSubmit={submitSource}>
                   <p className="modal-intro">
                     Save a public web article to your private library and reopen
-                    its captured text after reload. Structured study notes are pending.
+                    its captured text and generated study note after reload.
+                    Saved notes include citations you can inspect.
                   </p>
                   <label className="form-label" htmlFor="source-url">
                     Article URL
@@ -1527,7 +1739,8 @@ export default function App() {
                   <p className="support-copy">
                     <CircleHelp size={15} />
                     Public HTTP(S) articles: up to 2 MB per download and 30,000
-                    captured characters. Incomplete coverage is labelled. PDF and video support are planned.
+                    captured characters. Incomplete coverage is labelled. PDF
+                    and video support are planned.
                   </p>
                   {error && (
                     <p className="form-error" role="alert">
@@ -1536,7 +1749,8 @@ export default function App() {
                   )}
                   {busy && (
                     <p className="processing-status" role="status">
-                      Capturing and saving the article. Your study note will remain pending.
+                      Capturing and saving the article, then requesting its
+                      study note.
                     </p>
                   )}
                   <div className="modal-footer">
@@ -1547,7 +1761,10 @@ export default function App() {
                     >
                       {busy ? "Keep browsing" : "Cancel"}
                     </button>
-                    <button className="button primary" disabled={busy || storage !== "ready"}>
+                    <button
+                      className="button primary"
+                      disabled={busy || storage !== "ready"}
+                    >
                       {busy ? (
                         <>
                           <LoaderCircle size={16} className="spin" />
@@ -1605,14 +1822,16 @@ export default function App() {
                 <strong>What is still planned</strong>
                 <p>
                   Full web study-note generation, PDF/video extraction,
-                  open-ended AI conversation, live research, and linked accounts.
+                  open-ended AI conversation, live research, and linked
+                  accounts.
                 </p>
                 <strong>Your data</strong>
                 <p>
                   Saved article sources use your private anonymous library and
                   reopen after reload. Clearing browser data can lose access to
                   that session. Example material, topic corrections, and recall
-                  progress stay in memory; examples use labelled paraphrased evidence.
+                  progress stay in memory; examples use labelled paraphrased
+                  evidence.
                 </p>
               </div>
               <div className="modal-footer">
@@ -1623,7 +1842,10 @@ export default function App() {
                       changeLibrary({ type: "hide-examples" });
                       go("library");
                     } else
-                      changeLibrary({ type: "show-examples", notes: sampleNotes });
+                      changeLibrary({
+                        type: "show-examples",
+                        notes: sampleNotes,
+                      });
                     setDialog(null);
                   }}
                 >
@@ -1641,11 +1863,18 @@ export default function App() {
           {dialog === "delete" && currentNote && (
             <>
               <p className="modal-intro">
-                Remove “{currentNote.title}” from {currentNote.savedSource ? "your private library" : "this session"}? Its topic
-                coverage and connections will update. Other source notes are
-                preserved.
+                Remove “{currentNote.title}” from{" "}
+                {currentNote.savedSource
+                  ? "your private library"
+                  : "this session"}
+                ? Its topic coverage and connections will update. Other source
+                notes are preserved.
               </p>
-              {error && <p className="form-error" role="alert">{error}</p>}
+              {error && (
+                <p className="form-error" role="alert">
+                  {error}
+                </p>
+              )}
               <div className="modal-footer">
                 <button
                   className="button secondary"
@@ -1658,7 +1887,8 @@ export default function App() {
                   onClick={removeCurrentSource}
                   disabled={busy}
                 >
-                  {busy ? "Removing source…" : "Remove source"} <Trash2 size={15} />
+                  {busy ? "Removing source…" : "Remove source"}{" "}
+                  <Trash2 size={15} />
                 </button>
               </div>
             </>

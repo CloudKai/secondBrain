@@ -187,3 +187,29 @@ locally and ignored by Git. Native/mobile behavior remains unchanged.
 - Evidence is in ignored `output/playwright/supabase-live-*.yml` and
   `supabase-live-reopened.png`. No session tokens or populated environment
   files are included in the commit or issue record.
+
+
+## Structured browser study notes — ticket #2, 2026-10-03
+
+Status: **implemented and verified locally; hosted generation acceptance pending**.
+GitHub issue: https://github.com/CloudKai/secondBrain/issues/2.
+
+- Captured articles request persistent English notes with an overview, variable
+  substantive concepts, supported examples/equations and recall questions. Notes
+  are read-only; citations open exact saved passages and the original URL.
+- Added owned study acceptance/list endpoints and a reversible Postgres migration.
+  Generation acceptance atomically creates one study and outbox per source. ARQ
+  transports source IDs; SQL owns three-attempt cycles, leases and fenced writes.
+  Redis loss and interrupted workers are recoverable without duplicating notes.
+- The first capture persists separately. A failed generation request leaves a
+  saved source with Generate study note; explicit retry reuses the failed study.
+- Verified locally: 45 backend tests via the project interpreter; 20 web tests,
+  build/typecheck and lint; desktop/narrow browser fixtures for citations, reload
+  and failure/retry. The exact pytest entrypoint still selects a stale external
+  interpreter; `python -m pytest` passes.
+- Live generation still needs the reviewed study migration and running worker/Redis
+  against the configured project. See `docs/study-note-setup.md`. Model and worker
+  secrets are server-only. Ticket #1 hosted capture remains verified.
+- This unit does not implement PDF/video ingestion, persistent topic organization,
+  live assistant/research, source refresh or native integration. Existing native
+  changes and v1 contracts are preserved.

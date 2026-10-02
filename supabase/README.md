@@ -71,3 +71,18 @@ version comparison remain future work.
 `rollbacks/202610020001_browser_sources.sql` reverses this migration by deleting
 the source table and its records. Use it when intentionally removing this
 development schema; retain any needed data first.
+
+
+## Study-note schema — ticket #2
+
+Ticket #2 adds owned generated notes/status and a service-only outbox through
+`migrations/202610030002_source_studies.sql`. Apply it after the source migration.
+Its owner RPC atomically creates a study and dispatch; learner SELECT has RLS and
+direct learner writes are denied. A server-only worker key is required by the
+worker; the browser/API still use the learner session and public configuration.
+
+Local migration/RLS/retry/lease/rollback checks pass. Hosted generation acceptance
+is pending. Setup and recovery contracts: [`docs/study-note-setup.md`](../docs/study-note-setup.md).
+The source's legacy pending field remains compatible; `source_studies.status`
+represents generation. The rollback in `rollbacks/202610030002_source_studies.sql`
+deletes generated notes/jobs and retains source captures.

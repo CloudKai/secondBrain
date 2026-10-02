@@ -65,3 +65,24 @@ These are planned states, not current functionality:
 - Do not render unvalidated API data or provider error text directly.
 - Do not apply web-only styling conventions to native components. React Native styles and centralized TypeScript tokens are authoritative.
 - Do not replace native navigation or bottom-sheet behavior with a browser-styled overlay.
+
+
+## Structured browser notes — ticket #2
+
+The supplied browser design now renders locally verified read-only structured
+article notes: overview, substantive concepts, optional supported examples/
+equations and recall answers. Each section's citations open the matching exact
+captured passage in Sources, focus it and preserve Open original. Location labels
+refer to captured-text characters, not PDF pages/video times. Full captured text
+is still available.
+
+Saved sources show queued/processing/retrying/failed/ready states from Postgres.
+Pending jobs poll every 5s; reload restores saved notes and status. Generate study
+note recovers an unrequested capture, and Retry generation starts a fresh bounded
+cycle after failure. Storage errors retain the capture and offer reload. Recall
+marks remain session-only. Real-source topic organization is explicitly planned;
+new generated concepts do not create fake graph assignments.
+
+Hosted generation acceptance is pending; source capture alone is already hosted
+verified. Local desktop/narrow browser checks cover note-to-evidence, reload and
+failed-note recovery. Setup: `docs/study-note-setup.md`.

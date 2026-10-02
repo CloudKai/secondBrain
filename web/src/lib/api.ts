@@ -1,26 +1,53 @@
 import { z } from "zod";
 import type { Note } from "../types";
 import type { SavedSource } from "./source-client";
+import { studyLabel, studyMessage, type StudyRecord } from "./study-note";
 
-export function noteFromSavedSource(source: SavedSource): Note {
+export function noteFromSavedSource(
+  source: SavedSource,
+  study?: StudyRecord,
+): Note {
+  if (
+    study &&
+    (study.source_id !== source.id ||
+      study.note?.references.some(
+        (r) =>
+          Array.from(source.captured_text).slice(r.start, r.end).join("") !==
+          r.excerpt,
+      ))
+  ) {
+    throw new Error(
+      "The saved note's source references could not be verified. Retry loading.",
+    );
+  }
   return {
     id: source.id,
     title: source.title,
-    subtitle: "Saved source · study note pending",
+    subtitle: studyLabel(study),
     author: new URL(source.original_url).hostname,
     year: `Captured ${new Date(source.captured_at).toLocaleDateString("en", { dateStyle: "medium" })}`,
     url: source.original_url,
     kind: "Article",
     color: "mint",
-    overview: "Your source is saved. Structured study notes are not available yet.",
-    concepts: [],
-    recall: [],
+    overview: study?.note?.overview.text ?? studyMessage(study),
+    concepts:
+      study?.note?.concepts.map((c) => ({
+        title: c.title,
+        text: c.text,
+        topic: "",
+      })) ?? [],
+    recall:
+      study?.note?.recall.map((r) => ({
+        question: r.question,
+        answer: r.answer,
+      })) ?? [],
     topics: [],
     evidence: source.captured_text,
     evidenceLabel: source.coverage_detail,
     demo: false,
     addedAt: Date.parse(source.captured_at),
     savedSource: source,
+    study,
   };
 }
 

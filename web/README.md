@@ -129,3 +129,19 @@ uv run --project backend --extra dev python -m pytest backend/tests -q
 ```
 
 This browser slice does not modify or rebuild the existing backend virtualenv.
+
+
+## Structured article notes — ticket #2
+
+The browser now requests structured generation after saving a capture and restores
+persisted studies independently of source loading. Queued/processing/retry/failed
+states are visible; source text remains readable if generation cannot complete.
+Completed notes are read-only with a variable number of concepts, optional supported
+examples/equations and recall. Citation buttons open exact captured passages with
+Open original; the browser checks each excerpt against its saved capture.
+
+Local HTTP/SQL and desktop/narrow browser checks pass. Hosted study generation
+acceptance is pending. Follow [`docs/study-note-setup.md`](../docs/study-note-setup.md)
+for the migration and worker; only public Supabase settings belong in the browser.
+This supersedes the pending-note limitation above. Topic assignment/graphs for
+real notes, PDF/video, live chat/research and source refresh remain future work.
