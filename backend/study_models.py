@@ -107,3 +107,7 @@ class WorkerClaim(StrictModel):
     captured_text: str = Field(min_length=120, max_length=30_000)
     lease_token: UUID
     attempt: int = Field(ge=1, le=3)
+
+
+class StudyDispatch(StrictModel):
+    source_id: UUID

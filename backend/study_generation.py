@@ -81,7 +81,7 @@ class StudyGenerator:
             timeout=60,
             max_retries=0,
             http_async_client=client,
-        ).with_structured_output(DraftStudyNote, method="function_calling")
+        ).with_structured_output(DraftStudyNote, method="function_calling", strict=True)
 
         async def explain(state: GenerationState) -> dict:
             draft = await model_client.ainvoke(

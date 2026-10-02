@@ -9,6 +9,13 @@ duplicate requests, lease recovery, ownership and rollback. Browser fixtures cov
 generated notes, citation navigation, reload and retry. Hosted generation acceptance
 is pending; ticket #1's hosted source capture already passed.
 
+On 2026-10-03, real public-page capture and OpenAI generation passed with exact
+references (the test article's bounded capture was labelled partial). Actual ARQ
+serialization/execution also passed against local Redis. Keys are now configured
+in the ignored backend environment and Redis is running. The study table is not
+yet present in the hosted project; dashboard sign-in is needed to apply the
+reviewed migration and complete persistent worker/browser acceptance.
+
 ## Development setup
 
 1. Apply `supabase/migrations/202610030002_source_studies.sql` once, after the

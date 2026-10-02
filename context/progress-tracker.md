@@ -154,9 +154,15 @@ Current unit: **implementation and local checks complete; hosted acceptance pend
 - [x] ARQ ID-only dispatch, SQL bounded retries, lease recovery and fenced results
 - [x] Read-only viewer, polling, reload and explicit generation retry
 - [x] Local SQL/RLS/rollback, provider HTTP and browser evidence checks
-- [x] 45 backend tests through project Python; 20 web tests; build and lint
+- [x] 54 backend tests through project Python; 20 web tests; build and lint
 - [ ] Apply reviewed migration and complete hosted generation/worker recovery checks
 
 Setup: `docs/study-note-setup.md`. Issue #2 stays open until hosted acceptance.
 This supersedes the browser's pending-generation limitation; native persistence,
 PDF/video, topics and assistant/research remain target work.
+
+Live checks so far: a real public article produced a validated note with exact
+references through OpenAI; real ARQ/Redis UUID job execution passed. Server keys
+are configured locally and Redis runs. Hosted `source_studies` is absent; the
+Supabase dashboard is signed out, so applying the reviewed migration and
+verifying persistent worker/browser processing require dashboard sign-in.

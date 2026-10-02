@@ -5,8 +5,15 @@ import logging
 from uuid import UUID
 
 import httpx
+from pydantic import TypeAdapter
 
-from backend.study_models import StudyError, StudyNote, StudyRecord, WorkerClaim
+from backend.study_models import (
+    StudyDispatch,
+    StudyError,
+    StudyNote,
+    StudyRecord,
+    WorkerClaim,
+)
 
 logger = logging.getLogger(__name__)
 STUDY_COLUMNS = "source_id,user_id,status,attempts,max_attempts,next_attempt_at,error_code,note,updated_at"
@@ -94,8 +101,11 @@ class StudyStore:
     async def due(self) -> list[UUID]:
         values = await self.request("/rpc/due_study_dispatches", body={"p_limit": 25})
         try:
-            return [UUID(row["source_id"]) for row in values]
-        except (ValueError, KeyError, TypeError) as exc:
+            dispatches = TypeAdapter(list[StudyDispatch]).validate_json(
+                json.dumps(values)
+            )
+            return [dispatch.source_id for dispatch in dispatches]
+        except (ValueError, TypeError) as exc:
             raise StudyStorageError() from exc
 
     async def acknowledge(self, source_id: UUID) -> None:
@@ -108,7 +118,11 @@ class StudyStore:
             "/rpc/claim_source_study", body={"p_source_id": str(source_id)}
         )
         try:
-            return WorkerClaim.model_validate_json(json.dumps(value)) if value else None
+            return (
+                WorkerClaim.model_validate_json(json.dumps(value))
+                if value is not None
+                else None
+            )
         except ValueError as exc:
             raise StudyStorageError() from exc
 

@@ -203,7 +203,7 @@ GitHub issue: https://github.com/CloudKai/secondBrain/issues/2.
   Redis loss and interrupted workers are recoverable without duplicating notes.
 - The first capture persists separately. A failed generation request leaves a
   saved source with Generate study note; explicit retry reuses the failed study.
-- Verified locally: 45 backend tests via the project interpreter; 20 web tests,
+- Verified locally: 54 backend tests via the project interpreter; 20 web tests,
   build/typecheck and lint; desktop/narrow browser fixtures for citations, reload
   and failure/retry. The exact pytest entrypoint still selects a stale external
   interpreter; `python -m pytest` passes.
@@ -213,3 +213,9 @@ GitHub issue: https://github.com/CloudKai/secondBrain/issues/2.
 - This unit does not implement PDF/video ingestion, persistent topic organization,
   live assistant/research, source refresh or native integration. Existing native
   changes and v1 contracts are preserved.
+
+Live checks so far: a real public article produced a validated note with exact
+references through OpenAI; real ARQ/Redis UUID job execution passed. Server keys
+are configured locally and Redis runs. Hosted `source_studies` is absent; the
+Supabase dashboard is signed out, so applying the reviewed migration and
+verifying persistent worker/browser processing require dashboard sign-in.

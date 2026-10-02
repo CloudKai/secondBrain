@@ -3,13 +3,14 @@
 import asyncio
 import json
 import inspect
+from uuid import UUID
 
 import httpx
 import pytest
 from arq.connections import ArqRedis
 
 from backend.study_generation import StudyGenerator
-from backend.study_store import StudyStore
+from backend.study_store import StudyStorageError, StudyStore
 from backend.study_worker import build_source_study, dispatch_pending_studies
 from backend.tests.test_study_generation import CAPTURE, completion
 
@@ -23,8 +24,12 @@ class RedisTransport:
         self.fail = fail
 
     async def enqueue_job(self, name, *args, **kwargs):
-        bound = inspect.signature(ArqRedis.enqueue_job).bind(self, name, *args, **kwargs)
-        inspect.signature(build_source_study).bind({}, *args, **bound.arguments.get("kwargs", {}))
+        bound = inspect.signature(ArqRedis.enqueue_job).bind(
+            self, name, *args, **kwargs
+        )
+        inspect.signature(build_source_study).bind(
+            {}, *args, **bound.arguments.get("kwargs", {})
+        )
         if self.fail:
             raise ConnectionError("redis unavailable")
         self.calls.append((name, args, kwargs))
@@ -136,5 +141,41 @@ def test_duplicate_or_deleted_job_does_not_call_model():
                 SOURCE,
             )
         assert calls == ["/rest/v1/rpc/claim_source_study"]
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize("value", [{}, [], False, 0, {"source_id": 123}])
+def test_malformed_claims_are_storage_failures_not_silently_skipped_jobs(value):
+    async def run():
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, json=value)
+            )
+        ) as client:
+            store = StudyStore(
+                client, "https://supabase.test", {"apikey": "sb_secret_test"}
+            )
+            with pytest.raises(StudyStorageError):
+                await store.claim(UUID(SOURCE))
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize(
+    "value", [{}, False, [{"source_id": 123}], [{"source_id": SOURCE, "unknown": True}]]
+)
+def test_malformed_dispatches_are_storage_failures(value):
+    async def run():
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, json=value)
+            )
+        ) as client:
+            store = StudyStore(
+                client, "https://supabase.test", {"apikey": "sb_secret_test"}
+            )
+            with pytest.raises(StudyStorageError):
+                await store.due()
 
     asyncio.run(run())

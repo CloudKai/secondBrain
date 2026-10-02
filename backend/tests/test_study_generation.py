@@ -64,6 +64,10 @@ def completion(request, draft=DRAFT):
     body = json.loads(request.content)
     assert body["model"] == "gpt-4o-mini"
     assert "p0001" in body["messages"][-1]["content"]
+    schema = body["tools"][0]["function"]["parameters"]["properties"]
+    assert body["tools"][0]["function"]["strict"] is True
+    assert "title" in schema["concepts"]["items"]["required"]
+    assert "expression" in schema["equations"]["items"]["required"]
     name = body["tools"][0]["function"]["name"]
     return httpx.Response(
         200,

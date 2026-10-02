@@ -1817,21 +1817,22 @@ export default function App() {
                 <p>
                   Library search, read-only notes, topic views and corrections,
                   source evidence, recall practice, and a saved-note assistant
-                  preview. Public articles can use the existing backend.
+                  preview. Public articles have persistent structured notes and
+                  inspectable citations when the study worker is configured.
                 </p>
                 <strong>What is still planned</strong>
                 <p>
-                  Full web study-note generation, PDF/video extraction,
+                  PDF/video extraction, topic organization for saved articles,
                   open-ended AI conversation, live research, and linked
                   accounts.
                 </p>
                 <strong>Your data</strong>
                 <p>
-                  Saved article sources use your private anonymous library and
-                  reopen after reload. Clearing browser data can lose access to
-                  that session. Example material, topic corrections, and recall
-                  progress stay in memory; examples use labelled paraphrased
-                  evidence.
+                  Saved articles and generated notes use your private anonymous
+                  library and reopen after reload. Clearing browser data can
+                  lose access to that session. Example material, topic
+                  corrections, and recall progress stay in memory; examples use
+                  labelled paraphrased evidence.
                 </p>
               </div>
               <div className="modal-footer">

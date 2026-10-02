@@ -46,7 +46,7 @@
 .pending-source > h3 { margin-top: 24px; }
 .pending-source > p { margin: 14px 0; }
 .study-citations { display: inline-flex; gap: 6px; vertical-align: middle; }
-.study-citations .citation { min-width: 28px; min-height: 28px; }
+.study-citations .citation { min-width: 44px; min-height: 44px; }
 .study-error { margin-top: 20px; padding: 16px; border: 1px solid var(--danger); border-radius: var(--radius); }
 .study-error p { color: var(--danger); }
 .study-equations { margin-top: 28px; }
