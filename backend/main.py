@@ -5,12 +5,14 @@ from fastapi import FastAPI, HTTPException, status
 
 from backend.graph import DeepFeynmanState, deep_feynman_graph
 from backend.schemas import ProcessLinkRequest, ProcessLinkResponse
+from backend.sources import router as sources_router
 
 app = FastAPI(
     title="AI Second Brain API",
     version="0.1.0",
     description="Turns shared links into Feynman summaries and Mermaid diagrams.",
 )
+app.include_router(sources_router)
 
 
 @app.get("/health", tags=["system"])

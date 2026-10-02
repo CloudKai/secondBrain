@@ -133,3 +133,29 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - Android acceptance or release work.
 - A specific API/worker/Redis hosting provider.
 - Treating Redis or Qdrant as authoritative storage.
+
+
+## Browser article capture — ticket #1, 2026-10-02
+
+Status: implementation and local checks complete; hosted Supabase acceptance
+pending project provisioning. The user selected ticket 01 and confirmed no
+Supabase project is set up. GitHub issue: https://github.com/CloudKai/secondBrain/issues/1.
+
+- Extended the supplied browser design with anonymous session restoration,
+  owned-source save/list/reopen/delete, capture provenance/coverage, storage
+  retry/error states, and a clear read-only **Study note pending** viewer.
+- Added `/api/v2/sources` with verified Supabase Auth ownership, learner-token
+  PostgREST access, strict validation, and bounded public-article capture.
+- Reviewed browser-only source migration and rollback are in `supabase/`.
+  The schema is source-first and independent of native fixed folders; topic,
+  note, queue/outbox, and vector tables are deferred to their selected slices.
+- Verified: 12 web tests, build/typecheck, lint; 29 backend tests through the
+  project interpreter. The exact pytest entrypoint selects an obsolete external
+  interpreter and fails collection (`langchain_openai` missing); the project
+  interpreter passes. Existing native/mobile files and v1 behavior were not
+  modified by this ticket.
+- Desktop and 390px browser fixtures cover save, captured-text inspection,
+  original-link identity, reload recovery, and unavailable-storage feedback.
+  A real public-page capture also passed; this is not hosted storage acceptance.
+- Setup and remaining live checks: `supabase/README.md`. Structured generation
+  is ticket 02; the other 14 proposed tickets remain unpublished drafts.
