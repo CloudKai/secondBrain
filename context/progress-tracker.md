@@ -2,11 +2,28 @@
 
 ## Current status
 
-**Phase:** Phase 2 MVP verified; Phase 3 architecture selected
+**Updated:** 2026-10-03 (Asia/Singapore).
 
-**Last completed:** Native iOS share-to-knowledge flow, interactive graph rendering, simulator verification, and repository split
+**Verified MVP:** native Phase 1–2 baseline remains as recorded below. Browser
+planned tickets 01–04 are complete with hosted development acceptance: owned
+article capture, structured notes, selectable-text PDFs and supplied transcripts.
+GitHub #1–#5 are closed; #4 is the extra citation/title-polish task and #5 maps to
+planned ticket 04. Native files were unchanged by the web slices.
 
-**Next:** Anonymous-first Supabase authentication and authoritative Postgres persistence
+**Last completed:** GitHub #5, supplied video transcripts. 93 backend tests,
+28 web tests, build/typecheck and lint passed; hosted generation, browser
+citation/reload and ownership checks passed. Phone-width verification for this
+slice was unavailable because the viewport override remained at desktop width.
+
+**Target behavior / next proposed slice:** planned ticket 05, automatic accessible
+YouTube transcripts with upload/paste fallback. Planned tickets 05–15 remain
+unpublished; automatic retrieval, live saved-source topic organization, combined
+overviews, assistant/research, refresh and range selection remain planned.
+
+**Where to check:** [ticket overview](../docs/planning/web-learning-library-tickets.md)
+for the full plan and GitHub mapping; published GitHub issues for acceptance
+checkboxes/completion comments; the dated sections below for check evidence;
+`scope.md` for decisions. Current status above supersedes historical snapshots.
 
 ## Completed and verified
 
@@ -221,3 +238,15 @@ Six disposable verification captures and their notes/jobs were removed and
 the cascade was verified; private test session tokens were discarded.
 The browser viewport override remained at 1265px; phone-width verification
 is not claimed. Existing responsive styles and native files were unchanged.
+
+
+## Ticket progress synchronization — 2026-10-03
+
+Updated `docs/planning/web-learning-library-tickets.md` to mark planned tickets
+01–04 complete, map them to closed GitHub #1/#2/#3/#5, include extra polish #4,
+and keep 05–15 explicitly planned. Checked the already-complete shared
+recognition, transcript evidence, coverage and limit criteria within later drafts.
+Recorded shared verified foundations without
+claiming automatic provider retrieval, refresh or selected ranges. Updated this
+tracker's current-status headline. Checked all five published issue states and
+acceptance records; this documentation-only update adds/runs no tests.

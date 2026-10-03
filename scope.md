@@ -278,3 +278,15 @@ Six disposable verification captures and their notes/jobs were removed and
 the cascade was verified; private test session tokens were discarded.
 The browser viewport override remained at 1265px; phone-width verification
 is not claimed. Existing responsive styles and native files were unchanged.
+
+
+## Web ticket progress synchronization — 2026-10-03
+
+The ticket breakdown now marks planned slices 01–04 complete and maps them to
+closed GitHub #1/#2/#3/#5; the additional citation/title polish is GitHub #4.
+Tickets 05–15 remain target behavior and unpublished. Later provider/long-source
+criteria already satisfied by shared capture work are checked individually,
+without marking automatic access, range selection or whole future slices complete.
+The progress tracker headline now points to the latest verified web work and
+links to the full ticket overview. GitHub completion records were checked; no
+implementation or new tests were added by this documentation update.
