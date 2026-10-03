@@ -19,7 +19,16 @@ export function noteFromSavedSource(
                 (p) =>
                   p.page === r.page && r.start >= p.start && r.end <= p.end,
               )
-            : r.page != null),
+            : r.page != null) ||
+          (source.source_kind === "video"
+            ? !source.transcript?.segments.some(
+                (s) =>
+                  r.start >= s.start &&
+                  r.end <= s.end &&
+                  (r.start_ms ?? null) === s.start_ms &&
+                  (r.end_ms ?? null) === s.end_ms,
+              )
+            : r.start_ms != null || r.end_ms != null),
       ))
   ) {
     throw new Error(
@@ -35,7 +44,12 @@ export function noteFromSavedSource(
       : (source.document?.filename ?? "Uploaded PDF"),
     year: `Captured ${new Date(source.captured_at).toLocaleDateString("en", { dateStyle: "medium" })}`,
     url: source.original_url ?? "",
-    kind: source.source_kind === "pdf" ? "PDF" : "Article",
+    kind:
+      source.source_kind === "pdf"
+        ? "PDF"
+        : source.source_kind === "video"
+          ? "Video"
+          : "Article",
     color: "mint",
     overview: study?.note?.overview.text ?? studyMessage(study),
     concepts:

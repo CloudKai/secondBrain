@@ -301,3 +301,16 @@ contracts are preserved. Migration rollback refuses while PDF captures exist.
 The updated worker was restarted before the reviewed migration was applied.
 Live PDF generation, physical-page citations and cross-learner isolation passed.
 See `docs/pdf-study-setup.md` for limits and rollout details.
+
+
+## Browser transcript extension — issue #5 (2026-10-03)
+
+Implemented locally, with hosted acceptance pending: a video source stores its
+recording URL, normalized supplied transcript and strict bounded cue metadata.
+`POST /api/v2/sources/video` accepts raw UTF-8 text with bearer authentication and
+`X-Video-URL`; no recording fetch occurs. The existing owned source/study/outbox
+workflow carries transcript metadata into service-only worker claims. Server
+passages split within cues and attach the supplied start/end range; the model
+returns passage IDs only. RLS and worker fencing are unchanged. Setup, limits
+and rollback are in `docs/video-transcript-setup.md`. Automatic retrieval and
+provider integrations remain planned; native/v1 contracts are unchanged.

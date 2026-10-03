@@ -197,3 +197,18 @@ that citation clicks still open Sources and the PDF form uses the new label.
 Numbers identify saved passages; PDF physical page numbers appear in Sources.
 The curated example note separately labels its paraphrased evidence.
 No new tests were requested or run.
+
+
+## Browser supplied transcripts — issue #5, 2026-10-03
+
+Current unit: implemented locally; review and hosted acceptance pending.
+
+- [x] Supported recording context with UTF-8 TXT/VTT/SRT upload and paste
+- [x] Supplied times/speakers, honest coverage and exact cue-bound citations
+- [x] Authenticated capture, owned source/study workflow and worker metadata
+- [x] Local API/model HTTP/SQL ownership tests, web build/typecheck and lint
+- [ ] Independent standards/spec reviews
+- [ ] Hosted migration and live generation/reload/citation checks
+
+Setup: `docs/video-transcript-setup.md`. Planning draft 04 maps to GitHub #5.
+Automatic transcript retrieval remains target work; native is unchanged.

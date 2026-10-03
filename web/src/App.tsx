@@ -31,6 +31,12 @@ import {
 } from "lucide-react";
 import { sampleNotes, topicTitles } from "./data";
 import CapturedSourceText from "./components/CapturedSourceText";
+import VideoTranscriptInput from "./components/VideoTranscriptInput";
+import {
+  formatVideoTime,
+  videoIdentity,
+  videoMomentUrl,
+} from "./lib/transcript";
 
 import type { Note, Page, PanelTab, Topic } from "./types";
 import {
@@ -93,6 +99,11 @@ export default function App() {
     [toast, setToast] = useState("");
   const [pdfMode, setPdfMode] = useState("upload");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [transcriptMode, setTranscriptMode] = useState<"paste" | "upload">(
+    "paste",
+  );
+  const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
+  const [transcriptText, setTranscriptText] = useState("");
   const [sourceTab, setSourceTab] = useState("Article"),
     [sourceUrl, setSourceUrl] = useState(""),
     [sourceTitle, setSourceTitle] = useState(""),
@@ -291,6 +302,7 @@ export default function App() {
     e.preventDefault();
     setError("");
     const isPDF = sourceTab === "PDF";
+    const isVideo = sourceTab === "Video";
     const uploading = isPDF && pdfMode === "upload";
     let url = "";
     if (uploading) {
@@ -306,8 +318,34 @@ export default function App() {
         setError("Enter a valid public http or https URL.");
         return;
       }
+      let identity = canonicalUrl(url);
+      if (isVideo) {
+        try {
+          identity = videoIdentity(url).canonicalUrl;
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Use a supported recording link.",
+          );
+          return;
+        }
+        if (
+          transcriptMode === "upload" ? !transcriptFile : !transcriptText.trim()
+        ) {
+          setError(
+            "Upload or paste the transcript for this video. A link alone cannot create a note.",
+          );
+          return;
+        }
+      }
       const existing = notes.find(
-        (n) => !n.demo && n.url && canonicalUrl(n.url) === canonicalUrl(url),
+        (n) =>
+          !n.demo &&
+          n.url &&
+          (isVideo
+            ? n.savedSource?.canonical_url === identity
+            : canonicalUrl(n.url) === identity),
       );
       if (existing) {
         setDialog(null);
@@ -316,16 +354,17 @@ export default function App() {
         return;
       }
       if (
-        /(?:youtube\.com|youtu\.be|zoom\.us|panopto|teams\.microsoft)/i.test(
+        !isVideo &&
+        /(?:youtube\.com|youtu\.be|zoom\.us|panopto|teams\.microsoft|sharepoint\.com|teams\.cloud\.microsoft)/i.test(
           new URL(url).hostname,
         )
       ) {
         setError(
-          "Video notes need transcript support, which is planned. Use an article or selectable-text PDF.",
+          "Use the Video form and upload or paste the transcript for this recording.",
         );
         return;
       }
-      if (!isPDF && /\.pdf(?:[?#]|$)/i.test(url)) {
+      if (!isPDF && !isVideo && /\.pdf(?:[?#]|$)/i.test(url)) {
         setSourceTab("PDF");
         setPdfMode("url");
         setError("Use the PDF form to save this document.");
@@ -341,17 +380,27 @@ export default function App() {
     setBusy(true);
     try {
       const note = noteFromSavedSource(
-        isPDF
-          ? await sourceClient.savePDF({
-              file: uploading ? (pdfFile ?? undefined) : undefined,
-              url: uploading ? undefined : url,
-              title: sourceTitle,
-            })
-          : await sourceClient.save({
+        isVideo
+          ? await sourceClient.saveVideo({
               url,
               title: sourceTitle,
-              raw_text: rawText || null,
-            }),
+              file:
+                transcriptMode === "upload"
+                  ? (transcriptFile ?? undefined)
+                  : undefined,
+              text: transcriptMode === "paste" ? transcriptText : undefined,
+            })
+          : isPDF
+            ? await sourceClient.savePDF({
+                file: uploading ? (pdfFile ?? undefined) : undefined,
+                url: uploading ? undefined : url,
+                title: sourceTitle,
+              })
+            : await sourceClient.save({
+                url,
+                title: sourceTitle,
+                raw_text: rawText || null,
+              }),
       );
       changeLibrary({ type: "add-sources", notes: [note] });
       setDialog(null);
@@ -359,6 +408,8 @@ export default function App() {
       setSourceTitle("");
       setRawText("");
       setPdfFile(null);
+      setTranscriptFile(null);
+      setTranscriptText("");
       openNote(note);
       setToast("Source saved to your private library.");
       await studies.generate(note);
@@ -366,7 +417,7 @@ export default function App() {
       setError(
         err instanceof Error
           ? err.message
-          : "Could not import this article. Try again.",
+          : "Could not save this source. Try again.",
       );
     } finally {
       setBusy(false);
@@ -617,7 +668,9 @@ export default function App() {
                 {passage
                   ? passage.page
                     ? `PDF page ${passage.page} · passage ${passage.id}`
-                    : `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
+                    : passage.start_ms != null && passage.end_ms != null
+                      ? `${formatVideoTime(passage.start_ms)}–${formatVideoTime(passage.end_ms)} · passage ${passage.id} · supplied transcript`
+                      : `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
                   : currentNote.evidenceLabel}
               </span>
               {passage ? (
@@ -647,17 +700,36 @@ export default function App() {
                   href={
                     passage?.page
                       ? `${currentNote.url.split("#")[0]}#page=${passage.page}`
-                      : currentNote.url
+                      : currentNote.kind === "Video"
+                        ? videoMomentUrl(currentNote.url, passage?.start_ms)
+                        : currentNote.url
                   }
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Open original <ExternalLink size={15} />
+                  {currentNote.kind === "Video" &&
+                  passage?.start_ms != null &&
+                  currentNote.savedSource?.transcript?.provider === "youtube"
+                    ? `Open video at ${formatVideoTime(Math.floor(passage.start_ms / 1000) * 1000)}`
+                    : "Open original"}{" "}
+                  <ExternalLink size={15} />
                 </a>
               ) : (
                 <p className="micro-copy">
                   Uploaded PDF · saved page text. The original file is not
                   stored; refer to your local copy for images and layout.
+                </p>
+              )}
+              {currentNote.kind === "Video" && (
+                <p className="micro-copy">
+                  User-supplied transcript ·{" "}
+                  {currentNote.savedSource?.transcript?.filename ??
+                    "pasted text"}
+                  . No video was fetched or watched.
+                  {passage?.start_ms != null &&
+                    currentNote.savedSource?.transcript?.provider !==
+                      "youtube" &&
+                    " Times are retained from your transcript; this link opens the recording without seeking to a time."}
                 </p>
               )}
             </>
@@ -985,20 +1057,22 @@ export default function App() {
                 </div>
                 <div className="library-toolbar">
                   <div className="filter-tabs" aria-label="Source filters">
-                    {["All sources", "Article", "PDF", "Paper"].map((f) => (
-                      <button
-                        key={f}
-                        aria-pressed={filter === f}
-                        className={filter === f ? "active" : ""}
-                        onClick={() => setFilter(f)}
-                      >
-                        {f === "Article"
-                          ? "Articles"
-                          : f === "Paper"
-                            ? "Papers"
-                            : f}
-                      </button>
-                    ))}
+                    {["All sources", "Article", "PDF", "Video", "Paper"].map(
+                      (f) => (
+                        <button
+                          key={f}
+                          aria-pressed={filter === f}
+                          className={filter === f ? "active" : ""}
+                          onClick={() => setFilter(f)}
+                        >
+                          {f === "Article"
+                            ? "Articles"
+                            : f === "Paper"
+                              ? "Papers"
+                              : f}
+                        </button>
+                      ),
+                    )}
                   </div>
                   <label className="search-field">
                     <Search size={15} />
@@ -1116,7 +1190,8 @@ export default function App() {
                   <span>
                     <strong>Found something worth understanding?</strong>
                     <small>
-                      Add an article or selectable-text PDF to your library.
+                      Add an article, selectable-text PDF or video transcript to
+                      your library.
                     </small>
                   </span>
                   <ArrowRight size={18} />
@@ -1360,7 +1435,9 @@ export default function App() {
                               ? "Captured through a page reader"
                               : currentNote.savedSource.capture_origin ===
                                   "upload"
-                                ? "You uploaded this PDF"
+                                ? currentNote.kind === "Video"
+                                  ? "You uploaded this transcript"
+                                  : "You uploaded this PDF"
                                 : "Captured from the public source"}
                         </span>
                       </div>
@@ -1739,184 +1816,182 @@ export default function App() {
                       <FileText size={16} />
                     )}{" "}
                     {t}
-                    {t === "Video" && <small>Planned</small>}
                   </button>
                 ))}
               </div>
-              {sourceTab !== "Video" ? (
-                <form onSubmit={submitSource}>
-                  <p className="modal-intro">
-                    {sourceTab === "PDF"
+              <form onSubmit={submitSource}>
+                <p className="modal-intro">
+                  {sourceTab === "Video"
+                    ? "Save a YouTube, Teams/SharePoint, Zoom or Panopto recording link with a transcript you upload or paste. Supplied cue times are retained."
+                    : sourceTab === "PDF"
                       ? "Upload a selectable-text PDF or save a direct public PDF link. Notes cite the original PDF page numbers."
                       : "Save a public web article to your private library and reopen its captured text and generated study note after reload. Saved notes include citations you can inspect."}
-                  </p>
-                  {sourceTab === "PDF" && (
-                    <div className="source-input-tabs">
-                      <button
-                        type="button"
-                        disabled={busy}
-                        aria-pressed={pdfMode === "upload"}
-                        className={pdfMode === "upload" ? "active" : ""}
-                        onClick={() => {
-                          setPdfMode("upload");
-                          setError("");
-                        }}
-                      >
-                        Upload PDF
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        aria-pressed={pdfMode === "url"}
-                        className={pdfMode === "url" ? "active" : ""}
-                        onClick={() => {
-                          setPdfMode("url");
-                          setError("");
-                        }}
-                      >
-                        PDF link
-                      </button>
-                    </div>
-                  )}
-                  {sourceTab === "PDF" && pdfMode === "upload" ? (
-                    <>
-                      <label className="form-label" htmlFor="pdf-file">
-                        PDF file
-                      </label>
-                      <input
-                        key="pdf-upload"
-                        id="pdf-file"
-                        type="file"
-                        accept="application/pdf,.pdf"
-                        required
-                        disabled={busy}
-                        aria-describedby="source-support"
-                        onChange={(e) =>
-                          setPdfFile(e.target.files?.[0] ?? null)
-                        }
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <label className="form-label" htmlFor="source-url">
-                        {sourceTab === "PDF" ? "Public PDF URL" : "Article URL"}
-                      </label>
-                      <input
-                        key="source-url"
-                        id="source-url"
-                        type="url"
-                        required
-                        value={sourceUrl}
-                        onChange={(e) => setSourceUrl(e.target.value)}
-                        placeholder={
-                          sourceTab === "PDF"
-                            ? "https://example.com/document.pdf"
-                            : "https://example.com/an-interesting-idea"
-                        }
-                        disabled={busy}
-                        aria-describedby="source-support"
-                      />
-                    </>
-                  )}
-                  <label className="form-label" htmlFor="source-title">
-                    {sourceTab === "PDF" ? "Topic title" : "Title"}{" "}
-                    <span>optional</span>
-                  </label>
-                  <input
-                    id="source-title"
-                    maxLength={200}
-                    value={sourceTitle}
-                    onChange={(e) => setSourceTitle(e.target.value)}
-                    placeholder={
-                      sourceTab === "PDF"
-                        ? "e.g. Algebra and calculus"
-                        : "Give your source a recognizable name"
-                    }
-                    disabled={busy}
-                  />
-                  {sourceTab === "Article" && (
-                    <details className="paste-details">
-                      <summary>
-                        Have the article text? Paste it as a fallback.
-                      </summary>
-                      <label className="form-label" htmlFor="article-text">
-                        Article text <span>up to 30,000 characters</span>
-                      </label>
-                      <textarea
-                        id="article-text"
-                        rows={5}
-                        value={rawText}
-                        maxLength={30000}
-                        disabled={busy}
-                        onChange={(e) => setRawText(e.target.value)}
-                      />
-                    </details>
-                  )}
-                  <p className="support-copy" id="source-support">
-                    <CircleHelp size={15} />
-                    {sourceTab === "PDF"
-                      ? "Selectable-text PDFs: up to 10 MB, 100 pages and 30,000 captured characters. Missing or omitted text is labelled. Scanned-only and encrypted files are unsupported. Images and layout are not extracted. Uploads retain page text and filename; the original file is not stored."
-                      : "Public HTTP(S) articles: up to 2 MB per download and 30,000 captured characters. Incomplete coverage is labelled. Selectable-text PDFs are available in the PDF tab; videos are planned."}
-                  </p>
-                  {error && (
-                    <p className="form-error" role="alert">
-                      {error}
-                    </p>
-                  )}
-                  {busy && (
-                    <p className="processing-status" role="status">
-                      Capturing and saving the{" "}
-                      {sourceTab === "PDF" ? "PDF" : "article"}, then requesting
-                      its study note.
-                    </p>
-                  )}
-                  <div className="modal-footer">
+                </p>
+                {sourceTab === "PDF" && (
+                  <div className="source-input-tabs">
                     <button
                       type="button"
-                      className="button secondary"
-                      onClick={() => setDialog(null)}
+                      disabled={busy}
+                      aria-pressed={pdfMode === "upload"}
+                      className={pdfMode === "upload" ? "active" : ""}
+                      onClick={() => {
+                        setPdfMode("upload");
+                        setError("");
+                      }}
                     >
-                      {busy ? "Keep browsing" : "Cancel"}
+                      Upload PDF
                     </button>
                     <button
-                      className="button primary"
-                      disabled={busy || storage !== "ready"}
+                      type="button"
+                      disabled={busy}
+                      aria-pressed={pdfMode === "url"}
+                      className={pdfMode === "url" ? "active" : ""}
+                      onClick={() => {
+                        setPdfMode("url");
+                        setError("");
+                      }}
                     >
-                      {busy ? (
-                        <>
-                          <LoaderCircle size={16} className="spin" />
-                          Saving source…
-                        </>
-                      ) : (
-                        <>
-                          Save source <ArrowRight size={16} />
-                        </>
-                      )}
+                      PDF link
                     </button>
                   </div>
-                </form>
-              ) : (
-                <div className="planned-source">
-                  <span className="topic-icon tone-purple">
-                    <Upload size={28} />
-                  </span>
-                  <h3>Transcript-backed videos are next.</h3>
-                  <p>
-                    YouTube, Teams, Zoom, and Panopto sources will require an
-                    accessible transcript, with upload or paste when retrieval
-                    is unavailable. Provider account connections are excluded.
+                )}
+                {sourceTab === "PDF" && pdfMode === "upload" ? (
+                  <>
+                    <label className="form-label" htmlFor="pdf-file">
+                      PDF file
+                    </label>
+                    <input
+                      key="pdf-upload"
+                      id="pdf-file"
+                      type="file"
+                      accept="application/pdf,.pdf"
+                      required
+                      disabled={busy}
+                      aria-describedby="source-support"
+                      onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <label className="form-label" htmlFor="source-url">
+                      {sourceTab === "Video"
+                        ? "Video or recording URL"
+                        : sourceTab === "PDF"
+                          ? "Public PDF URL"
+                          : "Article URL"}
+                    </label>
+                    <input
+                      key="source-url"
+                      id="source-url"
+                      type="url"
+                      required
+                      value={sourceUrl}
+                      onChange={(e) => setSourceUrl(e.target.value)}
+                      placeholder={
+                        sourceTab === "Video"
+                          ? "https://www.youtube.com/watch?v=..."
+                          : sourceTab === "PDF"
+                            ? "https://example.com/document.pdf"
+                            : "https://example.com/an-interesting-idea"
+                      }
+                      disabled={busy}
+                      aria-describedby="source-support"
+                    />
+                  </>
+                )}
+                <label className="form-label" htmlFor="source-title">
+                  {sourceTab !== "Article" ? "Topic title" : "Title"}{" "}
+                  <span>optional</span>
+                </label>
+                <input
+                  id="source-title"
+                  maxLength={200}
+                  value={sourceTitle}
+                  onChange={(e) => setSourceTitle(e.target.value)}
+                  placeholder={
+                    sourceTab !== "Article"
+                      ? "e.g. Algebra and calculus"
+                      : "Give your source a recognizable name"
+                  }
+                  disabled={busy}
+                />
+                {sourceTab === "Video" && (
+                  <VideoTranscriptInput
+                    mode={transcriptMode}
+                    onMode={setTranscriptMode}
+                    onFile={setTranscriptFile}
+                    text={transcriptText}
+                    onText={setTranscriptText}
+                    busy={busy}
+                  />
+                )}
+                {sourceTab === "Article" && (
+                  <details className="paste-details">
+                    <summary>
+                      Have the article text? Paste it as a fallback.
+                    </summary>
+                    <label className="form-label" htmlFor="article-text">
+                      Article text <span>up to 30,000 characters</span>
+                    </label>
+                    <textarea
+                      id="article-text"
+                      rows={5}
+                      value={rawText}
+                      maxLength={30000}
+                      disabled={busy}
+                      onChange={(e) => setRawText(e.target.value)}
+                    />
+                  </details>
+                )}
+                <p className="support-copy" id="source-support">
+                  <CircleHelp size={15} />
+                  {sourceTab === "Video"
+                    ? "Supply UTF-8 TXT, VTT or SRT up to 1 MB and 2,000 timed cues, or paste 120–100,000 characters. Up to 30,000 readable characters are captured; omitted text is labelled. TXT is untimed; paste VTT/SRT to retain times. For DOCX or other exports, paste the readable text. Transcripts are user-supplied; the app does not retrieve or watch the video or connect provider accounts."
+                    : sourceTab === "PDF"
+                      ? "Selectable-text PDFs: up to 10 MB, 100 pages and 30,000 captured characters. Missing or omitted text is labelled. Scanned-only and encrypted files are unsupported. Images and layout are not extracted. Uploads retain page text and filename; the original file is not stored."
+                      : "Public HTTP(S) articles: up to 2 MB per download and 30,000 captured characters. Incomplete coverage is labelled. Use the PDF tab for selectable-text PDFs or the Video tab with an uploaded/pasted transcript."}
+                </p>
+                {error && (
+                  <p className="form-error" role="alert">
+                    {error}
                   </p>
-                  <span className="badge">
-                    Planned support · unavailable in this slice
-                  </span>
+                )}
+                {busy && (
+                  <p className="processing-status" role="status">
+                    Capturing and saving the{" "}
+                    {sourceTab === "Video"
+                      ? "supplied transcript"
+                      : sourceTab === "PDF"
+                        ? "PDF"
+                        : "article"}
+                    , then requesting its study note.
+                  </p>
+                )}
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() => setDialog(null)}
+                  >
+                    {busy ? "Keep browsing" : "Cancel"}
+                  </button>
                   <button
                     className="button primary"
-                    onClick={() => setSourceTab("Article")}
+                    disabled={busy || storage !== "ready"}
                   >
-                    Add a web article instead <ArrowRight size={15} />
+                    {busy ? (
+                      <>
+                        <LoaderCircle size={16} className="spin" />
+                        Saving source…
+                      </>
+                    ) : (
+                      <>
+                        Save source <ArrowRight size={16} />
+                      </>
+                    )}
                   </button>
                 </div>
-              )}
+              </form>
             </>
           )}
           {dialog === "about" && (
@@ -1930,18 +2005,19 @@ export default function App() {
                 <p>
                   Library search, read-only notes, topic views and corrections,
                   source evidence, recall practice, and a saved-note assistant
-                  preview. Public articles have persistent structured notes and
-                  inspectable citations when the study worker is configured.
+                  preview. Articles, PDFs and supplied video transcripts have
+                  persistent structured notes and inspectable citations when the
+                  study worker is configured.
                 </p>
                 <strong>What is still planned</strong>
                 <p>
-                  Video extraction, topic organization for saved notes,
-                  open-ended AI conversation, live research, and linked
+                  Automatic transcript retrieval, topic organization for saved
+                  notes, open-ended AI conversation, live research, and linked
                   accounts.
                 </p>
                 <strong>Your data</strong>
                 <p>
-                  Saved articles and generated notes use your private anonymous
+                  Saved sources and generated notes use your private anonymous
                   library and reopen after reload. Clearing browser data can
                   lose access to that session. Example material, topic
                   corrections, and recall progress stay in memory; examples use

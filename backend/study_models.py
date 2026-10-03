@@ -8,6 +8,7 @@ from pydantic import Field, model_validator
 
 from backend.schemas import StrictModel
 from backend.source_models import PDFDocument
+from backend.transcript_models import TranscriptDocument
 
 StudyState = Literal["queued", "processing", "succeeded", "failed"]
 StudyError = Literal[
@@ -52,6 +53,17 @@ class SourceReference(StrictModel):
     end: int = Field(gt=0)
     excerpt: str = Field(min_length=1, max_length=1_000)
     page: int | None = Field(default=None, ge=1, le=100)
+    start_ms: int | None = Field(default=None, ge=0, le=604_800_000)
+    end_ms: int | None = Field(default=None, gt=0, le=604_800_000)
+
+    @model_validator(mode="after")
+    def consistent_location(self):
+        if (self.start_ms is None) != (self.end_ms is None) or (
+            self.start_ms is not None
+            and (self.end_ms <= self.start_ms or self.page is not None)
+        ):
+            raise ValueError("Invalid source time range")
+        return self
 
 
 class StudyNote(DraftStudyNote):
@@ -110,6 +122,17 @@ class WorkerClaim(StrictModel):
     lease_token: UUID
     attempt: int = Field(ge=1, le=3)
     document: PDFDocument | None = None
+    transcript: TranscriptDocument | None = None
+
+    @model_validator(mode="after")
+    def location_metadata(self):
+        if self.document and self.transcript:
+            raise ValueError("A source cannot be a PDF and video")
+        if self.transcript and self.transcript.segments[-1].end != len(
+            self.captured_text
+        ):
+            raise ValueError("Transcript locations must cover captured text")
+        return self
 
 
 class StudyDispatch(StrictModel):

@@ -10,9 +10,9 @@ from typing import Literal
 from uuid import UUID
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, Request, Header
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import ValidationError
+from pydantic import HttpUrl, ValidationError
 
 from backend.source_capture import canonical_source_url, capture_article
 from backend.source_models import (
@@ -22,6 +22,7 @@ from backend.source_models import (
     SourcePage,
 )
 from backend.pdf_capture import capture_pdf, capture_pdf_link, MAX_PDF_BYTES
+from backend.transcript_capture import capture_transcript, MAX_TRANSCRIPT_BYTES
 
 router = APIRouter(prefix="/api/v2/sources", tags=["browser sources"])
 bearer = HTTPBearer(auto_error=False)
@@ -164,6 +165,59 @@ async def save_source(
     if source is None:
         raise HTTPException(
             503, "The source could not be confirmed as saved. Try again."
+        )
+    return source
+
+
+@router.post("/video", response_model=CapturedSource, status_code=201)
+async def save_video_transcript(
+    request: Request,
+    url: HttpUrl = Header(alias="X-Video-URL"),
+    title: str = Query(default="", max_length=200),
+    filename: str | None = Query(default=None, min_length=1, max_length=200),
+    gateway: SourceGateway = Depends(owned_sources),
+) -> CapturedSource:
+    data = bytearray()
+    try:
+        async with asyncio.timeout(30):
+            async for chunk in request.stream():
+                if len(data) + len(chunk) > MAX_TRANSCRIPT_BYTES:
+                    raise HTTPException(
+                        413,
+                        "Transcripts must be 1 MB or smaller. Export a shorter transcript or paste its text.",
+                    )
+                data.extend(chunk)
+    except TimeoutError as exc:
+        raise HTTPException(
+            408,
+            "The transcript upload timed out. Try a smaller file or paste its text.",
+        ) from exc
+    try:
+        capture = capture_transcript(bytes(data), str(url), filename)
+    except ValueError as exc:
+        logger.warning("Transcript capture rejected: %s", type(exc).__name__)
+        raise HTTPException(422, str(exc)) from exc
+    identity = capture["canonical_url"]
+    existing = await gateway.find(canonical_url=f"eq.{identity}")
+    if existing:
+        return existing
+    rows = await gateway.request(
+        "POST",
+        {"select": "*", "on_conflict": "user_id,canonical_url"},
+        {
+            "user_id": str(gateway.user_id),
+            "original_url": str(url),
+            "title": title.strip()
+            or (filename.rsplit(".", 1)[0] if filename else "")
+            or f"{capture['transcript']['provider'].title()} transcript",
+            "study_status": "pending",
+            **capture,
+        },
+    )
+    source = rows[0] if rows else await gateway.find(canonical_url=f"eq.{identity}")
+    if source is None:
+        raise HTTPException(
+            503, "The transcript could not be confirmed as saved. Try again."
         )
     return source
 

@@ -36,6 +36,7 @@ async def build_source_study(ctx: dict, source_id: str) -> None:
         note = await ctx["generator"].generate(
             claim.captured_text,
             **({"document": claim.document} if claim.document else {}),
+            **({"transcript": claim.transcript} if claim.transcript else {}),
         )
     except GenerationFailure as exc:
         await store.finish(claim, error=exc.code)

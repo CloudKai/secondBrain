@@ -12,6 +12,7 @@ from openai import APITimeoutError
 
 from backend.study_models import DraftStudyNote, SourceReference, StudyError, StudyNote
 from backend.source_models import PDFDocument
+from backend.transcript_models import TranscriptDocument
 
 
 class GenerationFailure(Exception):
@@ -21,19 +22,25 @@ class GenerationFailure(Exception):
 
 
 def captured_passages(
-    text: str, document: PDFDocument | None = None
+    text: str,
+    document: PDFDocument | None = None,
+    transcript: TranscriptDocument | None = None,
 ) -> list[SourceReference]:
     if not 120 <= len(text) <= 30_000:
         raise GenerationFailure("invalid_output")
     if document and document.pages[-1].end != len(text):
         raise GenerationFailure("invalid_output")
+    if transcript and (document or transcript.segments[-1].end != len(text)):
+        raise GenerationFailure("invalid_output")
     spans = (
-        [(p.start, p.end, p.page) for p in document.pages]
+        [(p.start, p.end, p.page, None, None) for p in document.pages]
         if document
-        else [(0, len(text), None)]
+        else [(s.start, s.end, None, s.start_ms, s.end_ms) for s in transcript.segments]
+        if transcript
+        else [(0, len(text), None, None, None)]
     )
     passages = []
-    for first, last, page in spans:
+    for first, last, page, start_ms, end_ms in spans:
         start = first
         while start < last:
             end = min(start + 900, last)
@@ -51,6 +58,8 @@ def captured_passages(
                     end=end,
                     excerpt=text[start:end],
                     page=page,
+                    start_ms=start_ms,
+                    end_ms=end_ms,
                 )
             )
             start = end
@@ -136,12 +145,16 @@ class StudyGenerator:
         self.graph = graph.compile()
 
     async def generate(
-        self, text: str, *, document: PDFDocument | None = None
+        self,
+        text: str,
+        *,
+        document: PDFDocument | None = None,
+        transcript: TranscriptDocument | None = None,
     ) -> StudyNote:
         try:
             async with asyncio.timeout(65):
                 result = await self.graph.ainvoke(
-                    {"passages": captured_passages(text, document)}
+                    {"passages": captured_passages(text, document, transcript)}
                 )
                 return result["note"]
         except GenerationFailure:

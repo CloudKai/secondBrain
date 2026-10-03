@@ -98,3 +98,15 @@ Linked PDFs open the cited original page; uploads explain that only captured
 page text and filename are retained. Video controls remain labelled planned.
 The live three-page upload preserves its blank second page and opens the page-3
 calculus excerpt after reload. Narrow-screen fixture checks also passed.
+
+
+## Browser transcript form — issue #5 (2026-10-03)
+
+Implemented locally; live hosted acceptance pending. Video in Add material now
+accepts a supported recording URL and either a supplied transcript file or pasted
+text, with Topic title and visible limits. Saved videos filter as Video. Inline
+mint citation badges open Sources with the exact transcript excerpt, supplied
+cue range if present, provenance and original recording link. Full text groups
+timed cues with their supplied times. Untimed TXT has no fabricated time labels.
+YouTube uses a supplied start-time link; other providers explicitly open without
+seeking. Source notes stay read-only. Native screens are untouched.

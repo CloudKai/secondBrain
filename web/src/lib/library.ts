@@ -64,7 +64,8 @@ function removeSources(state: LibraryState, removed: Note[]): LibraryState {
 }
 
 function sourceIdentity(note: Note): string {
-  return note.savedSource?.original_url === null
+  return note.savedSource?.original_url === null ||
+    note.savedSource?.source_kind === "video"
     ? note.savedSource.canonical_url
     : canonicalUrl(note.url);
 }

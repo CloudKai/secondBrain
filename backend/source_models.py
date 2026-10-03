@@ -7,6 +7,7 @@ from uuid import UUID
 from pydantic import Field, HttpUrl, TypeAdapter, model_validator
 
 from backend.schemas import StrictModel
+from backend.transcript_models import TranscriptDocument
 
 
 class CaptureSourceRequest(StrictModel):
@@ -52,8 +53,9 @@ class CapturedSource(StrictModel):
     user_id: UUID = Field(exclude=True)
     original_url: HttpUrl | None
     canonical_url: str = Field(pattern=r"^(https?://|urn:pdf:sha256:[a-f0-9]{64}$)")
-    source_kind: Literal["article", "pdf"] = "article"
+    source_kind: Literal["article", "pdf", "video"] = "article"
     document: PDFDocument | None = None
+    transcript: TranscriptDocument | None = None
     title: str = Field(min_length=1, max_length=200)
     captured_text: str = Field(min_length=120, max_length=30_000)
     captured_at: datetime
@@ -64,6 +66,21 @@ class CapturedSource(StrictModel):
 
     @model_validator(mode="after")
     def document_matches_source(self):
+        if self.source_kind == "video":
+            if (
+                self.original_url is None
+                or self.document is not None
+                or self.transcript is None
+                or self.capture_origin not in ("pasted", "upload")
+                or (self.capture_origin == "upload")
+                != (self.transcript.filename is not None)
+                or self.transcript.segments[-1].end != len(self.captured_text)
+            ):
+                raise ValueError("Invalid supplied transcript identity or locations")
+            TypeAdapter(HttpUrl).validate_python(self.canonical_url)
+            return self
+        if self.transcript is not None:
+            raise ValueError("Only video sources have transcript metadata")
         if self.source_kind == "article":
             if (
                 self.original_url is None

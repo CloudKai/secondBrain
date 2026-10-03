@@ -254,3 +254,18 @@ that wording was a manually entered disposable verification title. A supplied
 title is kept as-is; uploads otherwise use their filename.
 Web typecheck/lint passed and the circular badges were inspected in the browser.
 No new tests were requested or run. Native files are untouched.
+
+
+## Supplied video transcripts — issue #5, 2026-10-03
+
+Status: implemented locally; independent review and hosted acceptance pending.
+Issue: https://github.com/CloudKai/secondBrain/issues/5 (planning draft 04).
+
+The browser Video form saves YouTube, Teams/SharePoint, Zoom and Panopto
+recording context with uploaded UTF-8 TXT/VTT/SRT or pasted transcript text.
+Owned immutable captures preserve supplied speaker labels and cue times; study
+notes cite exact passages with no inferred times. YouTube links can open at a
+supplied time; other providers open the original recording with visible times.
+Limits and migration/rollback: `docs/video-transcript-setup.md`. Native files
+are untouched. Automatic retrieval, provider connections, topics and research
+remain target work. GitHub issue #5 is still open pending hosted acceptance.

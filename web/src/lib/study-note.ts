@@ -23,6 +23,8 @@ const reference = z
     end: z.number().int().positive(),
     excerpt: text(1000),
     page: z.number().int().min(1).max(100).nullish(),
+    start_ms: z.number().int().min(0).max(604800000).nullish(),
+    end_ms: z.number().int().min(1).max(604800000).nullish(),
   })
   .strict();
 const noteSchema = z
@@ -46,7 +48,12 @@ const noteSchema = z
     ];
     if (
       ids.size !== note.references.length ||
-      note.references.some((r) => r.end <= r.start) ||
+      note.references.some(
+        (r) =>
+          r.end <= r.start ||
+          (r.start_ms == null) !== (r.end_ms == null) ||
+          (r.start_ms != null && (r.end_ms! <= r.start_ms || r.page != null)),
+      ) ||
       claims.some((c) => c.citation_ids.some((id) => !ids.has(id)))
     ) {
       ctx.addIssue({ code: "custom", message: "Invalid source references" });
