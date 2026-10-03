@@ -343,3 +343,17 @@ Hosted controlled fixtures verified exact references and cross-learner API/REST/
 RPC denial. Microsoft's documented transcript API requires authorization; no
 anonymous access path is validated. Automatic Teams retrieval remains target work,
 and native/v1 contracts are unchanged by this slice.
+
+
+## Zoom transcript availability — issue #8 (2026-10-03)
+
+Zoom feedback uses the existing supplied-transcript boundary: no remote adapter,
+schema, migration, auth provider, webhook or credential is added. Browser source
+recognition immediately opens upload/paste for Zoom share/play context while
+preserving existing saved-source validators and query identity. Supplied VTT
+speaker/cue metadata and untimed text enter the authenticated source/study/outbox
+path. Controlled hosted fixtures verified exact references and second-learner
+API/REST/RPC denial. Zoom's documented download requires OAuth authorization;
+no anonymous path is validated. Conditional guidance does not determine a
+recording's actual availability/permissions. Automatic Zoom retrieval remains
+target work; native/v1 behavior is unchanged.

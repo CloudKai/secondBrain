@@ -3300,7 +3300,8 @@ main:focus-visible { outline: none; }
   padding: 12px 0;
   color: var(--text);
 }
-.transcript-access ol {
+.transcript-access ol,
+.transcript-access ul {
   padding-left: 22px;
 }
 .transcript-access li + li {

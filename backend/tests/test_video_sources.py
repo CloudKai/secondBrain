@@ -398,3 +398,47 @@ def test_teams_recap_vtt_preserves_original_context_speaker_and_real_times(
         ).status_code
         == 404
     )
+
+
+@pytest.mark.parametrize("link_kind", ["share", "play"])
+def test_zoom_export_preserves_recording_context_and_supplied_evidence(
+    browser_client, link_kind
+):
+    url = f"https://us02web.zoom.us/rec/{link_kind}/lecture-fixture?startTime=5000&pwd=synthetic-passcode"
+    caption = "WEBVTT\n\n1\n00:00:05.250 --> 00:00:20.500\nLecturer: " + TRANSCRIPT
+    headers = {"Authorization": "Bearer alice", "X-Video-URL": url}
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        headers=headers,
+        params={"filename": "zoom-export.vtt", "title": "Algebra"},
+        content=caption,
+    )
+    assert response.status_code == 201, response.text
+    source = response.json()
+    assert source["original_url"] == url
+    assert source["canonical_url"] == url
+    assert source["capture_origin"] == "upload"
+    assert source["transcript"] == {
+        "provider": "zoom",
+        "format": "vtt",
+        "filename": "zoom-export.vtt",
+        "segments": [{"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}],
+    }
+    assert source["captured_text"] == "Lecturer: " + TRANSCRIPT
+    assert "No video was fetched" in source["coverage_detail"]
+    assert "completeness is unverified" in source["coverage_detail"]
+    reopened = browser_client.get("/api/v2/sources/" + source["id"], headers=headers)
+    assert reopened.json() == source
+    duplicate = browser_client.post(
+        "/api/v2/sources/video",
+        headers={**headers, "X-Video-URL": url + "#transcript"},
+        params={"filename": "zoom-export.vtt"},
+        content=caption,
+    )
+    assert duplicate.json()["id"] == source["id"]
+    assert (
+        browser_client.get(
+            "/api/v2/sources/" + source["id"], headers={"Authorization": "Bearer bob"}
+        ).status_code
+        == 404
+    )

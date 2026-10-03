@@ -135,3 +135,16 @@ Existing transcript controls, limits, read-only notes and citation styles remain
 Desktop hosted checks verified timed VTT citations after reload and untimed text
 paste/reuse. No new phone-width check is claimed; native UI is unchanged.
 Automatic Teams retrieval is unvalidated and is not advertised.
+
+
+## Zoom transcript availability — issue #8 (2026-10-03)
+
+Zoom recording share/play links now immediately select Upload or paste. The
+existing mint access-panel style explains that transcript download needs access
+the app lacks, even when a learner has a playback link or passcode. Expandable
+cloud VTT export instructions provide conditional next steps for processing,
+missing, restricted, expired/deleted material without claiming to inspect status.
+Original and official-guide links remain available. Existing transcript limits,
+read-only notes and citation styling are preserved. Hosted controlled VTT and
+untimed paste, exact citations, reload/reuse passed at desktop width. Native UI
+is untouched; no automatic Zoom or new phone-width acceptance is claimed.

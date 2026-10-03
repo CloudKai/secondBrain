@@ -11,12 +11,12 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **06**, Teams transcript permission/export guidance and supplied input.
 
-**In progress:** none. Next proposed slice is planned ticket **07**, Zoom transcript availability and export feedback.
+**In progress:** planned ticket **07**, Zoom transcript availability and export feedback — [GitHub #8](https://github.com/CloudKai/secondBrain/issues/8).
 
-**Target behavior:** planned tickets **07–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**Target behavior:** planned tickets **08–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next proposed slice is **07: Handle Zoom recording transcripts and availability
+The selected slice is **07: Handle Zoom recording transcripts and availability
 states**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
@@ -29,7 +29,7 @@ captions; other automatic providers remain planned.
 | Extra | Circular mint citations and PDF topic title | Complete; browser inspection + typecheck/lint | [#4](https://github.com/CloudKai/secondBrain/issues/4) |
 | 05 | Accessible YouTube transcripts | Complete; local + hosted acceptance | [#6](https://github.com/CloudKai/secondBrain/issues/6), [setup](../youtube-transcript-setup.md), [review](../reviews/ticket06.md) |
 | 06 | Teams transcript access and feedback | Complete; local + hosted supplied-transcript acceptance | [#7](https://github.com/CloudKai/secondBrain/issues/7), [setup](../teams-transcript-setup.md), [review](../reviews/ticket07.md) |
-| 07 | Zoom transcript availability and feedback | Draft; supplied-transcript foundations complete | Unpublished |
+| 07 | Zoom transcript availability and feedback | In progress; local + hosted checks pass, review pending | [#8](https://github.com/CloudKai/secondBrain/issues/8) |
 | 08 | Panopto caption access and fallback | Draft; supplied-transcript foundations complete | Unpublished |
 | 09 | Saved-source topic cards and graph | Draft; completed dependency 02 | Unpublished |
 | 10 | Synthesized topic overviews and source branches | Draft; depends on 09 | Unpublished |
@@ -261,11 +261,13 @@ A learner submits a Teams recording and can use an accessible transcript or supp
 
 ## 07: Handle Zoom recording transcripts and availability states
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — implementation and hosted supplied-transcript acceptance passed on 2026-10-03; independent review pending.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#8 — open](https://github.com/CloudKai/secondBrain/issues/8)
 
-**Already verified from ticket 04:** Zoom recording context and supplied transcript capture preserve actual text/times. Automatic retrieval and provider availability-state handling remain planned.
+**Label:** `ready-for-agent`
+
+**Already verified from ticket 04:** Zoom recording context and supplied transcript capture preserve actual text/times. Zoom’s documented transcript download requires authorization this app lacks; no anonymous path is validated. This slice adds app-level export guidance and conditional availability feedback, without claiming to inspect the specific recording’s status.
 
 ### What to build
 

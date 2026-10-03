@@ -32,6 +32,7 @@ import {
 import { sampleNotes, topicTitles } from "./data";
 import CapturedSourceText from "./components/CapturedSourceText";
 import TeamsTranscriptHelp from "./components/TeamsTranscriptHelp";
+import ZoomTranscriptHelp from "./components/ZoomTranscriptHelp";
 import VideoTranscriptInput from "./components/VideoTranscriptInput";
 import {
   formatVideoTime,
@@ -115,15 +116,16 @@ export default function App() {
     [rawText, setRawText] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const isTeamsContext = (() => {
-    if (sourceTab !== "Video") return false;
+  const videoProvider = (() => {
+    if (sourceTab !== "Video") return null;
     try {
-      return videoIdentity(sourceUrl).provider === "teams";
+      return videoIdentity(sourceUrl).provider;
     } catch {
-      return false;
+      return null;
     }
   })();
-  const videoInputMode = isTeamsContext ? "supplied" : videoMode;
+  const hasExportGuidance = videoProvider === "teams" || videoProvider === "zoom";
+  const videoInputMode = hasExportGuidance ? "supplied" : videoMode;
   const [topicName, setTopicName] = useState(""),
     [mergeTarget, setMergeTarget] = useState("");
   const mainRef = useRef<HTMLElement>(null);
@@ -1867,7 +1869,7 @@ export default function App() {
                   >
                     <button
                       type="button"
-                      disabled={busy || isTeamsContext}
+                      disabled={busy || hasExportGuidance}
                       aria-pressed={videoInputMode === "auto"}
                       className={videoInputMode === "auto" ? "active" : ""}
                       onClick={() => {
@@ -1979,7 +1981,12 @@ export default function App() {
                   }
                   disabled={busy}
                 />
-                {isTeamsContext && <TeamsTranscriptHelp url={sourceUrl} />}
+                {videoProvider === "teams" && (
+                  <TeamsTranscriptHelp url={sourceUrl} />
+                )}
+                {videoProvider === "zoom" && (
+                  <ZoomTranscriptHelp url={sourceUrl} />
+                )}
                 {sourceTab === "Video" && videoInputMode === "supplied" && (
                   <VideoTranscriptInput
                     mode={transcriptMode}

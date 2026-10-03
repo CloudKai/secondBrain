@@ -343,3 +343,25 @@ Both controlled captures and their study/outbox rows were removed with cascade
 verified; existing learner notes are preserved. Review: `docs/reviews/ticket07.md`.
 The web ticket breakdown and GitHub #7 are synchronized. Next proposed slice is
 planned ticket 07, Zoom transcript availability/export feedback; not started.
+
+
+## Zoom transcript availability — issue #8 (2026-10-03)
+
+Status: implementation and hosted supplied-transcript acceptance pass;
+independent review is pending. Planned ticket 07 immediately opens upload/paste
+for Zoom share/play recording context, with cloud VTT export instructions and
+conditional next steps for processing, missing, restricted, expired/deleted
+material. The app lacks Zoom download authorization and does not infer the
+specific recording's state. A URL or passcode alone is not transcript permission.
+No anonymous retrieval method is validated or advertised; account integration,
+webhooks, private-page scraping, bypass and media processing are excluded.
+
+Hosted controlled VTT upload preserved the Lecturer label and 5.250–20.500
+second citation after reload. Text paste generated untimed evidence; duplicate
+intake with transcript input and a fragment variant reopened the same note.
+All three references matched stored text/cues; another learner received
+API404/RESTempty/RPCdenied. Fixtures use fictional recording context, not private
+Zoom access. Local checks: 106 backend tests, 30 web tests, build/typecheck and
+lint pass using project Python. Setup: `docs/zoom-transcript-setup.md`. No new
+migration/credentials or native/v1 changes. Web progress and planning files are
+updated; native history remains separate. Panopto is the next proposed slice.

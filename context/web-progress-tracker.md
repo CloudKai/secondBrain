@@ -16,8 +16,9 @@ cross-learner denial passed. Automatic Teams retrieval remains unvalidated.
 Standards and Spec reviews have no remaining material findings; a naming
 suggestion was applied. Browser acceptance was at desktop width.
 
-**Next proposed unit:** planned ticket 07, Zoom transcript availability and
-export feedback; unpublished draft. No new unit has started.
+**Current unit:** planned ticket 07 / [GitHub #8](https://github.com/CloudKai/secondBrain/issues/8),
+Zoom transcript availability and export feedback. Implementation and hosted
+supplied-transcript acceptance pass; independent review is pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
@@ -261,3 +262,21 @@ new credentials or native/iOS changes. Standards found no documented breach; its
 naming suggestion was applied. Spec found no material issue. Both controlled
 captures and their study/outbox rows were removed, with cascade verified. Existing
 learner notes were preserved. Review: `docs/reviews/ticket07.md`.
+
+
+## Zoom availability/export feedback — issue #8, planned ticket 07, 2026-10-03
+
+- [x] Primary documentation verifies download authorization and VTT export
+- [x] Zoom share/play context immediately opens upload/paste and access guidance
+- [x] Conditional help for processing, missing, restricted, expired/deleted material
+- [x] Share URL or passcode is not treated as transcript download permission
+- [x] Hosted VTT/paste generation, exact timed/untimed citations and reload/reuse
+- [x] Exact three references and second-learner API/REST/RPC denial
+- [x] 106 backend tests, 30 web tests, build/typecheck and lint pass
+- [ ] Independent Standards/Spec review and final synchronization
+
+Setup: `docs/zoom-transcript-setup.md`. No anonymous Zoom retrieval path is
+validated or advertised. The app does not inspect a recording's specific state;
+controlled transcripts and fictional share/play contexts verify supplied input.
+No new migration, credentials, account connection or native/iOS changes. Review
+and fixture cleanup remain pending. Web status stays separate from native history.
