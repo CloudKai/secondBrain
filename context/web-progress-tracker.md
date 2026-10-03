@@ -2,22 +2,22 @@
 
 ## Current status — 2026-10-03
 
-**Verified MVP:** planned tickets 01–05 are complete with hosted development
-acceptance. GitHub #1/#2/#3/#5/#6 cover articles, structured notes, selectable-text
-PDFs, supplied transcripts and accessible English YouTube captions; extra #4
-covers citation/title polish.
+**Verified MVP:** planned tickets 01–06 are complete with hosted development
+acceptance. GitHub #1/#2/#3/#5/#6/#7 cover articles, structured notes, selectable-text
+PDFs, supplied transcripts, accessible English YouTube captions and Teams export
+feedback. Extra #4 covers citation/title polish.
 
-**Last completed:** planned ticket 05 / [GitHub #6](https://github.com/CloudKai/secondBrain/issues/6).
-Real caption import, generated notes, exact timed citations, reload/reuse,
-unavailable-caption fallback and cross-learner denial passed.
+**Last completed:** planned ticket 06 / [GitHub #7](https://github.com/CloudKai/secondBrain/issues/7).
+Teams/SharePoint context opens upload/paste with permission/export guidance.
+Hosted supplied VTT and untimed text notes, exact citations, reload/reuse and
+cross-learner denial passed. Automatic Teams retrieval remains unvalidated.
 
-**Latest checks:** 103 backend tests, 30 web tests, web build/typecheck and lint
-pass. Standards and Spec reviews have no remaining material findings. Browser
-acceptance was at desktop width; no new phone-width check is claimed.
+**Latest checks:** 104 backend tests, 30 web tests, build/typecheck and lint pass.
+Standards and Spec reviews have no remaining material findings; a naming
+suggestion was applied. Browser acceptance was at desktop width.
 
-**Current unit:** planned ticket 06 / [GitHub #7](https://github.com/CloudKai/secondBrain/issues/7),
-Teams transcript access and export feedback. Implementation and hosted supplied-
-transcript checks pass; independent Standards/Spec review is pending.
+**Next proposed unit:** planned ticket 07, Zoom transcript availability and
+export feedback; unpublished draft. No new unit has started.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
@@ -251,10 +251,13 @@ was corrected. Setup: `docs/youtube-transcript-setup.md`; review:
 - [x] Hosted note generation, citation inspection, reload and duplicate reuse
 - [x] Exact saved references and second-learner API/REST/RPC denial
 - [x] 104 backend tests, 30 web tests, build/typecheck and lint pass
-- [ ] Independent Standards/Spec review and final issue synchronization
+- [x] Independent Standards/Spec review and final issue synchronization
 
 No anonymous Teams retrieval path is validated. Access feedback describes the
 app's authorization limitation; it does not inspect a recording's specific state.
 Hosted checks use controlled transcripts and fictional recording URLs, not a
 private Teams recording. Setup: `docs/teams-transcript-setup.md`. No migration,
-new credentials or native/iOS changes. Review and fixture cleanup remain pending.
+new credentials or native/iOS changes. Standards found no documented breach; its
+naming suggestion was applied. Spec found no material issue. Both controlled
+captures and their study/outbox rows were removed, with cascade verified. Existing
+learner notes were preserved. Review: `docs/reviews/ticket07.md`.

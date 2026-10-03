@@ -321,8 +321,9 @@ Teams transcript access and feedback.
 
 ## Teams transcript access — issue #7 (2026-10-03)
 
-Status: implementation and hosted supplied-transcript acceptance passed;
-independent review is pending. Planned ticket 06 shows permission/export guidance
+Status: complete; verified locally and against hosted development storage.
+Independent Standards and Spec review found no material issues; a naming
+suggestion was applied. Planned ticket 06 shows permission/export guidance
 and immediately opens upload/paste for Teams/SharePoint recording context.
 No anonymous retrieval method is validated; automatic Teams retrieval is not a
 current capability. The app does not inspect recording-specific permissions,
@@ -337,3 +338,8 @@ Fixtures use fictional recording context, not private Teams access. Local checks
 Python interpreter. Setup: `docs/teams-transcript-setup.md`. No migration or new
 credentials; native/v1 changes are excluded. Web status remains in the dedicated
 web tracker and ticket breakdown. Zoom/Panopto automatic support remains target work.
+
+Both controlled captures and their study/outbox rows were removed with cascade
+verified; existing learner notes are preserved. Review: `docs/reviews/ticket07.md`.
+The web ticket breakdown and GitHub #7 are synchronized. Next proposed slice is
+planned ticket 07, Zoom transcript availability/export feedback; not started.

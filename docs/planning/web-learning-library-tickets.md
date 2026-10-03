@@ -5,19 +5,19 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–05 are complete** (5 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#6 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–06 are complete** (6 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#7 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **05**, accessible English YouTube transcripts with fallback.
+**Last completed:** planned ticket **06**, Teams transcript permission/export guidance and supplied input.
 
-**In progress:** planned ticket **06**, Teams transcript access and export feedback — [GitHub #7](https://github.com/CloudKai/secondBrain/issues/7).
+**In progress:** none. Next proposed slice is planned ticket **07**, Zoom transcript availability and export feedback.
 
 **Target behavior:** planned tickets **07–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next proposed slice is **06: Handle Teams recording transcripts and access
-feedback**. YouTube support is verified for anonymously accessible English
+The next proposed slice is **07: Handle Zoom recording transcripts and availability
+states**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -28,7 +28,7 @@ captions; other automatic providers remain planned.
 | 04 | Supplied video transcripts | Complete; local + hosted acceptance | [#5](https://github.com/CloudKai/secondBrain/issues/5), [setup](../video-transcript-setup.md) |
 | Extra | Circular mint citations and PDF topic title | Complete; browser inspection + typecheck/lint | [#4](https://github.com/CloudKai/secondBrain/issues/4) |
 | 05 | Accessible YouTube transcripts | Complete; local + hosted acceptance | [#6](https://github.com/CloudKai/secondBrain/issues/6), [setup](../youtube-transcript-setup.md), [review](../reviews/ticket06.md) |
-| 06 | Teams transcript access and feedback | In progress; local + hosted checks pass, review pending | [#7](https://github.com/CloudKai/secondBrain/issues/7) |
+| 06 | Teams transcript access and feedback | Complete; local + hosted supplied-transcript acceptance | [#7](https://github.com/CloudKai/secondBrain/issues/7), [setup](../teams-transcript-setup.md), [review](../reviews/ticket07.md) |
 | 07 | Zoom transcript availability and feedback | Draft; supplied-transcript foundations complete | Unpublished |
 | 08 | Panopto caption access and fallback | Draft; supplied-transcript foundations complete | Unpublished |
 | 09 | Saved-source topic cards and graph | Draft; completed dependency 02 | Unpublished |
@@ -39,13 +39,13 @@ captions; other automatic providers remain planned.
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **103 backend tests, 30 web tests, web build/typecheck
-and lint**, plus hosted YouTube generation, exact timed citations, browser
-reload/reuse, unavailable-caption fallback and ownership checks. Independent
-Standards and Spec reviews have no remaining material findings. Browser acceptance
-was at desktop width; no new phone-width check is claimed. Native/iOS files were
-not changed by these web tickets. This is development acceptance; production
-deployment is not configured.
+Latest completed checks: **104 backend tests, 30 web tests, build/typecheck and
+lint**, plus hosted Teams VTT/paste generation, exact timed/untimed references,
+reload/reuse and ownership checks. Standards found no documented breach; its
+naming suggestion was applied. Spec found no material issue. Controlled fictional
+recording contexts verify supplied input; they do not establish private Teams
+access or automatic retrieval. Native/iOS files were not changed. Browser checks
+were at desktop width; production deployment remains unconfigured.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -62,7 +62,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–05 were selected by the user and completed. Remaining
+relationships. Tickets 01–06 were selected by the user and completed. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -232,13 +232,15 @@ remains conditional; no account/cookie/bypass/audio-video flow was added.
 
 ## 06: Handle Teams recording transcripts and access feedback
 
-**Status:** In progress — implementation and hosted supplied-transcript acceptance passed on 2026-10-03; independent review pending.
+**Status:** Complete — local and hosted supplied-transcript acceptance passed on 2026-10-03; independent review complete.
 
-**GitHub:** [#7 — open](https://github.com/CloudKai/secondBrain/issues/7)
+**GitHub:** [#7 — closed](https://github.com/CloudKai/secondBrain/issues/7)
 
 **Label:** `ready-for-agent`
 
 **Already verified from ticket 04:** Teams/SharePoint recording context and supplied TXT/VTT/SRT or pasted text are supported. Microsoft’s documented API requires authorization this app does not have. No anonymous access path is validated; this slice adds accurate permission/export feedback and verifies the supplied-transcript path.
+
+**Completion:** Teams/SharePoint context immediately opens permission/export guidance and upload/paste. Controlled VTT and readable-text paste generated saved notes with actual speaker/times or untimed evidence; reload, reuse, exact references and ownership checks passed. No automatic Teams retrieval is advertised. These checks do not probe a real private recording. [Setup and acceptance](../teams-transcript-setup.md); [independent review](../reviews/ticket07.md).
 
 ### What to build
 
@@ -247,11 +249,11 @@ A learner submits a Teams recording and can use an accessible transcript or supp
 ### Acceptance criteria
 
 - [x] Recognized recording links retain the original Teams source identity.
-- [ ] Retrieve a transcript only through an independently validated accessible path; do not introduce Graph account connections or admin-consent setup.
-- [ ] Where transcript access requires permissions the app does not have, explain the limitation and open upload/paste controls.
+- [x] Retrieve a transcript only through an independently validated accessible path; do not introduce Graph account connections or admin-consent setup.
+- [x] Where transcript access requires permissions the app does not have, explain the limitation and open upload/paste controls.
 - [x] Exported transcripts retain only their actual text, speaker information, and times; supported export formats are described accurately.
-- [ ] Automatic support is advertised only for access paths demonstrated with a fixture.
-- [ ] Provider and browser checks cover accessible transcript input, restricted recordings, and export fallback.
+- [x] Automatic support is advertised only for access paths demonstrated with a fixture.
+- [x] Provider and browser checks cover accessible transcript input, restricted recordings, and export fallback.
 
 ### Blocked by
 

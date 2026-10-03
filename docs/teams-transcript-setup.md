@@ -69,5 +69,7 @@ Teams recording or test a specific recording's actual permissions.
   bare pytest launcher points at a stale interpreter; tests pass using
   `uv run --project backend --extra dev python -m pytest backend/tests -q`.
 
-Independent Standards/Spec review is pending. Controlled verification captures
-will be removed after review; existing learner sources are preserved.
+Independent Standards/Spec review found no material issues; a naming suggestion
+was applied. Both controlled captures and their source/study/outbox rows were
+removed with cascade verified; existing learner sources are preserved. Review:
+[ticket #7](reviews/ticket07.md).

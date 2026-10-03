@@ -115,7 +115,7 @@ export default function App() {
     [rawText, setRawText] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const isTeamsRecording = (() => {
+  const isTeamsContext = (() => {
     if (sourceTab !== "Video") return false;
     try {
       return videoIdentity(sourceUrl).provider === "teams";
@@ -123,7 +123,7 @@ export default function App() {
       return false;
     }
   })();
-  const videoInputMode = isTeamsRecording ? "supplied" : videoMode;
+  const videoInputMode = isTeamsContext ? "supplied" : videoMode;
   const [topicName, setTopicName] = useState(""),
     [mergeTarget, setMergeTarget] = useState("");
   const mainRef = useRef<HTMLElement>(null);
@@ -1867,7 +1867,7 @@ export default function App() {
                   >
                     <button
                       type="button"
-                      disabled={busy || isTeamsRecording}
+                      disabled={busy || isTeamsContext}
                       aria-pressed={videoInputMode === "auto"}
                       className={videoInputMode === "auto" ? "active" : ""}
                       onClick={() => {
@@ -1979,7 +1979,7 @@ export default function App() {
                   }
                   disabled={busy}
                 />
-                {isTeamsRecording && <TeamsTranscriptHelp url={sourceUrl} />}
+                {isTeamsContext && <TeamsTranscriptHelp url={sourceUrl} />}
                 {sourceTab === "Video" && videoInputMode === "supplied" && (
                   <VideoTranscriptInput
                     mode={transcriptMode}
