@@ -114,10 +114,12 @@ seeking. Source notes stay read-only. Native screens are untouched.
 
 ## YouTube caption import — issue #6 (2026-10-03)
 
-Video in Add material offers Import YouTube captions and Upload or paste. The
-automatic choice accepts a YouTube URL without requiring transcript text. It
-explains accessible English captions and limits. A retrieval failure preserves
-the URL/title and opens paste/upload controls; storage/authentication failures
-remain retry errors. Sources distinguishes retrieved captions from user-supplied
-transcripts, preserving real cue times and exact passage citations. Notes remain
-read-only. Hosted browser acceptance is pending; native UI is untouched.
+Verified with real hosted generation and desktop browser checks. Video in Add
+material offers Import YouTube captions and Upload or paste. The automatic choice
+accepts a YouTube URL without requiring transcript text and explains accessible
+English captions and limits. A retrieval failure preserves URL/title and opens
+paste/upload controls; authentication/storage errors remain retry errors. Sources
+distinguishes retrieved captions from user-supplied transcripts, preserving real
+cue times and exact passage citations. Notes remain read-only; reload and canonical
+reuse restore the same note. Native UI is untouched; no new phone-width check is
+claimed. Other automatic recording providers remain planned.

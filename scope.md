@@ -294,16 +294,26 @@ implementation or new tests were added by this documentation update.
 
 ## Accessible YouTube captions — issue #6, planned ticket 05 (2026-10-03)
 
-Current unit: automatic English caption import with upload/paste fallback;
-implemented locally, hosted development acceptance and independent review pending.
-The real public caption probe returned 286 cues / 18,430 characters. Local checks
-pass: 102 backend tests, 30 web tests, web build/typecheck and lint. Automatic
-captures retain distinct direct origin and real cue times. Missing/restricted/blocked
-access saves no source and opens fallback; other recording platforms use supplied
-transcripts. No account/cookies/proxy bypass or audio/video download/transcription.
-See `docs/youtube-transcript-setup.md` for bounds and reversible migration.
+Status: complete, verified locally and against the hosted development project.
+Real anonymous English caption retrieval returned 286 cues / 18,430 characters
+and generated a persistent read-only note. Its 13 references match saved excerpts
+and real cue ranges. Browser citation p0020 shows 1:15.120–1:18.950 and links to
+75 seconds; reload/canonical reuse restored the same note. Unavailable retrieval
+retained URL/title and opened upload/paste; supplied VTT then generated a note
+with pasted provenance and exact 5.250–20.500 second timing. Cross-learner
+API/REST/RPC access was denied. The real Neural networks note is retained; only
+the synthetic fallback capture was removed, with its study/outbox cascade verified.
 
-Web progress now lives in `context/web-progress-tracker.md`, with per-ticket
-status in `docs/planning/web-learning-library-tickets.md`; native progress stays
-in `context/progress-tracker.md`. The user requested this separation. Native/v1
-changes already in the working tree are unrelated and are not part of this ticket.
+Final checks: 103 backend tests, 30 web tests, web build/typecheck and lint pass.
+Standards — three findings fixed, no remaining material issue; Spec — zero
+material defects. Minor timeout documentation corrected. Setup and reviewed
+migration/rollback: `docs/youtube-transcript-setup.md`; review:
+`docs/reviews/ticket06.md`. No account, authentication/consent cookies, proxy
+bypass, audio/video download or transcription. Other providers’ automatic access
+remains planned. Browser checks were at desktop width; production is unconfigured.
+
+Web progress lives in `context/web-progress-tracker.md` and per-ticket status in
+`docs/planning/web-learning-library-tickets.md`; native progress stays in
+`context/progress-tracker.md`, as requested. Existing unrelated native/v1 working
+tree changes are not part of this ticket. Next proposed slice: planned ticket 06,
+Teams transcript access and feedback.

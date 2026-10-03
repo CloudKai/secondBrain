@@ -5,17 +5,18 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–04 are complete** (4 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#5 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–05 are complete** (5 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#6 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**In progress:** planned ticket **05**, automatic YouTube transcripts with fallback.
+**Last completed:** planned ticket **05**, accessible English YouTube transcripts with fallback.
 
 **Target behavior:** planned tickets **06–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The current selected slice is **05: Import accessible YouTube transcripts with a
-reliable fallback**; the adapter and browser controls are implemented locally; hosted acceptance remains pending.
+The next proposed slice is **06: Handle Teams recording transcripts and access
+feedback**. YouTube support is verified for anonymously accessible English
+captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
 | --- | --- | --- | --- |
@@ -24,7 +25,7 @@ reliable fallback**; the adapter and browser controls are implemented locally; h
 | 03 | Selectable-text PDF uploads and links | Complete; local + hosted acceptance | [#3](https://github.com/CloudKai/secondBrain/issues/3), [setup](../pdf-study-setup.md), [review](../reviews/ticket03.md) |
 | 04 | Supplied video transcripts | Complete; local + hosted acceptance | [#5](https://github.com/CloudKai/secondBrain/issues/5), [setup](../video-transcript-setup.md) |
 | Extra | Circular mint citations and PDF topic title | Complete; browser inspection + typecheck/lint | [#4](https://github.com/CloudKai/secondBrain/issues/4) |
-| 05 | Automatic YouTube transcripts | In progress; local checks pass, hosted acceptance pending | [#6](https://github.com/CloudKai/secondBrain/issues/6) |
+| 05 | Accessible YouTube transcripts | Complete; local + hosted acceptance | [#6](https://github.com/CloudKai/secondBrain/issues/6), [setup](../youtube-transcript-setup.md), [review](../reviews/ticket06.md) |
 | 06 | Teams transcript access and feedback | Draft; supplied-transcript foundations complete | Unpublished |
 | 07 | Zoom transcript availability and feedback | Draft; supplied-transcript foundations complete | Unpublished |
 | 08 | Panopto caption access and fallback | Draft; supplied-transcript foundations complete | Unpublished |
@@ -36,13 +37,13 @@ reliable fallback**; the adapter and browser controls are implemented locally; h
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **93 backend tests, 28 web tests, web build/typecheck and
-lint**, plus hosted transcript generation, browser citations/reload, and ownership
-checks. Test counts are from completed implementation work; this documentation
-synchronization does not rerun tests. The latest browser viewport override stayed
-at desktop width, so phone-width verification for ticket 04 is not claimed.
-Native/iOS files were not changed by these web tickets. This is development
-acceptance; production deployment is not configured.
+Latest completed checks: **103 backend tests, 30 web tests, web build/typecheck
+and lint**, plus hosted YouTube generation, exact timed citations, browser
+reload/reuse, unavailable-caption fallback and ownership checks. Independent
+Standards and Spec reviews have no remaining material findings. Browser acceptance
+was at desktop width; no new phone-width check is claimed. Native/iOS files were
+not changed by these web tickets. This is development acceptance; production
+deployment is not configured.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -59,7 +60,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–04 were selected by the user and completed. Remaining
+relationships. Tickets 01–05 were selected by the user and completed. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -71,12 +72,13 @@ assistant retrieved stored example note text, and discovery was curated.
 
 ### Current verified browser behavior — 2026-10-03
 
-Articles, selectable-text PDFs and supplied video transcripts now use owned,
+Articles, selectable-text PDFs, accessible English YouTube captions and supplied
+video transcripts now use owned,
 persistent captures and asynchronous structured notes with inspectable evidence.
 Topic organization/corrections, combined overviews, model chat and live research
 remain target work; their existing example UI is not live implementation.
 Supplied transcript links do not retrieve or watch recordings. PDF OCR,
-page/time ranges, source refresh and automatic provider retrieval remain planned.
+page/time ranges, source refresh and automatic Teams/Zoom/Panopto retrieval remain planned.
 
 Each ticket is an end-to-end slice with acceptance checks. Provider tickets
 validate available access paths and the transcript fallback; they do not
@@ -194,9 +196,9 @@ A learner supplies a video link plus transcript text or a transcript file and re
 
 ## 05: Import accessible YouTube transcripts with a reliable fallback
 
-**Status:** In progress — selected on 2026-10-03; acceptance pending.
+**Status:** Complete — verified locally and against hosted development storage on 2026-10-03.
 
-**GitHub:** [#6 — open](https://github.com/CloudKai/secondBrain/issues/6)
+**GitHub:** [#6 — closed](https://github.com/CloudKai/secondBrain/issues/6)
 
 **Label:** `ready-for-agent`
 
@@ -206,12 +208,21 @@ A learner submits a YouTube URL and gets a note from an accessible transcript or
 
 ### Acceptance criteria
 
-- [ ] Automatic retrieval uses a validated accessible method without asking the learner to connect a YouTube account.
-- [ ] Support is demonstrated with an accessible-caption fixture; a public playable URL is not assumed to authorize the official caption-download API.
-- [ ] The import preserves transcript origin and real timing, then uses the existing video-note flow.
-- [ ] Unavailable, blocked, or missing captions show the transcript fallback without claiming successful automatic retrieval.
-- [ ] Provider support copy reflects validated capabilities.
-- [ ] Adapter checks and a browser flow verify retrieval success and unavailable-transcript fallback.
+- [x] Automatic retrieval uses a validated accessible method without asking the learner to connect a YouTube account.
+- [x] Support is demonstrated with an accessible-caption fixture; a public playable URL is not assumed to authorize the official caption-download API.
+- [x] The import preserves transcript origin and real timing, then uses the existing video-note flow.
+- [x] Unavailable, blocked, or missing captions show the transcript fallback without claiming successful automatic retrieval.
+- [x] Provider support copy reflects validated capabilities.
+- [x] Adapter checks and a browser flow verify retrieval success and unavailable-transcript fallback.
+
+### Verification
+
+Real public captions: 286 cues / 18,430 characters; generated note, exact cue
+citations, canonical reuse and reload passed. Missing/unavailable access retained
+URL/title and opened fallback; supplied VTT then generated a note. Second-learner
+API/REST/RPC access was denied. 103 backend tests, 30 web tests, build/typecheck
+and lint pass; reviews have no remaining material findings. YouTube availability
+remains conditional; no account/cookie/bypass/audio-video flow was added.
 
 ### Blocked by
 

@@ -13,9 +13,10 @@ never establishes caption availability or official caption-download permission.
 
 A real public retrieval of [3Blue1Brown’s neural network introduction](https://www.youtube.com/watch?v=aircAruvnKk)
 returned 286 real cues and 18,430 text characters in this development environment.
-Controlled API and database checks pass. Hosted persistence, browser generation
-and independent reviews are pending; this document does not yet claim end-to-end
-acceptance. Native/iOS and `/api/v1/process-link` are unchanged by this ticket.
+Verified locally and against hosted development storage: browser import,
+generation, canonical reuse, reload, timed citations and unavailable-caption
+fallback passed. Independent Standards and Spec reviews have no remaining
+material findings. Native/iOS and `/api/v1/process-link` are unchanged by this ticket.
 
 Missing, restricted, blocked, unreadable or oversized captions return an actionable
 422 response; the browser keeps the URL/title and opens supplied-transcript controls.
@@ -36,7 +37,7 @@ production availability. Do not add account credentials or proxies to bypass a b
 - Four concurrent retrievals; four requests maximum per retrieval.
 - HTTPS `www.youtube.com` watch/player/timedtext paths only, with no redirects.
   Caption URLs must identify the requested video; learner tokens are not forwarded.
-- Eight seconds maximum per HTTP request, 30-second retrieval deadline and
+- Eight-second HTTP operation timeouts, a 30-second retrieval deadline and
   35-second async deadline including admission. Network reads are asynchronous
   with an interruptible wall-clock timeout; SDK execution retains its concurrency
   slot until it finishes even when the request is cancelled.
@@ -76,3 +77,25 @@ The prescribed `uv run --project backend --extra dev pytest backend/tests -q`
 resolves an obsolete Anaconda entrypoint and fails collection. The project interpreter
 `uv run --project backend --extra dev python -m pytest backend/tests -q` passes.
 The dev API likewise uses `python -m uvicorn` with `--env-file backend/.env`.
+
+## Hosted acceptance — 2026-10-03
+
+Migration 005 was applied successfully to the configured development project.
+The real Neural networks capture generated a read-only note and survived reload
+and canonical re-import with the same source ID. Its 13 references match saved
+text and actual cue boundaries. Citation p0020 shows 1:15.120–1:18.950 and the
+exact supporting excerpt; Open video points to `t=75s`. This real note is retained
+in the learner’s library.
+
+An unavailable video fixture returned fallback feedback without creating a source;
+URL/title were retained and paste/upload controls opened. Pasting a supplied VTT
+then generated a note with pasted provenance and the exact 5.250–20.500 second
+cue; reload passed. This synthetic fixture and its study/outbox rows were removed
+and the cascade verified. No real learner capture was deleted. A second anonymous
+learner received API 404, empty REST results and denied study RPC access to the
+real caption source. Tokens were kept private and not retained in files.
+
+Final checks: 103 backend tests, 30 web tests, web build/typecheck and lint pass.
+Review evidence: `docs/reviews/ticket06.md`. Browser acceptance was at desktop
+width; no new phone-width check is claimed. Production deployment is unconfigured,
+and YouTube availability remains conditional on anonymous caption access.

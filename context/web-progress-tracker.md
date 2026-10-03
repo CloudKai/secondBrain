@@ -2,26 +2,25 @@
 
 ## Current status — 2026-10-03
 
-**Verified MVP:** planned tickets 01–04 are complete with hosted development
-acceptance. GitHub #1/#2/#3/#5 cover articles, structured notes, selectable-text
-PDFs and supplied video transcripts; extra #4 covers citation/title polish.
+**Verified MVP:** planned tickets 01–05 are complete with hosted development
+acceptance. GitHub #1/#2/#3/#5/#6 cover articles, structured notes, selectable-text
+PDFs, supplied transcripts and accessible English YouTube captions; extra #4
+covers citation/title polish.
 
-**Current unit:** planned ticket 05, accessible automatic YouTube transcript
-import with upload/paste fallback. Selected by the user and published as [GitHub #6](https://github.com/CloudKai/secondBrain/issues/6).
-The authenticated API and public-caption HTTP boundary have an initial passing
-controlled fixture. A real public retrieval returned 286 cues / 18,430 characters;
-hosted persistence and browser acceptance remain pending. Automatic import is not yet a verified end-to-end capability.
+**Last completed:** planned ticket 05 / [GitHub #6](https://github.com/CloudKai/secondBrain/issues/6).
+Real caption import, generated notes, exact timed citations, reload/reuse,
+unavailable-caption fallback and cross-learner denial passed.
 
-**Current local checks:** 102 backend tests, 30 web tests, build/typecheck and
-lint pass for ticket 05. **Latest hosted completed checks:** 93 backend tests,
-28 web tests, build/typecheck and
-lint; hosted supplied-transcript generation, browser citations/reload and ownership
-checks passed. Phone-width verification for that slice was unavailable because
-the viewport override remained at desktop width.
+**Latest checks:** 103 backend tests, 30 web tests, web build/typecheck and lint
+pass. Standards and Spec reviews have no remaining material findings. Browser
+acceptance was at desktop width; no new phone-width check is claimed.
 
-**Target behavior:** provider-specific automatic access, saved-source topics,
+**Target behavior / next proposed slice:** planned ticket 06, Teams transcript
+access and feedback. Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
-remain planned. Example UI does not establish live service acceptance.
+remain planned. Existing example UI does not establish those live capabilities.
+YouTube support is conditional on anonymously accessible English captions;
+production deployment is unconfigured.
 
 **Where to check:** [ticket breakdown](../docs/planning/web-learning-library-tickets.md)
 for acceptance checkboxes and GitHub mapping; published GitHub issues for completion
@@ -213,3 +212,29 @@ Recorded shared verified foundations without
 claiming automatic provider retrieval, refresh or selected ranges. Updated this
 tracker's current-status headline. Checked all five published issue states and
 acceptance records; this documentation-only update adds/runs no tests.
+
+
+## Accessible YouTube captions — issue #6, planned ticket 05, 2026-10-03
+
+- [x] Validated anonymous public-caption method with a real accessible video
+- [x] Bounded HTTP responses, wall-clock deadline and cancellation-safe capacity
+- [x] Exact cue times and distinct retrieved/supplied provenance
+- [x] Reviewed migration/rollback preserving captures, RLS and worker contracts
+- [x] Hosted generation, canonical reuse and browser reload
+- [x] Browser timed citation and Open video link using the saved caption cue
+- [x] Unavailable-caption feedback opens upload/paste and retains URL/title
+- [x] Supplied fallback generates a note with real supplied times
+- [x] Second-learner API/REST/RPC denial
+- [x] Web ticket checklist and GitHub acceptance synchronized
+
+The real Neural networks video returned 286 cues and 18,430 characters. Its
+saved note has 13 validated exact references; p0020 is 1:15.120–1:18.950 with
+Open video at 75 seconds. The real note remains in the library. The synthetic
+paste-fallback capture and its study/outbox rows were removed, with cascade
+verified. Private session tokens were not exposed or retained in files.
+
+Final checks: 103 backend tests, 30 web tests, build/typecheck and lint pass.
+Review: Standards — three bounded-ingestion/fallback findings fixed, zero remaining
+material findings; Spec — zero material defects. A minor timeout description
+was corrected. Setup: `docs/youtube-transcript-setup.md`; review:
+`docs/reviews/ticket06.md`. Native/v1 files are unchanged by this ticket.

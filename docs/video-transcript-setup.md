@@ -2,11 +2,13 @@
 
 ## Implemented scope
 
-The browser Video form accepts a recording link plus a transcript uploaded or
+The browser Video form’s Upload or paste option accepts a recording link plus a transcript uploaded or
 pasted by the learner. It does not retrieve transcripts, download audio/video,
 watch recordings or connect provider accounts. Notes are generated in English
 through the existing authenticated source/study workflow and remain read-only.
-Native/iOS code is untouched. Automatic YouTube retrieval remains a later ticket.
+Native/iOS code is untouched. Accessible English YouTube retrieval is now verified
+separately in [ticket #6 setup](youtube-transcript-setup.md); this document describes
+the supplied-transcript input path.
 
 Recognized links are specific YouTube videos (watch, short, live, embed or youtu.be),
 Teams or SharePoint recording context, Zoom `/rec/share/` or `/rec/play/` recordings,

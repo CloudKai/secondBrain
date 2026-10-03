@@ -145,3 +145,19 @@ citations, reload, ownership isolation and worker recovery passed on 2026-10-03.
 for the migration and worker; only public Supabase settings belong in the browser.
 This supersedes the pending-note limitation above. Topic assignment/graphs for
 real notes, PDF/video, live chat/research and source refresh remain future work.
+
+
+## Current verified browser support — 2026-10-03
+
+This supersedes earlier handoff/ticket snapshots above. Articles, selectable-text
+PDF uploads/links, supplied video transcripts and anonymously accessible English
+YouTube captions now persist in the learner-owned library and generate structured
+read-only notes with exact passage/page/cue citations. Retrieval failure opens
+upload/paste controls. Setup: [YouTube captions](../docs/youtube-transcript-setup.md),
+[PDFs](../docs/pdf-study-setup.md), [supplied transcripts](../docs/video-transcript-setup.md)
+and [study worker](../docs/study-note-setup.md). The real captioned Neural networks
+note survives reload. 103 backend tests and 30 web tests pass; web build/typecheck
+and lint pass. Production deployment, automatic Teams/Zoom/Panopto access, saved
+source topics, chat/research and refresh remain planned. Track web acceptance in
+[the web tracker](../context/web-progress-tracker.md) and
+[the ticket plan](../docs/planning/web-learning-library-tickets.md).
