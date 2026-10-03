@@ -73,8 +73,23 @@ rollback without a separately authorized data plan.
 
 ## Verification status
 
-Local implementation: 20 transcript boundary tests and 27 web tests pass; web
+Local implementation: 22 transcript boundary tests, 93 full backend tests and
+28 web tests pass; web
 build/typecheck and lint pass. The documented pytest executable resolves to an
 unrelated Anaconda interpreter; project Python (`uv run --project backend --extra
 dev python -m pytest backend/tests -q`) is used for the full backend suite.
-Independent review, hosted migration and live browser acceptance are pending.
+Independent standards/spec reviews are complete with no remaining findings.
+The hosted migration succeeded in AI Study Friends on 2026-10-03. Timed VTT
+upload generation, both supplied cue citations and reload passed in the browser.
+A malformed VTT displayed actionable feedback without saving. Hosted untimed
+paste generation produced exact excerpts with no invented times, repeated study
+requests reused the result, Panopto parameter variants reused a source, and a
+second anonymous learner could neither read, delete nor generate those sources
+through the API or bypass ownership through direct REST/RPC. Browser untimed paste, exact excerpt citations and reload also passed. Hosted
+Teams recording context and uploaded SRT retained a supplied zero-start cue.
+Six disposable acceptance sources and their notes/jobs were removed with the
+cascade verified; private test session tokens were discarded.
+
+The browser viewport override did not change the reported 1265px width, so a
+phone-width check could not be verified in this environment. Existing responsive
+styles were reused; no native layout or CSS was changed in this ticket.

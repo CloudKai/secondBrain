@@ -201,14 +201,23 @@ No new tests were requested or run.
 
 ## Browser supplied transcripts — issue #5, 2026-10-03
 
-Current unit: implemented locally; review and hosted acceptance pending.
+Current unit: implementation, review and hosted acceptance complete.
 
 - [x] Supported recording context with UTF-8 TXT/VTT/SRT upload and paste
 - [x] Supplied times/speakers, honest coverage and exact cue-bound citations
 - [x] Authenticated capture, owned source/study workflow and worker metadata
 - [x] Local API/model HTTP/SQL ownership tests, web build/typecheck and lint
-- [ ] Independent standards/spec reviews
-- [ ] Hosted migration and live generation/reload/citation checks
+- [x] Independent standards/spec reviews; findings fixed and re-reviewed
+- [x] Hosted migration, generation/reload, timed/untimed browser citations and ownership checks
 
 Setup: `docs/video-transcript-setup.md`. Planning draft 04 maps to GitHub #5.
 Automatic transcript retrieval remains target work; native is unchanged.
+
+Final checks: 93 backend tests, 28 web tests, web build/typecheck and lint pass.
+Timed VTT upload and untimed paste generated live notes; reload, exact cue and
+excerpt citations, Panopto reuse, SRT zero time, Teams context and second-learner
+API/REST/RPC isolation passed. Review: Standards 0 remaining; Spec 0 remaining.
+Six disposable verification captures and their notes/jobs were removed and
+the cascade was verified; private test session tokens were discarded.
+The browser viewport override remained at 1265px; phone-width verification
+is not claimed. Existing responsive styles and native files were unchanged.

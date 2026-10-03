@@ -258,7 +258,7 @@ No new tests were requested or run. Native files are untouched.
 
 ## Supplied video transcripts — issue #5, 2026-10-03
 
-Status: implemented locally; independent review and hosted acceptance pending.
+Status: verified locally and against the hosted development project.
 Issue: https://github.com/CloudKai/secondBrain/issues/5 (planning draft 04).
 
 The browser Video form saves YouTube, Teams/SharePoint, Zoom and Panopto
@@ -268,4 +268,13 @@ notes cite exact passages with no inferred times. YouTube links can open at a
 supplied time; other providers open the original recording with visible times.
 Limits and migration/rollback: `docs/video-transcript-setup.md`. Native files
 are untouched. Automatic retrieval, provider connections, topics and research
-remain target work. GitHub issue #5 is still open pending hosted acceptance.
+remain target work. GitHub issue #5 acceptance is complete.
+
+Final checks: 93 backend tests, 28 web tests, web build/typecheck and lint pass.
+Timed VTT upload and untimed paste generated live notes; reload, exact cue and
+excerpt citations, Panopto reuse, SRT zero time, Teams context and second-learner
+API/REST/RPC isolation passed. Review: Standards 0 remaining; Spec 0 remaining.
+Six disposable verification captures and their notes/jobs were removed and
+the cascade was verified; private test session tokens were discarded.
+The browser viewport override remained at 1265px; phone-width verification
+is not claimed. Existing responsive styles and native files were unchanged.
