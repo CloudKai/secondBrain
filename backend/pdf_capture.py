@@ -3,15 +3,15 @@
 import asyncio
 import json
 import sys
-from urllib.parse import urljoin
+import logging
 
 import httpx
 
 from backend.source_models import PDFDocument
-from backend.source_capture import public_source_address
+from backend.source_capture import download_public_document
 
 MAX_PDF_BYTES = 10_000_000
-MAX_PDF_PAGES = 100
+logger = logging.getLogger(__name__)
 
 
 async def capture_pdf_link(url: str) -> dict:
@@ -25,48 +25,15 @@ async def capture_pdf_link(url: str) -> dict:
                 limits=httpx.Limits(max_keepalive_connections=0),
             ) as client,
         ):
-            current = url
-            for _ in range(5):
-                target = httpx.URL(current)
-                address = await public_source_address(target)
-                async with client.stream(
-                    "GET",
-                    target.copy_with(host=address),
-                    headers={
-                        "Host": target.netloc.decode(),
-                        "Accept": "application/pdf",
-                    },
-                    extensions={"sni_hostname": target.host},
-                ) as response:
-                    if response.status_code in (301, 302, 303, 307, 308):
-                        location = response.headers.get("location")
-                        if not location:
-                            raise ValueError("The PDF redirect has no destination.")
-                        current = urljoin(current, location)
-                        continue
-                    response.raise_for_status()
-                    mime = (
-                        response.headers.get("content-type", "")
-                        .split(";", 1)[0]
-                        .lower()
-                        .strip()
-                    )
-                    if mime not in ("application/pdf", "application/octet-stream"):
-                        raise ValueError(
-                            "This link does not return a PDF. Use a direct public PDF link or upload the file."
-                        )
-                    data = bytearray()
-                    async for chunk in response.aiter_bytes():
-                        if len(data) + len(chunk) > MAX_PDF_BYTES:
-                            raise ValueError(
-                                "PDFs must be 10 MB or smaller. Export a smaller document."
-                            )
-                        data.extend(chunk)
-                return await capture_pdf(bytes(data))
-            raise ValueError(
-                "The PDF redirects too many times. Use a direct public PDF link."
+            data, _, _ = await download_public_document(
+                client,
+                url,
+                media_types=frozenset({"application/pdf", "application/octet-stream"}),
+                max_bytes=MAX_PDF_BYTES,
             )
+            return await capture_pdf(data)
     except (httpx.HTTPError, TimeoutError) as exc:
+        logger.warning("PDF download failed: %s", type(exc).__name__)
         raise ValueError(
             "The PDF could not be downloaded. Use a direct public PDF link or upload the file."
         ) from exc
@@ -86,6 +53,7 @@ async def monitor_memory(process):
         )
         output, _ = await probe.communicate()
         if output.strip() and int(output.strip()) > 512 * 1024:
+            logger.warning("PDF parser exceeded RSS ceiling")
             if process.returncode is None:
                 process.kill()
             return
@@ -116,11 +84,18 @@ async def capture_pdf(data: bytes, filename: str | None = None) -> dict:
         async with asyncio.timeout(15):
             output, _ = await process.communicate(data)
         if process.returncode != 0:
+            logger.warning(
+                "PDF parser exited without output: status=%s", process.returncode
+            )
             raise ValueError(
                 "The PDF exceeds extraction limits or is unreadable. Export a simpler selectable-text PDF."
             )
         result = json.loads(output)
         if "error" in result:
+            logger.warning(
+                "PDF parser rejected input: category=%s",
+                result.get("diagnostic", "unsupported"),
+            )
             raise ValueError(result["error"])
         result["document"]["filename"] = filename
         result["document"] = PDFDocument.model_validate_json(
@@ -128,6 +103,7 @@ async def capture_pdf(data: bytes, filename: str | None = None) -> dict:
         ).model_dump()
         return result
     except TimeoutError as exc:
+        logger.warning("PDF parser exceeded wall-clock deadline")
         raise ValueError(
             "PDF extraction timed out. Export a smaller or simpler selectable-text PDF."
         ) from exc

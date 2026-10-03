@@ -74,11 +74,12 @@ def main():
         resource.setrlimit(resource.RLIMIT_AS, (768 * 1024 * 1024, 768 * 1024 * 1024))
     try:
         print(json.dumps(extract(sys.stdin.buffer.read(10_000_001))))
-    except Exception:
+    except Exception as exc:
         print(
             json.dumps(
                 {
-                    "error": "This PDF is damaged or unreadable. Export a selectable-text copy and try again."
+                    "error": "This PDF is damaged or unreadable. Export a selectable-text copy and try again.",
+                    "diagnostic": type(exc).__name__,
                 }
             )
         )

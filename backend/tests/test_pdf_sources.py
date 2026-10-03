@@ -247,3 +247,19 @@ def test_pdf_upload_requires_a_learner_session(browser_client):
         ).status_code
         == 401
     )
+
+
+def test_encoded_pdf_download_is_rejected_before_decompression(browser_client):
+    response = browser_client.post(
+        "/api/v2/sources/pdf-link",
+        headers={"Authorization": "Bearer alice"},
+        json={"url": "https://article.test/encoded-pdf"},
+    )
+    assert response.status_code == 422
+    assert "encoded" in response.json()["detail"]
+    assert (
+        browser_client.get(
+            "/api/v2/sources", headers={"Authorization": "Bearer alice"}
+        ).json()["sources"]
+        == []
+    )

@@ -195,6 +195,7 @@ async def save_pdf_upload(
     try:
         capture = await capture_pdf(bytes(data), filename)
     except ValueError as exc:
+        logger.warning("PDF capture rejected: %s", type(exc).__name__)
         raise HTTPException(422, str(exc)) from exc
     return await persist_pdf(
         gateway, None, identity, title.strip() or filename, capture, "upload"
@@ -242,6 +243,7 @@ async def save_pdf_link(
     try:
         capture = await capture_pdf_link(identity)
     except ValueError as exc:
+        logger.warning("PDF capture rejected: %s", type(exc).__name__)
         raise HTTPException(422, str(exc)) from exc
     return await persist_pdf(
         gateway,
