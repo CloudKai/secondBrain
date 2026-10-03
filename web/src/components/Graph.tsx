@@ -6,6 +6,7 @@ interface Props {
   selected?: string;
   onSelect: (id: string) => void;
   compact?: boolean;
+  cardsOnly?: boolean;
 }
 export function Graph({
   topics,
@@ -13,6 +14,7 @@ export function Graph({
   selected,
   onSelect,
   compact = false,
+  cardsOnly = false,
 }: Props) {
   if (!topics.length)
     return (
@@ -25,12 +27,12 @@ export function Graph({
   const connectedIds = new Set(
     connections.flatMap((c) => [c.source, c.target]),
   );
-  if (topics.length > 6)
+  if (cardsOnly || topics.length > 6)
     return (
       <div className={`graph-topic-grid ${compact ? "compact" : ""}`}>
         <p className="micro-copy">
-          Select a topic to inspect its sources. Supported relationships are
-          listed in the full graph view.
+          Select a topic to inspect its sources. Connections need meaningful support
+          from two independent saved sources.
         </p>
         {topics.map((topic) => (
           <button

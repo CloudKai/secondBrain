@@ -416,3 +416,21 @@ New topic API/model HTTP/database/browser test-boundary agreement is pending
 under the TDD skill. No tests or implementation changes at this checkpoint.
 Combined topic synthesis and broad corrections remain planned tickets 10/11.
 Both web progress files reflect current work; native history stays separate.
+
+
+## Topic-graph implementation checkpoint — issue #10 (2026-10-03)
+
+Status: local implementation and checks complete; independent review and hosted
+migration/acceptance pending. User agreed topic API, model HTTP, database and
+browser-navigation test boundaries. Source-backed cards and contextual alias
+matching, uncertain placement confirmation, explained relationships and the
+two-source threshold reuse the supplied design. Examples are explicitly selected
+and separate from saved topics. Source notes and evidence are preserved.
+
+Separate owned topic mapping jobs use the existing Postgres/outbox/ARQ transport;
+claims serialize matching within a learner. Migration/rollback preserve source
+notes and backfill existing completed notes. Model and graph limits show partial
+coverage. No new credentials or vector service; native/iOS and v1 unchanged.
+Local checks: 112 backend tests through project Python, 34 web tests, build,
+typecheck and lint pass. Setup: `docs/topic-graph-setup.md`. Combined synthesis
+and broad corrections remain planned tickets 10/11.

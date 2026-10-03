@@ -12,6 +12,10 @@ from dotenv import load_dotenv
 
 from backend.study_generation import GenerationFailure, StudyGenerator
 from backend.study_store import StudyStore
+from backend.topic_store import TopicStore
+from backend.topic_generation import TopicGenerator
+from backend.topic_library import build_topic_library
+from backend.topic_models import TopicDescription
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +56,44 @@ async def build_source_study(ctx: dict, source_id: str) -> None:
     # The dispatcher recovers it; late completions are fenced in Postgres.
 
 
+async def dispatch_pending_topics(ctx: dict) -> None:
+    store: TopicStore = ctx["topic_store"]
+    for source_id in await store.due():
+        await ctx["redis"].enqueue_job(
+            "build_source_topics", str(source_id), _job_id=f"topics:{source_id}"
+        )
+        await store.acknowledge(source_id)
+
+
+async def build_source_topics(ctx: dict, source_id: str) -> None:
+    store: TopicStore = ctx["topic_store"]
+    claim = await store.claim(UUID(source_id))
+    if claim is None:
+        return
+    records = await store.list_owned(claim.user_id)
+    library = build_topic_library(records[:500], partial=len(records) > 500)
+    catalog = [
+        TopicDescription(
+            **{
+                **t.model_dump(exclude={"source_ids", "uncertain"}),
+                "aliases": t.aliases[:6],
+                "groups": t.groups[:4],
+            }
+        )
+        for t in library.topics
+        if not t.uncertain
+    ]
+    try:
+        analysis = await ctx["topic_generator"].generate(
+            claim.note, catalog, claim.user_id, claim.source_id
+        )
+        analysis.catalog_partial = analysis.catalog_partial or library.partial
+    except GenerationFailure as exc:
+        await store.finish(claim, error=exc.code)
+    else:
+        await store.finish(claim, analysis=analysis)
+
+
 async def startup(ctx: dict) -> None:
     values = {
         name: os.getenv(name, "")
@@ -72,6 +114,12 @@ async def startup(ctx: dict) -> None:
             values["SUPABASE_URL"],
             {"apikey": values["SUPABASE_SECRET_KEY"]},
         ),
+        topic_store=TopicStore(
+            storage_client,
+            values["SUPABASE_URL"],
+            {"apikey": values["SUPABASE_SECRET_KEY"]},
+        ),
+        topic_generator=TopicGenerator(model_client, api_key=values["OPENAI_API_KEY"]),
         generator=StudyGenerator(model_client, api_key=values["OPENAI_API_KEY"]),
     )
 
@@ -83,7 +131,7 @@ async def shutdown(ctx: dict) -> None:
 
 
 class WorkerSettings:
-    functions = [build_source_study]
+    functions = [build_source_study, build_source_topics]
     cron_jobs = [
         cron(
             dispatch_pending_studies,
@@ -92,6 +140,14 @@ class WorkerSettings:
             timeout=60,
         )
     ]
+    cron_jobs.append(
+        cron(
+            dispatch_pending_topics,
+            second={5, 15, 25, 35, 45, 55},
+            run_at_startup=True,
+            timeout=60,
+        )
+    )
     on_startup = startup
     on_shutdown = shutdown
     max_jobs = 4

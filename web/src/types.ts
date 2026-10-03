@@ -38,6 +38,11 @@ export interface Topic {
   id: string;
   title: string;
   notes: Note[];
+  saved?: boolean;
+  context?: string;
+  groups?: string[];
+  description?: string;
+  uncertain?: boolean;
 }
 export interface Connection {
   id: string;
@@ -46,4 +51,6 @@ export interface Connection {
   label: string;
   reason: string;
   noteIds: string[];
+  saved?: boolean;
+  evidence?: Record<string,string[]>;
 }

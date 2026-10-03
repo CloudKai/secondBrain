@@ -7,6 +7,7 @@ from backend.graph import DeepFeynmanState, deep_feynman_graph
 from backend.schemas import ProcessLinkRequest, ProcessLinkResponse
 from backend.sources import router as sources_router
 from backend.studies import router as studies_router
+from backend.topics import router as topics_router
 
 app = FastAPI(
     title="AI Second Brain API",
@@ -15,6 +16,7 @@ app = FastAPI(
 )
 app.include_router(sources_router)
 app.include_router(studies_router)
+app.include_router(topics_router)
 
 
 @app.get("/health", tags=["system"])

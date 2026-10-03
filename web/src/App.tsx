@@ -1,3 +1,4 @@
+import { useTopicLibrary } from "./lib/use-topic-library";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
   ArrowDownWideNarrow,
@@ -44,6 +45,7 @@ import {
 import type { Note, Page, PanelTab, Topic } from "./types";
 import {
   canonicalUrl,
+  findNotes,
   createLibrary,
   readLibrary,
   updateLibrary,
@@ -89,7 +91,7 @@ export default function App() {
   const [storageAttempt, setStorageAttempt] = useState(0);
   const [route, setRoute] = useState(readRoute);
   const [library, changeLibrary] = useReducer(updateLibrary, undefined, () =>
-    createLibrary(sampleNotes, topicTitles),
+    createLibrary([], topicTitles),
   );
   const [query, setQuery] = useState(""),
     [filter, setFilter] = useState("All sources"),
@@ -136,12 +138,11 @@ export default function App() {
   );
   const {
     notes: baseNotes,
-    names,
+    names: exampleNames,
     rejected,
     mastered,
-    topics,
-    connections,
-    filtered: baseFiltered,
+    topics: exampleTopics,
+    connections: exampleConnections,
     demo,
   } = readLibrary(library, query, filter, sort);
   const studies = useSourceStudies(
@@ -149,6 +150,10 @@ export default function App() {
     library.notes,
     storage === "ready",
   );
+  const topicMaps = useTopicLibrary(sourceClient,storage === 'ready',library.notes,studies.records);
+  const [topicMode,setTopicMode]=useState<'saved'|'examples'>('saved');
+  const showingSavedGraph=topicMode==='saved';
+  const names=showingSavedGraph?Object.fromEntries(topicMaps.library.topics.map(t=>[t.id,t.title])):exampleNames;
   const [selectedPassage, setSelectedPassage] = useState<{
     sourceId: string;
     id: string;
@@ -157,8 +162,11 @@ export default function App() {
     note.savedSource && studies.records[note.id]
       ? noteFromSavedSource(note.savedSource, studies.records[note.id])
       : note;
-  const notes = baseNotes.map(enrichNote);
-  const filtered = baseFiltered.map(enrichNote);
+  const notes = baseNotes.map(enrichNote).map(n=>({...n,topics:n.savedSource?(topicMaps.library.maps.find(m=>m.source_id===n.id)?.analysis?.topics.map(t=>t.id)??[]):n.topics}));
+  const filtered = findNotes(notes,query,filter,{...exampleNames,...names}).sort((a,b)=>sort==="title"?a.title.localeCompare(b.title):b.addedAt-a.addedAt);
+  const topics:Topic[]=showingSavedGraph?topicMaps.library.topics.map(t=>({id:t.id,title:t.title,notes:notes.filter(n=>t.source_ids.includes(n.id)),saved:true,context:t.context,groups:t.groups,description:t.description,uncertain:t.uncertain})):exampleTopics.filter(t=>t.notes.some(n=>n.demo));
+  const connections=showingSavedGraph?topicMaps.library.connections.map(c=>({id:c.id,source:c.source,target:c.target,label:c.kind,reason:c.reason,noteIds:c.source_ids,saved:true,evidence:c.evidence})):exampleConnections;
+
   const currentNote =
     notes.find((n) => n.id === route.noteId) ||
     (route.page === "note" ? undefined : notes[0]);
@@ -277,6 +285,7 @@ export default function App() {
   }
   function openNote(n: Note) {
     setSelectedPassage(null);
+    setTopicMode(n.savedSource ? "saved" : "examples");
     setSelectedTopic(n.topics[0]);
     if (n.savedSource) {
       setPanelTab("Sources");
@@ -289,10 +298,11 @@ export default function App() {
     setPanelTab("Topic");
     setPanelOpen(true);
   }
-  function showEvidence(id: string) {
-    setSelectedPassage(null);
+  function showEvidence(id: string, passageId?: string) {
+    setSelectedPassage(passageId ? {sourceId:id,id:passageId} : null);
     const n = notes.find((n) => n.id === id);
     if (n) {
+      setTopicMode(n.savedSource ? "saved" : "examples");
       go("note", id);
       setPanelTab("Sources");
       setPanelOpen(true);
@@ -509,6 +519,19 @@ export default function App() {
     changeLibrary({ type: "toggle-recall", id });
   }
   function topicDetails(t: Topic) {
+    if(t.saved)return <>
+      <span className="eyebrow">{t.uncertain?'SUGGESTED TOPIC':'SHARED TOPIC'}</span>
+      <h2>{t.title}</h2><p className="panel-description">{t.description}</p>
+      <p className="micro-copy">{t.context} · {(t.groups??[]).join(' · ')} · {t.notes.length} supporting sources. Coverage is not mastery.</p>
+      <div className="topic-overviews">{t.notes.map(n=>{const assignment=topicMaps.library.maps.find(m=>m.source_id===n.id)?.analysis?.topics.find(a=>a.id===t.id);return <div className="topic-overview" key={n.id}>
+        <button className="source-title" onClick={()=>openNote(n)}><FileText size={15}/>{n.title}<ArrowUpRight size={14}/></button>
+        <p className="micro-copy">{assignment?.role} topic · {assignment?.placement_reason}</p>
+        {assignment?.citation_ids.map(id=><button key={id} className="text-button" onClick={()=>showEvidence(n.id,id)}>Inspect passage {id}</button>)}
+        {assignment?.uncertain&&<div className="topic-placement"><p>Suggested placement: {assignment.suggested_topic_id?names[assignment.suggested_topic_id]??'A related saved topic':'Keep a distinct topic until its scope is clear'}</p>
+          {assignment.suggested_topic_id&&<button className="text-button" disabled={topicMaps.busy} onClick={()=>void topicMaps.place(n.id,t.id,assignment.suggested_topic_id)}>Use suggested topic</button>}
+          <button className="text-button" disabled={topicMaps.busy} onClick={()=>void topicMaps.place(n.id,t.id,null)}>Keep this topic separate</button></div>}
+      </div>;})}</div>
+    </>;
     return (
       <>
         <div className="panel-topic-icon">
@@ -652,16 +675,11 @@ export default function App() {
           tabIndex={0}
         >
           {panelTab === "Topic" &&
-            (currentNote.savedSource ? (
-              <p>
-                Topic organization for saved sources is planned. You can inspect
-                this note’s citations under Sources.
-              </p>
-            ) : topic ? (
+            (currentNote.savedSource && !currentNote.topics.length ? <p>Topics appear after this saved note is mapped. Its source passages remain available under Sources.</p> : topic ? (
               topicDetails(topic)
             ) : (
               <p>
-                No topics assigned. Use Manage topics to restore an assignment.
+                Topics appear after the saved note is mapped. Inspect its passages under Sources.
               </p>
             ))}
           {panelTab === "Graph" && (
@@ -670,10 +688,11 @@ export default function App() {
               <h2>Your topic map</h2>
               <p className="panel-description">
                 {currentNote.savedSource
-                  ? "This saved source has no generated topics yet. The map currently shows example topics."
+                  ? "Topics and connections are supported by your saved material."
                   : "Built from what you save. Select a topic to explore it."}
               </p>
               <Graph
+                cardsOnly={showingSavedGraph && !topicMaps.library.graph_ready}
                 topics={topics}
                 connections={connections}
                 selected={topic?.id}
@@ -1260,6 +1279,7 @@ export default function App() {
                   </p>
                 </div>
                 <Graph
+                  cardsOnly={showingSavedGraph && !topicMaps.library.graph_ready}
                   topics={topics}
                   connections={connections}
                   compact
@@ -1625,6 +1645,15 @@ export default function App() {
                   reason.
                 </p>
               </div>
+              <div className="segmented" aria-label="Topic graph material">
+                <button className={showingSavedGraph?'active':''} onClick={()=>setTopicMode('saved')}>Saved topics</button>
+                <button className={!showingSavedGraph?'active':''} onClick={()=>{changeLibrary({type:'show-examples',notes:sampleNotes});setTopicMode('examples');}}>Example topics</button>
+              </div>
+              {showingSavedGraph&&<div className="topic-progress" aria-live="polite">
+                {topicMaps.error&&<p>{topicMaps.error} <button className="text-button" onClick={topicMaps.reload}>Reload topics</button></p>}
+                {topicMaps.library.partial&&<p>Partial topic mapping: some material was outside the current processing limits.</p>}
+                {topicMaps.library.maps.filter(m=>m.status!=='succeeded').map(m=><p key={m.source_id}>{notes.find(n=>n.id===m.source_id)?.title??'Saved source'}: {m.status==='failed'?'Topic mapping failed; your note is safe.':'Mapping its main and supporting topics…'} {m.status==='failed'&&<button className="text-button" disabled={topicMaps.busy} onClick={()=>void topicMaps.retry(m.source_id)}>Retry topic mapping</button>}</p>)}
+              </div>}
               <div className="graph-workspace">
                 <section className="large-graph">
                   <div className="graph-toolbar">
@@ -1646,7 +1675,8 @@ export default function App() {
                     <span className="badge">Source coverage, not mastery</span>
                   </div>
                   <Graph
-                    topics={topics}
+                    cardsOnly={showingSavedGraph && !topicMaps.library.graph_ready}
+                  topics={topics}
                     connections={connections}
                     selected={topic?.id}
                     onSelect={openTopic}
@@ -1691,10 +1721,12 @@ export default function App() {
                       <Link2 size={14} />
                       <span>{names[c.target] || c.target}</span>
                     </div>
-                    <p>{c.reason}</p>
+                    <p><strong>{c.label}</strong> · {c.reason}</p>
+                    {c.evidence&&Object.entries(c.evidence).flatMap(([source,ids])=>ids.map(id=><button className="text-button" key={`${source}:${id}`} onClick={()=>showEvidence(source,id)}>Inspect {notes.find(n=>n.id===source)?.title??'source'} · {id}</button>))}
                     <div>
                       <span>{c.noteIds.length} supporting sources</span>
                       <button
+                        disabled={c.saved}
                         onClick={() => {
                           changeLibrary({
                             type: "reject-connection",
@@ -1704,7 +1736,7 @@ export default function App() {
                           setToast("Connection removed for this session.");
                         }}
                       >
-                        Reject connection <X size={12} />
+                        {c.saved ? "Connection corrections planned" : "Reject connection"} <X size={12} />
                       </button>
                     </div>
                   </div>
@@ -2095,8 +2127,8 @@ export default function App() {
                 </p>
                 <strong>What is still planned</strong>
                 <p>
-                  Automatic Teams/Zoom/Panopto transcript access, topic
-                  organization for saved notes, open-ended AI conversation, live
+                  Automatic Teams/Zoom/Panopto transcript access, combined topic
+                  overviews, broad topic corrections, open-ended AI conversation, live
                   research, and linked accounts.
                 </p>
                 <strong>Your data</strong>

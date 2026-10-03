@@ -1,3 +1,4 @@
+import { topicLibrarySchema, topicRecordSchema } from "./topic-library";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { studyPageSchema, studySchema, type StudyRecord } from "./study-note";
@@ -238,7 +239,9 @@ export function createSourceClient(
         );
       }
       throw new Error(
-        path.includes("stud") &&
+        path.includes("topic") && response.status !== 401 && response.status !== 404
+          ? "Topic mapping is unavailable. Check the topic migration and worker, then reload topics."
+          : path.includes("stud") &&
           response.status !== 401 &&
           response.status !== 404
           ? "Study notes are unavailable. Check the study migration and worker setup, then retry."
@@ -269,6 +272,9 @@ export function createSourceClient(
 
   return {
     ready,
+    async topicLibrary() { return parse(await request('/topic-library'),topicLibrarySchema); },
+    async mapTopics(id: string,retry=false) { return parse(await request(`/sources/${encodeURIComponent(id)}/topics`,{method:'POST',body:JSON.stringify({retry})}),topicRecordSchema); },
+    async confirmPlacement(sourceId:string,topicId:string,targetId:string|null) { return parse(await request(`/sources/${encodeURIComponent(sourceId)}/topics/placement`,{method:'POST',body:JSON.stringify({topic_id:topicId,target_id:targetId})}),topicRecordSchema); },
     async list(): Promise<SavedSource[]> {
       const sources: SavedSource[] = [];
       let offset = 0;

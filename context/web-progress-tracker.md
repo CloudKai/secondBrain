@@ -20,7 +20,7 @@ the bare launcher still has a stale interpreter. Desktop browser checks only.
 
 **Current unit:** planned ticket 09 / [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10),
 saved-source topic cards and explained graph. Inspection and implementation
-planning complete; new test-boundary agreement pending. No live topic capability
+planning complete; new implementation in progress; hosted acceptance and review pending. No live topic capability
 is claimed yet.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
@@ -322,11 +322,13 @@ Status: in progress; implementation and acceptance pending.
 - [x] Inspect the owned source/study worker, API and supplied browser views
 - [x] Publish selected slice as GitHub #10 with completed dependency #2
 - [x] Plan separate topic analysis and explicit uncertainty/placement feedback
-- [ ] Agree new topic API/model HTTP/database/browser test boundaries
-- [ ] Implement persistent, evidence-backed topic mapping and graph threshold
+- [x] Agree new topic API/model HTTP/database/browser test boundaries
+- [x] Implement persistent, evidence-backed topic mapping and graph threshold (local)
 - [ ] Verify ownership, aliases, unrelated sources and topic navigation
 - [ ] Independent review, hosted acceptance and issue closure
 
-No tests added or run for this preparatory checkpoint. Native/iOS and its tracker
+Preparatory checkpoint initially added no tests. After user agreement, RED→GREEN
+API/model/database checks and local UI wiring pass: 112 backend tests, 34 web
+tests, build/typecheck and lint. Hosted migration, acceptance and review pending. Native/iOS and its tracker
 remain unchanged. Saved notes stay authoritative; combined topic synthesis and
 broad correction workflows remain planned tickets 10 and 11.

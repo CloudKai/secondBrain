@@ -160,3 +160,15 @@ inferred. UTF-8 errors retain URL/title for correction. Controlled hosted SRT
 and untimed paste, exact citations, reload and canonical reuse passed at desktop
 width. Existing limits and read-only notes remain. Automatic access is
 unvalidated; no new phone-width acceptance or native UI change is claimed.
+
+
+## Saved-source topics — issue #10 (2026-10-03)
+
+Local implementation uses the existing browser design; hosted acceptance is
+pending. Empty libraries start without an outline. Saved topics and explicitly
+selected examples are separate. Topic cards precede the supported graph; broad
+groups appear as overlapping badges without implied edges. Topic details list
+original source notes, mapping reasons and passage links. Uncertain assignments
+offer Use suggested topic or Keep this topic separate; notes remain read-only.
+The graph shows processing/retry/error and partial-coverage feedback. Combined
+overviews and broad correction workflows remain planned. Native UI is unchanged.

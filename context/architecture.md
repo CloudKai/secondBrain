@@ -371,3 +371,18 @@ checks. No anonymous caption-download path for a concrete lecture is validated.
 The public API caption field does not prove anonymous access; conditional help
 does not inspect permissions, site policy, lecture existence or captions.
 Automatic retrieval remains target work; native/v1 behavior is unchanged.
+
+
+## Saved-source topic mapping — issue #10 (2026-10-03)
+
+Implementation is local; hosted migration/acceptance and independent review are
+pending. Separate owned source_topic_maps and topic_outbox records queue from
+completed notes, including a migration backfill. The existing ARQ worker sends
+stable source IDs, while Postgres owns retries, leases, outbox recovery and
+late-result fences. Per-learner claims serialize contextual catalog matching.
+Topic generation uses bounded LangGraph/model HTTP over saved note evidence.
+Validated shared identities and distinct uncertain suggestions preserve notes.
+Learner placement confirmation changes only topic metadata. Derived graphs
+require independent saved-source support and remain rebuildable; no Qdrant
+service or new credentials are added. Limits and rollback are documented in
+`docs/topic-graph-setup.md`. Native/v1 contracts are unchanged.
