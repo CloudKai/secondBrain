@@ -173,13 +173,17 @@ and no remaining dispatch. Disposable verification captures were removed.
 
 ## Browser PDF study notes — ticket #3, 2026-10-03
 
-Current unit: implementation complete; acceptance and review in progress.
+Current unit: completed and verified locally and against hosted Supabase.
 
 - [x] Owned selectable-text PDF uploads and public links
 - [x] Bounded subprocess extraction, limits and accurate coverage
 - [x] Preserved physical page identity and page-bound citations
 - [x] PDF form, source filtering and uploaded/local-file disclosure
-- [ ] Final backend/web/browser checks and independent code review
-- [ ] Apply reviewed migration and verify hosted PDF generation/reload/ownership
+- [x] Final backend/web/browser checks and independent code review
+- [x] Apply reviewed migration and verify hosted PDF generation/reload/ownership
 
-Issue #3 remains open until acceptance is complete. Setup: `docs/pdf-study-setup.md`.
+71 backend tests and 24 web tests passed; web build/typecheck and lint passed.
+Live upload, public PDF URL generation, page citations, reload, duplicate upload
+and second-learner API/RLS checks passed. Two standards findings were resolved;
+independent re-review has no remaining material issue. Disposable sources/jobs
+were removed. GitHub issue #3 is complete. Setup: `docs/pdf-study-setup.md`.

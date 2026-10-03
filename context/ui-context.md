@@ -90,9 +90,11 @@ failed-note recovery. Setup: `docs/study-note-setup.md`.
 
 ## PDF browser controls — ticket #3
 
-Implemented with acceptance in progress. Add source → PDF offers Upload PDF and
+Verified with deterministic browser fixtures and real hosted upload/reload. Add source → PDF offers Upload PDF and
 PDF link, published limits, and unsupported-file feedback. PDF sources have a
 separate filter and reuse the read-only note viewer. Sources shows physical page
 numbers and exact excerpts after citation clicks; full text is grouped by page.
 Linked PDFs open the cited original page; uploads explain that only captured
 page text and filename are retained. Video controls remain labelled planned.
+The live three-page upload preserves its blank second page and opens the page-3
+calculus excerpt after reload. Narrow-screen fixture checks also passed.

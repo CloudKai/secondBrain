@@ -226,7 +226,7 @@ and no remaining dispatch. Disposable verification captures were removed.
 
 ## Selectable-text PDF notes — ticket #3, 2026-10-03
 
-Status: implementation complete; local checks and hosted acceptance in progress.
+Status: **verified locally and against the hosted development project**.
 Issue: https://github.com/CloudKai/secondBrain/issues/3.
 
 PDF uploads and public PDF links join the owned source/study workflow with
@@ -235,5 +235,10 @@ physical page metadata and exact page-bound references. Inputs are bounded to
 Scanned-only, encrypted, oversized and unreadable files receive correction paths.
 Uploads retain captured page text and filename, not the original binary. Source
 identity, RLS, read-only notes, retry limits and worker fencing are preserved.
+Live upload and a 15-page public PDF completed through the worker. Exact page
+citations, reload, digest reuse and second-learner API/RLS isolation passed.
+Final checks: 71 backend tests, 24 web tests, web build/typecheck and lint passed.
+Independent standards/spec reviews are complete; two standards findings were
+fixed and re-reviewed. Temporary acceptance sources and their jobs were removed.
 Migration/rollback and limits: `docs/pdf-study-setup.md`. Native code is unchanged.
 PDF page-range selection, OCR, videos, topics and research remain target work.

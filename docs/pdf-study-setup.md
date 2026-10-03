@@ -3,9 +3,25 @@
 ## Implementation and acceptance
 
 Selectable-text PDF uploads and public links use the existing owned source,
-structured study, outbox and ARQ workflow. Local API, model, SQL and browser
-acceptance is in progress. Hosted acceptance requires the reviewed migration.
-This document records implemented behavior separately from remaining checks.
+structured study, outbox and ARQ workflow. Local acceptance and hosted
+Supabase acceptance passed on 2026-10-03 after the reviewed migration was applied
+and the worker restarted. This document records verified browser behavior;
+video ingestion and topic generation remain later tickets.
+
+Final checks: 71 backend tests, 24 web tests, web build/typecheck and lint passed.
+Backend checks used `uv run --project backend --extra dev python -m pytest
+backend/tests -q --tb=short`: the copied pytest executable has a stale shebang,
+so the module command ensures the project interpreter is used. The build retains
+a nonfatal 552 KB bundle warning; two backend dependency deprecation warnings
+remain.
+
+Live acceptance covered a three-page upload with a blank middle page, exact
+physical-page citations after reload, owner-scoped digest reuse and second-learner
+API/RLS denial. A public 15-page arXiv PDF captured 30,000 characters with partial
+coverage and generated a note whose references all match saved page spans.
+Deterministic checks cover unsupported/encrypted/scanned/oversized files, unsafe
+redirects and encoded HTTP responses. Disposable acceptance sources and their
+study/outbox records were removed. Independent review: `docs/reviews/ticket03.md`.
 
 ## Supported inputs and limits
 
