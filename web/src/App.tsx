@@ -33,6 +33,7 @@ import { sampleNotes, topicTitles } from "./data";
 import CapturedSourceText from "./components/CapturedSourceText";
 import TeamsTranscriptHelp from "./components/TeamsTranscriptHelp";
 import ZoomTranscriptHelp from "./components/ZoomTranscriptHelp";
+import PanoptoTranscriptHelp from "./components/PanoptoTranscriptHelp";
 import VideoTranscriptInput from "./components/VideoTranscriptInput";
 import {
   formatVideoTime,
@@ -124,7 +125,7 @@ export default function App() {
       return null;
     }
   })();
-  const hasExportGuidance = videoProvider === "teams" || videoProvider === "zoom";
+  const hasExportGuidance = videoProvider !== null && videoProvider !== "youtube";
   const videoInputMode = hasExportGuidance ? "supplied" : videoMode;
   const [topicName, setTopicName] = useState(""),
     [mergeTarget, setMergeTarget] = useState("");
@@ -1986,6 +1987,9 @@ export default function App() {
                 )}
                 {videoProvider === "zoom" && (
                   <ZoomTranscriptHelp url={sourceUrl} />
+                )}
+                {videoProvider === "panopto" && (
+                  <PanoptoTranscriptHelp url={sourceUrl} />
                 )}
                 {sourceTab === "Video" && videoInputMode === "supplied" && (
                   <VideoTranscriptInput

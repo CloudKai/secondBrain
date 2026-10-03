@@ -357,3 +357,17 @@ API/REST/RPC denial. Zoom's documented download requires OAuth authorization;
 no anonymous path is validated. Conditional guidance does not determine a
 recording's actual availability/permissions. Automatic Zoom retrieval remains
 target work; native/v1 behavior is unchanged.
+
+
+## Panopto caption access — issue #9 (2026-10-03)
+
+Panopto guidance reuses the authenticated supplied-transcript source/study/outbox
+boundary. No remote adapter, migration, schema, auth provider or credentials
+are added. The browser recognizes viewer context and immediately opens upload/
+paste. Canonical identity retains site/path/session ID and ignores presentation
+parameters while preserving the original URL. Site/session separation, exact
+supplied evidence and second-learner API/REST/RPC denial passed controlled hosted
+checks. No anonymous caption-download path for a concrete lecture is validated.
+The public API caption field does not prove anonymous access; conditional help
+does not inspect permissions, site policy, lecture existence or captions.
+Automatic retrieval remains target work; native/v1 behavior is unchanged.

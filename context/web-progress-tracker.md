@@ -17,8 +17,9 @@ Independent Standards and Spec reviews have zero material findings. Backend chec
 use project Python; the bare launcher still has a stale interpreter. Browser
 checks were at desktop width.
 
-**Next proposed unit:** planned ticket 08, Panopto caption access and tenant-aware
-fallback; unpublished draft. No new unit has started.
+**Current unit:** planned ticket 08 / [GitHub #9](https://github.com/CloudKai/secondBrain/issues/9),
+Panopto caption access and site-specific fallback. Access documentation checked;
+implementation and hosted acceptance complete; independent review pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
@@ -283,3 +284,23 @@ and Spec reviews have no material findings. Both controlled captures and their
 study/outbox rows were removed with cascade verified; existing learner notes are
 preserved. Review: `docs/reviews/ticket08.md`. Web status stays separate from native
 history; #8 is closed.
+
+
+## Panopto access and site-specific fallback — issue #9, planned 08, 2026-10-03
+
+Implementation and hosted acceptance complete; independent review pending.
+
+- [x] Actual site hostname and immediate upload/paste for viewer context
+- [x] Conditional export/access help without inventing menus or lecture status
+- [x] Unreadable UTF-8 correction retains recording URL and title
+- [x] SRT speaker/times, exact timed citations after reload and untimed paste
+- [x] Distinct site/session identity and canonical variant reuse
+- [x] Three exact saved references and second-learner API/REST/RPC denial
+- [x] 108 backend tests, 30 web tests, build/typecheck and lint pass
+- [ ] Independent Standards/Spec review and final synchronization
+
+Setup: `docs/panopto-transcript-setup.md`. No concrete anonymous caption path is
+validated or advertised. Controlled transcripts and fictional viewer contexts
+verify supplied intake, not private lecture access. No migration, credentials,
+account connection or native/v1 changes. The exact bare pytest launcher still
+uses a stale external interpreter; project Python passes. Desktop checks only.

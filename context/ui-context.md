@@ -148,3 +148,15 @@ Original and official-guide links remain available. Existing transcript limits,
 read-only notes and citation styling are preserved. Hosted controlled VTT and
 untimed paste, exact citations, reload/reuse passed at desktop width. Native UI
 is untouched; no automatic Zoom or new phone-width acceptance is claimed.
+
+
+## Panopto caption access — issue #9 (2026-10-03)
+
+Recognized Panopto viewer links immediately select Upload or paste. The existing
+mint access-panel style displays the actual hostname and offers expandable,
+conditional caption-export, lecturer/site administrator and unreadable-export
+help, plus the original lecture link. No specific menu or lecture status is
+inferred. UTF-8 errors retain URL/title for correction. Controlled hosted SRT
+and untimed paste, exact citations, reload and canonical reuse passed at desktop
+width. Existing limits and read-only notes remain. Automatic access is
+unvalidated; no new phone-width acceptance or native UI change is claimed.

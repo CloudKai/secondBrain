@@ -370,3 +370,26 @@ Both controlled captures and their study/outbox rows were removed with cascade
 verified; existing learner notes are preserved. Review: `docs/reviews/ticket08.md`.
 GitHub #8 and both web progress records are synchronized. Planned ticket 08,
 Panopto caption access/tenant fallback, remains an unpublished draft; not started.
+
+
+## Panopto caption access — issue #9 (2026-10-03)
+
+Status: implementation and hosted acceptance complete; independent review pending.
+Planned ticket 08 opens supplied transcript controls for recognized Panopto viewer
+links and displays the actual site hostname. Conditional export, lecturer/site
+administrator and UTF-8 correction help preserves URL/title. It does not infer
+an institution name, site policy, lecture existence, permissions or captions.
+No anonymous caption path for a concrete session is validated or advertised;
+automatic retrieval and institutional integrations remain target work.
+
+Controlled SRT upload preserved the Lecturer label and 5.250–20.500 second
+citation after reload. Paste generated untimed excerpt evidence. The same session
+ID on two sites remained distinct; display/query/fragment variants reused the
+saved note. All three references matched stored text/cues. Another learner
+received API404/RESTempty/RPCdenied. These fictional contexts verify supplied
+intake, not private lecture access. Checks: 108 backend tests through project
+Python, 30 web tests, build/typecheck and lint pass. The bare pytest launcher
+retains its stale external interpreter. No migration, credentials or native/v1
+changes. Setup: `docs/panopto-transcript-setup.md`. Web progress stays in the web
+tracker and ticket breakdown. Next proposed slice: planned 09, saved-source
+topic cards and graph; unpublished and not started.

@@ -442,3 +442,83 @@ def test_zoom_export_preserves_recording_context_and_supplied_evidence(
         ).status_code
         == 404
     )
+
+
+def test_panopto_caption_export_keeps_sites_distinct_and_reuses_session(browser_client):
+    session_id = "11111111-2222-4333-8444-555555555555"
+    caption = "1\n00:00:05,250 --> 00:00:20,500\nLecturer: " + TRANSCRIPT
+    sources = []
+    for site in ["course.hosted.panopto.com", "other.hosted.panopto.eu"]:
+        base = f"https://{site}/Panopto/Pages/Viewer.aspx"
+        url = base + f"?id={session_id}&start=5"
+        headers = {"Authorization": "Bearer alice", "X-Video-URL": url}
+        response = browser_client.post(
+            "/api/v2/sources/video",
+            headers=headers,
+            params={"filename": "panopto-export.srt", "title": "Algebra"},
+            content=caption,
+        )
+        assert response.status_code == 201, response.text
+        source = response.json()
+        sources.append(source)
+        assert source["original_url"] == url
+        assert source["canonical_url"] == base + f"?id={session_id}"
+        assert source["captured_text"] == "Lecturer: " + TRANSCRIPT
+        assert source["capture_origin"] == "upload"
+        assert source["transcript"] == {
+            "provider": "panopto",
+            "format": "srt",
+            "filename": "panopto-export.srt",
+            "segments": [{"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}],
+        }
+        assert "No video was fetched" in source["coverage_detail"]
+        assert (
+            browser_client.get("/api/v2/sources/" + source["id"], headers=headers).json()
+            == source
+        )
+        duplicate = browser_client.post(
+            "/api/v2/sources/video",
+            headers={
+                **headers,
+                "X-Video-URL": base + f"?start=90&isLive=false&id={session_id}#captions",
+            },
+            params={"filename": "panopto-export.srt"},
+            content=caption,
+        )
+        assert duplicate.json()["id"] == source["id"]
+        assert (
+            browser_client.get(
+                "/api/v2/sources/" + source["id"], headers={"Authorization": "Bearer bob"}
+            ).status_code
+            == 404
+        )
+    assert sources[0]["id"] != sources[1]["id"]
+
+
+def test_unreadable_panopto_export_can_be_corrected_without_saving_bad_input(browser_client):
+    headers = {
+        "Authorization": "Bearer alice",
+        "X-Video-URL": "https://course.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=11111111-2222-4333-8444-555555555555",
+    }
+    rejected = browser_client.post(
+        "/api/v2/sources/video",
+        headers=headers,
+        params={"filename": "panopto-export.srt"},
+        content=b"\xff" * 200,
+    )
+    assert rejected.status_code == 422
+    assert "UTF-8" in rejected.json()["detail"]
+    assert "paste" in rejected.json()["detail"]
+    assert (
+        browser_client.get("/api/v2/sources", headers=headers).json()["sources"] == []
+    )
+    corrected = browser_client.post(
+        "/api/v2/sources/video", headers=headers, content="Lecturer: " + TRANSCRIPT
+    )
+    assert corrected.status_code == 201, corrected.text
+    source = corrected.json()
+    assert source["capture_origin"] == "pasted"
+    assert source["transcript"]["format"] == "text"
+    assert source["transcript"]["segments"] == [
+        {"start": 0, "end": 173, "start_ms": None, "end_ms": None}
+    ]

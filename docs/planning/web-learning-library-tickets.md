@@ -11,12 +11,12 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **07**, Zoom transcript availability/export guidance and supplied input.
 
-**In progress:** none. Next proposed slice is planned ticket **08**, Panopto caption access and tenant-aware fallback.
+**In progress:** planned ticket **08**, Panopto caption access and site-specific fallback — [GitHub #9](https://github.com/CloudKai/secondBrain/issues/9).
 
-**Target behavior:** planned tickets **08–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**Target behavior:** planned tickets **09–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next proposed slice is **08: Handle Panopto lecture transcripts with
+The current slice is **08: Handle Panopto lecture transcripts with
 tenant-aware fallback**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
@@ -30,7 +30,7 @@ captions; other automatic providers remain planned.
 | 05 | Accessible YouTube transcripts | Complete; local + hosted acceptance | [#6](https://github.com/CloudKai/secondBrain/issues/6), [setup](../youtube-transcript-setup.md), [review](../reviews/ticket06.md) |
 | 06 | Teams transcript access and feedback | Complete; local + hosted supplied-transcript acceptance | [#7](https://github.com/CloudKai/secondBrain/issues/7), [setup](../teams-transcript-setup.md), [review](../reviews/ticket07.md) |
 | 07 | Zoom transcript availability and feedback | Complete; local + hosted supplied-transcript acceptance | [#8](https://github.com/CloudKai/secondBrain/issues/8), [setup](../zoom-transcript-setup.md), [review](../reviews/ticket08.md) |
-| 08 | Panopto caption access and fallback | Draft; supplied-transcript foundations complete | Unpublished |
+| 08 | Panopto caption access and fallback | In progress; hosted supplied-input acceptance complete | [#9](https://github.com/CloudKai/secondBrain/issues/9) |
 | 09 | Saved-source topic cards and graph | Draft; completed dependency 02 | Unpublished |
 | 10 | Synthesized topic overviews and source branches | Draft; depends on 09 | Unpublished |
 | 11 | Persistent topic corrections and consistent removal | Draft; depends on 10 | Unpublished |
@@ -289,11 +289,15 @@ A learner submits a Zoom recording and obtains a transcript-backed note or a cle
 
 ## 08: Handle Panopto lecture transcripts with tenant-aware fallback
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — implementation and hosted acceptance complete; review pending.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#9 — open](https://github.com/CloudKai/secondBrain/issues/9)
 
-**Already verified from ticket 04:** Panopto tenant/session identity, supplied transcripts and real cue times are supported; display-parameter variants reuse the capture. Automatic caption access and tenant-specific feedback remain planned.
+**Label:** `ready-for-agent`
+
+**Already verified from ticket 04:** Panopto tenant/session identity, supplied transcripts and real cue times are supported; display-parameter variants reuse the capture. No anonymous caption-download path for a concrete session is validated. This slice adds site-specific supplied-transcript guidance without claiming to inspect a lecture’s permissions or availability.
+
+**Acceptance so far:** Site-specific guidance, unreadable-export correction, hosted SRT/paste notes, exact timed/untimed citations, reload/reuse and ownership checks passed. Automatic retrieval remains unvalidated and unavailable. [Setup and evidence](../panopto-transcript-setup.md). Independent review is pending.
 
 ### What to build
 
@@ -302,11 +306,11 @@ A learner submits a Panopto lecture and gets a note from accessible captions or 
 ### Acceptance criteria
 
 - [x] Recognized lecture links preserve the original session identity and institution context where available.
-- [ ] A caption download is attempted only through a validated accessible path without connecting institutional accounts.
-- [ ] Tenant restrictions, unavailable captions, and unreadable exports produce an actionable upload/paste path.
+- [x] A caption download is attempted only through a validated accessible path without connecting institutional accounts.
+- [x] Tenant restrictions, unavailable captions, and unreadable exports produce an actionable upload/paste path.
 - [x] Actual caption times are retained; untimed text cites excerpts.
-- [ ] Validate any automatic capability against a concrete accessible session before advertising it.
-- [ ] Provider and browser checks cover session recognition, accessible captions, and restricted-lecture fallback.
+- [x] Validate any automatic capability against a concrete accessible session before advertising it.
+- [x] Provider and browser checks cover session recognition, supplied captions, and conditional restricted-lecture fallback guidance. Controlled fixtures do not establish automatic/private access.
 
 ### Blocked by
 
