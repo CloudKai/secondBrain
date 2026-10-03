@@ -15,8 +15,11 @@ unavailable-caption fallback and cross-learner denial passed.
 pass. Standards and Spec reviews have no remaining material findings. Browser
 acceptance was at desktop width; no new phone-width check is claimed.
 
-**Target behavior / next proposed slice:** planned ticket 06, Teams transcript
-access and feedback. Automatic Teams/Zoom/Panopto access, saved-source topics,
+**Current unit:** planned ticket 06 / [GitHub #7](https://github.com/CloudKai/secondBrain/issues/7),
+Teams transcript access and export feedback. Implementation and hosted supplied-
+transcript checks pass; independent Standards/Spec review is pending.
+
+**Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
 remain planned. Existing example UI does not establish those live capabilities.
 YouTube support is conditional on anonymously accessible English captions;
@@ -238,3 +241,20 @@ Review: Standards — three bounded-ingestion/fallback findings fixed, zero rema
 material findings; Spec — zero material defects. A minor timeout description
 was corrected. Setup: `docs/youtube-transcript-setup.md`; review:
 `docs/reviews/ticket06.md`. Native/v1 files are unchanged by this ticket.
+
+
+## Teams access and export feedback — issue #7, planned ticket 06, 2026-10-03
+
+- [x] Microsoft permission boundary verified against primary documentation
+- [x] Teams/SharePoint context immediately opens upload/paste and export guidance
+- [x] VTT speaker/times and untimed readable-text fallback preserved
+- [x] Hosted note generation, citation inspection, reload and duplicate reuse
+- [x] Exact saved references and second-learner API/REST/RPC denial
+- [x] 104 backend tests, 30 web tests, build/typecheck and lint pass
+- [ ] Independent Standards/Spec review and final issue synchronization
+
+No anonymous Teams retrieval path is validated. Access feedback describes the
+app's authorization limitation; it does not inspect a recording's specific state.
+Hosted checks use controlled transcripts and fictional recording URLs, not a
+private Teams recording. Setup: `docs/teams-transcript-setup.md`. No migration,
+new credentials or native/iOS changes. Review and fixture cleanup remain pending.

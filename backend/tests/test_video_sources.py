@@ -354,3 +354,47 @@ def test_saved_video_contract_rejects_inconsistent_identity(browser_client):
     ]:
         with pytest.raises(ValidationError):
             CapturedSource.model_validate_json(json.dumps({**row, **update}))
+
+
+def test_teams_recap_vtt_preserves_original_context_speaker_and_real_times(
+    browser_client,
+):
+    url = "https://teams.cloud.microsoft/l/meetingrecap?threadId=meeting-fixture&organizerId=organizer-fixture"
+    caption = "WEBVTT\n\n00:00:05.250 --> 00:00:20.500\n<v Lecturer>" + TRANSCRIPT
+    headers = {"Authorization": "Bearer alice", "X-Video-URL": url}
+    first = browser_client.post(
+        "/api/v2/sources/video",
+        headers=headers,
+        params={"filename": "teams-export.vtt", "title": "Algebra"},
+        content=caption,
+    )
+    assert first.status_code == 201, first.text
+    source = first.json()
+    assert source["original_url"] == url
+    assert source["canonical_url"] == url
+    assert source["transcript"]["provider"] == "teams"
+    assert source["transcript"]["filename"] == "teams-export.vtt"
+    assert source["captured_text"] == "Lecturer: " + TRANSCRIPT
+    assert source["transcript"]["segments"] == [
+        {"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}
+    ]
+    assert source["capture_origin"] == "upload"
+    assert "User-supplied" in source["coverage_detail"]
+    assert "No video was fetched" in source["coverage_detail"]
+    assert (
+        browser_client.get("/api/v2/sources/" + source["id"], headers=headers).json()
+        == source
+    )
+    duplicate = browser_client.post(
+        "/api/v2/sources/video",
+        headers={**headers, "X-Video-URL": url + "#recap"},
+        params={"filename": "teams-export.vtt"},
+        content=caption,
+    )
+    assert duplicate.json()["id"] == source["id"]
+    assert (
+        browser_client.get(
+            "/api/v2/sources/" + source["id"], headers={"Authorization": "Bearer bob"}
+        ).status_code
+        == 404
+    )

@@ -330,3 +330,16 @@ consent-cookie access is rejected. No provider account, bypass or audio/video
 download is used. Hosted generation, exact references, reload/reuse and ownership
 denial passed. Limits/rollback: `docs/youtube-transcript-setup.md`. Other automatic
 providers remain planned. Native/v1 behavior is unchanged by this slice.
+
+
+## Teams transcript access — issue #7 (2026-10-03)
+
+Teams/SharePoint feedback uses the existing supplied-transcript boundary; it adds
+no remote adapter, schema, migration, auth provider or credentials. Recognized
+context immediately opens browser upload/paste. Original URL identity and source
+validation remain compatible with saved captures. VTT speaker/cue metadata and
+untimed text use the existing authenticated source/study/outbox worker path.
+Hosted controlled fixtures verified exact references and cross-learner API/REST/
+RPC denial. Microsoft's documented transcript API requires authorization; no
+anonymous access path is validated. Automatic Teams retrieval remains target work,
+and native/v1 contracts are unchanged by this slice.

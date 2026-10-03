@@ -11,7 +11,9 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **05**, accessible English YouTube transcripts with fallback.
 
-**Target behavior:** planned tickets **06–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**In progress:** planned ticket **06**, Teams transcript access and export feedback — [GitHub #7](https://github.com/CloudKai/secondBrain/issues/7).
+
+**Target behavior:** planned tickets **07–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
 The next proposed slice is **06: Handle Teams recording transcripts and access
@@ -26,7 +28,7 @@ captions; other automatic providers remain planned.
 | 04 | Supplied video transcripts | Complete; local + hosted acceptance | [#5](https://github.com/CloudKai/secondBrain/issues/5), [setup](../video-transcript-setup.md) |
 | Extra | Circular mint citations and PDF topic title | Complete; browser inspection + typecheck/lint | [#4](https://github.com/CloudKai/secondBrain/issues/4) |
 | 05 | Accessible YouTube transcripts | Complete; local + hosted acceptance | [#6](https://github.com/CloudKai/secondBrain/issues/6), [setup](../youtube-transcript-setup.md), [review](../reviews/ticket06.md) |
-| 06 | Teams transcript access and feedback | Draft; supplied-transcript foundations complete | Unpublished |
+| 06 | Teams transcript access and feedback | In progress; local + hosted checks pass, review pending | [#7](https://github.com/CloudKai/secondBrain/issues/7) |
 | 07 | Zoom transcript availability and feedback | Draft; supplied-transcript foundations complete | Unpublished |
 | 08 | Panopto caption access and fallback | Draft; supplied-transcript foundations complete | Unpublished |
 | 09 | Saved-source topic cards and graph | Draft; completed dependency 02 | Unpublished |
@@ -230,11 +232,13 @@ remains conditional; no account/cookie/bypass/audio-video flow was added.
 
 ## 06: Handle Teams recording transcripts and access feedback
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — implementation and hosted supplied-transcript acceptance passed on 2026-10-03; independent review pending.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#7 — open](https://github.com/CloudKai/secondBrain/issues/7)
 
-**Already verified from ticket 04:** Teams/SharePoint recording context and supplied TXT/VTT/SRT or pasted text are supported. Provider-specific automatic access and restricted-recording feedback remain planned.
+**Label:** `ready-for-agent`
+
+**Already verified from ticket 04:** Teams/SharePoint recording context and supplied TXT/VTT/SRT or pasted text are supported. Microsoft’s documented API requires authorization this app does not have. No anonymous access path is validated; this slice adds accurate permission/export feedback and verifies the supplied-transcript path.
 
 ### What to build
 

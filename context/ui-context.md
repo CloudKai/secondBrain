@@ -123,3 +123,15 @@ distinguishes retrieved captions from user-supplied transcripts, preserving real
 cue times and exact passage citations. Notes remain read-only; reload and canonical
 reuse restore the same note. Native UI is untouched; no new phone-width check is
 claimed. Other automatic recording providers remain planned.
+
+
+## Teams transcript access — issue #7 (2026-10-03)
+
+The Video form immediately selects upload/paste for recognized Teams/SharePoint
+context. A mint access panel explains that the app lacks Teams authorization,
+links to the original recording/recap and expands VTT export/DOCX paste steps.
+It avoids claims about the specific recording's availability or permission state.
+Existing transcript controls, limits, read-only notes and citation styles remain.
+Desktop hosted checks verified timed VTT citations after reload and untimed text
+paste/reuse. No new phone-width check is claimed; native UI is unchanged.
+Automatic Teams retrieval is unvalidated and is not advertised.

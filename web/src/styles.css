@@ -3276,3 +3276,40 @@ main {
   }
 }
 main:focus-visible { outline: none; }
+
+.transcript-access {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.transcript-access h3 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+.transcript-access p {
+  margin: 8px 0;
+}
+.transcript-access summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: var(--text);
+}
+.transcript-access ol {
+  padding-left: 22px;
+}
+.transcript-access li + li {
+  margin-top: 8px;
+}
+.transcript-access a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--accent);
+}

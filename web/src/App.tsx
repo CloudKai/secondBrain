@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { sampleNotes, topicTitles } from "./data";
 import CapturedSourceText from "./components/CapturedSourceText";
+import TeamsTranscriptHelp from "./components/TeamsTranscriptHelp";
 import VideoTranscriptInput from "./components/VideoTranscriptInput";
 import {
   formatVideoTime,
@@ -114,6 +115,15 @@ export default function App() {
     [rawText, setRawText] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const isTeamsRecording = (() => {
+    if (sourceTab !== "Video") return false;
+    try {
+      return videoIdentity(sourceUrl).provider === "teams";
+    } catch {
+      return false;
+    }
+  })();
+  const videoInputMode = isTeamsRecording ? "supplied" : videoMode;
   const [topicName, setTopicName] = useState(""),
     [mergeTarget, setMergeTarget] = useState("");
   const mainRef = useRef<HTMLElement>(null);
@@ -335,7 +345,10 @@ export default function App() {
           );
           return;
         }
-        if (videoMode === "auto" && videoIdentity(url).provider !== "youtube") {
+        if (
+          videoInputMode === "auto" &&
+          videoIdentity(url).provider !== "youtube"
+        ) {
           setVideoMode("supplied");
           setError(
             "Upload or paste a transcript for this recording platform. Automatic import supports accessible English YouTube captions.",
@@ -343,7 +356,7 @@ export default function App() {
           return;
         }
         if (
-          videoMode === "supplied" &&
+          videoInputMode === "supplied" &&
           (transcriptMode === "upload"
             ? !transcriptFile
             : !transcriptText.trim())
@@ -396,7 +409,7 @@ export default function App() {
     try {
       const note = noteFromSavedSource(
         isVideo
-          ? videoMode === "auto"
+          ? videoInputMode === "auto"
             ? await sourceClient.importYouTube({ url, title: sourceTitle })
             : await sourceClient.saveVideo({
                 url,
@@ -1854,9 +1867,9 @@ export default function App() {
                   >
                     <button
                       type="button"
-                      disabled={busy}
-                      aria-pressed={videoMode === "auto"}
-                      className={videoMode === "auto" ? "active" : ""}
+                      disabled={busy || isTeamsRecording}
+                      aria-pressed={videoInputMode === "auto"}
+                      className={videoInputMode === "auto" ? "active" : ""}
                       onClick={() => {
                         setVideoMode("auto");
                         setError("");
@@ -1867,8 +1880,8 @@ export default function App() {
                     <button
                       type="button"
                       disabled={busy}
-                      aria-pressed={videoMode === "supplied"}
-                      className={videoMode === "supplied" ? "active" : ""}
+                      aria-pressed={videoInputMode === "supplied"}
+                      className={videoInputMode === "supplied" ? "active" : ""}
                       onClick={() => {
                         setVideoMode("supplied");
                         setError("");
@@ -1966,7 +1979,8 @@ export default function App() {
                   }
                   disabled={busy}
                 />
-                {sourceTab === "Video" && videoMode === "supplied" && (
+                {isTeamsRecording && <TeamsTranscriptHelp url={sourceUrl} />}
+                {sourceTab === "Video" && videoInputMode === "supplied" && (
                   <VideoTranscriptInput
                     mode={transcriptMode}
                     onMode={setTranscriptMode}
@@ -1997,7 +2011,7 @@ export default function App() {
                 <p className="support-copy" id="source-support">
                   <CircleHelp size={15} />
                   {sourceTab === "Video"
-                    ? videoMode === "auto"
+                    ? videoInputMode === "auto"
                       ? "English YouTube captions only, when anonymously accessible. Missing, restricted or blocked captions need upload/paste. No audio/video is downloaded or watched and no provider account is connected. Up to 2,000 cues and 30,000 captured characters; video completeness is unverified."
                       : "Supply UTF-8 TXT, VTT or SRT up to 1 MB and 2,000 timed cues, or paste 120–100,000 characters. Up to 30,000 readable characters are captured; omitted text is labelled. TXT is untimed; paste VTT/SRT to retain times. For DOCX or other exports, paste the readable text. Transcripts are user-supplied; the app does not retrieve or watch the video or connect provider accounts."
                     : sourceTab === "PDF"
@@ -2013,7 +2027,7 @@ export default function App() {
                   <p className="processing-status" role="status">
                     Capturing and saving the{" "}
                     {sourceTab === "Video"
-                      ? videoMode === "auto"
+                      ? videoInputMode === "auto"
                         ? "accessible YouTube captions"
                         : "supplied transcript"
                       : sourceTab === "PDF"
@@ -2041,7 +2055,7 @@ export default function App() {
                       </>
                     ) : (
                       <>
-                        {sourceTab === "Video" && videoMode === "auto"
+                        {sourceTab === "Video" && videoInputMode === "auto"
                           ? "Import captions"
                           : "Save source"}{" "}
                         <ArrowRight size={16} />

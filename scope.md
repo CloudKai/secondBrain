@@ -317,3 +317,23 @@ Web progress lives in `context/web-progress-tracker.md` and per-ticket status in
 `context/progress-tracker.md`, as requested. Existing unrelated native/v1 working
 tree changes are not part of this ticket. Next proposed slice: planned ticket 06,
 Teams transcript access and feedback.
+
+
+## Teams transcript access — issue #7 (2026-10-03)
+
+Status: implementation and hosted supplied-transcript acceptance passed;
+independent review is pending. Planned ticket 06 shows permission/export guidance
+and immediately opens upload/paste for Teams/SharePoint recording context.
+No anonymous retrieval method is validated; automatic Teams retrieval is not a
+current capability. The app does not inspect recording-specific permissions,
+existence, processing or deletion, and connects no Microsoft account.
+
+Controlled VTT upload generated a saved note with the Lecturer label and exact
+5.250–20.500 second citation; reload restored it. Readable text paste generated
+an untimed note. Duplicate import reopened the same note; all three references
+matched saved text/cues, and second-learner API/REST/RPC access was denied.
+Fixtures use fictional recording context, not private Teams access. Local checks:
+104 backend tests, 30 web tests, build/typecheck and lint pass using the project
+Python interpreter. Setup: `docs/teams-transcript-setup.md`. No migration or new
+credentials; native/v1 changes are excluded. Web status remains in the dedicated
+web tracker and ticket breakdown. Zoom/Panopto automatic support remains target work.
