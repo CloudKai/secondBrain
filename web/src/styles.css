@@ -45,13 +45,12 @@
 .pending-source { margin-top: 28px; }
 .pending-source > h3 { margin-top: 24px; }
 .pending-source > p { margin: 14px 0; }
-.study-citations { display: inline-flex; vertical-align: baseline; }
+.study-citations { display: inline-flex; gap: 3px; vertical-align: baseline; }
 .study-error { margin-top: 20px; padding: 16px; border: 1px solid var(--danger); border-radius: var(--radius); }
 .study-error p { color: var(--danger); }
 .study-equations { margin-top: 28px; }
 .study-equations .equation { display: block; }
 .study-equations code { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
-.study-equations .equation .citation { position: static; }
 #source-passage:focus { outline: 2px solid var(--accent); outline-offset: 6px; }
 .capture-details { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 18px 0; color: var(--muted); font-size: 13px; }
 :root[data-theme="light"] {
@@ -1382,18 +1381,34 @@ main {
 }
 .citation {
   position: relative;
+  isolation: isolate;
   display: inline-grid;
   place-items: center;
-  min-width: 44px;
-  padding: 0;
+  min-width: 2em;
+  padding: 0.35em 0;
   border: 0;
   background: transparent;
   color: var(--accent);
   font: inherit;
-  border-radius: 3px;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 50%;
   vertical-align: baseline;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+}
+.citation::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+.citation:hover::before {
+  background: color-mix(in srgb, var(--accent-bg), var(--accent) 15%);
 }
 .citation::after {
   /* Keep the pointer target tall without enlarging the inline number. */
@@ -1404,6 +1419,9 @@ main {
   width: 100%;
   height: 44px;
   transform: translateY(-50%);
+}
+@media (pointer: coarse) {
+  .citation { min-width: 44px; }
 }
 .concept-section > .eyebrow {
   display: block;

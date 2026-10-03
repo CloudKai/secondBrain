@@ -191,7 +191,7 @@ were removed. GitHub issue #3 is complete. Setup: `docs/pdf-study-setup.md`.
 
 ## Citation/title polish — issue #4, 2026-10-03
 
-Completed the requested inline, text-size citation styling and clarified the PDF
+Completed the requested inline, text-size circular mint citation styling and clarified the PDF
 Topic title field. Web typecheck and lint passed. Browser inspection confirmed
 that citation clicks still open Sources and the PDF form uses the new label.
 Numbers identify saved passages; PDF physical page numbers appear in Sources.
