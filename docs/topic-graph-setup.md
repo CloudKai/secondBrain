@@ -1,6 +1,6 @@
 # Saved-source topic graph — planned 09 / GitHub #10
 
-Status: local implementation and checks complete; independent review and hosted acceptance pending.
+Status: local implementation and checks complete; independent review complete; hosted migration approval and acceptance pending.
 This is the selected target slice, not yet a verified hosted capability.
 
 ## Behavior
@@ -55,5 +55,5 @@ navigation boundaries. RED→GREEN checks cover empty library, first-source card
 related/unrelated sources, contextual aliases, uncertainty and ownership. SQL
 checks cover automatic enqueue, worker claim, placement, leases/retries and
 rollback. 112 backend tests through project Python, 34 web tests, build/typecheck and
-lint pass. Independent review and hosted/browser acceptance are pending. Controlled fixtures establish implementation behavior; model quality
+lint pass. Review fixes passed focused API/model and SQL/client checks, build and lint. Independent Standards and Spec re-review have zero remaining findings. Hosted/browser acceptance awaits migration approval. Controlled fixtures establish implementation behavior; model quality
 still depends on captured source coverage and should be checked against evidence.

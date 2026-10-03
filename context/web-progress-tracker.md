@@ -20,8 +20,7 @@ the bare launcher still has a stale interpreter. Desktop browser checks only.
 
 **Current unit:** planned ticket 09 / [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10),
 saved-source topic cards and explained graph. Inspection and implementation
-planning complete; new implementation in progress; hosted acceptance and review pending. No live topic capability
-is claimed yet.
+planning and local implementation complete. Independent review passed; hosted migration approval and acceptance are pending. No live topic capability is claimed yet.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
@@ -316,7 +315,7 @@ separate. Planned 09 topic cards and graph is next, unpublished and not started.
 
 ## Topic cards and explained graph — issue #10, planned 09, 2026-10-03
 
-Status: in progress; implementation and acceptance pending.
+Status: local implementation and independent review complete; hosted acceptance pending.
 
 - [x] Read the approved graph specification, glossary and shared-topic ADR
 - [x] Inspect the owned source/study worker, API and supplied browser views
@@ -329,6 +328,6 @@ Status: in progress; implementation and acceptance pending.
 
 Preparatory checkpoint initially added no tests. After user agreement, RED→GREEN
 API/model/database checks and local UI wiring pass: 112 backend tests, 34 web
-tests, build/typecheck and lint. Hosted migration, acceptance and review pending. Native/iOS and its tracker
+tests, build/typecheck and lint. Review fixes passed focused checks. Standards and Spec re-review have zero remaining findings. Supabase displayed its destructive-operation warning for topic queue cleanup; applying the reviewed migration awaits user approval. Hosted acceptance is pending. Native/iOS and its tracker
 remain unchanged. Saved notes stay authoritative; combined topic synthesis and
 broad correction workflows remain planned tickets 10 and 11.
