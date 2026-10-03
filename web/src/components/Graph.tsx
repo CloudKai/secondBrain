@@ -27,7 +27,7 @@ export function Graph({
   const connectedIds = new Set(
     connections.flatMap((c) => [c.source, c.target]),
   );
-  if (cardsOnly || topics.length > 6)
+  if (cardsOnly)
     return (
       <div className={`graph-topic-grid ${compact ? "compact" : ""}`}>
         <p className="micro-copy">
@@ -50,12 +50,31 @@ export function Graph({
         ))}
       </div>
     );
-  const positions = topics.map((t, i) => ({
+  const visibleIds = new Set<string>([selected ?? connections[0]?.source ?? topics[0].id]);
+  if (topics.length > 6) {
+    for (const connection of connections) {
+      if (visibleIds.has(connection.source) || visibleIds.has(connection.target)) {
+        const additions = [connection.source, connection.target].filter(id=>!visibleIds.has(id));
+        if (visibleIds.size + additions.length <= 6) additions.forEach(id=>visibleIds.add(id));
+      }
+    }
+    if (connections.length && !connections.some(c=>visibleIds.has(c.source)&&visibleIds.has(c.target))) {
+      visibleIds.add(connections[0].source); visibleIds.add(connections[0].target);
+    }
+    for (const topic of topics) { if (visibleIds.size >= 6) break; visibleIds.add(topic.id); }
+  }
+  const visibleTopics = topics.length > 6 ? topics.filter(t=>visibleIds.has(t.id)) : topics;
+  const positions = visibleTopics.map((t, i) => ({
     topic: t,
-    x: 50 + 32 * Math.cos((i * 2 * Math.PI) / topics.length - Math.PI / 2),
-    y: 50 + 30 * Math.sin((i * 2 * Math.PI) / topics.length - Math.PI / 2),
+    x: 50 + 32 * Math.cos((i * 2 * Math.PI) / visibleTopics.length - Math.PI / 2),
+    y: 50 + 30 * Math.sin((i * 2 * Math.PI) / visibleTopics.length - Math.PI / 2),
   }));
   return (
+    <>
+    {topics.length>6&&<label className="graph-focus">Focus on a topic
+      <select aria-label="Choose graph focus" value={selected??visibleTopics[0].id} onChange={event=>onSelect(event.target.value)}>{topics.map(topic=><option key={topic.id} value={topic.id}>{topic.title}</option>)}</select>
+      <span className="micro-copy">Showing up to six topics with supported connections. Choose a focus to explore the rest.</span>
+    </label>}
     <div className={`knowledge-map ${compact ? "compact" : ""}`}>
       <svg
         className="graph-lines"
@@ -97,6 +116,7 @@ export function Graph({
         </p>
       )}
     </div>
+    </>
   );
 }
 export function AttentionArt({ small = false }: { small?: boolean }) {

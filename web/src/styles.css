@@ -3216,6 +3216,25 @@ main {
 .mobile-nav-close {
   display: none;
 }
+.graph-focus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.graph-focus select {
+  min-width: 0;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+}
+.graph-focus .micro-copy { flex-basis: 100%; }
 .graph-topic-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

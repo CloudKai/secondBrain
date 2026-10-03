@@ -152,7 +152,7 @@ export default function App() {
   );
   const topicMaps = useTopicLibrary(sourceClient,storage === 'ready',library.notes,studies.records);
   const [topicMode,setTopicMode]=useState<'saved'|'examples'>('saved');
-  const showingSavedGraph=topicMode==='saved';
+  const showingSavedGraph = route.page === 'note' ? library.notes.find(n=>n.id===route.noteId)?.demo !== true : topicMode === 'saved';
   const names=showingSavedGraph?Object.fromEntries(topicMaps.library.topics.map(t=>[t.id,t.title])):exampleNames;
   const [selectedPassage, setSelectedPassage] = useState<{
     sourceId: string;
@@ -522,6 +522,7 @@ export default function App() {
     if(t.saved)return <>
       <span className="eyebrow">{t.uncertain?'SUGGESTED TOPIC':'SHARED TOPIC'}</span>
       <h2>{t.title}</h2><p className="panel-description">{t.description}</p>
+      {topicMaps.error&&<div role="alert"><p>{topicMaps.error}</p><button className="text-button" onClick={topicMaps.reload}>Reload topics</button></div>}
       <p className="micro-copy">{t.context} · {(t.groups??[]).join(' · ')} · {t.notes.length} supporting sources. Coverage is not mastery.</p>
       <div className="topic-overviews">{t.notes.map(n=>{const assignment=topicMaps.library.maps.find(m=>m.source_id===n.id)?.analysis?.topics.find(a=>a.id===t.id);return <div className="topic-overview" key={n.id}>
         <button className="source-title" onClick={()=>openNote(n)}><FileText size={15}/>{n.title}<ArrowUpRight size={14}/></button>

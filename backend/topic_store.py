@@ -23,10 +23,9 @@ class TopicStore:
             },
         )
         try:
-            records = [TopicRecord.model_validate_json(json.dumps(v)) for v in values]
-            if any(r.user_id != user_id for r in records):
-                raise ValueError("Unowned map")
-            return records
+            if not isinstance(values, list):
+                raise ValueError("Invalid map list")
+            return [self.record(value, user_id) for value in values]
         except (ValueError, TypeError) as exc:
             raise StudyStorageError() from exc
 

@@ -50,7 +50,7 @@ test('uncertain placement confirmation is owned, persists, and preserves origina
  }finally{await db.close();}
 });
 
-test('topic worker failures recover with fenced leases while source notes survive deletion and rollback',async()=>{
+test('topic worker failures recover with fenced leases while source notes survive rollback',async()=>{
  const db=await database();try{
   const claim=await db.query<{claim:{lease_token:string}}>('select claim_source_topics($1) as claim',[source]);
   await db.query('select finish_source_topics($1,$2,null,$3)',[source,claim.rows[0].claim.lease_token,'timeout']);
