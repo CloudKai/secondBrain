@@ -1819,14 +1819,19 @@ export default function App() {
                     </>
                   )}
                   <label className="form-label" htmlFor="source-title">
-                    Title <span>optional</span>
+                    {sourceTab === "PDF" ? "Topic title" : "Title"}{" "}
+                    <span>optional</span>
                   </label>
                   <input
                     id="source-title"
                     maxLength={200}
                     value={sourceTitle}
                     onChange={(e) => setSourceTitle(e.target.value)}
-                    placeholder="Give your source a recognizable name"
+                    placeholder={
+                      sourceTab === "PDF"
+                        ? "e.g. Algebra and calculus"
+                        : "Give your source a recognizable name"
+                    }
                     disabled={busy}
                   />
                   {sourceTab === "Article" && (

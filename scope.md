@@ -242,3 +242,14 @@ Independent standards/spec reviews are complete; two standards findings were
 fixed and re-reviewed. Temporary acceptance sources and their jobs were removed.
 Migration/rollback and limits: `docs/pdf-study-setup.md`. Native code is unchanged.
 PDF page-range selection, OCR, videos, topics and research remain target work.
+
+
+## Citation and PDF title polish — issue #4, 2026-10-03
+
+Implemented: citation numbers inherit the surrounding text size and use inline
+underlined styling, with a 44px pointer target. The PDF input is labelled Topic
+title with a topic-name example. No automatic PDF acceptance prefix exists;
+that wording was a manually entered disposable verification title. A supplied
+title is kept as-is; uploads otherwise use their filename.
+Web typecheck/lint passed and the updated controls were inspected in the browser.
+No new tests were requested or run. Native files are untouched.

@@ -45,8 +45,7 @@
 .pending-source { margin-top: 28px; }
 .pending-source > h3 { margin-top: 24px; }
 .pending-source > p { margin: 14px 0; }
-.study-citations { display: inline-flex; gap: 6px; vertical-align: middle; }
-.study-citations .citation { min-width: 44px; min-height: 44px; }
+.study-citations { display: inline-flex; vertical-align: baseline; }
 .study-error { margin-top: 20px; padding: 16px; border: 1px solid var(--danger); border-radius: var(--radius); }
 .study-error p { color: var(--danger); }
 .study-equations { margin-top: 28px; }
@@ -1382,17 +1381,29 @@ main {
   line-height: 1.85;
 }
 .citation {
+  position: relative;
   display: inline-grid;
   place-items: center;
-  min-width: 24px;
-  min-height: 24px;
-  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-  background: var(--accent-bg);
+  min-width: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--accent);
-  font-size: 10px;
-  border-radius: 4px;
-  vertical-align: middle;
-  margin-left: 3px;
+  font: inherit;
+  border-radius: 3px;
+  vertical-align: baseline;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.citation::after {
+  /* Keep the pointer target tall without enlarging the inline number. */
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  transform: translateY(-50%);
 }
 .concept-section > .eyebrow {
   display: block;

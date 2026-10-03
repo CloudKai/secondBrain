@@ -187,3 +187,13 @@ Live upload, public PDF URL generation, page citations, reload, duplicate upload
 and second-learner API/RLS checks passed. Two standards findings were resolved;
 independent re-review has no remaining material issue. Disposable sources/jobs
 were removed. GitHub issue #3 is complete. Setup: `docs/pdf-study-setup.md`.
+
+
+## Citation/title polish — issue #4, 2026-10-03
+
+Completed the requested inline, text-size citation styling and clarified the PDF
+Topic title field. Web typecheck and lint passed. Browser inspection confirmed
+that citation clicks still open Sources and the PDF form uses the new label.
+Numbers identify saved passages; PDF physical page numbers appear in Sources.
+The curated example note separately labels its paraphrased evidence.
+No new tests were requested or run.
