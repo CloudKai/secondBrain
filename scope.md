@@ -398,3 +398,21 @@ Both reviews found no material findings; Standards noted one optional future
 rendering cleanup. Both synthetic captures and note/job rows were removed with
 cascade verified; existing learner notes remain. Review: `docs/reviews/ticket09.md`.
 GitHub #9 is closed and both web records are synchronized. Commits are local.
+
+
+## Saved-source topic graph — issue #10 (2026-10-03)
+
+Status: selected planned ticket 09; implementation and acceptance pending.
+The existing approved plan is published with completed GitHub #2 as its blocker.
+Inspection covers the owned study worker and supplied browser topic/graph views.
+Topic analysis will be stored separately from completed notes so mapping failure
+does not invalidate source notes. Main/supporting topics need saved evidence;
+no prepared outline, mention-only coverage or unsupported broad-group edges.
+Clear contextual matches share identities; uncertain suggestions remain distinct
+until learner placement confirmation. Two independent sources gate meaningful
+connections; repeat imports do not count twice. No vector service is required.
+
+New topic API/model HTTP/database/browser test-boundary agreement is pending
+under the TDD skill. No tests or implementation changes at this checkpoint.
+Combined topic synthesis and broad corrections remain planned tickets 10/11.
+Both web progress files reflect current work; native history stays separate.

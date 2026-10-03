@@ -11,12 +11,12 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **08**, Panopto caption access, site-specific guidance and supplied input.
 
-**Next proposed:** planned ticket **09**, saved-source topic cards and graph; not started.
+**In progress:** planned ticket **09**, saved-source topic cards and graph — [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10). Inspection and implementation planning complete; test-boundary agreement pending.
 
-**Target behavior:** planned tickets **09–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**Target behavior:** planned tickets **10–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next proposed slice is **09: Build topic cards and a source-driven graph**. YouTube support is verified for anonymously accessible English
+The current slice is **09: Build topic cards and a source-driven graph**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -30,7 +30,7 @@ captions; other automatic providers remain planned.
 | 06 | Teams transcript access and feedback | Complete; local + hosted supplied-transcript acceptance | [#7](https://github.com/CloudKai/secondBrain/issues/7), [setup](../teams-transcript-setup.md), [review](../reviews/ticket07.md) |
 | 07 | Zoom transcript availability and feedback | Complete; local + hosted supplied-transcript acceptance | [#8](https://github.com/CloudKai/secondBrain/issues/8), [setup](../zoom-transcript-setup.md), [review](../reviews/ticket08.md) |
 | 08 | Panopto caption access and fallback | Complete; local + hosted supplied-input acceptance | [#9](https://github.com/CloudKai/secondBrain/issues/9), [setup](../panopto-transcript-setup.md), [review](../reviews/ticket09.md) |
-| 09 | Saved-source topic cards and graph | Draft; completed dependency 02 | Unpublished |
+| 09 | Saved-source topic cards and graph | In progress; test boundaries pending | [#10](https://github.com/CloudKai/secondBrain/issues/10) |
 | 10 | Synthesized topic overviews and source branches | Draft; depends on 09 | Unpublished |
 | 11 | Persistent topic corrections and consistent removal | Draft; depends on 10 | Unpublished |
 | 12 | Reuse and versioned refresh | Draft; capture reuse exists, refresh remains planned | Unpublished |
@@ -317,9 +317,13 @@ A learner submits a Panopto lecture and gets a note from accessible captions or 
 
 ## 09: Build topic cards and a source-driven graph
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — selected on 2026-10-03; acceptance is not complete.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#10 — open](https://github.com/CloudKai/secondBrain/issues/10)
+
+**Label:** `ready-for-agent`
+
+**Current progress:** Existing source/study worker, API ownership, browser graph and topic views inspected. Topic analysis will remain separate from completed notes, with no prepared outline or fabricated graph edges. Clear contextual matches reuse topics; uncertain matches remain distinct with a placement suggestion. Awaiting agreement on new topic API/model/database/browser test boundaries before test-first implementation.
 
 ### What to build
 

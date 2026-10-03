@@ -18,8 +18,10 @@ Independent Standards and Spec reviews have no material findings; Standards
 recorded one optional rendering refactor. Backend checks use project Python;
 the bare launcher still has a stale interpreter. Desktop browser checks only.
 
-**Next proposed unit:** planned ticket 09, saved-source topic cards and graph.
-Unpublished draft; implementation not started.
+**Current unit:** planned ticket 09 / [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10),
+saved-source topic cards and explained graph. Inspection and implementation
+planning complete; new test-boundary agreement pending. No live topic capability
+is claimed yet.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
@@ -310,3 +312,21 @@ no findings. Both synthetic captures and their note/job rows were removed with
 cascade verified; existing learner notes remain. Review: `docs/reviews/ticket09.md`.
 GitHub #9 is closed; both web records are synchronized. Native history remains
 separate. Planned 09 topic cards and graph is next, unpublished and not started.
+
+
+## Topic cards and explained graph — issue #10, planned 09, 2026-10-03
+
+Status: in progress; implementation and acceptance pending.
+
+- [x] Read the approved graph specification, glossary and shared-topic ADR
+- [x] Inspect the owned source/study worker, API and supplied browser views
+- [x] Publish selected slice as GitHub #10 with completed dependency #2
+- [x] Plan separate topic analysis and explicit uncertainty/placement feedback
+- [ ] Agree new topic API/model HTTP/database/browser test boundaries
+- [ ] Implement persistent, evidence-backed topic mapping and graph threshold
+- [ ] Verify ownership, aliases, unrelated sources and topic navigation
+- [ ] Independent review, hosted acceptance and issue closure
+
+No tests added or run for this preparatory checkpoint. Native/iOS and its tracker
+remain unchanged. Saved notes stay authoritative; combined topic synthesis and
+broad correction workflows remain planned tickets 10 and 11.
