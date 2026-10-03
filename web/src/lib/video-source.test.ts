@@ -169,3 +169,15 @@ test("the video client uploads raw caption bytes with the learner token and pres
     /Invalid caption time/,
   );
 });
+
+
+test("saved Panopto identity ignores presentation parameters and rejects claimed complete coverage", () => {
+  const panopto = {
+    ...source,
+    original_url: "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx?start=30&id=session-id&isLive=false",
+    canonical_url: "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=session-id",
+    transcript: { ...source.transcript, provider: "panopto" },
+  };
+  assert.doesNotThrow(() => sourceSchema.parse(panopto));
+  assert.throws(() => sourceSchema.parse({ ...panopto, coverage: "complete" }));
+});

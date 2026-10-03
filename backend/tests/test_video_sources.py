@@ -306,3 +306,51 @@ def test_untimed_transcript_can_contain_a_literal_arrow(browser_client):
     assert response.status_code == 201, response.text
     assert response.json()["transcript"]["format"] == "text"
     assert response.json()["transcript"]["segments"][0]["start_ms"] is None
+
+
+def test_panopto_presentation_parameters_reuse_the_recording(browser_client):
+    base = "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx"
+    first = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": base + "?id=session-id&start=5",
+        },
+        content=TRANSCRIPT,
+    )
+    second = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": base + "?start=30&id=session-id&isLive=false",
+        },
+        content=TRANSCRIPT,
+    )
+    assert first.status_code == second.status_code == 201
+    assert first.json()["id"] == second.json()["id"]
+    assert first.json()["canonical_url"] == base + "?id=session-id"
+
+
+def test_saved_video_contract_rejects_inconsistent_identity(browser_client):
+    from backend.source_models import CapturedSource
+    from pydantic import ValidationError
+    import json
+
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": "https://youtu.be/aircAruvnKk",
+        },
+        content=TRANSCRIPT,
+    )
+    row = {**response.json(), "user_id": "11111111-1111-4111-8111-111111111111"}
+    CapturedSource.model_validate_json(json.dumps(row))
+    for update in [
+        {"canonical_url": "https://example.com/unrelated"},
+        {"original_url": "https://school.zoom.us/rec/share/different"},
+        {"transcript": {**row["transcript"], "provider": "panopto"}},
+        {"coverage": "complete"},
+    ]:
+        with pytest.raises(ValidationError):
+            CapturedSource.model_validate_json(json.dumps({**row, **update}))

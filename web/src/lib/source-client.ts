@@ -65,6 +65,7 @@ export const sourceSchema = z
     if (video) {
       const transcript = source.transcript;
       invalid ||=
+        source.coverage === "complete" ||
         !source.original_url ||
         !!source.document ||
         !transcript ||

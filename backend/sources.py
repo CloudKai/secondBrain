@@ -169,6 +169,22 @@ async def save_source(
     return source
 
 
+async def read_upload_body(
+    request: Request, max_bytes: int, size_error: str, timeout_error: str
+) -> bytes:
+    """Bound raw source uploads before decoding or document extraction."""
+    data = bytearray()
+    try:
+        async with asyncio.timeout(30):
+            async for chunk in request.stream():
+                if len(data) + len(chunk) > max_bytes:
+                    raise HTTPException(413, size_error)
+                data.extend(chunk)
+    except TimeoutError as exc:
+        raise HTTPException(408, timeout_error) from exc
+    return bytes(data)
+
+
 @router.post("/video", response_model=CapturedSource, status_code=201)
 async def save_video_transcript(
     request: Request,
@@ -177,21 +193,12 @@ async def save_video_transcript(
     filename: str | None = Query(default=None, min_length=1, max_length=200),
     gateway: SourceGateway = Depends(owned_sources),
 ) -> CapturedSource:
-    data = bytearray()
-    try:
-        async with asyncio.timeout(30):
-            async for chunk in request.stream():
-                if len(data) + len(chunk) > MAX_TRANSCRIPT_BYTES:
-                    raise HTTPException(
-                        413,
-                        "Transcripts must be 1 MB or smaller. Export a shorter transcript or paste its text.",
-                    )
-                data.extend(chunk)
-    except TimeoutError as exc:
-        raise HTTPException(
-            408,
-            "The transcript upload timed out. Try a smaller file or paste its text.",
-        ) from exc
+    data = await read_upload_body(
+        request,
+        MAX_TRANSCRIPT_BYTES,
+        "Transcripts must be 1 MB or smaller. Export a shorter transcript or paste its text.",
+        "The transcript upload timed out. Try a smaller file or paste its text.",
+    )
     try:
         capture = capture_transcript(bytes(data), str(url), filename)
     except ValueError as exc:
@@ -229,19 +236,12 @@ async def save_pdf_upload(
     title: str = Query(default="", max_length=200),
     gateway: SourceGateway = Depends(owned_sources),
 ) -> CapturedSource:
-    data = bytearray()
-    try:
-        async with asyncio.timeout(30):
-            async for chunk in request.stream():
-                if len(data) + len(chunk) > MAX_PDF_BYTES:
-                    raise HTTPException(
-                        413, "PDFs must be 10 MB or smaller. Export a smaller document."
-                    )
-                data.extend(chunk)
-    except TimeoutError as exc:
-        raise HTTPException(
-            408, "The PDF upload timed out. Try a smaller file or retry the connection."
-        ) from exc
+    data = await read_upload_body(
+        request,
+        MAX_PDF_BYTES,
+        "PDFs must be 10 MB or smaller. Export a smaller document.",
+        "The PDF upload timed out. Try a smaller file or retry the connection.",
+    )
     identity = "urn:pdf:sha256:" + hashlib.sha256(data).hexdigest()
     existing = await gateway.find(canonical_url=f"eq.{identity}")
     if existing:

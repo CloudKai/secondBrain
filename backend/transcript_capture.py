@@ -3,7 +3,7 @@
 import re
 from html import unescape
 from pathlib import PurePath
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 MAX_TRANSCRIPT_BYTES = 1_000_000
 
@@ -131,7 +131,9 @@ def video_identity(url: str) -> tuple[str, str]:
             parsed.query
         ).get("id"):
             raise ValueError("Use a Panopto session viewer link with its recording ID.")
-        provider = "panopto"
+        return "panopto", parsed._replace(
+            query=urlencode({"id": parse_qs(parsed.query)["id"][0]}), fragment=""
+        ).geturl()
     else:
         raise ValueError(
             "Use a YouTube, Teams/SharePoint, Zoom recording or Panopto viewer link. Supply its transcript separately."

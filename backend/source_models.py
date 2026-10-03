@@ -8,6 +8,7 @@ from pydantic import Field, HttpUrl, TypeAdapter, model_validator
 
 from backend.schemas import StrictModel
 from backend.transcript_models import TranscriptDocument
+from backend.transcript_capture import video_identity
 
 
 class CaptureSourceRequest(StrictModel):
@@ -68,7 +69,8 @@ class CapturedSource(StrictModel):
     def document_matches_source(self):
         if self.source_kind == "video":
             if (
-                self.original_url is None
+                self.coverage == "complete"
+                or self.original_url is None
                 or self.document is not None
                 or self.transcript is None
                 or self.capture_origin not in ("pasted", "upload")
@@ -77,7 +79,11 @@ class CapturedSource(StrictModel):
                 or self.transcript.segments[-1].end != len(self.captured_text)
             ):
                 raise ValueError("Invalid supplied transcript identity or locations")
-            TypeAdapter(HttpUrl).validate_python(self.canonical_url)
+            provider, canonical = video_identity(str(self.original_url))
+            if provider != self.transcript.provider or canonical != self.canonical_url:
+                raise ValueError(
+                    "Transcript provider and canonical recording must match the original URL"
+                )
             return self
         if self.transcript is not None:
             raise ValueError("Only video sources have transcript metadata")

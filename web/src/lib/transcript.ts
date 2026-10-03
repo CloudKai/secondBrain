@@ -93,6 +93,9 @@ export function videoIdentity(value: string): {
     )
       throw new Error("Use a Panopto viewer link with a recording ID.");
     provider = "panopto";
+    const recordingId = url.searchParams.get("id")!;
+    url.search = "";
+    url.searchParams.set("id", recordingId);
   } else
     throw new Error(
       "Use a YouTube, Teams/SharePoint, Zoom recording or Panopto viewer link.",
