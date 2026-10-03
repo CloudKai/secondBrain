@@ -99,8 +99,9 @@ class TopicLibrary(StrictModel):
 
 
 class TopicPlacement(StrictModel):
-    topic_id: UUID
-    target_id: UUID | None = None
+    # FastAPI validates decoded JSON; UUIDs arrive as strings on this boundary.
+    topic_id: Annotated[UUID, Field(strict=False)]
+    target_id: Annotated[UUID, Field(strict=False)] | None = None
 
 
 class TopicClaim(StrictModel):

@@ -24,6 +24,16 @@ def topic_client(monkeypatch):
         if request.url.path == "/rest/v1/source_topic_maps":
             assert request.url.params["user_id"] == "eq." + user
             return httpx.Response(200, json=[r for r in rows if r["user_id"] == user])
+        if request.url.path == "/rest/v1/rpc/confirm_topic_placement":
+            payload = json.loads(request.content)
+            assert payload == {
+                "p_source_id": SOURCE,
+                "p_topic_id": T2,
+                "p_target_id": T1,
+            }
+            if user != ALICE:
+                return httpx.Response(404, json={"code": "P0002"})
+            return httpx.Response(200, json=rows[0])
         raise AssertionError(str(request.url))
 
     original = httpx.AsyncClient
@@ -103,6 +113,32 @@ def test_first_completed_source_has_topic_cards_but_no_graph(topic_client):
             "/api/v2/topic-library", headers={"Authorization": "Bearer bob"}
         ).json()["topics"]
         == []
+    )
+
+
+def test_placement_accepts_wire_uuid_strings_and_preserves_owner_boundary(topic_client):
+    client, rows = topic_client
+    rows.append(map_row())
+    url = f"/api/v2/sources/{SOURCE}/topics/placement"
+    payload = {"topic_id": T2, "target_id": T1}
+    response = client.post(url, headers={"Authorization": "Bearer alice"}, json=payload)
+    assert response.status_code == 200, response.text
+    assert response.json()["analysis"]["topics"][0]["id"] == T1
+    assert "user_id" not in response.json()
+    assert (
+        client.post(
+            url, headers={"Authorization": "Bearer bob"}, json=payload
+        ).status_code
+        == 404
+    )
+    assert client.post(url, json=payload).status_code == 401
+    assert (
+        client.post(
+            url,
+            headers={"Authorization": "Bearer alice"},
+            json={**payload, "topic_id": "invalid"},
+        ).status_code
+        == 422
     )
 
 
