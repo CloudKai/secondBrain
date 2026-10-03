@@ -1,7 +1,7 @@
 # Web learning-library ticket breakdown
 
 Last synchronized: **2026-10-03 (Asia/Singapore)** against GitHub Issues and
-completed acceptance records in `context/progress-tracker.md` and `scope.md`.
+completed acceptance records in `context/web-progress-tracker.md` and `scope.md`.
 
 ## Progress at a glance
 
@@ -9,11 +9,13 @@ completed acceptance records in `context/progress-tracker.md` and `scope.md`.
 hosted development acceptance. GitHub issues **#1–#5 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Target behavior:** planned tickets **05–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**In progress:** planned ticket **05**, automatic YouTube transcripts with fallback.
+
+**Target behavior:** planned tickets **06–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next proposed slice is **05: Import accessible YouTube transcripts with a
-reliable fallback**; automatic transcript retrieval is not implemented yet.
+The current selected slice is **05: Import accessible YouTube transcripts with a
+reliable fallback**; the adapter and browser controls are implemented locally; hosted acceptance remains pending.
 
 | Planned ticket | Work | Status | GitHub / evidence |
 | --- | --- | --- | --- |
@@ -22,7 +24,7 @@ reliable fallback**; automatic transcript retrieval is not implemented yet.
 | 03 | Selectable-text PDF uploads and links | Complete; local + hosted acceptance | [#3](https://github.com/CloudKai/secondBrain/issues/3), [setup](../pdf-study-setup.md), [review](../reviews/ticket03.md) |
 | 04 | Supplied video transcripts | Complete; local + hosted acceptance | [#5](https://github.com/CloudKai/secondBrain/issues/5), [setup](../video-transcript-setup.md) |
 | Extra | Circular mint citations and PDF topic title | Complete; browser inspection + typecheck/lint | [#4](https://github.com/CloudKai/secondBrain/issues/4) |
-| 05 | Automatic YouTube transcripts | Draft; completed dependency 04 | Unpublished |
+| 05 | Automatic YouTube transcripts | In progress; local checks pass, hosted acceptance pending | [#6](https://github.com/CloudKai/secondBrain/issues/6) |
 | 06 | Teams transcript access and feedback | Draft; supplied-transcript foundations complete | Unpublished |
 | 07 | Zoom transcript availability and feedback | Draft; supplied-transcript foundations complete | Unpublished |
 | 08 | Panopto caption access and fallback | Draft; supplied-transcript foundations complete | Unpublished |
@@ -44,7 +46,7 @@ acceptance; production deployment is not configured.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
-`context/progress-tracker.md` records checks, and `scope.md` records decisions.
+`context/web-progress-tracker.md` records web checks, and `scope.md` records decisions.
 Update this overview and the relevant acceptance checkboxes when a slice closes.
 
 ## Supplied UI/UX and implementation baseline
@@ -192,9 +194,11 @@ A learner supplies a video link plus transcript text or a transcript file and re
 
 ## 05: Import accessible YouTube transcripts with a reliable fallback
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — selected on 2026-10-03; acceptance pending.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#6 — open](https://github.com/CloudKai/secondBrain/issues/6)
+
+**Label:** `ready-for-agent`
 
 ### What to build
 

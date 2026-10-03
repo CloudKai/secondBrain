@@ -113,6 +113,57 @@ test("a transcript source is owner-isolated and its worker claim preserves real 
         ).rows[0].valid,
         false,
       );
+    await db.exec(
+      await readFile(
+        new URL(
+          "../../../supabase/migrations/202610030005_youtube_transcripts.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    const retrievedId = "66666666-6666-4666-8666-666666666666";
+    const retrieved = { ...transcript, filename: null };
+    await db.exec(
+      `set role authenticated; select set_config('request.jwt.claim.sub','${owner}',false)`,
+    );
+    await db.query(
+      `insert into public.sources (id,user_id,original_url,canonical_url,title,captured_text,capture_origin,coverage,coverage_detail,source_kind,transcript)
+      values ($1,$2,'https://youtu.be/dQw4w9WgXcQ','https://www.youtube.com/watch?v=dQw4w9WgXcQ','Retrieved captions',$3,'direct','unknown','Retrieved English YouTube captions','video',$4)`,
+      [retrievedId, owner, text, JSON.stringify(retrieved)],
+    );
+    await db.query("select public.request_source_study($1)", [retrievedId]);
+    await db.exec(
+      `select set_config('request.jwt.claim.sub','${other}',false)`,
+    );
+    assert.equal(
+      (await db.query("select id from public.sources")).rows.length,
+      0,
+    );
+    await assert.rejects(
+      db.query("select public.request_source_study($1)", [retrievedId]),
+    );
+    await db.exec("reset role; set role service_role");
+    const retrievedClaim = await db.query<{
+      claim: { transcript: typeof retrieved };
+    }>("select public.claim_source_study($1) as claim", [retrievedId]);
+    assert.deepEqual(retrievedClaim.rows[0].claim.transcript, retrieved);
+    await db.exec("reset role");
+    const youtubeRollback = await readFile(
+      new URL(
+        "../../../supabase/rollbacks/202610030005_youtube_transcripts.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    await assert.rejects(db.exec(youtubeRollback));
+    await db.exec("rollback");
+    await db.query("delete from public.sources where id=$1", [retrievedId]);
+    await db.exec(youtubeRollback);
+    assert.equal(
+      (await db.query("select id from public.sources")).rows.length,
+      3,
+    );
     const rollback = await readFile(
       new URL(
         "../../../supabase/rollbacks/202610030004_video_transcripts.sql",

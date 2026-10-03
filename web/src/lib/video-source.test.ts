@@ -170,14 +170,109 @@ test("the video client uploads raw caption bytes with the learner token and pres
   );
 });
 
-
 test("saved Panopto identity ignores presentation parameters and rejects claimed complete coverage", () => {
   const panopto = {
     ...source,
-    original_url: "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx?start=30&id=session-id&isLive=false",
-    canonical_url: "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=session-id",
+    original_url:
+      "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx?start=30&id=session-id&isLive=false",
+    canonical_url:
+      "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=session-id",
     transcript: { ...source.transcript, provider: "panopto" },
   };
   assert.doesNotThrow(() => sourceSchema.parse(panopto));
   assert.throws(() => sourceSchema.parse({ ...panopto, coverage: "complete" }));
+});
+
+test("retrieved YouTube captions reopen with distinct origin and real cue citations", () => {
+  const retrieved = sourceSchema.parse({
+    ...source,
+    capture_origin: "direct",
+    transcript: { ...source.transcript, filename: null },
+    coverage_detail: "Retrieved English YouTube publisher-provided captions.",
+  });
+  assert.equal(retrieved.capture_origin, "direct");
+  assert.equal(noteFromSavedSource(retrieved).kind, "Video");
+  assert.throws(() =>
+    sourceSchema.parse({ ...source, capture_origin: "direct" }),
+  );
+});
+
+test("automatic import authenticates, validates retrieved captions, and distinguishes fallback from storage failure", async () => {
+  const values = new Map<string, string>();
+  const token = `${Buffer.from('{"alg":"HS256"}').toString("base64url")}.${Buffer.from(JSON.stringify({ sub: "11111111-1111-4111-8111-111111111111", exp: 2000000000 })).toString("base64url")}.fixture`;
+  let status = 201;
+  const client = createSourceClient(
+    { url: "https://supabase.test", publicKey: "public-test-key" },
+    {
+      storage: {
+        getItem: (k) => values.get(k) ?? null,
+        setItem: (k, v) => {
+          values.set(k, v);
+        },
+        removeItem: (k) => {
+          values.delete(k);
+        },
+      },
+      fetch: async (input, init) => {
+        if (String(input).includes("/auth/v1/signup"))
+          return new Response(
+            JSON.stringify({
+              access_token: token,
+              refresh_token: "refresh",
+              expires_in: 3600,
+              token_type: "bearer",
+              user: {
+                id: "11111111-1111-4111-8111-111111111111",
+                is_anonymous: true,
+              },
+            }),
+          );
+        assert.equal(String(input), "/api/v2/sources/youtube");
+        assert.equal(
+          new Headers(init?.headers).get("Authorization"),
+          `Bearer ${token}`,
+        );
+        assert.deepEqual(JSON.parse(String(init?.body)), {
+          url: source.original_url,
+          title: "Algebra",
+        });
+        return new Response(
+          JSON.stringify(
+            status === 201
+              ? {
+                  ...source,
+                  capture_origin: "direct",
+                  transcript: { ...source.transcript, filename: null },
+                }
+              : {
+                  detail:
+                    "No accessible English transcript. Upload or paste it instead.",
+                },
+          ),
+          { status },
+        );
+      },
+    },
+  );
+  assert.equal(
+    (await client.importYouTube({ url: source.original_url, title: "Algebra" }))
+      .capture_origin,
+    "direct",
+  );
+  status = 422;
+  await assert.rejects(
+    client.importYouTube({ url: source.original_url, title: "Algebra" }),
+    (error) =>
+      error instanceof Error &&
+      error.name === "TranscriptFallbackError" &&
+      /Upload or paste/.test(error.message),
+  );
+  status = 503;
+  await assert.rejects(
+    client.importYouTube({ url: source.original_url, title: "Algebra" }),
+    (error) =>
+      error instanceof Error &&
+      error.name !== "TranscriptFallbackError" &&
+      /storage is unavailable/.test(error.message),
+  );
 });

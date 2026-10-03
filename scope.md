@@ -290,3 +290,20 @@ without marking automatic access, range selection or whole future slices complet
 The progress tracker headline now points to the latest verified web work and
 links to the full ticket overview. GitHub completion records were checked; no
 implementation or new tests were added by this documentation update.
+
+
+## Accessible YouTube captions — issue #6, planned ticket 05 (2026-10-03)
+
+Current unit: automatic English caption import with upload/paste fallback;
+implemented locally, hosted development acceptance and independent review pending.
+The real public caption probe returned 286 cues / 18,430 characters. Local checks
+pass: 102 backend tests, 30 web tests, web build/typecheck and lint. Automatic
+captures retain distinct direct origin and real cue times. Missing/restricted/blocked
+access saves no source and opens fallback; other recording platforms use supplied
+transcripts. No account/cookies/proxy bypass or audio/video download/transcription.
+See `docs/youtube-transcript-setup.md` for bounds and reversible migration.
+
+Web progress now lives in `context/web-progress-tracker.md`, with per-ticket
+status in `docs/planning/web-learning-library-tickets.md`; native progress stays
+in `context/progress-tracker.md`. The user requested this separation. Native/v1
+changes already in the working tree are unrelated and are not part of this ticket.

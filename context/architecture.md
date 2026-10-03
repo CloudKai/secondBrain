@@ -314,3 +314,16 @@ passages split within cues and attach the supplied start/end range; the model
 returns passage IDs only. RLS and worker fencing are unchanged. Setup, limits
 and rollback are in `docs/video-transcript-setup.md`. Automatic retrieval and
 provider integrations remain planned; native/v1 contracts are unchanged.
+
+
+## Accessible YouTube retrieval — issue #6 (2026-10-03)
+
+Implemented and checked locally; hosted browser acceptance is pending. An
+authenticated `/api/v2/sources/youtube` validates YouTube identity, reuses an owned
+capture and delegates to a bounded anonymous caption adapter. Exact caption times
+enter the existing transcript/source/study/outbox pipeline with direct origin.
+A reviewed migration extends only source validation; RLS and worker contracts
+are preserved. Failed access saves nothing and returns an upload/paste fallback.
+No provider account, cookies, bypass or audio/video download is used. Limits and
+rollout are in `docs/youtube-transcript-setup.md`. Other automatic providers remain
+planned. Native/v1 behavior is unchanged by this slice.

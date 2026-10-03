@@ -110,3 +110,14 @@ cue range if present, provenance and original recording link. Full text groups
 timed cues with their supplied times. Untimed TXT has no fabricated time labels.
 YouTube uses a supplied start-time link; other providers explicitly open without
 seeking. Source notes stay read-only. Native screens are untouched.
+
+
+## YouTube caption import — issue #6 (2026-10-03)
+
+Video in Add material offers Import YouTube captions and Upload or paste. The
+automatic choice accepts a YouTube URL without requiring transcript text. It
+explains accessible English captions and limits. A retrieval failure preserves
+the URL/title and opens paste/upload controls; storage/authentication failures
+remain retry errors. Sources distinguishes retrieved captions from user-supplied
+transcripts, preserving real cue times and exact passage citations. Notes remain
+read-only. Hosted browser acceptance is pending; native UI is untouched.

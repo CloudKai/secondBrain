@@ -46,7 +46,10 @@ import {
   updateLibrary,
 } from "./lib/library";
 import { noteFromSavedSource } from "./lib/api";
-import { createSourceClient } from "./lib/source-client";
+import {
+  createSourceClient,
+  TranscriptFallbackError,
+} from "./lib/source-client";
 import { AttentionArt, Graph } from "./components/Graph";
 import Modal from "./components/Modal";
 import Assistant from "./components/Assistant";
@@ -99,6 +102,7 @@ export default function App() {
     [toast, setToast] = useState("");
   const [pdfMode, setPdfMode] = useState("upload");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [videoMode, setVideoMode] = useState<"auto" | "supplied">("auto");
   const [transcriptMode, setTranscriptMode] = useState<"paste" | "upload">(
     "paste",
   );
@@ -296,6 +300,7 @@ export default function App() {
     setSourceTab(/\.pdf(?:[?#]|$)/i.test(url ?? "") ? "PDF" : "Article");
     setPdfMode(url ? "url" : "upload");
     setPdfFile(null);
+    setVideoMode("auto");
     setDialog("add");
   }
   async function submitSource(e: React.FormEvent) {
@@ -330,8 +335,18 @@ export default function App() {
           );
           return;
         }
+        if (videoMode === "auto" && videoIdentity(url).provider !== "youtube") {
+          setVideoMode("supplied");
+          setError(
+            "Upload or paste a transcript for this recording platform. Automatic import supports accessible English YouTube captions.",
+          );
+          return;
+        }
         if (
-          transcriptMode === "upload" ? !transcriptFile : !transcriptText.trim()
+          videoMode === "supplied" &&
+          (transcriptMode === "upload"
+            ? !transcriptFile
+            : !transcriptText.trim())
         ) {
           setError(
             "Upload or paste the transcript for this video. A link alone cannot create a note.",
@@ -381,15 +396,17 @@ export default function App() {
     try {
       const note = noteFromSavedSource(
         isVideo
-          ? await sourceClient.saveVideo({
-              url,
-              title: sourceTitle,
-              file:
-                transcriptMode === "upload"
-                  ? (transcriptFile ?? undefined)
-                  : undefined,
-              text: transcriptMode === "paste" ? transcriptText : undefined,
-            })
+          ? videoMode === "auto"
+            ? await sourceClient.importYouTube({ url, title: sourceTitle })
+            : await sourceClient.saveVideo({
+                url,
+                title: sourceTitle,
+                file:
+                  transcriptMode === "upload"
+                    ? (transcriptFile ?? undefined)
+                    : undefined,
+                text: transcriptMode === "paste" ? transcriptText : undefined,
+              })
           : isPDF
             ? await sourceClient.savePDF({
                 file: uploading ? (pdfFile ?? undefined) : undefined,
@@ -414,6 +431,10 @@ export default function App() {
       setToast("Source saved to your private library.");
       await studies.generate(note);
     } catch (err) {
+      if (err instanceof TranscriptFallbackError) {
+        setVideoMode("supplied");
+        setTranscriptMode("paste");
+      }
       setError(
         err instanceof Error
           ? err.message
@@ -669,7 +690,7 @@ export default function App() {
                   ? passage.page
                     ? `PDF page ${passage.page} · passage ${passage.id}`
                     : passage.start_ms != null && passage.end_ms != null
-                      ? `${formatVideoTime(passage.start_ms)}–${formatVideoTime(passage.end_ms)} · passage ${passage.id} · supplied transcript`
+                      ? `${formatVideoTime(passage.start_ms)}–${formatVideoTime(passage.end_ms)} · passage ${passage.id} · ${currentNote.savedSource?.capture_origin === "direct" ? "retrieved captions" : "supplied transcript"}`
                       : `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
                   : currentNote.evidenceLabel}
               </span>
@@ -722,10 +743,9 @@ export default function App() {
               )}
               {currentNote.kind === "Video" && (
                 <p className="micro-copy">
-                  User-supplied transcript ·{" "}
-                  {currentNote.savedSource?.transcript?.filename ??
-                    "pasted text"}
-                  . No video was fetched or watched.
+                  {currentNote.savedSource?.capture_origin === "direct"
+                    ? currentNote.savedSource.coverage_detail
+                    : `User-supplied transcript · ${currentNote.savedSource?.transcript?.filename ?? "pasted text"}. No video was fetched or watched.`}
                   {passage?.start_ms != null &&
                     currentNote.savedSource?.transcript?.provider !==
                       "youtube" &&
@@ -1822,11 +1842,42 @@ export default function App() {
               <form onSubmit={submitSource}>
                 <p className="modal-intro">
                   {sourceTab === "Video"
-                    ? "Save a YouTube, Teams/SharePoint, Zoom or Panopto recording link with a transcript you upload or paste. Supplied cue times are retained."
+                    ? "Import accessible English YouTube captions, or upload/paste a transcript for YouTube, Teams/SharePoint, Zoom or Panopto. Real caption times are retained."
                     : sourceTab === "PDF"
                       ? "Upload a selectable-text PDF or save a direct public PDF link. Notes cite the original PDF page numbers."
                       : "Save a public web article to your private library and reopen its captured text and generated study note after reload. Saved notes include citations you can inspect."}
                 </p>
+                {sourceTab === "Video" && (
+                  <div
+                    className="source-input-tabs"
+                    aria-label="Video import method"
+                  >
+                    <button
+                      type="button"
+                      disabled={busy}
+                      aria-pressed={videoMode === "auto"}
+                      className={videoMode === "auto" ? "active" : ""}
+                      onClick={() => {
+                        setVideoMode("auto");
+                        setError("");
+                      }}
+                    >
+                      Import YouTube captions
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      aria-pressed={videoMode === "supplied"}
+                      className={videoMode === "supplied" ? "active" : ""}
+                      onClick={() => {
+                        setVideoMode("supplied");
+                        setError("");
+                      }}
+                    >
+                      Upload or paste
+                    </button>
+                  </div>
+                )}
                 {sourceTab === "PDF" && (
                   <div className="source-input-tabs">
                     <button
@@ -1915,7 +1966,7 @@ export default function App() {
                   }
                   disabled={busy}
                 />
-                {sourceTab === "Video" && (
+                {sourceTab === "Video" && videoMode === "supplied" && (
                   <VideoTranscriptInput
                     mode={transcriptMode}
                     onMode={setTranscriptMode}
@@ -1946,7 +1997,9 @@ export default function App() {
                 <p className="support-copy" id="source-support">
                   <CircleHelp size={15} />
                   {sourceTab === "Video"
-                    ? "Supply UTF-8 TXT, VTT or SRT up to 1 MB and 2,000 timed cues, or paste 120–100,000 characters. Up to 30,000 readable characters are captured; omitted text is labelled. TXT is untimed; paste VTT/SRT to retain times. For DOCX or other exports, paste the readable text. Transcripts are user-supplied; the app does not retrieve or watch the video or connect provider accounts."
+                    ? videoMode === "auto"
+                      ? "English YouTube captions only, when anonymously accessible. Missing, restricted or blocked captions need upload/paste. No audio/video is downloaded or watched and no provider account is connected. Up to 2,000 cues and 30,000 captured characters; video completeness is unverified."
+                      : "Supply UTF-8 TXT, VTT or SRT up to 1 MB and 2,000 timed cues, or paste 120–100,000 characters. Up to 30,000 readable characters are captured; omitted text is labelled. TXT is untimed; paste VTT/SRT to retain times. For DOCX or other exports, paste the readable text. Transcripts are user-supplied; the app does not retrieve or watch the video or connect provider accounts."
                     : sourceTab === "PDF"
                       ? "Selectable-text PDFs: up to 10 MB, 100 pages and 30,000 captured characters. Missing or omitted text is labelled. Scanned-only and encrypted files are unsupported. Images and layout are not extracted. Uploads retain page text and filename; the original file is not stored."
                       : "Public HTTP(S) articles: up to 2 MB per download and 30,000 captured characters. Incomplete coverage is labelled. Use the PDF tab for selectable-text PDFs or the Video tab with an uploaded/pasted transcript."}
@@ -1960,7 +2013,9 @@ export default function App() {
                   <p className="processing-status" role="status">
                     Capturing and saving the{" "}
                     {sourceTab === "Video"
-                      ? "supplied transcript"
+                      ? videoMode === "auto"
+                        ? "accessible YouTube captions"
+                        : "supplied transcript"
                       : sourceTab === "PDF"
                         ? "PDF"
                         : "article"}
@@ -1986,7 +2041,10 @@ export default function App() {
                       </>
                     ) : (
                       <>
-                        Save source <ArrowRight size={16} />
+                        {sourceTab === "Video" && videoMode === "auto"
+                          ? "Import captions"
+                          : "Save source"}{" "}
+                        <ArrowRight size={16} />
                       </>
                     )}
                   </button>
@@ -2005,15 +2063,16 @@ export default function App() {
                 <p>
                   Library search, read-only notes, topic views and corrections,
                   source evidence, recall practice, and a saved-note assistant
-                  preview. Articles, PDFs and supplied video transcripts have
-                  persistent structured notes and inspectable citations when the
-                  study worker is configured.
+                  preview. Articles, PDFs, accessible English YouTube captions
+                  and supplied video transcripts have persistent structured
+                  notes and inspectable citations when the study worker is
+                  configured.
                 </p>
                 <strong>What is still planned</strong>
                 <p>
-                  Automatic transcript retrieval, topic organization for saved
-                  notes, open-ended AI conversation, live research, and linked
-                  accounts.
+                  Automatic Teams/Zoom/Panopto transcript access, topic
+                  organization for saved notes, open-ended AI conversation, live
+                  research, and linked accounts.
                 </p>
                 <strong>Your data</strong>
                 <p>

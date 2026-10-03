@@ -49,6 +49,11 @@ class CapturePDFLinkRequest(StrictModel):
     title: str = Field(default="", max_length=200)
 
 
+class CaptureYouTubeRequest(StrictModel):
+    url: HttpUrl
+    title: str = Field(default="", max_length=200)
+
+
 class CapturedSource(StrictModel):
     id: UUID
     user_id: UUID = Field(exclude=True)
@@ -73,12 +78,18 @@ class CapturedSource(StrictModel):
                 or self.original_url is None
                 or self.document is not None
                 or self.transcript is None
-                or self.capture_origin not in ("pasted", "upload")
+                or self.capture_origin not in ("pasted", "upload", "direct")
                 or (self.capture_origin == "upload")
                 != (self.transcript.filename is not None)
                 or self.transcript.segments[-1].end != len(self.captured_text)
             ):
                 raise ValueError("Invalid supplied transcript identity or locations")
+            if self.capture_origin == "direct" and (
+                self.transcript.provider != "youtube" or self.transcript.format != "vtt"
+            ):
+                raise ValueError(
+                    "Only YouTube caption retrieval uses direct video capture"
+                )
             provider, canonical = video_identity(str(self.original_url))
             if provider != self.transcript.provider or canonical != self.canonical_url:
                 raise ValueError(

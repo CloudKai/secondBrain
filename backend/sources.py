@@ -17,12 +17,18 @@ from pydantic import HttpUrl, ValidationError
 from backend.source_capture import canonical_source_url, capture_article
 from backend.source_models import (
     CapturedSource,
+    CaptureYouTubeRequest,
     CaptureSourceRequest,
     CapturePDFLinkRequest,
     SourcePage,
 )
 from backend.pdf_capture import capture_pdf, capture_pdf_link, MAX_PDF_BYTES
-from backend.transcript_capture import capture_transcript, MAX_TRANSCRIPT_BYTES
+from backend.transcript_capture import (
+    capture_transcript,
+    MAX_TRANSCRIPT_BYTES,
+    video_identity,
+)
+from backend.youtube_capture import capture_youtube, TranscriptUnavailable
 
 router = APIRouter(prefix="/api/v2/sources", tags=["browser sources"])
 bearer = HTTPBearer(auto_error=False)
@@ -183,6 +189,51 @@ async def read_upload_body(
     except TimeoutError as exc:
         raise HTTPException(408, timeout_error) from exc
     return bytes(data)
+
+
+@router.post("/youtube", response_model=CapturedSource, status_code=201)
+async def save_youtube_transcript(
+    payload: CaptureYouTubeRequest,
+    gateway: SourceGateway = Depends(owned_sources),
+) -> CapturedSource:
+    original_url = str(payload.url)
+    try:
+        provider, identity = video_identity(original_url)
+        if provider != "youtube":
+            raise ValueError(
+                "Use a YouTube video link for automatic import. Upload or paste other recording transcripts."
+            )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    existing = await gateway.find(canonical_url=f"eq.{identity}")
+    if existing:
+        return existing
+    try:
+        capture = await capture_youtube(original_url)
+    except (TranscriptUnavailable, TimeoutError) as exc:
+        detail = (
+            str(exc)
+            if isinstance(exc, TranscriptUnavailable)
+            else "YouTube transcript retrieval timed out. Upload or paste it instead."
+        )
+        raise HTTPException(422, detail) from exc
+    rows = await gateway.request(
+        "POST",
+        {"select": "*", "on_conflict": "user_id,canonical_url"},
+        {
+            "user_id": str(gateway.user_id),
+            "original_url": original_url,
+            "title": payload.title.strip() or "YouTube transcript",
+            "study_status": "pending",
+            **capture,
+        },
+    )
+    source = rows[0] if rows else await gateway.find(canonical_url=f"eq.{identity}")
+    if source is None:
+        raise HTTPException(
+            503, "The transcript could not be confirmed as saved. Try again."
+        )
+    return source
 
 
 @router.post("/video", response_model=CapturedSource, status_code=201)

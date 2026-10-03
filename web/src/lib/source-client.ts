@@ -69,8 +69,11 @@ export const sourceSchema = z
         !source.original_url ||
         !!source.document ||
         !transcript ||
-        !["pasted", "upload"].includes(source.capture_origin);
+        !["pasted", "upload", "direct"].includes(source.capture_origin);
       if (transcript) {
+        invalid ||=
+          source.capture_origin === "direct" &&
+          (transcript.provider !== "youtube" || transcript.format !== "vtt");
         invalid ||=
           (source.capture_origin === "upload") !==
             (transcript.filename !== null) ||
@@ -129,6 +132,13 @@ interface Storage {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
   removeItem(key: string): void;
+}
+
+export class TranscriptFallbackError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TranscriptFallbackError";
+  }
 }
 
 export function createSourceClient(
@@ -201,6 +211,15 @@ export function createSourceClient(
       );
     }
     if (!response.ok) {
+      if (path === "/sources/youtube" && response.status === 422) {
+        const body: unknown = await response.json().catch(() => null);
+        const error = z.object({ detail: boundedText(1, 500) }).safeParse(body);
+        throw new TranscriptFallbackError(
+          error.success
+            ? error.data.detail
+            : "YouTube captions are unavailable. Upload or paste the transcript instead.",
+        );
+      }
       if (
         (path.startsWith("/sources/pdf") ||
           path.startsWith("/sources/video")) &&
@@ -307,6 +326,22 @@ export function createSourceClient(
         await request("/sources/pdf-link", {
           method: "POST",
           body: JSON.stringify({ url: input.url, title: input.title }),
+        }),
+        sourceSchema,
+      );
+    },
+    async importYouTube(input: {
+      url: string;
+      title: string;
+    }): Promise<SavedSource> {
+      if (videoIdentity(input.url).provider !== "youtube")
+        throw new TranscriptFallbackError(
+          "Automatic import supports YouTube. Upload or paste a transcript for other recording platforms.",
+        );
+      return parse(
+        await request("/sources/youtube", {
+          method: "POST",
+          body: JSON.stringify(input),
         }),
         sourceSchema,
       );
