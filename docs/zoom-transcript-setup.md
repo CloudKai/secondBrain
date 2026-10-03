@@ -93,5 +93,7 @@ remains target work outside this slice.
 
 Fixtures use synthetic text and fictional recording contexts, not real private
 Zoom permission or availability probes. No accessible anonymous retrieval method
-is demonstrated. Independent Standards/Spec review and fixture cleanup remain
-pending. No new phone-width acceptance or production deployment is claimed.
+is demonstrated. Independent Standards and Spec reviews found no material issues. Both controlled
+captures and their study/outbox rows were removed, with cascade verified; existing
+learner notes are preserved. Review: [ticket #8](reviews/ticket08.md). No new
+phone-width acceptance or production deployment is claimed.

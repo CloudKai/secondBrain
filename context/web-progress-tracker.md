@@ -2,23 +2,23 @@
 
 ## Current status — 2026-10-03
 
-**Verified MVP:** planned tickets 01–06 are complete with hosted development
-acceptance. GitHub #1/#2/#3/#5/#6/#7 cover articles, structured notes, selectable-text
-PDFs, supplied transcripts, accessible English YouTube captions and Teams export
-feedback. Extra #4 covers citation/title polish.
+**Verified MVP:** planned tickets 01–07 are complete with hosted development
+acceptance. GitHub #1/#2/#3/#5/#6/#7/#8 cover articles, structured notes, selectable-text
+PDFs, supplied transcripts, accessible English YouTube captions and Teams/Zoom
+export feedback. Extra #4 covers citation/title polish.
 
-**Last completed:** planned ticket 06 / [GitHub #7](https://github.com/CloudKai/secondBrain/issues/7).
-Teams/SharePoint context opens upload/paste with permission/export guidance.
-Hosted supplied VTT and untimed text notes, exact citations, reload/reuse and
-cross-learner denial passed. Automatic Teams retrieval remains unvalidated.
+**Last completed:** planned ticket 07 / [GitHub #8](https://github.com/CloudKai/secondBrain/issues/8).
+Zoom recording share/play links open transcript upload/paste with export and
+conditional availability guidance. Hosted VTT/text notes, exact citations,
+reload/reuse and second-learner denial passed. Automatic retrieval is unvalidated.
 
-**Latest checks:** 104 backend tests, 30 web tests, build/typecheck and lint pass.
-Standards and Spec reviews have no remaining material findings; a naming
-suggestion was applied. Browser acceptance was at desktop width.
+**Latest checks:** 106 backend tests, 30 web tests, build/typecheck and lint pass.
+Independent Standards and Spec reviews have zero material findings. Backend checks
+use project Python; the bare launcher still has a stale interpreter. Browser
+checks were at desktop width.
 
-**Current unit:** planned ticket 07 / [GitHub #8](https://github.com/CloudKai/secondBrain/issues/8),
-Zoom transcript availability and export feedback. Implementation and hosted
-supplied-transcript acceptance pass; independent review is pending.
+**Next proposed unit:** planned ticket 08, Panopto caption access and tenant-aware
+fallback; unpublished draft. No new unit has started.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
@@ -273,10 +273,13 @@ learner notes were preserved. Review: `docs/reviews/ticket07.md`.
 - [x] Hosted VTT/paste generation, exact timed/untimed citations and reload/reuse
 - [x] Exact three references and second-learner API/REST/RPC denial
 - [x] 106 backend tests, 30 web tests, build/typecheck and lint pass
-- [ ] Independent Standards/Spec review and final synchronization
+- [x] Independent Standards/Spec review and final synchronization
 
 Setup: `docs/zoom-transcript-setup.md`. No anonymous Zoom retrieval path is
 validated or advertised. The app does not inspect a recording's specific state;
 controlled transcripts and fictional share/play contexts verify supplied input.
-No new migration, credentials, account connection or native/iOS changes. Review
-and fixture cleanup remain pending. Web status stays separate from native history.
+No new migration, credentials, account connection or native/iOS changes. Standards
+and Spec reviews have no material findings. Both controlled captures and their
+study/outbox rows were removed with cascade verified; existing learner notes are
+preserved. Review: `docs/reviews/ticket08.md`. Web status stays separate from native
+history; #8 is closed.

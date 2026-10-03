@@ -347,8 +347,8 @@ planned ticket 07, Zoom transcript availability/export feedback; not started.
 
 ## Zoom transcript availability — issue #8 (2026-10-03)
 
-Status: implementation and hosted supplied-transcript acceptance pass;
-independent review is pending. Planned ticket 07 immediately opens upload/paste
+Status: complete; verified locally and against hosted development storage.
+Independent Standards and Spec reviews found zero material issues. Planned ticket 07 immediately opens upload/paste
 for Zoom share/play recording context, with cloud VTT export instructions and
 conditional next steps for processing, missing, restricted, expired/deleted
 material. The app lacks Zoom download authorization and does not infer the
@@ -365,3 +365,8 @@ Zoom access. Local checks: 106 backend tests, 30 web tests, build/typecheck and
 lint pass using project Python. Setup: `docs/zoom-transcript-setup.md`. No new
 migration/credentials or native/v1 changes. Web progress and planning files are
 updated; native history remains separate. Panopto is the next proposed slice.
+
+Both controlled captures and their study/outbox rows were removed with cascade
+verified; existing learner notes are preserved. Review: `docs/reviews/ticket08.md`.
+GitHub #8 and both web progress records are synchronized. Planned ticket 08,
+Panopto caption access/tenant fallback, remains an unpublished draft; not started.

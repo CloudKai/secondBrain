@@ -5,19 +5,19 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–06 are complete** (6 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#7 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–07 are complete** (7 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#8 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **06**, Teams transcript permission/export guidance and supplied input.
+**Last completed:** planned ticket **07**, Zoom transcript availability/export guidance and supplied input.
 
-**In progress:** planned ticket **07**, Zoom transcript availability and export feedback — [GitHub #8](https://github.com/CloudKai/secondBrain/issues/8).
+**In progress:** none. Next proposed slice is planned ticket **08**, Panopto caption access and tenant-aware fallback.
 
 **Target behavior:** planned tickets **08–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The selected slice is **07: Handle Zoom recording transcripts and availability
-states**. YouTube support is verified for anonymously accessible English
+The next proposed slice is **08: Handle Panopto lecture transcripts with
+tenant-aware fallback**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -29,7 +29,7 @@ captions; other automatic providers remain planned.
 | Extra | Circular mint citations and PDF topic title | Complete; browser inspection + typecheck/lint | [#4](https://github.com/CloudKai/secondBrain/issues/4) |
 | 05 | Accessible YouTube transcripts | Complete; local + hosted acceptance | [#6](https://github.com/CloudKai/secondBrain/issues/6), [setup](../youtube-transcript-setup.md), [review](../reviews/ticket06.md) |
 | 06 | Teams transcript access and feedback | Complete; local + hosted supplied-transcript acceptance | [#7](https://github.com/CloudKai/secondBrain/issues/7), [setup](../teams-transcript-setup.md), [review](../reviews/ticket07.md) |
-| 07 | Zoom transcript availability and feedback | In progress; local + hosted checks pass, review pending | [#8](https://github.com/CloudKai/secondBrain/issues/8) |
+| 07 | Zoom transcript availability and feedback | Complete; local + hosted supplied-transcript acceptance | [#8](https://github.com/CloudKai/secondBrain/issues/8), [setup](../zoom-transcript-setup.md), [review](../reviews/ticket08.md) |
 | 08 | Panopto caption access and fallback | Draft; supplied-transcript foundations complete | Unpublished |
 | 09 | Saved-source topic cards and graph | Draft; completed dependency 02 | Unpublished |
 | 10 | Synthesized topic overviews and source branches | Draft; depends on 09 | Unpublished |
@@ -39,13 +39,12 @@ captions; other automatic providers remain planned.
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **104 backend tests, 30 web tests, build/typecheck and
-lint**, plus hosted Teams VTT/paste generation, exact timed/untimed references,
-reload/reuse and ownership checks. Standards found no documented breach; its
-naming suggestion was applied. Spec found no material issue. Controlled fictional
-recording contexts verify supplied input; they do not establish private Teams
-access or automatic retrieval. Native/iOS files were not changed. Browser checks
-were at desktop width; production deployment remains unconfigured.
+Latest completed checks: **106 backend tests, 30 web tests, build/typecheck and
+lint**, plus hosted Zoom VTT/paste notes, exact timed/untimed references,
+reload/reuse and ownership checks. Standards and Spec reviews found no material
+issues. Controlled fictional recording contexts verify supplied input; they do
+not establish private Zoom access or automatic retrieval. Native/iOS files were
+not changed. Browser checks were at desktop width; production is unconfigured.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -62,7 +61,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–06 were selected by the user and completed. Remaining
+relationships. Tickets 01–07 were selected by the user and completed. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -261,13 +260,15 @@ A learner submits a Teams recording and can use an accessible transcript or supp
 
 ## 07: Handle Zoom recording transcripts and availability states
 
-**Status:** In progress — implementation and hosted supplied-transcript acceptance passed on 2026-10-03; independent review pending.
+**Status:** Complete — local and hosted supplied-transcript acceptance passed on 2026-10-03; independent review complete.
 
-**GitHub:** [#8 — open](https://github.com/CloudKai/secondBrain/issues/8)
+**GitHub:** [#8 — closed](https://github.com/CloudKai/secondBrain/issues/8)
 
 **Label:** `ready-for-agent`
 
 **Already verified from ticket 04:** Zoom recording context and supplied transcript capture preserve actual text/times. Zoom’s documented transcript download requires authorization this app lacks; no anonymous path is validated. This slice adds app-level export guidance and conditional availability feedback, without claiming to inspect the specific recording’s status.
+
+**Completion:** Zoom share/play context immediately opens upload/paste and cloud VTT export instructions, with conditional availability guidance. No specific recording state is inferred; a playback URL/passcode is not proof of download permission. Controlled VTT/text notes, exact references, timing/speaker retention, reload/reuse and ownership checks passed. No automatic Zoom retrieval is advertised. [Setup and acceptance](../zoom-transcript-setup.md); [review](../reviews/ticket08.md).
 
 ### What to build
 
@@ -276,11 +277,11 @@ A learner submits a Zoom recording and obtains a transcript-backed note or a cle
 ### Acceptance criteria
 
 - [x] Recognized recording links retain the original Zoom source identity.
-- [ ] Automatic transcript retrieval is limited to a validated accessible path with no Zoom account connection.
-- [ ] Missing, processing, restricted, expired, or deleted transcript states lead to accurate feedback and the upload/paste fallback.
+- [x] Automatic transcript retrieval is limited to a validated accessible path with no Zoom account connection.
+- [x] Missing, processing, restricted, expired, or deleted transcript states lead to accurate feedback and the upload/paste fallback.
 - [x] Available transcript times are retained, with source evidence linked to the supplied or retrieved transcript.
-- [ ] A shared playback URL or password alone is not treated as proof of transcript download permission.
-- [ ] Provider and browser checks cover accessible transcript input and the relevant fallback states.
+- [x] A shared playback URL or password alone is not treated as proof of transcript download permission.
+- [x] Provider and browser checks cover accessible transcript input and the relevant fallback states.
 
 ### Blocked by
 
