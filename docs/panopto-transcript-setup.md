@@ -76,6 +76,9 @@ reload/citations, canonical reuse and second-learner API/REST/RPC denial passed.
 All three generated references match stored text/cues. Full checks: 108 backend
 tests through project Python, 30 web tests, build/typecheck and lint pass. The
 bare pytest launcher retains its stale external interpreter. Independent
-Standards/Spec review and controlled-fixture cleanup are pending.
+Standards/Spec reviews found no material findings (one optional rendering
+refactor suggestion). Both controlled sources and their notes/outbox rows were
+removed with cascade verified; existing learner notes remain. Review:
+[GitHub #9 review](reviews/ticket09.md).
 Controlled synthetic transcripts and fictional site/session URLs verify supplied
 intake; they do not establish real private lecture access or automatic retrieval.

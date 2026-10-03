@@ -374,7 +374,7 @@ Panopto caption access/tenant fallback, remains an unpublished draft; not starte
 
 ## Panopto caption access — issue #9 (2026-10-03)
 
-Status: implementation and hosted acceptance complete; independent review pending.
+Status: complete; local checks, hosted acceptance and independent review passed.
 Planned ticket 08 opens supplied transcript controls for recognized Panopto viewer
 links and displays the actual site hostname. Conditional export, lecturer/site
 administrator and UTF-8 correction help preserves URL/title. It does not infer
@@ -393,3 +393,8 @@ retains its stale external interpreter. No migration, credentials or native/v1
 changes. Setup: `docs/panopto-transcript-setup.md`. Web progress stays in the web
 tracker and ticket breakdown. Next proposed slice: planned 09, saved-source
 topic cards and graph; unpublished and not started.
+
+Both reviews found no material findings; Standards noted one optional future
+rendering cleanup. Both synthetic captures and note/job rows were removed with
+cascade verified; existing learner notes remain. Review: `docs/reviews/ticket09.md`.
+GitHub #9 is closed and both web records are synchronized. Commits are local.

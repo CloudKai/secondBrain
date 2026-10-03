@@ -2,24 +2,24 @@
 
 ## Current status — 2026-10-03
 
-**Verified MVP:** planned tickets 01–07 are complete with hosted development
-acceptance. GitHub #1/#2/#3/#5/#6/#7/#8 cover articles, structured notes, selectable-text
-PDFs, supplied transcripts, accessible English YouTube captions and Teams/Zoom
-export feedback. Extra #4 covers citation/title polish.
+**Verified MVP:** planned tickets 01–08 are complete with hosted development
+acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9 cover articles, structured notes,
+selectable-text PDFs, supplied transcripts, accessible English YouTube captions
+and Teams/Zoom/Panopto export feedback. Extra #4 covers citation/title polish.
 
-**Last completed:** planned ticket 07 / [GitHub #8](https://github.com/CloudKai/secondBrain/issues/8).
-Zoom recording share/play links open transcript upload/paste with export and
-conditional availability guidance. Hosted VTT/text notes, exact citations,
-reload/reuse and second-learner denial passed. Automatic retrieval is unvalidated.
+**Last completed:** planned ticket 08 / [GitHub #9](https://github.com/CloudKai/secondBrain/issues/9).
+Panopto viewer links show the site and open upload/paste with conditional export
+and access guidance. Unreadable correction retains URL/title. Hosted SRT/text
+notes, exact citations, reload/reuse, distinct sites and learner denial passed.
+Automatic Panopto retrieval remains unvalidated.
 
-**Latest checks:** 106 backend tests, 30 web tests, build/typecheck and lint pass.
-Independent Standards and Spec reviews have zero material findings. Backend checks
-use project Python; the bare launcher still has a stale interpreter. Browser
-checks were at desktop width.
+**Latest checks:** 108 backend tests, 30 web tests, build/typecheck and lint pass.
+Independent Standards and Spec reviews have no material findings; Standards
+recorded one optional rendering refactor. Backend checks use project Python;
+the bare launcher still has a stale interpreter. Desktop browser checks only.
 
-**Current unit:** planned ticket 08 / [GitHub #9](https://github.com/CloudKai/secondBrain/issues/9),
-Panopto caption access and site-specific fallback. Access documentation checked;
-implementation and hosted acceptance complete; independent review pending.
+**Next proposed unit:** planned ticket 09, saved-source topic cards and graph.
+Unpublished draft; implementation not started.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
 combined overviews, persistent corrections, refresh/ranges and assistant/research
@@ -288,7 +288,7 @@ history; #8 is closed.
 
 ## Panopto access and site-specific fallback — issue #9, planned 08, 2026-10-03
 
-Implementation and hosted acceptance complete; independent review pending.
+Complete: local checks, hosted acceptance and independent review passed.
 
 - [x] Actual site hostname and immediate upload/paste for viewer context
 - [x] Conditional export/access help without inventing menus or lecture status
@@ -297,10 +297,16 @@ Implementation and hosted acceptance complete; independent review pending.
 - [x] Distinct site/session identity and canonical variant reuse
 - [x] Three exact saved references and second-learner API/REST/RPC denial
 - [x] 108 backend tests, 30 web tests, build/typecheck and lint pass
-- [ ] Independent Standards/Spec review and final synchronization
+- [x] Independent Standards/Spec review and final synchronization
 
 Setup: `docs/panopto-transcript-setup.md`. No concrete anonymous caption path is
 validated or advertised. Controlled transcripts and fictional viewer contexts
 verify supplied intake, not private lecture access. No migration, credentials,
 account connection or native/v1 changes. The exact bare pytest launcher still
 uses a stale external interpreter; project Python passes. Desktop checks only.
+
+Standards: no material findings, one optional future rendering cleanup. Spec:
+no findings. Both synthetic captures and their note/job rows were removed with
+cascade verified; existing learner notes remain. Review: `docs/reviews/ticket09.md`.
+GitHub #9 is closed; both web records are synchronized. Native history remains
+separate. Planned 09 topic cards and graph is next, unpublished and not started.

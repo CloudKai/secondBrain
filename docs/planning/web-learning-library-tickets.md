@@ -5,19 +5,18 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–07 are complete** (7 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#8 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–08 are complete** (8 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#9 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **07**, Zoom transcript availability/export guidance and supplied input.
+**Last completed:** planned ticket **08**, Panopto caption access, site-specific guidance and supplied input.
 
-**In progress:** planned ticket **08**, Panopto caption access and site-specific fallback — [GitHub #9](https://github.com/CloudKai/secondBrain/issues/9).
+**Next proposed:** planned ticket **09**, saved-source topic cards and graph; not started.
 
 **Target behavior:** planned tickets **09–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The current slice is **08: Handle Panopto lecture transcripts with
-tenant-aware fallback**. YouTube support is verified for anonymously accessible English
+The next proposed slice is **09: Build topic cards and a source-driven graph**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -30,7 +29,7 @@ captions; other automatic providers remain planned.
 | 05 | Accessible YouTube transcripts | Complete; local + hosted acceptance | [#6](https://github.com/CloudKai/secondBrain/issues/6), [setup](../youtube-transcript-setup.md), [review](../reviews/ticket06.md) |
 | 06 | Teams transcript access and feedback | Complete; local + hosted supplied-transcript acceptance | [#7](https://github.com/CloudKai/secondBrain/issues/7), [setup](../teams-transcript-setup.md), [review](../reviews/ticket07.md) |
 | 07 | Zoom transcript availability and feedback | Complete; local + hosted supplied-transcript acceptance | [#8](https://github.com/CloudKai/secondBrain/issues/8), [setup](../zoom-transcript-setup.md), [review](../reviews/ticket08.md) |
-| 08 | Panopto caption access and fallback | In progress; hosted supplied-input acceptance complete | [#9](https://github.com/CloudKai/secondBrain/issues/9) |
+| 08 | Panopto caption access and fallback | Complete; local + hosted supplied-input acceptance | [#9](https://github.com/CloudKai/secondBrain/issues/9), [setup](../panopto-transcript-setup.md), [review](../reviews/ticket09.md) |
 | 09 | Saved-source topic cards and graph | Draft; completed dependency 02 | Unpublished |
 | 10 | Synthesized topic overviews and source branches | Draft; depends on 09 | Unpublished |
 | 11 | Persistent topic corrections and consistent removal | Draft; depends on 10 | Unpublished |
@@ -39,11 +38,11 @@ captions; other automatic providers remain planned.
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **106 backend tests, 30 web tests, build/typecheck and
-lint**, plus hosted Zoom VTT/paste notes, exact timed/untimed references,
+Latest completed checks: **108 backend tests, 30 web tests, build/typecheck and
+lint**, plus hosted Panopto SRT/paste notes, exact timed/untimed references,
 reload/reuse and ownership checks. Standards and Spec reviews found no material
 issues. Controlled fictional recording contexts verify supplied input; they do
-not establish private Zoom access or automatic retrieval. Native/iOS files were
+not establish private Panopto access or automatic retrieval. Native/iOS files were
 not changed. Browser checks were at desktop width; production is unconfigured.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
@@ -61,7 +60,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–07 were selected by the user and completed. Remaining
+relationships. Tickets 01–08 were selected by the user and completed. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -289,15 +288,15 @@ A learner submits a Zoom recording and obtains a transcript-backed note or a cle
 
 ## 08: Handle Panopto lecture transcripts with tenant-aware fallback
 
-**Status:** In progress — implementation and hosted acceptance complete; review pending.
+**Status:** Complete — local checks, hosted supplied-transcript acceptance and independent review passed on 2026-10-03.
 
-**GitHub:** [#9 — open](https://github.com/CloudKai/secondBrain/issues/9)
+**GitHub:** [#9 — closed](https://github.com/CloudKai/secondBrain/issues/9)
 
 **Label:** `ready-for-agent`
 
 **Already verified from ticket 04:** Panopto tenant/session identity, supplied transcripts and real cue times are supported; display-parameter variants reuse the capture. No anonymous caption-download path for a concrete session is validated. This slice adds site-specific supplied-transcript guidance without claiming to inspect a lecture’s permissions or availability.
 
-**Acceptance so far:** Site-specific guidance, unreadable-export correction, hosted SRT/paste notes, exact timed/untimed citations, reload/reuse and ownership checks passed. Automatic retrieval remains unvalidated and unavailable. [Setup and evidence](../panopto-transcript-setup.md). Independent review is pending.
+**Completion:** Site-specific guidance, unreadable-export correction, hosted SRT/paste notes, exact timed/untimed citations, reload/reuse and ownership checks passed. Automatic retrieval remains unvalidated and unavailable. [Setup and evidence](../panopto-transcript-setup.md). Both reviews found no material issues; one optional rendering refactor was recorded. Controlled captures and note/job rows were removed with cascade verified. [Review](../reviews/ticket09.md).
 
 ### What to build
 
