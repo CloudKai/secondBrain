@@ -73,7 +73,7 @@ export function Graph({
     <>
     {topics.length>6&&<label className="graph-focus">Focus on a topic
       <select aria-label="Choose graph focus" value={selected??visibleTopics[0].id} onChange={event=>onSelect(event.target.value)}>{topics.map(topic=><option key={topic.id} value={topic.id}>{topic.title}</option>)}</select>
-      <span className="micro-copy">Showing up to six topics with supported connections. Choose a focus to explore the rest.</span>
+      <span className="micro-copy">Showing up to six topics. Choose a focus to explore the rest.</span>
     </label>}
     <div className={`knowledge-map ${compact ? "compact" : ""}`}>
       <svg
@@ -111,8 +111,8 @@ export function Graph({
       ))}
       {!connections.length && (
         <p className="graph-threshold">
-          Topic cards are ready. Connections appear when two independent sources
-          meaningfully overlap.
+          Shared topics can have several sources. Lines appear only for a supported
+          uses, requires, or evaluates relationship.
         </p>
       )}
     </div>
