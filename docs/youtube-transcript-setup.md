@@ -6,7 +6,8 @@ The browser Video form offers **Import YouTube captions** or **Upload or paste**
 Automatic import uses `youtube-transcript-api` 1.2.4 to fetch anonymously accessible
 English captions; manual English tracks are preferred before auto-generated tracks.
 No learner account, authentication cookies, proxy bypass, audio/video download or
-speech transcription is used. Cookie-dependent access is rejected with a fallback.
+speech transcription is used. Anonymous response cookies are discarded; consent-cookie-dependent access is
+rejected with a fallback.
 Availability can vary by video, region and deployment IP. A playable link alone
 never establishes caption availability or official caption-download permission.
 
@@ -36,7 +37,9 @@ production availability. Do not add account credentials or proxies to bypass a b
 - HTTPS `www.youtube.com` watch/player/timedtext paths only, with no redirects.
   Caption URLs must identify the requested video; learner tokens are not forwarded.
 - Eight seconds maximum per HTTP request, 30-second retrieval deadline and
-  35-second async deadline including admission.
+  35-second async deadline including admission. Network reads are asynchronous
+  with an interruptible wall-clock timeout; SDK execution retains its concurrency
+  slot until it finishes even when the request is cancelled.
 - Two MB decoded per response, four MB aggregate, and bounded streaming.
 - English `en`, `en-US` or `en-GB`; no automatic translation.
 - Existing transcript decoder limits: 1 MB UTF-8, 2,000 cues, at least 120
@@ -68,7 +71,7 @@ restores the previous supplied-transcript constraint without deleting sources.
 
 The agreed seams are authenticated capture API, YouTube external HTTP responses,
 model HTTP responses, database ownership/worker functions and browser citation flow.
-Current checks: 102 backend tests and 30 web tests; web build/typecheck and lint pass.
+Current checks: 103 backend tests and 30 web tests; web build/typecheck and lint pass.
 The prescribed `uv run --project backend --extra dev pytest backend/tests -q`
 resolves an obsolete Anaconda entrypoint and fails collection. The project interpreter
 `uv run --project backend --extra dev python -m pytest backend/tests -q` passes.

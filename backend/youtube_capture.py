@@ -7,6 +7,9 @@ import time
 from urllib.parse import urlsplit, parse_qs
 
 import requests
+import httpx
+from xml.etree.ElementTree import ParseError
+from defusedxml.common import DefusedXmlException
 from youtube_transcript_api import (
     YouTubeTranscriptApi,
     AgeRestricted,
@@ -28,10 +31,11 @@ class TranscriptUnavailable(ValueError):
 
 
 class BoundedYouTubeSession(requests.Session):
-    def __init__(self, video_id: str):
+    def __init__(self, video_id: str, loop: asyncio.AbstractEventLoop):
         super().__init__()
         self.trust_env = False
         self.video_id = video_id
+        self.loop = loop
         self.deadline = time.monotonic() + 30
         self.downloaded = 0
         self.requests_sent = 0
@@ -49,7 +53,7 @@ class BoundedYouTubeSession(requests.Session):
             raise TranscriptUnavailable(
                 "The caption access path is unsupported. Upload or paste the transcript instead."
             )
-        if self.cookies or kwargs.get("cookies"):
+        if self.cookies.get("CONSENT") or kwargs.get("cookies"):
             raise TranscriptUnavailable(
                 "YouTube requires cookie access. Upload or paste the transcript instead."
             )
@@ -65,30 +69,53 @@ class BoundedYouTubeSession(requests.Session):
             raise TranscriptUnavailable(
                 "YouTube transcript retrieval timed out. Upload or paste the transcript instead."
             )
-        kwargs.update(timeout=min(8, remaining), stream=True, allow_redirects=False)
-        response = super().request(method, url, **kwargs)
+        # SDK calls stay synchronous; network I/O runs on the caller's event loop
+        # so the wall-clock timeout can interrupt a slowly arriving response.
+        self.cookies.clear()
+        pending = asyncio.run_coroutine_threadsafe(
+            self.download(method, url, kwargs, remaining), self.loop
+        )
         try:
-            if 300 <= response.status_code < 400:
-                raise TranscriptUnavailable(
-                    "YouTube redirected transcript access. Upload or paste the transcript instead."
-                )
-            data = bytearray()
-            for chunk in response.iter_content(65536):
-                self.downloaded += len(chunk)
-                if time.monotonic() > self.deadline:
-                    raise TranscriptUnavailable(
-                        "YouTube transcript retrieval timed out. Upload or paste the transcript instead."
-                    )
-                if len(data) + len(chunk) > 2_000_000 or self.downloaded > 4_000_000:
-                    raise TranscriptUnavailable(
-                        "YouTube transcript data exceeds retrieval limits. Upload or paste the transcript instead."
-                    )
-                data.extend(chunk)
-            response._content = bytes(data)
-            response._content_consumed = True
-            return response
+            status, data, encoding = pending.result(timeout=remaining + 1)
         finally:
-            response.close()
+            pending.cancel()
+        response = requests.Response()
+        response.status_code = status
+        response.url = url
+        response.encoding = encoding
+        response._content = data
+        response._content_consumed = True
+        return response
+
+    async def download(self, method, url, kwargs, remaining):
+        async with (
+            asyncio.timeout(remaining),
+            httpx.AsyncClient(
+                trust_env=False, follow_redirects=False, timeout=min(8, remaining)
+            ) as client,
+        ):
+            async with client.stream(
+                method,
+                url,
+                json=kwargs.get("json"),
+                headers={"User-Agent": self.headers.get("User-Agent", "")},
+            ) as response:
+                if 300 <= response.status_code < 400:
+                    raise TranscriptUnavailable(
+                        "YouTube redirected transcript access. Upload or paste the transcript instead."
+                    )
+                data = bytearray()
+                async for chunk in response.aiter_bytes(65536):
+                    self.downloaded += len(chunk)
+                    if (
+                        len(data) + len(chunk) > 2_000_000
+                        or self.downloaded > 4_000_000
+                    ):
+                        raise TranscriptUnavailable(
+                            "YouTube transcript data exceeds retrieval limits. Upload or paste the transcript instead."
+                        )
+                    data.extend(chunk)
+                return response.status_code, bytes(data), response.encoding
 
 
 def vtt_time(milliseconds: int) -> str:
@@ -98,7 +125,7 @@ def vtt_time(milliseconds: int) -> str:
     return f"{hours:02}:{minutes:02}:{seconds:02}.{fraction:03}"
 
 
-def retrieve_youtube(url: str) -> dict:
+def retrieve_youtube(url: str, loop: asyncio.AbstractEventLoop) -> dict:
     provider, identity = video_identity(url)
     if provider != "youtube":
         raise ValueError(
@@ -106,7 +133,7 @@ def retrieve_youtube(url: str) -> dict:
         )
     video_id = identity.rsplit("=", 1)[1]
     try:
-        with BoundedYouTubeSession(video_id) as session:
+        with BoundedYouTubeSession(video_id, loop) as session:
             transcript = YouTubeTranscriptApi(http_client=session).fetch(
                 video_id, languages=["en", "en-US", "en-GB"]
             )
@@ -165,7 +192,11 @@ def retrieve_youtube(url: str) -> dict:
         ) from exc
     except (
         YouTubeTranscriptApiException,
+        ParseError,
+        DefusedXmlException,
         requests.RequestException,
+        httpx.HTTPError,
+        TimeoutError,
         ValueError,
         DecimalException,
         KeyError,
@@ -180,5 +211,21 @@ def retrieve_youtube(url: str) -> dict:
 
 
 async def capture_youtube(url: str) -> dict:
-    async with asyncio.timeout(35), retrieval_slots:
-        return await asyncio.to_thread(retrieve_youtube, url)
+    async with asyncio.timeout(35):
+        await retrieval_slots.acquire()
+        loop = asyncio.get_running_loop()
+        try:
+            work = loop.run_in_executor(None, retrieve_youtube, url, loop)
+        except BaseException:
+            retrieval_slots.release()
+            raise
+
+        # Shielding keeps capacity occupied until the actual SDK work stops,
+        # even if the request task is cancelled or times out.
+        def finished(task):
+            retrieval_slots.release()
+            if not task.cancelled():
+                task.exception()
+
+        work.add_done_callback(finished)
+        return await asyncio.shield(work)

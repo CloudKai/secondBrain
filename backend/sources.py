@@ -217,23 +217,9 @@ async def save_youtube_transcript(
             else "YouTube transcript retrieval timed out. Upload or paste it instead."
         )
         raise HTTPException(422, detail) from exc
-    rows = await gateway.request(
-        "POST",
-        {"select": "*", "on_conflict": "user_id,canonical_url"},
-        {
-            "user_id": str(gateway.user_id),
-            "original_url": original_url,
-            "title": payload.title.strip() or "YouTube transcript",
-            "study_status": "pending",
-            **capture,
-        },
+    return await persist_transcript(
+        gateway, original_url, payload.title.strip() or "YouTube transcript", capture
     )
-    source = rows[0] if rows else await gateway.find(canonical_url=f"eq.{identity}")
-    if source is None:
-        raise HTTPException(
-            503, "The transcript could not be confirmed as saved. Try again."
-        )
-    return source
 
 
 @router.post("/video", response_model=CapturedSource, status_code=201)
@@ -259,15 +245,25 @@ async def save_video_transcript(
     existing = await gateway.find(canonical_url=f"eq.{identity}")
     if existing:
         return existing
+    title = (
+        title.strip()
+        or (filename.rsplit(".", 1)[0] if filename else "")
+        or f"{capture['transcript']['provider'].title()} transcript"
+    )
+    return await persist_transcript(gateway, str(url), title, capture)
+
+
+async def persist_transcript(
+    gateway: SourceGateway, original_url: str, title: str, capture: dict
+) -> CapturedSource:
+    identity = capture["canonical_url"]
     rows = await gateway.request(
         "POST",
         {"select": "*", "on_conflict": "user_id,canonical_url"},
         {
             "user_id": str(gateway.user_id),
-            "original_url": str(url),
-            "title": title.strip()
-            or (filename.rsplit(".", 1)[0] if filename else "")
-            or f"{capture['transcript']['provider'].title()} transcript",
+            "original_url": original_url,
+            "title": title,
             "study_status": "pending",
             **capture,
         },

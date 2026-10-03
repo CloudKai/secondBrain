@@ -1,11 +1,11 @@
 """Automatic transcript import at authenticated API and external HTTP seams."""
 
-import io
 import json
 from urllib.parse import urlsplit
 
 import pytest
-import requests
+import httpx
+from httpx import AsyncClient
 
 from backend.tests.test_sources import browser_client  # noqa: F401
 
@@ -17,9 +17,13 @@ def youtube_http(monkeypatch):
     """Stand in only for YouTube HTTP; the real transcript SDK decodes responses."""
     state = {"status": "OK", "captions": True, "requests": []}
 
-    def send(adapter, request, **kwargs):
-        url = urlsplit(request.url)
-        state["requests"].append(request.url)
+    original_send = AsyncClient.send
+
+    async def send(client, request, **kwargs):
+        if request.url.host != "www.youtube.com":
+            return await original_send(client, request, **kwargs)
+        url = urlsplit(str(request.url))
+        state["requests"].append(str(request.url))
         assert "Authorization" not in request.headers
         assert "apikey" not in request.headers
         assert url.hostname == "www.youtube.com"
@@ -70,18 +74,20 @@ def youtube_http(monkeypatch):
         else:
             assert url.path == "/api/timedtext"
             data = f'<transcript><text start="5.25" dur="15.25">{TEXT}</text><text start="30" dur="10">Calculus studies how quantities change.</text></transcript>'.encode()
-        response = requests.Response()
-        response.status_code = 200
-        response.raw = io.BytesIO(data)
-        response.headers["Content-Type"] = (
-            "text/xml" if url.path == "/api/timedtext" else "text/html"
+        if url.path == "/api/timedtext" and state.get("mode") == "bad-xml":
+            data = b"<transcript><text"
+        return httpx.Response(
+            200,
+            content=data,
+            headers={
+                "Content-Type": "text/xml"
+                if url.path == "/api/timedtext"
+                else "text/html; charset=utf-8"
+            },
+            request=request,
         )
-        response.encoding = "utf-8"
-        response.request = request
-        response.url = request.url
-        return response
 
-    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", send)
+    monkeypatch.setattr(AsyncClient, "send", send)
     return state
 
 
@@ -186,3 +192,14 @@ def test_import_authentication_and_reuse_happen_before_youtube_access(
     )
     assert reused.json()["id"] == first.json()["id"]
     assert len(youtube_http["requests"]) == count
+
+
+def test_malformed_caption_xml_offers_fallback(browser_client, youtube_http):
+    youtube_http["mode"] = "bad-xml"
+    response = browser_client.post(
+        "/api/v2/sources/youtube",
+        headers={"Authorization": "Bearer alice"},
+        json={"url": "https://youtu.be/aircAruvnKk"},
+    )
+    assert response.status_code == 422
+    assert "Upload or paste" in response.json()["detail"]
