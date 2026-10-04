@@ -1,3 +1,4 @@
+import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
 import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
 import { overviewSnapshotSchema } from "./topic-overview";
 import { createClient } from "@supabase/supabase-js";
@@ -230,6 +231,11 @@ export function createSourceClient(
       );
     }
     if (!response.ok) {
+      if(path.endsWith('/ask')) {
+        const body:unknown=await response.json().catch(()=>null);
+        const detail=z.object({detail:boundedText(1,500)}).safeParse(body);
+        throw new Error(detail.success?detail.data.detail:'The assistant is unavailable. Check the connection and retry.');
+      }
       if(/\/(revision-check|refresh|versions|correction-review)(?:[/?]|$)/.test(path)) {
         const body:unknown=await response.json().catch(()=>null);const detail=z.object({detail:boundedText(1,500)}).safeParse(body);
         throw new Error(detail.success?detail.data.detail:'Source comparison or refresh is unavailable. Reload and retry.');
@@ -296,6 +302,16 @@ export function createSourceClient(
 
   return {
     ready,
+    async ask(id:string,question:AssistantQuestion) {
+      const answer=await parse(await request(`/sources/${encodeURIComponent(id)}/ask`,{method:'POST',body:JSON.stringify(question)}),assistantAnswerSchema);
+      if(answer.source_ids[0]!==id || answer.references.some(r=>r.source_id===id&&r.source_version!==question.source_version) || (!question.library&&!question.topic_id&&answer.source_ids.length!==1))throw new Error('The library returned incomplete assistant evidence. Reload and ask again.');
+      return answer;
+    },
+    async get(id:string) {
+      const source=await parse(await request(`/sources/${encodeURIComponent(id)}`),sourceSchema);
+      if(source.id!==id)throw new Error('The library returned incomplete source evidence. Reload and ask again.');
+      return source;
+    },
     async topicOverview(topicId: string) {
       const value = await parse(await request(`/topics/${encodeURIComponent(topicId)}/overview`), overviewSnapshotSchema);
       if (value.topic_id !== topicId) throw new Error("The library returned incomplete topic material. Reload topics.");

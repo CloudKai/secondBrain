@@ -635,3 +635,13 @@ current note plus optional topic/library evidence, Postgres relevance retrieval,
 strict grounded English answers and original passage citations. Live discovery
 remains planned 15. Implementation/checks/migration/acceptance pending. Setup:
 docs/assistant-setup.md. Native/iOS and its tracker untouched.
+
+### Grounded assistant local implementation — #15, 2026-10-05
+
+Approved API/model HTTP/database/browser boundaries are in use. Authenticated
+questions, current-note default, independent combined topic/library scopes,
+exact saved page/cue citations, stale-context fencing, unsupported-answer gaps,
+bounded recent conversation and preview-only research navigation are implemented.
+14 focused API/model tests and three client/database tests pass; typecheck/lint
+pass. Full checks, independent review, migration 011 and hosted acceptance remain
+pending. GitHub #15 open. Native/iOS and its tracker untouched.

@@ -1,6 +1,6 @@
 # Web learning-library ticket breakdown
 
-Last synchronized: **2026-10-04 (Asia/Singapore)** against GitHub Issues and
+Last synchronized: **2026-10-05 (Asia/Singapore)** against GitHub Issues and
 completed acceptance records in `context/web-progress-tracker.md` and `scope.md`.
 
 ## Progress at a glance
@@ -11,7 +11,7 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **13**, long sources and selected ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14).
 
-**Current unit:** planned **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15). Selected target; implementation pending.
+**Current unit:** planned **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15). Local implementation and focused checks pass; full checks, review, migration and hosted acceptance pending.
 
 **Target behavior:** planned **14 is selected and published**; planned **15 remains an unpublished draft**. Existing
 example UI does not establish live assistant/research. YouTube support requires
@@ -33,7 +33,7 @@ anonymously accessible English captions; private provider access remains planned
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Complete; local + hosted acceptance | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
-| 14 | Grounded assistant with selectable scopes | Selected; implementation pending | [#15](https://github.com/CloudKai/secondBrain/issues/15), [scope](../assistant-setup.md) |
+| 14 | Grounded assistant with selectable scopes | Local implementation; review/migration/acceptance pending | [#15](https://github.com/CloudKai/secondBrain/issues/15), [scope](../assistant-setup.md) |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
 Latest completed checks: **144 backend tests, 61 web tests, web build/typecheck
@@ -76,8 +76,8 @@ Saved-source topic mapping, explained graph connections, placement confirmation,
 on-demand cited combined overviews, separate source branches and durable topic
 corrections/removal are verified. Model chat and live research remain target work;
 their existing example UI is not live implementation.
-Supplied transcript links do not retrieve or watch recordings. PDF OCR,
-page/time ranges and automatic Teams/Zoom/Panopto retrieval remain planned.
+Supplied transcript links do not retrieve or watch recordings. Whole/selected captures with original page/time ranges and resumable section
+processing are verified. PDF OCR and automatic Teams/Zoom/Panopto retrieval remain planned.
 Unchanged imports reuse saved sources; explicit versioned refresh preserves prior
 captures/notes and retains learner corrections with current supporting evidence.
 

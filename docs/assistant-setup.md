@@ -36,3 +36,44 @@ ownership/retrieval and source-version checks; browser scope/citation/unsupporte
 answer flows. Follow RED→GREEN at these boundaries, full checks at closeout,
 and independent standards/spec review. Reviewed reversible migration and hosted
 API/model/browser acceptance remain pending.
+
+## Local implementation — 2026-10-05
+
+Implemented `POST /api/v2/sources/{id}/ask`, owned Postgres retrieval and
+post-generation source/note/map fences, strict grounded model answers, bounded
+recent conversation (four turns, 2,000 characters each), and the live saved-note
+assistant. Topic evidence precedes query-relevant library results. The server
+selects exact original saved passages; serialized model context is at most
+30,000 characters. Provider failures and changed evidence return actionable
+errors. No research URLs are generated. Citation inspection fetches the current
+source and checks version, exact excerpt and original page/cue locations while
+preserving the anchor note. Both scope toggles work together; only confirmed
+source topics appear in the selector. Existing example assistant stays preview.
+
+Focused checks: 15 assistant API/model tests and three client/database tests
+pass. Web typecheck/lint pass. Full checks pass: 158 backend/64 web tests before the additional bounded-context
+check (15 focused assistant checks now pass), plus build/typecheck/lint. Independent
+review, migration 011 and hosted acceptance remain pending. This is local implementation, not yet a
+verified hosted capability.
+
+## Migration and rollback
+
+Apply reviewed `supabase/migrations/202610050011_assistant_context.sql` to the
+same development Supabase project. It adds one full-text index and two read-only
+security-definer RPCs with empty search paths, authenticated ownership checks,
+8-second SQL deadlines and restricted execution grants. It does not change or
+delete sources, studies, topic maps, or archives. Existing server-only
+`OPENAI_API_KEY` is required; no additional provider/database secret is needed
+by learner requests. The learner bearer token remains the database authority.
+
+Rollback (after stopping assistant requests):
+
+```sql
+begin;
+drop function public.get_assistant_context(uuid,integer,text,uuid,boolean);
+drop function public.validate_assistant_context(uuid,uuid,jsonb);
+drop index public.source_studies_assistant_search;
+commit;
+```
+
+Rollback removes assistant retrieval and its index while preserving saved data.

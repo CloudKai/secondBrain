@@ -637,3 +637,13 @@ Unsupported questions offer the existing reading-list preview; live discovery
 remains planned 15. User approved API/model HTTP/database/browser test boundaries.
 Implementation, migration and acceptance pending. Both web records updated;
 native/iOS and its tracker untouched. See docs/assistant-setup.md.
+
+
+### Grounded assistant local implementation — #15 (2026-10-05)
+
+Current note plus optional confirmed-topic/library evidence implemented through
+owned Postgres retrieval and strict bounded server model answers. Live UI cites
+exact saved original passages without navigating away from the anchor note.
+Changed source/note/map evidence rejects before delivery. Unsupported answers
+open the reading-list preview; live research remains planned 15. Focused checks
+pass; full checks/review/migration/hosted acceptance pending. Native/iOS untouched.

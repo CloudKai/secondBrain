@@ -1,3 +1,5 @@
+import SavedAssistant from "./components/SavedAssistant";
+import {citationMatchesSource, type AssistantReference} from "./lib/assistant-answer";
 import CaptureRangeFields from "./components/CaptureRangeFields";
 import {selectedRange,wholeSourceFields,type RangeFields,type CaptureRange} from "./lib/capture-range";
 import SavedSourceAssignments from "./components/SavedSourceAssignments";
@@ -168,6 +170,9 @@ export default function App() {
     sourceId: string;
     id: string;
   } | null>(null);
+  const [assistantEvidence,setAssistantEvidence]=useState<{anchor:string;anchorVersion:number;note:Note;reference:AssistantReference}|null>(null);
+  const activeNote=useRef<string|undefined>(undefined);
+  activeNote.current=route.noteId;
   const enrichNote = (note: Note) =>
     note.savedSource && studies.records[note.id] && (note.savedSource.source_version??1)===(studies.records[note.id].source_version??1)
       ? noteFromSavedSource(note.savedSource, studies.records[note.id])
@@ -180,9 +185,10 @@ export default function App() {
   const currentNote =
     notes.find((n) => n.id === route.noteId) ||
     (route.page === "note" ? undefined : notes[0]);
+  const evidenceNote=assistantEvidence && assistantEvidence.anchor===currentNote?.id && assistantEvidence.anchorVersion===(currentNote.savedSource?.source_version??1)?assistantEvidence.note:currentNote;
   const passage =
-    selectedPassage?.sourceId === currentNote?.id
-      ? currentNote?.study?.note?.references.find(
+    selectedPassage?.sourceId === evidenceNote?.id
+      ? (assistantEvidence && assistantEvidence.anchor===currentNote?.id && assistantEvidence.anchorVersion===(currentNote.savedSource?.source_version??1) ? [assistantEvidence.reference.passage] : currentNote?.study?.note?.references)?.find(
           (r) => r.id === selectedPassage?.id,
         )
       : undefined;
@@ -295,6 +301,7 @@ export default function App() {
   }
   function openNote(n: Note) {
     setSelectedPassage(null);
+    setAssistantEvidence(null);
     setTopicMode(n.savedSource ? "saved" : "examples");
     setSelectedTopic(n.topics[0]);
     if (n.savedSource) {
@@ -309,6 +316,7 @@ export default function App() {
     setPanelOpen(true);
   }
   function showEvidence(id: string, passageId?: string) {
+    setAssistantEvidence(null);
     setSelectedPassage(passageId ? {sourceId:id,id:passageId} : null);
     const n = notes.find((n) => n.id === id);
     if (n) {
@@ -319,6 +327,7 @@ export default function App() {
     }
   }
   function inspectPassage(id: string) {
+    setAssistantEvidence(null);
     if (!currentNote) return;
     setSelectedPassage({ sourceId: currentNote.id, id });
     setPanelTab("Sources");
@@ -326,6 +335,17 @@ export default function App() {
     requestAnimationFrame(() =>
       document.getElementById("source-passage")?.focus(),
     );
+  }
+  async function inspectAssistantCitation(ref:AssistantReference) {
+    if(!sourceClient||!currentNote)return;
+    const anchor=currentNote.id;
+    const source=await sourceClient.get(ref.source_id);
+    if(activeNote.current!==anchor)return;
+    if(!citationMatchesSource(ref,source))throw new Error('This evidence changed. Reload the note and ask again.');
+    setAssistantEvidence({anchor,anchorVersion:currentNote.savedSource?.source_version??1,note:noteFromSavedSource(source),reference:ref});
+    setSelectedPassage({sourceId:source.id,id:ref.passage.id});
+    setPanelTab('Sources');setPanelOpen(true);
+    requestAnimationFrame(()=>document.getElementById('source-passage')?.focus());
   }
   function showAdd(url = "") {
     setSourceUrl(url);
@@ -730,9 +750,9 @@ export default function App() {
               <div className="evidence-source">
                 <FileText size={20} />
                 <div>
-                  <strong>{currentNote.title}</strong>
+                  <strong>{evidenceNote!.title}</strong>
                   <small>
-                    {currentNote.author} · {currentNote.year}
+                    {evidenceNote!.author} · {evidenceNote!.year}
                   </small>
                 </div>
               </div>
@@ -741,16 +761,16 @@ export default function App() {
                   ? passage.page
                     ? `PDF page ${passage.page} · passage ${passage.id}`
                     : passage.start_ms != null && passage.end_ms != null
-                      ? `${formatVideoTime(passage.start_ms)}–${formatVideoTime(passage.end_ms)} · passage ${passage.id} · ${currentNote.savedSource?.capture_origin === "direct" ? "retrieved captions" : "supplied transcript"}`
+                      ? `${formatVideoTime(passage.start_ms)}–${formatVideoTime(passage.end_ms)} · passage ${passage.id} · ${evidenceNote!.savedSource?.capture_origin === "direct" ? "retrieved captions" : "supplied transcript"}`
                       : `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
-                  : currentNote.evidenceLabel}
+                  : evidenceNote!.evidenceLabel}
               </span>
               {passage ? (
                 <p className="evidence-text" id="source-passage" tabIndex={-1}>
                   {passage.excerpt}
                 </p>
               ) : (
-                <CapturedSourceText note={currentNote} />
+                <CapturedSourceText note={evidenceNote!} />
               )}
               {passage && (
                 <button
@@ -760,28 +780,28 @@ export default function App() {
                   Show full captured text
                 </button>
               )}
-              {currentNote.demo && (
+              {evidenceNote!.demo && (
                 <p className="micro-copy">
                   This example note includes paraphrased evidence, not a
                   verbatim excerpt or a full-source extraction.
                 </p>
               )}
-              {currentNote.url ? (
+              {evidenceNote!.url ? (
                 <a
                   className="button secondary full"
                   href={
                     passage?.page
-                      ? `${currentNote.url.split("#")[0]}#page=${passage.page}`
-                      : currentNote.kind === "Video"
-                        ? videoMomentUrl(currentNote.url, passage?.start_ms)
-                        : currentNote.url
+                      ? `${evidenceNote!.url.split("#")[0]}#page=${passage.page}`
+                      : evidenceNote!.kind === "Video"
+                        ? videoMomentUrl(evidenceNote!.url, passage?.start_ms)
+                        : evidenceNote!.url
                   }
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {currentNote.kind === "Video" &&
+                  {evidenceNote!.kind === "Video" &&
                   passage?.start_ms != null &&
-                  currentNote.savedSource?.transcript?.provider === "youtube"
+                  evidenceNote!.savedSource?.transcript?.provider === "youtube"
                     ? `Open video at ${formatVideoTime(Math.floor(passage.start_ms / 1000) * 1000)}`
                     : "Open original"}{" "}
                   <ExternalLink size={15} />
@@ -792,13 +812,13 @@ export default function App() {
                   stored; refer to your local copy for images and layout.
                 </p>
               )}
-              {currentNote.kind === "Video" && (
+              {evidenceNote!.kind === "Video" && (
                 <p className="micro-copy">
-                  {currentNote.savedSource?.capture_origin === "direct"
-                    ? currentNote.savedSource.coverage_detail
-                    : `User-supplied transcript · ${currentNote.savedSource?.transcript?.filename ?? "pasted text"}. No video was fetched or watched.`}
+                  {evidenceNote!.savedSource?.capture_origin === "direct"
+                    ? evidenceNote!.savedSource.coverage_detail
+                    : `User-supplied transcript · ${evidenceNote!.savedSource?.transcript?.filename ?? "pasted text"}. No video was fetched or watched.`}
                   {passage?.start_ms != null &&
-                    currentNote.savedSource?.transcript?.provider !==
+                    evidenceNote!.savedSource?.transcript?.provider !==
                       "youtube" &&
                     " Times are retained from your transcript; this link opens the recording without seeking to a time."}
                 </p>
@@ -1471,6 +1491,16 @@ export default function App() {
                         onMaster={markMaster}
                         onCitation={inspectPassage}
                       />
+                      {sourceClient&&<SavedAssistant
+                        key={`saved-assistant-${currentNote.id}-${currentNote.savedSource?.source_version??1}-${currentNote.study.updated_at}`}
+                        sourceId={currentNote.id}
+                        sourceVersion={currentNote.savedSource?.source_version??1}
+                        topics={topicMaps.library.maps.find(m=>m.source_id===currentNote.id)?.analysis?.topics.filter(t=>!t.uncertain).map(t=>({id:t.id,title:t.title}))??[]}
+                        client={sourceClient}
+                        onCitation={inspectAssistantCitation}
+                        onDiscover={()=>go('discover')}
+                      />}
+
                     </>
                   ) : currentNote.savedSource ? (
                     <section className="pending-source">
@@ -2143,8 +2173,7 @@ export default function App() {
                 <strong>What works in this browser slice</strong>
                 <p>
                   Library search, read-only notes, saved topic views,
-                  source evidence, recall practice, and a saved-note assistant
-                  preview. Articles, PDFs, accessible English YouTube captions
+                  source evidence, recall practice, and an assistant grounded in saved passages. Articles, PDFs, accessible English YouTube captions
                   and supplied video transcripts have persistent structured
                   notes and inspectable citations when the study worker is
                   configured. Confirmed topic placements, cited combined
@@ -2154,8 +2183,7 @@ export default function App() {
                 <strong>What is still planned</strong>
                 <p>
                   Automatic Teams/Zoom/Panopto transcript access,
-                  open-ended AI conversation, live
-                  research, and linked accounts.
+                  live research discovery, and linked accounts.
                 </p>
                 <strong>Your data</strong>
                 <p>
