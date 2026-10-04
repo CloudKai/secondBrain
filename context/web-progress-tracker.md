@@ -354,18 +354,17 @@ release or new phone-width acceptance is claimed.
 
 ## Combined topic overviews and source branches — issue #11, planned 10
 
-Selected 2026-10-04. Status: preparation complete; implementation/acceptance pending.
+Selected 2026-10-04. Status: implementation in progress; hosted acceptance pending.
 
 - [x] Inspect approved overlap/view decisions, glossary and shared-topic ADR
 - [x] Inspect owned topic maps, original source references, worker and supplied UI
 - [x] Publish/claim GitHub #11 with completed #10 as its dependency
 - [x] Plan requested synthesis, persisted view choice and membership fences
-- [ ] Agree overview API/model HTTP/database/browser test boundaries
+- [x] Agree overview API/model HTTP/database/browser test boundaries
 - [ ] Implement and verify cited synthesis, disagreements and source branches
 - [ ] Independent review, hosted acceptance and final issue synchronization
 
-The TDD skill requires confirmation at the new overview API, synthesis HTTP,
-owned database/view persistence and browser switching/citation seams. No tests
-or implementation at these seams have been added yet. Existing topic/notes
+The user agreed the overview API, synthesis HTTP, owned database/view persistence
+and browser switching/citation seams. Local implementation and checks are underway. Existing topic/notes
 remain the verified MVP. Combined synthesis is target behavior until acceptance
 passes. Native/iOS and its progress tracker remain unchanged.

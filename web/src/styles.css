@@ -3333,3 +3333,14 @@ main:focus-visible { outline: none; }
   min-height: 44px;
   color: var(--accent);
 }
+
+/* Source branches inherit the topic panel palette and stay below their parent. */
+.overlap-copy, .combined-overview p { font-size: 13px; line-height: 1.85; }
+.overlap-copy { color: var(--muted); margin: 18px 0 12px; }
+.combined-overview { margin: 18px 0 24px; }
+.combined-overview h3, .branch-heading { font-size: 14px; margin: 18px 0 10px; }
+.source-branches { border-left: 1px solid var(--border); padding-left: 14px; margin-top: 16px; }
+.source-branch { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+.source-branch > .eyebrow { display: block; margin-bottom: 8px; font-size: 10px; }
+.source-branch .text-button { display: block; min-height: 32px; text-align: left; }
+.source-branch .source-title { white-space: normal; text-align: left; overflow-wrap: anywhere; }

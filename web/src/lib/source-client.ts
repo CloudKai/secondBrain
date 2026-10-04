@@ -1,4 +1,5 @@
 import { topicLibrarySchema, topicRecordSchema } from "./topic-library";
+import { overviewSnapshotSchema } from "./topic-overview";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { studyPageSchema, studySchema, type StudyRecord } from "./study-note";
@@ -272,6 +273,16 @@ export function createSourceClient(
 
   return {
     ready,
+    async topicOverview(topicId: string) {
+      const value = await parse(await request(`/topics/${encodeURIComponent(topicId)}/overview`), overviewSnapshotSchema);
+      if (value.topic_id !== topicId) throw new Error("The library returned incomplete topic material. Reload topics.");
+      return value;
+    },
+    async setTopicView(topicId: string, viewMode: "combined" | "separate", retry = false) {
+      const value = await parse(await request(`/topics/${encodeURIComponent(topicId)}/overview`, { method: 'POST', body: JSON.stringify({view_mode: viewMode, retry}) }), overviewSnapshotSchema);
+      if (value.topic_id !== topicId) throw new Error("The library returned incomplete topic material. Reload topics.");
+      return value;
+    },
     async topicLibrary() { return parse(await request('/topic-library'),topicLibrarySchema); },
     async mapTopics(id: string,retry=false) { return parse(await request(`/sources/${encodeURIComponent(id)}/topics`,{method:'POST',body:JSON.stringify({retry})}),topicRecordSchema); },
     async confirmPlacement(sourceId:string,topicId:string,targetId:string|null) { return parse(await request(`/sources/${encodeURIComponent(sourceId)}/topics/placement`,{method:'POST',body:JSON.stringify({topic_id:topicId,target_id:targetId})}),topicRecordSchema); },

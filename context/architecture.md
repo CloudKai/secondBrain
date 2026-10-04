@@ -400,3 +400,8 @@ placement changes preserved notes and references. Disposable fixture removal
 cascaded through study/topic jobs; the real Neural networks note/map remain.
 Model matching used bounded retries and remains subject to evidence inspection.
 No vector service, native persistence or production deployment was added.
+
+
+## Web topic overview boundary — ticket #11
+
+Target pending hosted acceptance: derived topic_overviews/overview_outbox, authenticated owned RPC snapshots and view mutation, stable-ID ARQ synthesis with bounded attempts/leases. Exact source-prefixed passage references and membership revision fences preserve authoritative source_studies/source_topic_maps. No native API change or new vector/provider service.

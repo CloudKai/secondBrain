@@ -480,3 +480,8 @@ cannot appear. Broad topic corrections remain planned ticket 11; no new
 ingestion, vector service, credentials or native/iOS change. New test seams
 await agreement under TDD; no implementation or tests at this checkpoint.
 Both web progress records are updated.
+
+
+## Combined topic overview implementation — planned 10 / #11
+
+Local implementation/checks pass at the agreed API/model HTTP/database/browser seams. Hosted acceptance and independent review remain pending. Explicit Combine queues cited synthesis; Keep separate preserves source branches and persisted per-topic choice. Membership changes hide stale results and fence late workers. Original notes are read-only; broad corrections remain planned 11.

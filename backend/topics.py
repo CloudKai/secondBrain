@@ -9,7 +9,10 @@ from backend.topic_models import TopicLibrary, TopicRecord, TopicPlacement
 from backend.topic_store import TopicStore
 from backend.topic_library import build_topic_library
 
+from backend.overviews import router as overview_router
+
 router = APIRouter(prefix="/api/v2", tags=["browser topics"])
+router.include_router(overview_router)
 
 
 def storage_failure(error: StudyStorageError):

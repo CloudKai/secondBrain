@@ -185,3 +185,8 @@ A naturally uncertain topic was kept separate from its note panel; hosted
 controlled suggestions also verified confirmation and note preservation.
 Temporary sources were removed and the original learner note/map preserved.
 Combined synthesis and broad corrections remain planned; native UI unchanged.
+
+
+## Web topic views — ticket #11
+
+Local UI pending hosted acceptance: saved topic words/cards open SavedTopicDetails; Combine queues a cited overview and differences, Keep separate shows original source-note branches below the parent. Existing mint inline citations open exact source evidence. Choice persists server-side; uncertain placement and pending/error/partial feedback are explicit. Example topics stay in the separate example preview.

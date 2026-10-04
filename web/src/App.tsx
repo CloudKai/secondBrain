@@ -60,6 +60,7 @@ import Modal from "./components/Modal";
 import Assistant from "./components/Assistant";
 import RecallCards from "./components/RecallCards";
 import StructuredStudy from "./components/StructuredStudy";
+import SavedTopicDetails from "./components/SavedTopicDetails";
 import { studyLabel, studyMessage } from "./lib/study-note";
 import { useSourceStudies } from "./lib/use-source-studies";
 
@@ -519,20 +520,7 @@ export default function App() {
     changeLibrary({ type: "toggle-recall", id });
   }
   function topicDetails(t: Topic) {
-    if(t.saved)return <>
-      <span className="eyebrow">{t.uncertain?'SUGGESTED TOPIC':'SHARED TOPIC'}</span>
-      <h2>{t.title}</h2><p className="panel-description">{t.description}</p>
-      {topicMaps.error&&<div role="alert"><p>{topicMaps.error}</p><button className="text-button" onClick={topicMaps.reload}>Reload topics</button></div>}
-      <p className="micro-copy">{t.context} · {(t.groups??[]).join(' · ')} · {t.notes.length} supporting sources. Coverage is not mastery.</p>
-      <div className="topic-overviews">{t.notes.map(n=>{const assignment=topicMaps.library.maps.find(m=>m.source_id===n.id)?.analysis?.topics.find(a=>a.id===t.id);return <div className="topic-overview" key={n.id}>
-        <button className="source-title" onClick={()=>openNote(n)}><FileText size={15}/>{n.title}<ArrowUpRight size={14}/></button>
-        <p className="micro-copy">{assignment?.role} topic · {assignment?.placement_reason}</p>
-        {assignment?.citation_ids.map(id=><button key={id} className="text-button" onClick={()=>showEvidence(n.id,id)}>Inspect passage {id}</button>)}
-        {assignment?.uncertain&&<div className="topic-placement"><p>Suggested placement: {assignment.suggested_topic_id?names[assignment.suggested_topic_id]??'A related saved topic':'Keep a distinct topic until its scope is clear'}</p>
-          {assignment.suggested_topic_id&&<button className="text-button" disabled={topicMaps.busy} onClick={()=>void topicMaps.place(n.id,t.id,assignment.suggested_topic_id)}>Use suggested topic</button>}
-          <button className="text-button" disabled={topicMaps.busy} onClick={()=>void topicMaps.place(n.id,t.id,null)}>Keep this topic separate</button></div>}
-      </div>;})}</div>
-    </>;
+    if (t.saved) return <SavedTopicDetails key={t.id} topic={t} maps={topicMaps.library.maps} client={sourceClient} enabled={storage === 'ready'} topicError={topicMaps.error} placementBusy={topicMaps.busy} names={names} onReloadTopics={topicMaps.reload} onPlace={topicMaps.place} onOpen={openNote} onEvidence={showEvidence}/>;
     return (
       <>
         <div className="panel-topic-icon">

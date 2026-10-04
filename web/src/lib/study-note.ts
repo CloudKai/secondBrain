@@ -16,7 +16,7 @@ const equation = explanation.extend({ expression: text(500) }).strict();
 const recall = z
   .object({ question: text(500), answer: text(2000), citation_ids: citations })
   .strict();
-const reference = z
+export const referenceSchema = z
   .object({
     id: text(16),
     start: z.number().int().nonnegative(),
@@ -34,7 +34,7 @@ const noteSchema = z
     examples: z.array(concept).max(6),
     equations: z.array(equation).max(6),
     recall: z.array(recall).min(1).max(10),
-    references: z.array(reference).min(1).max(100),
+    references: z.array(referenceSchema).min(1).max(100),
   })
   .strict()
   .superRefine((note, ctx) => {
@@ -94,7 +94,7 @@ export const studyPageSchema = z
   .strict();
 export type StudyRecord = z.infer<typeof studySchema>;
 export type StudyNote = z.infer<typeof noteSchema>;
-export type SourceReference = z.infer<typeof reference>;
+export type SourceReference = z.infer<typeof referenceSchema>;
 
 export function studyLabel(study?: StudyRecord): string {
   if (!study) return "Study note pending";

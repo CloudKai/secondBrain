@@ -16,6 +16,8 @@ from backend.topic_store import TopicStore
 from backend.topic_generation import TopicGenerator
 from backend.topic_library import build_topic_library
 from backend.topic_models import TopicDescription
+from backend.overview_store import OverviewStore
+from backend.overview_generation import OverviewGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +96,30 @@ async def build_source_topics(ctx: dict, source_id: str) -> None:
         await store.finish(claim, analysis=analysis)
 
 
+async def dispatch_pending_overviews(ctx: dict) -> None:
+    store: OverviewStore = ctx["overview_store"]
+    for job_id in await store.due():
+        await ctx["redis"].enqueue_job(
+            "build_topic_overview", str(job_id), _job_id=f"overview:{job_id}"
+        )
+        await store.acknowledge(job_id)
+
+
+async def build_topic_overview(ctx: dict, job_id: str) -> None:
+    store: OverviewStore = ctx["overview_store"]
+    claim = await store.claim(UUID(job_id))
+    if claim is None:
+        return
+    try:
+        overview = await ctx["overview_generator"].generate(
+            claim.inputs, source_count=claim.source_count
+        )
+    except GenerationFailure as exc:
+        await store.finish(claim, error=exc.code)
+    else:
+        await store.finish(claim, overview=overview)
+
+
 async def startup(ctx: dict) -> None:
     values = {
         name: os.getenv(name, "")
@@ -119,6 +145,14 @@ async def startup(ctx: dict) -> None:
             values["SUPABASE_URL"],
             {"apikey": values["SUPABASE_SECRET_KEY"]},
         ),
+        overview_store=OverviewStore(
+            storage_client,
+            values["SUPABASE_URL"],
+            {"apikey": values["SUPABASE_SECRET_KEY"]},
+        ),
+        overview_generator=OverviewGenerator(
+            model_client, api_key=values["OPENAI_API_KEY"]
+        ),
         topic_generator=TopicGenerator(model_client, api_key=values["OPENAI_API_KEY"]),
         generator=StudyGenerator(model_client, api_key=values["OPENAI_API_KEY"]),
     )
@@ -131,7 +165,7 @@ async def shutdown(ctx: dict) -> None:
 
 
 class WorkerSettings:
-    functions = [build_source_study, build_source_topics]
+    functions = [build_source_study, build_source_topics, build_topic_overview]
     cron_jobs = [
         cron(
             dispatch_pending_studies,
@@ -144,6 +178,14 @@ class WorkerSettings:
         cron(
             dispatch_pending_topics,
             second={5, 15, 25, 35, 45, 55},
+            run_at_startup=True,
+            timeout=60,
+        )
+    )
+    cron_jobs.append(
+        cron(
+            dispatch_pending_overviews,
+            second={7, 17, 27, 37, 47, 57},
             run_at_startup=True,
             timeout=60,
         )
