@@ -21,6 +21,7 @@ from youtube_transcript_api import (
 )
 
 from backend.transcript_capture import capture_transcript, video_identity
+from backend.capture_selection import TimeRange
 
 logger = logging.getLogger(__name__)
 retrieval_slots = asyncio.Semaphore(4)
@@ -125,7 +126,7 @@ def vtt_time(milliseconds: int) -> str:
     return f"{hours:02}:{minutes:02}:{seconds:02}.{fraction:03}"
 
 
-def retrieve_youtube(url: str, loop: asyncio.AbstractEventLoop) -> dict:
+def retrieve_youtube(url: str, loop: asyncio.AbstractEventLoop, times: TimeRange | None = None) -> dict:
     provider, identity = video_identity(url)
     if provider != "youtube":
         raise ValueError(
@@ -162,19 +163,13 @@ def retrieve_youtube(url: str, loop: asyncio.AbstractEventLoop) -> dict:
                 continue
             cues.append(f"{vtt_time(start_ms)} --> {vtt_time(end_ms)}\n{text}")
         data = "\n\n".join(cues).encode("utf-8")
-        capture = capture_transcript(data, url, "captions.vtt")
+        capture = capture_transcript(data, url, "captions.vtt", times=times)
         capture["capture_origin"] = "direct"
         capture["transcript"]["filename"] = None
         kind = "auto-generated" if transcript.is_generated else "publisher-provided"
-        capture["coverage_detail"] = (
-            f"Retrieved English YouTube {kind} captions. "
-            + (
-                "Captured the first 30,000 characters; later text was omitted. "
-                if capture["coverage"] == "partial"
-                else "Captured the accessible transcript. "
-            )
-            + "No audio/video was downloaded or watched. Video completeness is unverified. Times come from retrieved caption cues."
-        )
+        capture["coverage_detail"] = capture["coverage_detail"].replace(
+            "User-supplied VTT transcript.", f"Retrieved English YouTube {kind} captions."
+        ).replace("No video was fetched or watched.", "No audio/video was downloaded or watched.")
         return capture
     except TranscriptUnavailable:
         raise
@@ -210,12 +205,12 @@ def retrieve_youtube(url: str, loop: asyncio.AbstractEventLoop) -> dict:
         ) from exc
 
 
-async def capture_youtube(url: str) -> dict:
+async def capture_youtube(url: str, *, times: TimeRange | None = None) -> dict:
     async with asyncio.timeout(35):
         await retrieval_slots.acquire()
         loop = asyncio.get_running_loop()
         try:
-            work = loop.run_in_executor(None, retrieve_youtube, url, loop)
+            work = loop.run_in_executor(None, retrieve_youtube, url, loop, times)
         except BaseException:
             retrieval_slots.release()
             raise

@@ -79,7 +79,7 @@ def browser_client(monkeypatch):
                 return httpx.Response(
                     200,
                     headers={"content-type": "text/plain"},
-                    text="Useful text. " * 4000,
+                    text="Useful text. " * 12000,
                 )
             if request.url.path == "/large":
                 return httpx.Response(
@@ -247,7 +247,7 @@ def test_partial_capture_is_labelled_and_bounded(browser_client):
     )
     assert response.status_code == 201
     assert response.json()["coverage"] == "partial"
-    assert len(response.json()["captured_text"]) == 30_000
+    assert len(response.json()["captured_text"]) == 120_000
 
 
 def test_oversized_download_uses_reader_with_unconfirmed_coverage(browser_client):

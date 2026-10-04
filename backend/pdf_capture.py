@@ -9,12 +9,13 @@ import httpx
 
 from backend.source_models import PDFDocument
 from backend.source_capture import download_public_document
+from backend.capture_selection import PageRange
 
 MAX_PDF_BYTES = 10_000_000
 logger = logging.getLogger(__name__)
 
 
-async def capture_pdf_link(url: str) -> dict:
+async def capture_pdf_link(url: str, pages: PageRange | None = None) -> dict:
     try:
         async with (
             asyncio.timeout(60),
@@ -31,7 +32,7 @@ async def capture_pdf_link(url: str) -> dict:
                 media_types=frozenset({"application/pdf", "application/octet-stream"}),
                 max_bytes=MAX_PDF_BYTES,
             )
-            return await capture_pdf(data)
+            return await capture_pdf(data, pages=pages)
     except (httpx.HTTPError, TimeoutError) as exc:
         logger.warning("PDF download failed: %s", type(exc).__name__)
         raise ValueError(
@@ -60,7 +61,7 @@ async def monitor_memory(process):
         await asyncio.sleep(0.25)
 
 
-async def capture_pdf(data: bytes, filename: str | None = None) -> dict:
+async def capture_pdf(data: bytes, filename: str | None = None, *, pages: PageRange | None = None) -> dict:
     if not data.startswith(b"%PDF-"):
         raise ValueError(
             "This file is not a readable PDF. Upload a selectable-text PDF."
@@ -71,6 +72,7 @@ async def capture_pdf(data: bytes, filename: str | None = None) -> dict:
         sys.executable,
         "-m",
         "backend.pdf_extraction",
+        *([str(pages.start), str(pages.end)] if pages else []),
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.DEVNULL,

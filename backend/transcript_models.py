@@ -5,11 +5,13 @@ from typing import Literal
 from pydantic import Field, model_validator
 
 from backend.schemas import StrictModel
+from backend.capture_limits import MAX_CAPTURE_CHARS
+from backend.capture_selection import TimeRange
 
 
 class TranscriptSegment(StrictModel):
-    start: int = Field(ge=0, le=30_000)
-    end: int = Field(gt=0, le=30_000)
+    start: int = Field(ge=0, le=MAX_CAPTURE_CHARS)
+    end: int = Field(gt=0, le=MAX_CAPTURE_CHARS)
     start_ms: int | None = Field(default=None, ge=0, le=604_800_000)
     end_ms: int | None = Field(default=None, gt=0, le=604_800_000)
 
@@ -19,6 +21,7 @@ class TranscriptDocument(StrictModel):
     format: Literal["text", "vtt", "srt"]
     filename: str | None = Field(default=None, min_length=1, max_length=200)
     segments: list[TranscriptSegment] = Field(min_length=1, max_length=2_000)
+    selected_time: TimeRange | None = None
 
     @model_validator(mode="after")
     def ordered_segments(self):
@@ -42,4 +45,9 @@ class TranscriptDocument(StrictModel):
             previous_end = segment.end
         if self.format == "text" and len(self.segments) != 1:
             raise ValueError("Untimed text uses one captured span")
+        if self.selected_time and (self.format == "text" or any(
+            s.start_ms >= self.selected_time.end_ms or s.end_ms <= self.selected_time.start_ms
+            for s in self.segments
+        )):
+            raise ValueError("Selected time must overlap each captured timed cue")
         return self

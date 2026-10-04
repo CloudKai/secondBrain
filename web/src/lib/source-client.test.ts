@@ -32,7 +32,7 @@ const study = {
 test("valid Unicode captures use the server's character limits", () => {
   const captured = {
     ...source,
-    captured_text: "🧠".repeat(30_000),
+    captured_text: "🧠".repeat(120_000),
     title: "🧠".repeat(200),
     coverage_detail: "🧠".repeat(500),
   };

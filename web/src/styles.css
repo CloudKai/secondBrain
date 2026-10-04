@@ -3368,3 +3368,16 @@ main:focus-visible { outline: none; }
 .version-locations { max-height: 240px; overflow: auto; padding-left: 24px; }
 .version-locations li { margin-bottom: 12px; }
 .version-locations blockquote { margin: 6px 0; color: var(--muted); }
+
+.capture-range { border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 20px 0; min-width: 0; }
+.capture-range legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
+.capture-range .range-choice { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; cursor: pointer; }
+.capture-range .range-choice input { accent-color: var(--accent); width: 18px; height: 18px; }
+.range-inputs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin: 12px 0; }
+.range-inputs label { display: grid; gap: 8px; font-size: 13px; }
+.range-inputs input { min-height: 44px; }
+.capture-range .micro-copy { margin: 8px 0 0; line-height: 1.6; }
+.section-progress { width: min(100%, 420px); height: 8px; margin: 4px 0 20px; accent-color: var(--accent); border: 0; border-radius: 8px; background: var(--raised); }
+.section-progress::-webkit-progress-bar { background: var(--raised); border-radius: 8px; }
+.section-progress::-webkit-progress-value { background: var(--accent); border-radius: 8px; }
+@media(max-width:420px) { .range-inputs { grid-template-columns: 1fr; } }

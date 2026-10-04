@@ -18,7 +18,7 @@ pass. Both independent review axes have zero findings through 2bf070f. Hosted
 API/browser acceptance and controlled-fixture cleanup pass. Desktop/development
 only; concurrent stress and deterministic browser delay overlap are untested.
 
-**Current unit:** planned 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14), long sources and page/time ranges. Scope selected; test-boundary agreement requested. Implementation and acceptance pending.
+**Current unit:** planned 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14), long sources and page/time ranges. Local range capture/section processing implemented at agreed boundaries. Review, migration and hosted acceptance pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, long-source ranges,
 assistant/research and production deployment remain planned. YouTube support is
@@ -583,3 +583,16 @@ before tests; authenticated import/range API, external capture/model HTTP,
 database ownership/progress/worker fences and browser flows were proposed.
 Implementation, checks, review, migration and hosted acceptance have not started.
 See docs/long-source-setup.md for the selected target and implementation plan.
+
+
+### Long sources local implementation — #14
+
+The user approved the proposed API, external HTTP, database and browser seams.
+Whole browser captures now allow 120,000 characters; each model call stays bounded.
+Validated original pages/timed overlapping cues, private version-bound section
+checkpoints, retry/resume, final all-section synthesis and browser range/progress
+controls are implemented locally. Focused red/green checks pass; 140 backend tests
+pass. Initial web suite 60/61 exposed an obsolete Unicode limit assertion, now
+corrected with focused checks passing. Build/typecheck/lint pass. Final web rerun,
+independent review, migration and hosted acceptance pending. GitHub #14 remains
+open; native/iOS and its tracker unchanged. Setup: docs/long-source-setup.md.

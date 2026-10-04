@@ -62,6 +62,8 @@ const noteSchema = z
 export const studySchema = z
   .object({
     source_version: z.number().int().min(1).max(20).optional(),
+    sections_total: z.number().int().min(0).max(20).optional(),
+    sections_completed: z.number().int().min(0).max(20).optional(),
     source_id: z.string().uuid(),
     status: z.enum(["queued", "processing", "succeeded", "failed"]),
     attempts: z.number().int().min(0).max(3),
@@ -86,6 +88,8 @@ export const studySchema = z
         code: "custom",
         message: "Only succeeded studies contain notes",
       });
+    if ((record.sections_completed??0)>(record.sections_total??0) || (record.status==='succeeded' && !!record.sections_total && record.sections_completed!==record.sections_total))
+      ctx.addIssue({code:'custom',message:'Invalid section progress'});
   });
 export const studyPageSchema = z
   .object({
@@ -111,14 +115,18 @@ export function studyMessage(study?: StudyRecord): string {
   if (study.status === "succeeded")
     return "A structured note grounded in your saved source.";
   if (study.status === "processing")
-    return `Creating a note from the captured text. Attempt ${study.attempts} of ${study.max_attempts}.`;
+    return study.sections_total
+      ? study.sections_completed===study.sections_total
+        ? `Combining ${study.sections_total} completed sections into your study note. You can leave and reopen this page.`
+        : `Completed ${study.sections_completed??0} of ${study.sections_total} sections. Creating a note from the captured text; progress is saved.`
+      : `Preparing sections from the captured text. Attempt ${study.attempts} of ${study.max_attempts}.`;
   if (study.status === "queued")
     return study.attempts
-      ? `The last attempt could not complete. Retrying automatically after ${new Date(study.next_attempt_at).toLocaleTimeString()}; ${study.max_attempts - study.attempts} attempts remain.`
+      ? `${study.sections_total?`${study.sections_completed??0} of ${study.sections_total} sections are saved. `:''}The last attempt could not complete. Retrying automatically after ${new Date(study.next_attempt_at).toLocaleTimeString()}; ${study.max_attempts - study.attempts} attempts remain.`
       : "Your note request is saved. Waiting for the study worker; you can leave this page and reopen it later.";
   if (study.error_code === "setup_required")
     return "The study worker needs a valid model key and account access. Ask the app administrator to check the worker configuration, then retry.";
   if (study.error_code === "invalid_output")
     return "The generated note or its citations could not be validated. No note was saved. You can retry generation.";
-  return "Generation could not complete within the retry limit. Your captured source is safe. Check the connection or worker, then retry.";
+  return `${study.sections_total?`${study.sections_completed??0} of ${study.sections_total} sections are saved. `:''}Generation could not complete within the retry limit. Your captured source is safe. Retry to resume successful sections.`;
 }

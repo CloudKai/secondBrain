@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { studyPageSchema, studySchema, type StudyRecord } from "./study-note";
 import { transcriptSchema, videoIdentity } from "./transcript";
+import {MAX_CAPTURE_CHARS,pageRangeSchema,rangeQuery,type CaptureRange,type PageRange,type TimeRange} from "./capture-range";
 
 const httpUrl = z
   .string()
@@ -13,13 +14,14 @@ const documentSchema = z
   .object({
     filename: boundedText(1, 200).nullable(),
     page_count: z.number().int().min(1).max(100),
+    selected_pages: pageRangeSchema.nullish(),
     pages: z
       .array(
         z
           .object({
             page: z.number().int().min(1).max(100),
-            start: z.number().int().min(0).max(30000),
-            end: z.number().int().min(0).max(30000),
+            start: z.number().int().min(0).max(MAX_CAPTURE_CHARS),
+            end: z.number().int().min(0).max(MAX_CAPTURE_CHARS),
           })
           .strict(),
       )
@@ -47,7 +49,7 @@ export const sourceSchema = z
     document: documentSchema.nullish(),
     transcript: transcriptSchema.nullish(),
     title: boundedText(1, 200),
-    captured_text: boundedText(120, 30_000),
+    captured_text: boundedText(120, MAX_CAPTURE_CHARS),
     captured_at: z.string().datetime({ offset: true }),
     capture_origin: z.enum(["direct", "reader", "pasted", "upload"]),
     coverage: z.enum(["complete", "partial", "unknown"]),
@@ -102,12 +104,13 @@ export const sourceSchema = z
       if (doc) {
         invalid ||=
           doc.pages.length > doc.page_count ||
+          (!!doc.selected_pages && (doc.selected_pages.end>doc.page_count || doc.pages[doc.pages.length-1].page>doc.selected_pages.end)) ||
           doc.pages[0].start !== 0 ||
           doc.pages[doc.pages.length - 1].end !==
             Array.from(source.captured_text).length;
         doc.pages.forEach((p, i) => {
           invalid ||=
-            p.page !== i + 1 ||
+            p.page !== i + (doc.selected_pages?.start??1) ||
             p.end < p.start ||
             (i > 0 && p.start !== doc.pages[i - 1].end + 1);
         });
@@ -135,7 +138,7 @@ export const savedVersionSchema=z.object({source:sourceSchema,study:studySchema.
 export type RevisionComparison=z.infer<typeof revisionComparisonSchema>;
 export type VersionHistory=z.infer<typeof versionHistorySchema>;
 export type SavedVersion=z.infer<typeof savedVersionSchema>;
-export interface ComparisonInput {rawText?:string;file?:File;transcriptText?:string}
+export interface ComparisonInput extends CaptureRange {rawText?:string;file?:File;transcriptText?:string}
 
 const pageSchema = z
   .object({
@@ -304,7 +307,7 @@ export function createSourceClient(
       return value;
     },
     async compareSource(id:string,input:ComparisonInput={}) {
-      const params=input.file?`?${new URLSearchParams({filename:input.file.name})}`:'';
+      const query=rangeQuery(input);if(input.file)query.set('filename',input.file.name);const params=query.size?`?${query}`:'';
       const body=input.file??(input.transcriptText!==undefined?new Blob([input.transcriptText],{type:'text/plain;charset=utf-8'}):JSON.stringify({raw_text:input.rawText??null}));
       const result=await parse(await request(`/sources/${encodeURIComponent(id)}/revision-check${params}`,{method:'POST',body}),revisionComparisonSchema);
       if(result.source_id!==id)throw new Error('The comparison source could not be verified. Compare again.');
@@ -367,7 +370,9 @@ export function createSourceClient(
       file?: File;
       url?: string;
       title: string;
+      pages?: PageRange|null;
     }): Promise<SavedSource> {
+      const query=rangeQuery({pages:input.pages});
       if (input.file) {
         if (input.file.size > 10_000_000)
           throw new Error(
@@ -377,7 +382,7 @@ export function createSourceClient(
           throw new Error("Use a PDF filename with 200 characters or fewer.");
         return parse(
           await request(
-            `/sources/pdf?${new URLSearchParams({ filename: input.file.name, title: input.title })}`,
+            `/sources/pdf?${new URLSearchParams({...Object.fromEntries(query), filename: input.file.name, title: input.title })}`,
             { method: "POST", body: input.file },
           ),
           sourceSchema,
@@ -386,7 +391,7 @@ export function createSourceClient(
       return parse(
         await request("/sources/pdf-link", {
           method: "POST",
-          body: JSON.stringify({ url: input.url, title: input.title }),
+          body: JSON.stringify({ url: input.url, title: input.title, ...(input.pages!==undefined?{pages:input.pages}:{}) }),
         }),
         sourceSchema,
       );
@@ -394,7 +399,9 @@ export function createSourceClient(
     async importYouTube(input: {
       url: string;
       title: string;
+      times?: TimeRange|null;
     }): Promise<SavedSource> {
+      rangeQuery({times:input.times});
       if (videoIdentity(input.url).provider !== "youtube")
         throw new TranscriptFallbackError(
           "Automatic import supports YouTube. Upload or paste a transcript for other recording platforms.",
@@ -412,11 +419,13 @@ export function createSourceClient(
       title: string;
       file?: File;
       text?: string;
+      times?: TimeRange|null;
     }): Promise<SavedSource> {
       videoIdentity(input.url);
       if (input.file && input.text !== undefined)
         throw new Error("Choose a transcript file or paste text, not both.");
-      const params = new URLSearchParams({ title: input.title });
+      const params = rangeQuery({times:input.times});
+      params.set("title",input.title);
       let body: Blob;
       if (input.file) {
         if (input.file.size > 1_000_000)

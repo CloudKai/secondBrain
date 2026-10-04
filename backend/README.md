@@ -48,7 +48,7 @@ passed on 2026-10-03.
 Capture permits only public HTTP(S) article hosts, checks every redirect,
 connects to the validated IP with the original TLS identity, and limits each
 download to 2 MB. Direct and reader attempts share a 60-second deadline;
-captured text is capped at 30,000 characters. Reader/pasted coverage is
+captured text is capped at 120,000 characters after the long-source migration; section model calls remain capped at 30,000 characters. Reader/pasted coverage is
 unconfirmed; truncation is partial. Unsupported binary/private URLs do not use
 the fallback. These limits are separate from the preserved native pipeline.
 
@@ -65,3 +65,11 @@ Apply the versioned study migration and run Redis/worker as described in
 [`docs/study-note-setup.md`](../docs/study-note-setup.md). Local SQL/HTTP/browser
 checks pass; hosted study generation and recovery also passed on 2026-10-03. The native v1
 pipeline remains synchronous.
+
+
+## Browser long captures and ranges — #14, local only
+
+Local implementation adds original PDF page/timed-caption selection and durable
+section processing/progress with retry. Migration/hosted acceptance are pending;
+apply migration 010 before running the matching worker. Exact limits and rollback:
+[long-source setup](../docs/long-source-setup.md). Native/v1 behavior is unchanged.

@@ -4,6 +4,9 @@ import re
 from html import unescape
 from pathlib import PurePath
 from urllib.parse import parse_qs, urlencode, urlsplit
+from backend.capture_selection import TimeRange
+
+from backend.capture_limits import MAX_CAPTURE_CHARS
 
 MAX_TRANSCRIPT_BYTES = 1_000_000
 
@@ -143,7 +146,7 @@ def video_identity(url: str) -> tuple[str, str]:
     return provider, parsed._replace(fragment="").geturl()
 
 
-def capture_transcript(data: bytes, url: str, filename: str | None = None) -> dict:
+def capture_transcript(data: bytes, url: str, filename: str | None = None, *, times: TimeRange | None = None) -> dict:
     provider, identity = video_identity(url)
     if len(data) > MAX_TRANSCRIPT_BYTES:
         raise ValueError(
@@ -180,12 +183,20 @@ def capture_transcript(data: bytes, url: str, filename: str | None = None) -> di
             else "text"
         )
     cues = [(text, None, None)] if format == "text" else timed_cues(text, format)
+    if times:
+        if format == "text":
+            raise ValueError("Time selection needs real VTT/SRT cue times. Supply timed captions or process the whole text.")
+        if times.end_ms > max(cue[2] for cue in cues):
+            raise ValueError("The selected end is beyond the supplied transcript's last cue. Correct the range or supply more captions.")
+        cues = [cue for cue in cues if cue[1] < times.end_ms and cue[2] > times.start_ms]
+        if not cues:
+            raise ValueError("No caption cues overlap this time range. Choose a range with supplied captions.")
     captured_parts = []
     segments = []
     length = 0
     partial = False
     for payload, start_ms, end_ms in cues:
-        remaining = 30_000 - length - (1 if captured_parts else 0)
+        remaining = MAX_CAPTURE_CHARS - length - (1 if captured_parts else 0)
         if remaining <= 0:
             partial = True
             break
@@ -217,17 +228,19 @@ def capture_transcript(data: bytes, url: str, filename: str | None = None) -> di
             "format": format,
             "filename": filename,
             "segments": segments,
+            "selected_time": times.model_dump() if times else None,
         },
         "captured_text": captured,
         "capture_origin": "upload" if filename else "pasted",
-        "coverage": "partial" if partial else "unknown",
+        "coverage": "partial" if partial or times else "unknown",
         "coverage_detail": f"User-supplied {format.upper()} transcript. "
         + (
-            "Captured the first 30,000 characters; later text was omitted. "
+            "Captured the first 120,000 characters; later text was omitted. "
             if partial
             else "Captured the supplied transcript. "
         )
         + "No video was fetched or watched. Video completeness is unverified. "
+        + (f"Selected {times.start_ms}–{times.end_ms} ms; whole overlapping cues retain their original times. " if times else "")
         + (
             "Cue times come from the supplied transcript."
             if format != "text"

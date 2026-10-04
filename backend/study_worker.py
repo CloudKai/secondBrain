@@ -11,7 +11,7 @@ from arq.connections import RedisSettings
 from dotenv import load_dotenv
 
 from backend.study_generation import GenerationFailure, StudyGenerator
-from backend.study_store import StudyStore
+from backend.study_store import StudyStore, StudyStorageError
 from backend.topic_store import TopicStore
 from backend.topic_generation import TopicGenerator
 from backend.topic_library import build_topic_library
@@ -41,9 +41,16 @@ async def build_source_study(ctx: dict, source_id: str) -> None:
     try:
         note = await ctx["generator"].generate(
             claim.captured_text,
+            completed_sections=claim.completed_sections,
+            on_plan=lambda total: store.plan(claim, total),
+            on_section=lambda index, summary: store.save_section(claim, index, summary),
             **({"document": claim.document} if claim.document else {}),
             **({"transcript": claim.transcript} if claim.transcript else {}),
         )
+    except StudyStorageError as exc:
+        if exc.code != "stale":
+            raise
+        return
     except GenerationFailure as exc:
         await store.finish(claim, error=exc.code)
         logger.info(
@@ -193,7 +200,7 @@ class WorkerSettings:
     on_startup = startup
     on_shutdown = shutdown
     max_jobs = 4
-    job_timeout = 90
+    job_timeout = 1_500  # At most 20 bounded section calls and one synthesis call.
     keep_result = 0
     max_tries = 1
     retry_jobs = False

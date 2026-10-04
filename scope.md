@@ -591,3 +591,15 @@ range controls are pending. Published #14, inspected capture/worker/browser
 boundaries, and updated both web records. The TDD skill requires agreed seams;
 user agreement requested before test writing. No implementation, migration or
 hosted acceptance yet. Native/iOS and its tracker untouched.
+
+
+### Long-source local implementation — #14
+
+At user-agreed seams, original PDF page/timed-caption selection and whole browser
+captures up to 120,000 characters feed bounded section model calls. Private
+current-version/lease checkpoints retain successful work across retry. A final
+note requires all sections and grounded synthesis. Browser import/refresh controls,
+original citation readers and saved progress counts are implemented locally.
+140 backend tests pass; initial web 60/61, corrected old Unicode limit assertion
+passes focused checks; build/typecheck/lint pass. Independent review, final web
+rerun, migration and hosted acceptance remain pending. Native/iOS untouched.

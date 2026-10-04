@@ -1,4 +1,5 @@
 import { z } from "zod";
+import {MAX_CAPTURE_CHARS,timeRangeSchema} from "./capture-range";
 
 const time = z.number().int().min(0).max(604_800_000).nullable();
 export const transcriptSchema = z
@@ -9,12 +10,13 @@ export const transcriptSchema = z
       .string()
       .refine((s) => Array.from(s).length >= 1 && Array.from(s).length <= 200)
       .nullable(),
+    selected_time: timeRangeSchema.nullish(),
     segments: z
       .array(
         z
           .object({
-            start: z.number().int().min(0).max(30000),
-            end: z.number().int().min(1).max(30000),
+            start: z.number().int().min(0).max(MAX_CAPTURE_CHARS),
+            end: z.number().int().min(1).max(MAX_CAPTURE_CHARS),
             start_ms: time,
             end_ms: time,
           })
@@ -27,7 +29,7 @@ export const transcriptSchema = z
   .superRefine((doc, ctx) => {
     let previousEnd = -1,
       previousTime = -1;
-    let invalid = doc.format === "text" && doc.segments.length !== 1;
+    let invalid = doc.format === "text" && (doc.segments.length !== 1 || !!doc.selected_time);
     for (const s of doc.segments) {
       invalid ||= s.start !== previousEnd + 1 || s.end <= s.start;
       invalid ||=
@@ -37,6 +39,7 @@ export const transcriptSchema = z
             s.end_ms === null ||
             s.end_ms <= s.start_ms ||
             s.start_ms < previousTime;
+      invalid ||= !!doc.selected_time && (s.start_ms==null || s.end_ms==null || s.start_ms>=doc.selected_time.end_ms || s.end_ms<=doc.selected_time.start_ms);
       previousEnd = s.end;
       previousTime = s.start_ms ?? previousTime;
     }

@@ -12,6 +12,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from pydantic import Field, ValidationError
 
 from backend.schemas import StrictModel
+from backend.capture_limits import MAX_CAPTURE_CHARS
+from backend.capture_selection import page_selection, time_selection
 from backend.sources import SourceGateway, owned_sources, read_upload_body
 from backend.source_models import CapturedSource
 from backend.source_capture import capture_article
@@ -28,7 +30,7 @@ WireUUID = Annotated[UUID, Field(strict=False)]
 
 
 class CheckInput(StrictModel):
-    raw_text: str | None = Field(default=None, max_length=30_000)
+    raw_text: str | None = Field(default=None, max_length=MAX_CAPTURE_CHARS)
 
 
 class RefreshInput(StrictModel):
@@ -140,6 +142,11 @@ async def compare_source(
     source_id: UUID,
     request: Request,
     filename: str | None = Query(default=None, min_length=1, max_length=200),
+    page_start: int | None = Query(default=None),
+    page_end: int | None = Query(default=None),
+    start_ms: int | None = Query(default=None),
+    end_ms: int | None = Query(default=None),
+    whole_source: bool = Query(default=False),
     gateway: SourceGateway = Depends(owned_sources),
 ):
     source = await gateway.find(id=f"eq.{source_id}")
@@ -148,10 +155,17 @@ async def compare_source(
     identity = None
     mime = request.headers.get("content-type", "").split(";")[0]
     try:
+        pages = page_selection(page_start, page_end)
+        times = time_selection(start_ms, end_ms)
+        if (pages and source.source_kind != "pdf") or (times and source.source_kind != "video") or (whole_source and (pages or times)):
+            raise ValueError("Choose pages for a PDF or times for a transcript, or process the whole source.")
+        if not whole_source:
+            pages = pages or (source.document.selected_pages if source.document else None)
+            times = times or (source.transcript.selected_time if source.transcript else None)
         if mime == "application/json":
             data = await read_upload_body(
                 request,
-                200_000,
+                800_000,
                 "Comparison input is too large.",
                 "Comparison input timed out.",
             )
@@ -167,13 +181,13 @@ async def compare_source(
                     "Use a PDF file or a supplied transcript for this source."
                 )
             elif source.source_kind == "pdf" and source.original_url:
-                capture = await capture_pdf_link(str(source.original_url))
+                capture = await capture_pdf_link(str(source.original_url), pages)
                 capture["capture_origin"] = "direct"
             elif (
                 source.source_kind == "video"
                 and source.transcript.provider == "youtube"
             ):
-                capture = await capture_youtube(str(source.original_url))
+                capture = await capture_youtube(str(source.original_url), times=times)
             else:
                 raise ValueError(
                     "Upload the replacement PDF or upload/paste a new recording transcript."
@@ -187,7 +201,7 @@ async def compare_source(
             )
             if not filename:
                 raise ValueError("Choose a replacement PDF file.")
-            capture = await capture_pdf(data, filename)
+            capture = await capture_pdf(data, filename, pages=pages)
             capture["capture_origin"] = "upload"
             identity = "urn:pdf:sha256:" + hashlib.sha256(data).hexdigest()
         elif source.source_kind == "video":
@@ -197,7 +211,7 @@ async def compare_source(
                 "Transcripts must be 1 MB or smaller.",
                 "Transcript comparison timed out.",
             )
-            capture = capture_transcript(data, str(source.original_url), filename)
+            capture = capture_transcript(data, str(source.original_url), filename, times=times)
         else:
             raise ValueError("Use the supported comparison input for this source.")
         # Identity/title are inherited; only captured evidence can change.

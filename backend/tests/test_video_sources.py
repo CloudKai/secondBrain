@@ -251,7 +251,7 @@ def test_unsupported_transcripts_receive_correction_without_saving(
 
 
 def test_long_transcript_marks_partial_and_limits_captured_cue_span(browser_client):
-    content = "WEBVTT\n\n00:00:05.000 --> 00:02:00.000\n" + TRANSCRIPT * 250
+    content = "WEBVTT\n\n00:00:05.000 --> 00:02:00.000\n" + TRANSCRIPT * 1000
     response = browser_client.post(
         "/api/v2/sources/video",
         params={"filename": "long.vtt"},
@@ -264,9 +264,9 @@ def test_long_transcript_marks_partial_and_limits_captured_cue_span(browser_clie
     assert response.status_code == 201, response.text
     source = response.json()
     assert source["coverage"] == "partial"
-    assert len(source["captured_text"]) == 30000
+    assert len(source["captured_text"]) == 120000
     assert source["transcript"]["segments"] == [
-        {"start": 0, "end": 30000, "start_ms": 5000, "end_ms": 120000}
+        {"start": 0, "end": 120000, "start_ms": 5000, "end_ms": 120000}
     ]
 
 
@@ -422,6 +422,7 @@ def test_zoom_export_preserves_recording_context_and_supplied_evidence(
         "provider": "zoom",
         "format": "vtt",
         "filename": "zoom-export.vtt",
+        "selected_time": None,
         "segments": [{"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}],
     }
     assert source["captured_text"] == "Lecturer: " + TRANSCRIPT
@@ -469,6 +470,7 @@ def test_panopto_caption_export_keeps_sites_distinct_and_reuses_session(browser_
             "provider": "panopto",
             "format": "srt",
             "filename": "panopto-export.srt",
+            "selected_time": None,
             "segments": [{"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}],
         }
         assert "No video was fetched" in source["coverage_detail"]

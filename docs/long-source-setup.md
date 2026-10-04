@@ -1,47 +1,88 @@
 # Long sources and selected ranges — planned 13 / GitHub #14
 
-## Status
+## Status — 2026-10-04
 
-Selected target, 2026-10-04. No implementation or hosted acceptance yet.
-Verified behavior remains the preceding bounded capture and versioned-refresh
-slices. Native/iOS and its progress tracker stay untouched.
+Implemented locally at the user-approved boundaries. Migration and hosted
+acceptance are pending; this is target behavior until those checks pass.
+The preceding verified captures/notes remain the hosted baseline. Native/iOS
+and its progress tracker are untouched.
 
-## Selected unit
+## Learner behavior
 
-- Process the whole captured article, selectable-text PDF or transcript in
-  bounded sections by default, within published enforceable limits.
-- Let the learner request original PDF pages or a timed-transcript interval;
-  validate the selection against the actual parsed pages/cues. Untimed TXT
-  cannot supply a time range. Preserve original page numbers and whole cue times.
-- Persist section progress and successful section work for the current owned
-  source version. Retries reuse it; a refresh invalidates obsolete work.
-- Synthesize one coherent final note from the successful sections with exact
-  original capture references. An unfinished aggregate is never shown as ready.
-- Reuse one source identity, including selected ranges, through existing explicit
-  compare/confirm refresh. Sections and versions never become graph sources.
-- Show missing extraction, capture truncation and section failures honestly.
+Whole supported capture is the default. PDF import and Source versions & refresh
+can select inclusive original PDF page numbers. Timed VTT/SRT and accessible
+YouTube captions can select a time interval; whole overlapping cues retain their
+original times, which can extend slightly beyond the selected interval. Untimed
+TXT cannot offer time selection. Out-of-range, reversed, empty or missing ranges
+save nothing or leave the current saved version unchanged.
 
-## Implementation plan
+Range changes go through existing compare/confirm refresh with one stable source
+ID. Old notes/citations stay attached to their own captures. Ordinary refresh
+inherits the saved selection; explicit Whole source clears it. PDF upload identity
+uses the file digest, and selected pages never create extra independent sources.
 
-Extend capture metadata to record requested PDF pages or transcript times while
-retaining original locations. Expand only the browser capture text budget with
-explicit bounds; keep download sizes, PDF page/parser limits and transcript
-cue/file limits. Each model call remains bounded. Save successful section
-results behind service-only database functions with current version/lease checks;
-expose owned progress counts through the study API. Use the existing final-note
-and topic pipeline only after validated synthesis. Extend the current mint browser
-design with optional ranges and progress, including replacement/version flows.
+The worker processes every captured passage in sections, persists successful
+section summaries and progress, and synthesizes one coherent cited note. Final
+synthesis must use evidence from every section. A failed section or invalid
+aggregate never publishes an unfinished note. Automatic retry and explicit Retry
+resume successful section work for that current source version. The browser shows
+completed section counts and the combining stage; counts survive reload.
 
-## Checks and release
+## Enforced limits
 
-Test boundaries proposed to the user: authenticated import/range API, external
-capture/model HTTP, database ownership/progress/worker fences, and browser
-range/progress/reload/citation flows. TDD requires agreement before test writing.
-Then perform focused red/green checks, final backend/web suite, two independent
-review axes, reviewed reversible migration and hosted development acceptance.
-Update GitHub #14 and both web progress records at each checkpoint.
+| Boundary | Limit |
+| --- | --- |
+| Browser captured text / supplied article text | 120,000 Unicode code points |
+| Article download | 2 MB, public addresses only, bounded redirects/timeouts |
+| PDF download/upload | 10 MB, 1–100 pages; existing CPU/memory/stream/15-second parser limits |
+| Transcript upload | 1 MB UTF-8 TXT/VTT/SRT, up to 2,000 ordered timed cues |
+| Pasted transcript | 120–100,000 input characters |
+| Cue time | Within seven days from recording start; original times only |
+| Section model input | At most 30,000 source characters and 100 passages |
+| Per-source processing | At most 20 sections; each summary at most 1,200 characters |
+| Synthesis input | At most 30,000 serialized summary characters |
+| Model call | 60-second provider / 65-second wall deadline, no SDK retries |
+| Worker transport job | 1,500 seconds; existing 3 attempts, 120-second leases renewed at checkpoints |
+| Version history / comparison | Existing 20-version limit, 24-hour candidate; candidate at most 1.1 MB |
 
-No schema has been applied for this ticket. Exact enforceable bounds, migration,
-rollback and acceptance results will be recorded with the implementation.
-Private recording retrieval, OCR, assistant/research and production deployment
-remain target work.
+Text beyond the capture limit is labelled omitted. Blank/scanned PDF pages and
+missing selectable text are labelled partial; OCR, images and layout are not
+extracted. Supplied/retrieved captions never establish whole-video coverage.
+Existing source correction and smaller/export/paste fallback paths remain.
+Native input and its 30,000-character model budget are unchanged.
+
+## Migration and worker
+
+Apply reviewed `supabase/migrations/202610040010_long_sources.sql` after 009.
+It expands capture/metadata validators while accepting earlier metadata without
+selection fields. Private RLS-protected study_sections cascade with study/source
+removal. Only the service role can plan/save sections or claim/finish studies.
+Owned study reads expose total/completed counts. Checkpoints require the current
+version and live lease under the existing owner lock; refresh deletes old study
+work atomically. Source/graph identities and learner correction rules are unchanged.
+
+Deploy/restart the matching worker only after applying the migration. Its stable-ID
+queue resumes checkpoints; no additional key, provider, vector service or account
+connection is required. Use the existing ignored backend environment.
+
+Rollback: `supabase/rollbacks/202610040010_long_sources.sql` revokes section work
+and requires stopping the matching worker. It retains existing captures, notes,
+archives, ranges and fences. Stored long captures cannot safely be narrowed by
+reverting old DDL/code. To resume, restore service-role EXECUTE for plan/save
+functions and restart the matching worker; do not reapply table DDL.
+
+## Acceptance record
+
+Agreed seams: authenticated import/range API, external capture/model HTTP,
+database ownership/progress/worker fences, browser range/progress/reload/citations.
+Focused RED→GREEN checks cover original PDF pages, timed overlap selection,
+whole long capture, bounded synthesis and saved retry. Local database checks cover
+ownership, incomplete synthesis, stale leases, refresh/deletion cascades, selected
+metadata and unchanged legacy comparisons. Full backend: 140 pass. Initial web
+suite: 60/61, with an obsolete Unicode limit assertion corrected and its focused
+file passing. Build/typecheck/lint pass. Final web rerun and independent reviews
+are pending. Existing backend deprecations and Vite chunk warning remain.
+
+Hosted migration, real worker/model, browser and controlled-fixture cleanup are
+pending. Private recording retrieval, OCR, assistant/research and production
+remain planned. GitHub #14 stays open until acceptance is complete.

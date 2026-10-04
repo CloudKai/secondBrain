@@ -91,6 +91,8 @@ def test_worker_persists_grounded_success_or_safe_failure_not_fabricated_content
                             "captured_text": CAPTURE,
                         },
                     )
+                if request.url.path.endswith(("plan_source_study", "save_study_section")):
+                    return httpx.Response(200, json=True)
                 finishes.append(json.loads(request.content))
                 return httpx.Response(200, json=True)
             assert "apikey" not in request.headers

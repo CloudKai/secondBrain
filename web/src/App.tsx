@@ -1,3 +1,5 @@
+import CaptureRangeFields from "./components/CaptureRangeFields";
+import {selectedRange,wholeSourceFields,type RangeFields,type CaptureRange} from "./lib/capture-range";
 import SavedSourceAssignments from "./components/SavedSourceAssignments";
 import { useTopicLibrary } from "./lib/use-topic-library";
 import { useEffect, useReducer, useRef, useState } from "react";
@@ -110,6 +112,7 @@ export default function App() {
     [dialog, setDialog] = useState<Dialog>(null),
     [theme, setTheme] = useState("dark"),
     [toast, setToast] = useState("");
+  const [captureRange,setCaptureRange]=useState<RangeFields>(wholeSourceFields);
   const [pdfMode, setPdfMode] = useState("upload");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [videoMode, setVideoMode] = useState<"auto" | "supplied">("auto");
@@ -330,6 +333,7 @@ export default function App() {
     setSourceTab(/\.pdf(?:[?#]|$)/i.test(url ?? "") ? "PDF" : "Article");
     setPdfMode(url ? "url" : "upload");
     setPdfFile(null);
+    setCaptureRange(wholeSourceFields);
     setVideoMode("auto");
     setDialog("add");
   }
@@ -421,13 +425,16 @@ export default function App() {
       );
       return;
     }
+    let range:CaptureRange={};
+    try{range=isPDF?selectedRange('PDF',captureRange):isVideo?selectedRange('Video',captureRange):{};}catch(e:unknown){setError(e instanceof Error?e.message:'Choose a valid range.');return;}
     setBusy(true);
     try {
       const source = existingNote?.savedSource ?? (
         isVideo
           ? videoInputMode === "auto"
-            ? await sourceClient.importYouTube({ url, title: sourceTitle })
+            ? await sourceClient.importYouTube({ url, title: sourceTitle, times:range.times })
             : await sourceClient.saveVideo({
+                times:range.times,
                 url,
                 title: sourceTitle,
                 file:
@@ -438,6 +445,7 @@ export default function App() {
               })
           : isPDF
             ? await sourceClient.savePDF({
+                pages:range.pages,
                 file: uploading ? (pdfFile ?? undefined) : undefined,
                 url: uploading ? undefined : url,
                 title: sourceTitle,
@@ -450,7 +458,7 @@ export default function App() {
       );
       const savedBefore = library.notes.find(n=>n.id===source.id && n.savedSource);
       if (savedBefore) {
-        const compared=await sourceClient.compareSource(source.id,{file:isPDF&&uploading?(pdfFile??undefined):isVideo&&videoInputMode==='supplied'&&transcriptMode==='upload'?(transcriptFile??undefined):undefined,rawText:!isPDF&&!isVideo&&rawText.trim()?rawText:undefined,transcriptText:isVideo&&videoInputMode==='supplied'&&transcriptMode==='paste'?transcriptText:undefined});
+        const compared=await sourceClient.compareSource(source.id,{...range,file:isPDF&&uploading?(pdfFile??undefined):isVideo&&videoInputMode==='supplied'&&transcriptMode==='upload'?(transcriptFile??undefined):undefined,rawText:!isPDF&&!isVideo&&rawText.trim()?rawText:undefined,transcriptText:isVideo&&videoInputMode==='supplied'&&transcriptMode==='paste'?transcriptText:undefined});
         replaceSavedSource(compared.current);
         openNote(noteFromSavedSource(compared.current));
         if(compared.changed){setRevisionTarget(source.id);setRevisionComparison(compared);setDialog('versions');}
@@ -1470,6 +1478,7 @@ export default function App() {
                       <p role="status" aria-live="polite">
                         {studyMessage(currentNote.study)}
                       </p>
+                      {!!currentNote.study?.sections_total&&currentNote.study.status!=='succeeded'&&<progress className="section-progress" aria-label="Study sections completed; synthesis follows" value={currentNote.study.sections_completed??0} max={currentNote.study.sections_total+1}/>}
                       {(!currentNote.study ||
                         currentNote.study.status === "failed") && (
                         <button
@@ -1886,6 +1895,7 @@ export default function App() {
                     disabled={busy}
                     onClick={() => {
                       setSourceTab(t);
+                        setCaptureRange(wholeSourceFields);
                       setError("");
                     }}
                   >
@@ -2046,19 +2056,20 @@ export default function App() {
                     busy={busy}
                   />
                 )}
+                {(sourceTab==='PDF'||sourceTab==='Video')&&<CaptureRangeFields kind={sourceTab} value={captureRange} onChange={setCaptureRange} disabled={busy}/>}
                 {sourceTab === "Article" && (
                   <details className="paste-details">
                     <summary>
                       Have the article text? Paste it as a fallback.
                     </summary>
                     <label className="form-label" htmlFor="article-text">
-                      Article text <span>up to 30,000 characters</span>
+                      Article text <span>up to 120,000 characters</span>
                     </label>
                     <textarea
                       id="article-text"
                       rows={5}
                       value={rawText}
-                      maxLength={30000}
+                      maxLength={120000}
                       disabled={busy}
                       onChange={(e) => setRawText(e.target.value)}
                     />
@@ -2068,11 +2079,11 @@ export default function App() {
                   <CircleHelp size={15} />
                   {sourceTab === "Video"
                     ? videoInputMode === "auto"
-                      ? "English YouTube captions only, when anonymously accessible. Missing, restricted or blocked captions need upload/paste. No audio/video is downloaded or watched and no provider account is connected. Up to 2,000 cues and 30,000 captured characters; video completeness is unverified."
-                      : "Supply UTF-8 TXT, VTT or SRT up to 1 MB and 2,000 timed cues, or paste 120–100,000 characters. Up to 30,000 readable characters are captured; omitted text is labelled. TXT is untimed; paste VTT/SRT to retain times. For DOCX or other exports, paste the readable text. Transcripts are user-supplied; the app does not retrieve or watch the video or connect provider accounts."
+                      ? "English YouTube captions only, when anonymously accessible. Missing, restricted or blocked captions need upload/paste. No audio/video is downloaded or watched and no provider account is connected. Up to 2,000 cues and 120,000 captured characters; video completeness is unverified."
+                      : "Supply UTF-8 TXT, VTT or SRT up to 1 MB and 2,000 timed cues, or paste 120–100,000 characters. Up to 120,000 readable characters are captured; omitted text is labelled. TXT is untimed; paste VTT/SRT to retain times. For DOCX or other exports, paste the readable text. Transcripts are user-supplied; the app does not retrieve or watch the video or connect provider accounts."
                     : sourceTab === "PDF"
-                      ? "Selectable-text PDFs: up to 10 MB, 100 pages and 30,000 captured characters. Missing or omitted text is labelled. Scanned-only and encrypted files are unsupported. Images and layout are not extracted. Uploads retain page text and filename; the original file is not stored."
-                      : "Public HTTP(S) articles: up to 2 MB per download and 30,000 captured characters. Incomplete coverage is labelled. Use the PDF tab for selectable-text PDFs or the Video tab with an uploaded/pasted transcript."}
+                      ? "Selectable-text PDFs: up to 10 MB, 100 pages and 120,000 captured characters. Missing or omitted text is labelled. Scanned-only and encrypted files are unsupported. Images and layout are not extracted. Uploads retain page text and filename; the original file is not stored."
+                      : "Public HTTP(S) articles: up to 2 MB per download and 120,000 captured characters. Incomplete coverage is labelled. Use the PDF tab for selectable-text PDFs or the Video tab with an uploaded/pasted transcript."}
                 </p>
                 {error && (
                   <p className="form-error" role="alert">

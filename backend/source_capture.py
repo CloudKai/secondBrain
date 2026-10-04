@@ -9,7 +9,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 MAX_DOWNLOAD_BYTES = 2_000_000
-MAX_CAPTURE_CHARS = 30_000
+from backend.capture_limits import MAX_CAPTURE_CHARS
 MIN_TEXT_CHARS = 120
 
 
@@ -140,7 +140,7 @@ def _captured_text(text: str, origin: str) -> dict[str, str]:
         if origin == "direct"
         else "unknown",
         "coverage_detail": (
-            "Captured the first 30,000 characters; additional text was omitted."
+            "Captured the first 120,000 characters; additional text was omitted."
             if partial
             else "Captured the readable text returned by this page."
             if origin == "direct"

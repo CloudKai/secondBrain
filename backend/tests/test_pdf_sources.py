@@ -144,14 +144,14 @@ def test_long_pdf_reports_partial_capture_without_renumbering_pages(browser_clie
     response = browser_client.post(
         "/api/v2/sources/pdf?filename=long.pdf",
         headers={"Authorization": "Bearer alice"},
-        content=pdf_bytes((FIRST_PAGE, THIRD_PAGE * 200)),
+        content=pdf_bytes((FIRST_PAGE, THIRD_PAGE * 500)),
     )
     assert response.status_code == 201
     source = response.json()
-    assert len(source["captured_text"]) == 30_000
+    assert len(source["captured_text"]) == 120_000
     assert source["coverage"] == "partial"
     assert source["document"]["pages"][-1]["page"] == 2
-    assert source["document"]["pages"][-1]["end"] == 30_000
+    assert source["document"]["pages"][-1]["end"] == 120_000
 
 
 def test_pdf_generation_references_never_cross_or_invent_page_boundaries(

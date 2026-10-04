@@ -23,6 +23,7 @@ from backend.source_models import (
     SourcePage,
 )
 from backend.pdf_capture import capture_pdf, capture_pdf_link, MAX_PDF_BYTES
+from backend.capture_selection import page_selection, time_selection
 from backend.transcript_capture import (
     capture_transcript,
     MAX_TRANSCRIPT_BYTES,
@@ -230,7 +231,7 @@ async def save_youtube_transcript(
     if existing:
         return existing
     try:
-        capture = await capture_youtube(original_url)
+        capture = await capture_youtube(original_url, times=payload.times)
     except (TranscriptUnavailable, TimeoutError) as exc:
         detail = (
             str(exc)
@@ -249,6 +250,8 @@ async def save_video_transcript(
     url: HttpUrl = Header(alias="X-Video-URL"),
     title: str = Query(default="", max_length=200),
     filename: str | None = Query(default=None, min_length=1, max_length=200),
+    start_ms: int | None = Query(default=None),
+    end_ms: int | None = Query(default=None),
     gateway: SourceGateway = Depends(owned_sources),
 ) -> CapturedSource:
     data = await read_upload_body(
@@ -258,7 +261,7 @@ async def save_video_transcript(
         "The transcript upload timed out. Try a smaller file or paste its text.",
     )
     try:
-        capture = capture_transcript(bytes(data), str(url), filename)
+        capture = capture_transcript(bytes(data), str(url), filename, times=time_selection(start_ms, end_ms))
     except ValueError as exc:
         logger.warning("Transcript capture rejected: %s", type(exc).__name__)
         raise HTTPException(422, str(exc)) from exc
@@ -302,6 +305,8 @@ async def save_pdf_upload(
     request: Request,
     filename: str = Query(min_length=1, max_length=200),
     title: str = Query(default="", max_length=200),
+    page_start: int | None = Query(default=None),
+    page_end: int | None = Query(default=None),
     gateway: SourceGateway = Depends(owned_sources),
 ) -> CapturedSource:
     data = await read_upload_body(
@@ -317,7 +322,7 @@ async def save_pdf_upload(
     if existing:
         return existing
     try:
-        capture = await capture_pdf(bytes(data), filename)
+        capture = await capture_pdf(bytes(data), filename, pages=page_selection(page_start, page_end))
     except ValueError as exc:
         logger.warning("PDF capture rejected: %s", type(exc).__name__)
         raise HTTPException(422, str(exc)) from exc
@@ -365,7 +370,7 @@ async def save_pdf_link(
     if existing:
         return existing
     try:
-        capture = await capture_pdf_link(identity)
+        capture = await capture_pdf_link(identity, payload.pages)
     except ValueError as exc:
         logger.warning("PDF capture rejected: %s", type(exc).__name__)
         raise HTTPException(422, str(exc)) from exc

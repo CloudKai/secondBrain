@@ -13,10 +13,11 @@ from backend.study_models import (
     StudyNote,
     StudyRecord,
     WorkerClaim,
+    SectionSummary,
 )
 
 logger = logging.getLogger(__name__)
-STUDY_COLUMNS = "source_version,source_id,user_id,status,attempts,max_attempts,next_attempt_at,error_code,note,updated_at"
+STUDY_COLUMNS = "sections_total,sections_completed,source_version,source_id,user_id,status,attempts,max_attempts,next_attempt_at,error_code,note,updated_at"
 
 
 class StudyStorageError(Exception):
@@ -145,3 +146,19 @@ class StudyStore:
         if not isinstance(result, bool):
             raise StudyStorageError()
         return result
+
+    async def plan(self, claim: WorkerClaim, total: int) -> None:
+        await self.checkpoint(claim, "plan_source_study", {"p_total": total})
+
+    async def save_section(self, claim: WorkerClaim, index: int, summary: SectionSummary) -> None:
+        await self.checkpoint(claim, "save_study_section", {"p_index": index, "p_summary": summary.model_dump(mode="json")})
+
+    async def checkpoint(self, claim: WorkerClaim, name: str, values: dict) -> None:
+        result = await self.request("/rpc/" + name, body={
+            "p_source_id": str(claim.source_id), "p_source_version": claim.source_version,
+            "p_lease_token": str(claim.lease_token), **values,
+        })
+        if result is False:
+            raise StudyStorageError("stale")
+        if result is not True:
+            raise StudyStorageError()

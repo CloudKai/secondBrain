@@ -7,6 +7,7 @@ from uuid import UUID
 from pydantic import Field, model_validator
 
 from backend.schemas import StrictModel
+from backend.capture_limits import MAX_CAPTURE_CHARS
 from backend.source_models import PDFDocument
 from backend.transcript_models import TranscriptDocument
 
@@ -45,6 +46,11 @@ class DraftStudyNote(StrictModel):
     examples: list[StudyConcept] = Field(max_length=6)
     equations: list[StudyEquation] = Field(max_length=6)
     recall: list[StudyRecall] = Field(min_length=1, max_length=10)
+
+
+class SectionSummary(StrictModel):
+    text: str = Field(min_length=1, max_length=1_200)
+    citation_ids: list[str] = Field(min_length=1, max_length=10)
 
 
 class SourceReference(StrictModel):
@@ -89,6 +95,8 @@ class StudyNote(DraftStudyNote):
 
 
 class StudyRecord(StrictModel):
+    sections_total: int = Field(default=0, ge=0, le=20)
+    sections_completed: int = Field(default=0, ge=0, le=20)
     source_version: int = Field(default=1, ge=1, le=20)
     source_id: UUID
     user_id: UUID = Field(exclude=True)
@@ -104,6 +112,10 @@ class StudyRecord(StrictModel):
     def completed_note_only(self):
         if (self.status == "succeeded") != (self.note is not None):
             raise ValueError("Only succeeded studies contain notes")
+        if self.sections_completed > self.sections_total:
+            raise ValueError("Invalid section progress")
+        if self.status == "succeeded" and self.sections_total and self.sections_completed != self.sections_total:
+            raise ValueError("A completed note needs all sections")
         return self
 
 
@@ -117,9 +129,11 @@ class StudyRequest(StrictModel):
 
 
 class WorkerClaim(StrictModel):
+    source_version: int = Field(default=1, ge=1, le=20)
+    completed_sections: list[SectionSummary] = Field(default_factory=list, max_length=20)
     source_id: UUID
     user_id: UUID
-    captured_text: str = Field(min_length=120, max_length=30_000)
+    captured_text: str = Field(min_length=120, max_length=MAX_CAPTURE_CHARS)
     lease_token: UUID
     attempt: int = Field(ge=1, le=3)
     document: PDFDocument | None = None

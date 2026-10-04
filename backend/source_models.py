@@ -7,33 +7,36 @@ from uuid import UUID
 from pydantic import Field, HttpUrl, TypeAdapter, model_validator
 
 from backend.schemas import StrictModel
+from backend.capture_limits import MAX_CAPTURE_CHARS
 from backend.transcript_models import TranscriptDocument
 from backend.transcript_capture import video_identity
+from backend.capture_selection import PageRange, TimeRange
 
 
 class CaptureSourceRequest(StrictModel):
     url: HttpUrl
     title: str = Field(default="", max_length=200)
-    raw_text: str | None = Field(default=None, max_length=30_000)
+    raw_text: str | None = Field(default=None, max_length=MAX_CAPTURE_CHARS)
 
 
 class PDFPage(StrictModel):
     page: int = Field(ge=1, le=100)
-    start: int = Field(ge=0, le=30_000)
-    end: int = Field(ge=0, le=30_000)
+    start: int = Field(ge=0, le=MAX_CAPTURE_CHARS)
+    end: int = Field(ge=0, le=MAX_CAPTURE_CHARS)
 
 
 class PDFDocument(StrictModel):
     filename: str | None = Field(default=None, min_length=1, max_length=200)
     page_count: int = Field(ge=1, le=100)
     pages: list[PDFPage] = Field(min_length=1, max_length=100)
+    selected_pages: PageRange | None = None
 
     @model_validator(mode="after")
     def ordered_pages(self):
         previous_end = -1
         for index, page in enumerate(self.pages):
             if (
-                page.page != index + 1
+                page.page != index + (self.selected_pages.start if self.selected_pages else 1)
                 or page.end < page.start
                 or page.start != previous_end + 1
             ):
@@ -41,17 +44,21 @@ class PDFDocument(StrictModel):
             previous_end = page.end
         if len(self.pages) > self.page_count:
             raise ValueError("Invalid PDF page count")
+        if self.selected_pages and (self.selected_pages.end > self.page_count or self.pages[-1].page > self.selected_pages.end):
+            raise ValueError("Selected pages exceed the original PDF")
         return self
 
 
 class CapturePDFLinkRequest(StrictModel):
     url: HttpUrl
     title: str = Field(default="", max_length=200)
+    pages: PageRange | None = None
 
 
 class CaptureYouTubeRequest(StrictModel):
     url: HttpUrl
     title: str = Field(default="", max_length=200)
+    times: TimeRange | None = None
 
 
 class CapturedSource(StrictModel):
@@ -64,7 +71,7 @@ class CapturedSource(StrictModel):
     document: PDFDocument | None = None
     transcript: TranscriptDocument | None = None
     title: str = Field(min_length=1, max_length=200)
-    captured_text: str = Field(min_length=120, max_length=30_000)
+    captured_text: str = Field(min_length=120, max_length=MAX_CAPTURE_CHARS)
     captured_at: datetime
     capture_origin: Literal["direct", "reader", "pasted", "upload"]
     coverage: Literal["complete", "partial", "unknown"]
