@@ -8,7 +8,7 @@ const topic='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const first='33333333-3333-4333-8333-333333333333';
 const second='44444444-4444-4444-8444-444444444444';
 const assignment={id:topic,title:'RAG',context:'Machine learning',aliases:[],groups:['AI'],description:'Retrieval augments generation.',role:'main',citation_ids:['p0001'],uncertain:false,suggested_topic_id:null,placement_reason:'Same substantive topic.'};
-const reference={id:'p0001',start:0,end:51,excerpt:'Retrieved evidence supports language-model generation.',page:null,start_ms:null,end_ms:null};
+const reference={id:'p0001',start:0,end:54,excerpt:'Retrieved evidence supports language-model generation.',page:null,start_ms:null,end_ms:null};
 const note={overview:{text:reference.excerpt,citation_ids:['p0001']},concepts:[{title:'RAG',text:reference.excerpt,citation_ids:['p0001']}],examples:[],equations:[],recall:[{question:'What supports generation?',answer:'Retrieved evidence.',citation_ids:['p0001']}],references:[reference]};
 async function database(){
  const db=new PGlite();try{

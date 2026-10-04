@@ -3,7 +3,8 @@
 import json
 from uuid import UUID
 from backend.study_store import StudyStore, StudyStorageError
-from backend.overview_models import OverviewSnapshot, OverviewView
+from backend.overview_models import OverviewSnapshot, OverviewView, OverviewClaimJob, TopicOverview
+from backend.study_models import StudyError
 
 
 class OverviewStore:
@@ -49,9 +50,7 @@ class OverviewStore:
             "/rpc/ack_overview_dispatch", body={"p_id": str(job_id)}
         )
 
-    async def claim(self, job_id: UUID):
-        from backend.overview_models import OverviewClaimJob
-
+    async def claim(self, job_id: UUID) -> OverviewClaimJob | None:
         value = await self.transport.request(
             "/rpc/claim_topic_overview", body={"p_id": str(job_id)}
         )
@@ -64,7 +63,7 @@ class OverviewStore:
         except (ValueError, TypeError) as exc:
             raise StudyStorageError() from exc
 
-    async def finish(self, claim, *, overview=None, error=None):
+    async def finish(self, claim: OverviewClaimJob, *, overview: TopicOverview | None = None, error: StudyError | None = None) -> bool:
         value = await self.transport.request(
             "/rpc/finish_topic_overview",
             body={

@@ -31,13 +31,15 @@ export default function SavedTopicDetails({topic, maps, client, enabled, topicEr
     const original = note?.references.find(r => r.id === ref.passage.id);
     return assignment?.citation_ids.includes(ref.passage.id) && original && ["start", "end", "excerpt", "page", "start_ms", "end_ms"].every(field => original[field as keyof typeof original] === ref.passage[field as keyof typeof ref.passage]);
   });
-  const canCombine = topic.notes.length >= 2 && !topic.uncertain;
+  const uncertain = topic.notes.some(n => maps.find(m => m.source_id === n.id)?.analysis?.topics.find(t => t.id === topic.id)?.uncertain);
+  const canCombine = topic.notes.length >= 2 && topic.notes.every(n => n.study?.status === "succeeded" && maps.find(m => m.source_id === n.id)?.analysis?.topics.some(t => t.id === topic.id && !t.uncertain));
   return <>
     <div className="panel-topic-icon"><Network size={24} aria-hidden="true" /></div>
-    <span className="eyebrow">{topic.uncertain ? "SUGGESTED TOPIC" : "SHARED TOPIC"}</span>
+    <span className="eyebrow">{uncertain ? "SUGGESTED TOPIC" : "SHARED TOPIC"}</span>
     <h2>{topic.title}</h2><p className="panel-description">{topic.description}</p>
     {topicError && <div role="alert"><p>{topicError}</p><button className="text-button" onClick={onReloadTopics}>Reload topics</button></div>}
     <p className="micro-copy">{topic.context} · {(topic.groups ?? []).join(" · ")} · {topic.notes.length} supporting sources. Coverage is not mastery.</p>
+    {uncertain && topic.notes.length >= 2 && <p className="micro-copy">Confirm the suggested source placements below before combining their evidence.</p>}
     {canCombine && <>
       <p className="overlap-copy">These sources share {topic.title}. Combine their evidence or keep each source as a branch under this topic.</p>
       <div className="segmented" aria-label="Topic view">

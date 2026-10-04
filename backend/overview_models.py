@@ -1,19 +1,16 @@
 """Owned topic views; source notes remain authoritative."""
 
+from datetime import datetime
 from typing import Literal
 from uuid import UUID
-from pydantic import Field
+from pydantic import Field, model_validator
 from backend.schemas import StrictModel
+from backend.study_models import SourceReference, StudyNote, StudyState, StudyError
 
 
 class OverviewView(StrictModel):
     view_mode: Literal["combined", "separate"]
     retry: bool = False
-
-
-from datetime import datetime
-from pydantic import model_validator
-from backend.study_models import SourceReference, StudyNote, StudyState, StudyError
 
 
 class OverviewInput(StrictModel):
