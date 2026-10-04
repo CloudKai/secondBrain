@@ -2,28 +2,27 @@
 
 ## Current status — 2026-10-04
 
-**Verified MVP:** planned tickets 01–11 are complete with hosted development
+**Verified MVP:** planned tickets 01–12 are complete with hosted development
 acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9/#10/#11 cover articles, structured notes,
 selectable-text PDFs, supplied transcripts, accessible English YouTube captions,
 Teams/Zoom/Panopto export feedback, saved-source topics/graph, combined overviews, source branches and persistent corrections/removal. GitHub #12
 completes the correction slice. Extra #4 covers
 citation/title polish.
 
-**Last completed:** planned ticket 11 / [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12).
-Saved rename/merge, source assignments and connection decisions persist.
-Rejections survive merges and missing support; original notes remain read-only.
+**Last completed:** planned ticket 12 / [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
+Unchanged imports reuse a source; explicit refresh archives captures/notes and
+retains correction decisions with current supporting evidence.
 
-**Latest checks:** 118 backend tests, 46 web tests, build/typecheck and lint pass.
-Independent Standards and Spec re-reviews have no remaining findings. Hosted
-correction API/browser acceptance and scoped fixture cleanup pass. Desktop only;
-sequential after-claim regression, not deterministic concurrent overlap.
+**Latest checks:** 123 backend tests, 55 web tests, web build/typecheck and lint
+pass. Both independent review axes have zero findings through 2bf070f. Hosted
+API/browser acceptance and controlled-fixture cleanup pass. Desktop/development
+only; concurrent stress and deterministic browser delay overlap are untested.
 
-**Current unit:** planned ticket 12 / [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13), reuse and versioned refresh. Local compare/refresh/history/correction-review implementation and focused checks complete; full suite, independent review and hosted acceptance pending.
+**Current unit:** none. Next unpublished draft: planned 13, long sources/ranges.
 
-**Target behavior:** Automatic Teams/Zoom/Panopto access, refresh/ranges and
-assistant/research remain planned. Existing example UI does not establish those
-live capabilities. YouTube support is conditional on anonymously accessible
-English captions; production deployment is unconfigured.
+**Target behavior:** Automatic Teams/Zoom/Panopto access, long-source ranges,
+assistant/research and production deployment remain planned. YouTube support is
+conditional on anonymously accessible English captions.
 
 **Where to check:** [ticket breakdown](../docs/planning/web-learning-library-tickets.md)
 for acceptance checkboxes and GitHub mapping; published GitHub issues for completion
@@ -528,3 +527,44 @@ post-removal browser state; finish docs/GitHub #13 closeout. Do not touch the
 user's real note 79b1b905-ebeb-4896-84bc-d55f395070ce. SQL/test tabs 24/25 retained
 for resume. API and current worker remain running. GitHub #13 stays open.
 Native/iOS and its tracker untouched.
+
+
+## Source reuse and versioned refresh — planned 12 / GitHub #13, 2026-10-04
+
+Status: **complete with hosted development acceptance**. User-approved migration
+202610040009_source_revisions.sql applied successfully (query
+2f6e3734-be16-4f73-a85c-c4d047815618). Stable owned source IDs support unchanged
+reuse, reviewable capture/location comparison, explicit expected-version refresh
+and exact prior capture/note archives. Versions count as one independent source.
+
+- Local: 123 backend tests, 55 web tests, web build/typecheck and lint pass.
+  Both independent review axes have zero remaining findings through 2bf070f.
+- Hosted API: unchanged/changed supplied articles, real PDF extraction and digest
+  aliases, transcript versions, archive equality, ownership/private-table denial,
+  delayed study/topic completion rejection, stale overview hiding, retained renamed
+  assignments, unique evidence reanchoring/current-evidence review, fresh
+  relationships and rejected decisions pass.
+- Desktop browser: unchanged transcript import reopens version 2 without adding
+  a source/archive; time-only comparison, decline, video/PDF confirmation,
+  retained-evidence review and reload persistence pass. Archived video citations
+  retain 0:06–0:12; current citations use 0:24–0:42. Archived PDF page 1 and
+  current PDF page 2 open their own exact captures. Real note/topic workers ran.
+- Browser acceptance found missing PDF comparison origin; fix 2bf070f explicitly
+  sets upload/direct and hides internal validation diagnostics. Its actual upload
+  and public-link regression failed before the fix and now passes.
+- Controlled sources, history, candidates, aliases, overrides, queues and scoped
+  overview/correction records were removed and verified. Browser reload reflects
+  removal. The real source identity/version is preserved. Cleanup used scoped
+  REST/authenticated API, not a new browser deletion confirmation flow.
+
+Bounded to 20 versions and one 24-hour comparison candidate per source. Existing
+capture limits remain; automatic private recording access, OCR, ranges, assistant
+and live research are separate target work. Development/desktop acceptance only;
+production unconfigured. Sequential after-claim checks and lock-order review,
+not concurrent stress testing. Browser network-delay overlap for graph/dialog
+races is not deterministically exercised. Existing bundle/deprecation warnings
+remain. Native/iOS and its tracker untouched. Commits remain local.
+
+GitHub #13 and both web records synchronized. Next unpublished draft: planned
+13, long sources and page/time ranges; not started. Setup/review:
+docs/source-revisions-setup.md and docs/reviews/ticket13.md.

@@ -565,3 +565,16 @@ Unique saved excerpts reanchor corrected assignments; changed evidence requires
 learner confirmation before graph use. Source recall and stale evidence caches
 reset on refresh. Focused checks pass; full checks/review, migration and hosted
 acceptance pending. Native/iOS and its tracker unchanged.
+
+
+### Versioned refresh completed — #13, 2026-10-04
+
+User-approved migration applied. Owned reuse/comparison/confirmation, exact saved
+capture/note archives, stable source IDs/PDF aliases and worker/reader version
+fences pass hosted development checks. Renamed assignments and rejected decisions
+persist; unique excerpts reanchor or require current evidence review. Browser
+PDF/video comparison, decline/refresh, archived/current citations, duplicate reuse
+and reload pass. Controlled fixtures/scoped records cleaned; real note preserved.
+123 backend tests, 55 web tests, build/typecheck and lint pass. Both review axes
+have zero findings through 2bf070f. Desktop/development only, production and ranges
+remain planned. Native/iOS and its tracker untouched. Next draft: planned 13.

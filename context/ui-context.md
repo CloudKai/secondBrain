@@ -224,7 +224,7 @@ example corrections as session-only. Scoped fixture cleanup and post-removal
 reload passed; native UI unchanged. Assistant/research/refresh remain planned.
 
 
-## Source versions UI — #13, local implementation pending hosted acceptance
+## Source versions UI — #13, verified desktop acceptance
 
 Repeated URL/transcript imports compare material; changed captures offer explicit
 refresh. Saved notes offer Source versions & refresh with replacement PDF or
@@ -232,4 +232,5 @@ transcript inputs, before/after captured text, Keep current version and Refresh
 source. Prior read-only notes use their own capture/page/cue citations. Retained
 assignments with changed passages require current evidence review. Versions count
 as one current source; refresh hides obsolete note/topic/evidence/recall state.
-No hosted browser acceptance or native UI change is claimed yet.
+Desktop compare/decline/confirm, current-evidence review, old/current PDF page
+and video cue citations, duplicate reuse and reload pass. Native UI unchanged.

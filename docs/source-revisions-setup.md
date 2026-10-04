@@ -2,20 +2,15 @@
 
 ## Status
 
-Selected on 2026-10-04. **Implemented locally; hosted acceptance is pending.**
-The user agreed the authenticated capture/refresh API, external capture HTTP,
-database ownership/version/worker fences and browser compare/refresh/reload/
-citation seams. RED→GREEN tracers cover staged comparison, explicit promotion,
-changed correction evidence, PDF digest aliases and the current reader fence.
+**Complete with hosted development acceptance on 2026-10-04.** Approved migration
+applied successfully; local checks, independent re-reviews, hosted API/browser
+acceptance and scoped fixture cleanup pass. Native/iOS is unchanged.
 
-Current implementation uses one stable source ID, 1–20 capture versions, one
-candidate per source expiring after 24 hours, and immutable prior capture/note
-snapshots. No hosted migration or browser acceptance is claimed at this checkpoint.
-Full checks pass: 122 backend and 55 web tests, web build/typecheck and lint.
-Both independent Standards/Spec re-reviews through 08d4835 have zero remaining
-findings. Reviewed migration is staged; fresh execution approval is pending. Native/iOS is unchanged.
+One stable source ID, 1–20 capture versions, one candidate per source expiring
+after 24 hours, and immutable prior capture/note snapshots. Current-evidence review
+preserves learner assignments without reusing unrelated passage numbers.
 
-## Implemented learner flow — hosted verification pending
+## Implemented learner flow
 
 - Add repeated material: compare the captured content and citation locations.
   Unchanged material opens the saved note. Changed material offers a refresh
@@ -32,7 +27,7 @@ findings. Reviewed migration is staged; fresh execution approval is pending. Nat
   retain the correction for review and ask for current supporting passages before
   using that assignment in the graph. Preserve rename/merge and rejected pairs.
 
-## Implemented database and browser boundary — hosted verification pending
+## Implemented database and browser boundary
 
 Postgres remains authoritative. Use bounded owned comparison candidates,
 immutable saved-version snapshots and an atomic expected-version confirmation.
@@ -71,42 +66,44 @@ Use existing capture bounds and provider access. No OCR, range selection,
 private recording/account retrieval, assistant/research or production deployment.
 Native/iOS and its tracker remain separate and unchanged.
 
+
+
 ## Completion record
 
-Open: [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
-Local checks: 122 backend tests, 55 web tests, web build/typecheck and lint pass.
-Both independent re-reviews have zero remaining findings. Automatic approval
-review blocked migration execution because earlier approvals covered other
-migrations. Fresh approval is requested for this exact migration. Staged SQL
-query: 2f6e3734-be16-4f73-a85c-c4d047815618, verified identical to the file.
-Hosted migration and API/browser acceptance remain pending. Check `docs/planning/web-learning-library-tickets.md` and
-`context/web-progress-tracker.md`; do not claim target behavior as verified.
+Status: **complete with hosted development acceptance**. User-approved migration
+202610040009_source_revisions.sql applied successfully (query
+2f6e3734-be16-4f73-a85c-c4d047815618). Stable owned source IDs support unchanged
+reuse, reviewable capture/location comparison, explicit expected-version refresh
+and exact prior capture/note archives. Versions count as one independent source.
 
+- Local: 123 backend tests, 55 web tests, web build/typecheck and lint pass.
+  Both independent review axes have zero remaining findings through 2bf070f.
+- Hosted API: unchanged/changed supplied articles, real PDF extraction and digest
+  aliases, transcript versions, archive equality, ownership/private-table denial,
+  delayed study/topic completion rejection, stale overview hiding, retained renamed
+  assignments, unique evidence reanchoring/current-evidence review, fresh
+  relationships and rejected decisions pass.
+- Desktop browser: unchanged transcript import reopens version 2 without adding
+  a source/archive; time-only comparison, decline, video/PDF confirmation,
+  retained-evidence review and reload persistence pass. Archived video citations
+  retain 0:06–0:12; current citations use 0:24–0:42. Archived PDF page 1 and
+  current PDF page 2 open their own exact captures. Real note/topic workers ran.
+- Browser acceptance found missing PDF comparison origin; fix 2bf070f explicitly
+  sets upload/direct and hides internal validation diagnostics. Its actual upload
+  and public-link regression failed before the fix and now passes.
+- Controlled sources, history, candidates, aliases, overrides, queues and scoped
+  overview/correction records were removed and verified. Browser reload reflects
+  removal. The real source identity/version is preserved. Cleanup used scoped
+  REST/authenticated API, not a new browser deletion confirmation flow.
 
-## Paused checkpoint — ticket #13, 2026-10-04
+Bounded to 20 versions and one 24-hour comparison candidate per source. Existing
+capture limits remain; automatic private recording access, OCR, ranges, assistant
+and live research are separate target work. Development/desktop acceptance only;
+production unconfigured. Sequential after-claim checks and lock-order review,
+not concurrent stress testing. Browser network-delay overlap for graph/dialog
+races is not deterministically exercised. Existing bundle/deprecation warnings
+remain. Native/iOS and its tracker untouched. Commits remain local.
 
-Paused at the user's explicit request. Approved migration
-202610040009_source_revisions.sql applied successfully in Supabase query
-2f6e3734-be16-4f73-a85c-c4d047815618. Hosted API checks passed unchanged reuse,
-staged promotion, archive equality, ownership/private-table denial, stale study
-and topic leases, stale overview hiding, unique evidence reanchoring, renamed
-assignments, retained-evidence review, current relationships, rejected decisions
-and independent-source counts. Controlled correction/import API fixtures were
-cleaned and their cascades verified.
-
-Browser passed unchanged transcript comparison, timestamp-only changes, decline,
-confirmed video/PDF refresh, exact original/current cue and PDF page citations,
-current-evidence review and reload persistence. Real note and topic workers ran.
-PDF acceptance caught missing origin in refreshed extraction: fix 2bf070f adds
-explicit upload/direct origins and safe validation messages; regression failed
-first then passed. Latest backend: 123 tests pass. Prior web: 55 tests, build,
-typecheck and lint pass; no frontend change after those checks. Both independent
-review axes report zero remaining findings through 2bf070f.
-
-Pending on resume: inspect the last repeated-video import result; clean remaining
-controlled fixtures listed in /private/tmp/revisions-fixture-ids.json and
-/private/tmp/revisions-browser-ids.json with their scoped derived rows; verify
-post-removal browser state; finish docs/GitHub #13 closeout. Do not touch the
-user's real note 79b1b905-ebeb-4896-84bc-d55f395070ce. SQL/test tabs 24/25 retained
-for resume. API and current worker remain running. GitHub #13 stays open.
-Native/iOS and its tracker untouched.
+GitHub #13 and both web records synchronized. Next unpublished draft: planned
+13, long sources and page/time ranges; not started. Setup/review:
+docs/source-revisions-setup.md and docs/reviews/ticket13.md.

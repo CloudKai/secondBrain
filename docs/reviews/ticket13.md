@@ -25,10 +25,19 @@ both comparison previews. Existing correction and rejection rules remain applied
 
 ## Checks / status
 
-The relationship regression failed before the fix and passes afterward. Initial
-and refreshed full checks: 122 backend, 55 web, build/typecheck and lint pass.
-Both independent re-reviews through 08d4835 have zero remaining findings.
-Hosted migration/API/browser acceptance pending. Automatic approval review
-blocked Run: earlier approvals did not cover this migration. Reviewed SQL is
-staged at query 2f6e3734-be16-4f73-a85c-c4d047815618 and matches the file exactly.
-Fresh approval requested; no schema execution occurred.
+Both independent re-reviews have zero remaining findings through 08d4835.
+Hosted browser acceptance caught a missing PDF origin; 2bf070f fixes upload/direct
+origins and safe validation messages. The real extraction/public HTTP regression
+failed before the fix and passes afterward. Both additional independent reviews
+of 5a67f4b...2bf070f have zero findings.
+
+Final local checks: 123 backend tests, 55 web tests, web build/typecheck and lint.
+Approved migration applied to the development project; hosted capture/refresh,
+ownership, archives, worker leases, corrections, relations, stale overviews and
+independent-source counts pass. Browser video/PDF compare/decline/confirm/review,
+exact old/current citations, duplicate import and reload pass. Controlled fixtures
+and scoped derived rows were cleaned and verified; real note preserved.
+
+Desktop/development only. Sequential after-claim regressions plus lock review;
+concurrent stress and deterministic delayed browser-response overlap are untested.
+Original bundle/deprecation warnings remain. Ticket #13 acceptance complete.

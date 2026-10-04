@@ -5,19 +5,17 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–11 are complete** (11 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#12 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–12 are complete** (12 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#13 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **11**, persistent topic corrections and consistent removal — [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12).
+**Last completed:** planned ticket **12**, source reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
 
-**Paused by user:** planned ticket **12**, reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13). Migration applied, checks and reviews pass so far; final cleanup/closeout pending.
+**Current unit:** none. Next unpublished draft: **13**, long sources and page/time ranges.
 
-**Target behavior:** planned tickets **13–15 remain unpublished drafts**; ticket 12 is published with acceptance pending. Completed shared foundations are checked where they fully satisfy a criterion;
-provider retrieval and other remaining criteria stay unchecked. Existing example
-UI does not count as live target behavior.
-The current selected slice is **12: Reuse repeated sources and refresh changed material**. YouTube support is verified for anonymously accessible English
-captions; other automatic providers remain planned.
+**Target behavior:** planned tickets **13–15 remain unpublished drafts**. Existing
+example UI does not establish live assistant/research. YouTube support requires
+anonymously accessible English captions; private provider access remains planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
 | --- | --- | --- | --- |
@@ -33,20 +31,20 @@ captions; other automatic providers remain planned.
 | 09 | Saved-source topic cards and graph | Complete; local + hosted acceptance | [#10](https://github.com/CloudKai/secondBrain/issues/10), [setup](../topic-graph-setup.md), [review](../reviews/ticket10.md) |
 | 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
-| 12 | Reuse and versioned refresh | In progress; local implementation, acceptance pending | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
+| 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Draft; bounded capture exists, ranges remain planned | Unpublished |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **118 backend tests, 46 web tests, build/typecheck and
-lint**, plus hosted ownership, durable rename/merge/assignment/decisions,
-rejection precedence, future worker retention, deletion cascades and outdated
-overview fences. Browser reload, exact PDF/video passages and original-note
-preservation pass. A merged overview succeeded on attempt 1 before a correction
-hid it. Both independent re-reviews have no remaining findings. Controlled
-fictional fixtures and scoped derived records were removed and verified.
-Native/iOS remains unchanged; desktop acceptance only, production unconfigured.
-After-claim regression is sequential; deterministic concurrent overlap is untested.
+Latest completed checks: **123 backend tests, 55 web tests, web build/typecheck and
+lint**, plus hosted comparison/refresh/archives, ownership, version-bound citations,
+correction/rejection retention, stale workers/overviews and independent-source
+counts. Desktop video/PDF comparison, decline/confirmation, evidence review,
+archive/current citations, duplicate import and reload pass. Controlled fixtures
+and scoped derived records were removed and verified; real note preserved.
+Both independent review axes have zero remaining findings through 2bf070f.
+Native/iOS unchanged; production unconfigured. Concurrent stress and deterministic
+browser response-delay overlap are untested; existing warnings remain.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -63,7 +61,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–11 were selected by the user and completed. Remaining
+relationships. Tickets 01–12 were selected by the user and completed. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -83,7 +81,9 @@ on-demand cited combined overviews, separate source branches and durable topic
 corrections/removal are verified. Model chat and live research remain target work;
 their existing example UI is not live implementation.
 Supplied transcript links do not retrieve or watch recordings. PDF OCR,
-page/time ranges, source refresh and automatic Teams/Zoom/Panopto retrieval remain planned.
+page/time ranges and automatic Teams/Zoom/Panopto retrieval remain planned.
+Unchanged imports reuse saved sources; explicit versioned refresh preserves prior
+captures/notes and retains learner corrections with current supporting evidence.
 
 Each ticket is an end-to-end slice with acceptance checks. Provider tickets
 validate available access paths and the transcript fallback; they do not
@@ -405,15 +405,16 @@ A learner fixes topic names, duplicates, assignments, or connections and deletes
 
 ## 12: Reuse repeated sources and refresh changed material
 
-**Status:** Paused by user; migration applied, live checks passed so far; final cleanup/closeout pending.
+**Status:** Complete with hosted development acceptance on 2026-10-04.
 
-**GitHub:** [#13 — open](https://github.com/CloudKai/secondBrain/issues/13)
+**GitHub:** [#13 — closed](https://github.com/CloudKai/secondBrain/issues/13)
 
-**Current progress:** Agreed API/external HTTP/database/browser seams. Local comparison/confirmation, stable source identity, saved-version readers, version/worker fences, PDF aliases and retained-correction evidence review are implemented. 123 backend tests pass; 55 web tests, build/typecheck and lint previously pass. Both independent re-reviews have zero findings through 2bf070f. Approved migration applied; hosted API and browser checks pass so far. Final duplicate-import result, remaining fixture cleanup and closeout pending after user-requested pause. [Selected scope](../source-revisions-setup.md).
-
-**Label:** `ready-for-agent`
-
-**Already verified:** canonical recording/article identity and PDF upload digests reuse existing captures per learner. Changed-content detection, explicit versioned refresh and correction-preserving rebuilds now pass local checks; hosted verification is pending.
+**Verified:** Unchanged capture/location reuse, explicit comparison/refresh,
+version-bound read-only archives, stable identity/PDF aliases, worker fences,
+current-evidence correction review and one independent source across versions.
+123 backend tests, 55 web tests, build/typecheck and lint pass. Both review axes
+have zero findings; approved migration, hosted API/browser and cleanup pass.
+[Acceptance record](../source-revisions-setup.md), [review](../reviews/ticket13.md).
 
 ### What to build
 
@@ -421,12 +422,12 @@ Repeated imports reuse existing material, while changed sources can refresh thei
 
 ### Acceptance criteria
 
-- [ ] Detect unchanged supported article, PDF, and transcript-backed video imports and reuse the captured source.
-- [ ] Offer an explicit refresh when content differs rather than silently replacing a captured note.
-- [ ] Keep source references tied to the exact captured version used for generation.
-- [ ] Rebuild affected notes, overviews, and connections while retaining learner corrections.
-- [ ] Repeated imports and source revisions do not inflate the graph's independent-source threshold.
-- [ ] Checks cover unchanged imports, changed content, version-bound citations, and correction preservation.
+- [x] Detect unchanged supported article, PDF, and transcript-backed video imports and reuse the captured source.
+- [x] Offer an explicit refresh when content differs rather than silently replacing a captured note.
+- [x] Keep source references tied to the exact captured version used for generation.
+- [x] Rebuild affected notes, overviews, and connections while retaining learner corrections.
+- [x] Repeated imports and source revisions do not inflate the graph's independent-source threshold.
+- [x] Checks cover unchanged imports, changed content, version-bound citations, and correction preservation.
 
 ### Blocked by
 
@@ -434,12 +435,12 @@ Repeated imports reuse existing material, while changed sources can refresh thei
 - Planned ticket 04: Create video study notes from uploaded or pasted transcripts — [GitHub #5](https://github.com/CloudKai/secondBrain/issues/5), complete
 - Planned ticket 11: Correct topic organization and remove sources consistently — [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12), complete
 
-### Implementation checkpoint — 2026-10-04
+### Completion — 2026-10-04
 
-122 backend tests, 55 web tests, web build/typecheck and lint pass. Both independent
-Standards/Spec re-reviews through 08d4835 have zero findings. Reviewed migration
-is staged and verified; automatic approval review requires fresh approval for
-this exact migration. No hosted execution or acceptance yet; GitHub #13 open.
+Migration applied after approval. Desktop unchanged import, time/page comparison,
+decline/confirmation, archived/current citations, evidence review and reload pass.
+Scoped test sources and derived records removed; real note preserved. Native/iOS
+untouched. Bounded captures/versions only; ranges and production remain planned.
 
 ## 13: Process long sources with range selection and honest coverage
 

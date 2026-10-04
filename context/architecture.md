@@ -442,7 +442,7 @@ after-claim coverage plus static lock review, not concurrent stress testing.
 No native API, vector/provider service or production deployment change.
 
 
-## Source version boundary — #13, local implementation pending hosted acceptance
+## Source version boundary — #13, verified development acceptance
 
 Stable source UUIDs now carry source_version; source_studies inherit it. Private
 source_versions store immutable capture/note snapshots, source_revision_candidates
@@ -452,4 +452,5 @@ correction owner lock, archives prior inputs and queues a new note. Old study/ma
 leases cannot publish. Current graph/overview joins exclude archived versions.
 Corrected membership evidence uniquely reanchors by exact excerpt or waits for
 learner review. Rollback disables compare/promote while preserving history,
-aliases, review and version-aware fences. No hosted capability is verified yet.
+aliases, review and version-aware fences. Hosted API and desktop acceptance
+passed; production remains unconfigured.
