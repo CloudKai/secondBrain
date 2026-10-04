@@ -626,3 +626,14 @@ build/typecheck/lint pass; both review axes through e474faf report zero findings
 Controlled sources, archives and section work cleaned; learner note unchanged.
 GitHub #14 complete. Next planned 14 assistant is draft, not started; private
 providers/OCR/research/production remain planned. Native/iOS/tracker untouched.
+
+
+## Grounded assistant selected — planned 14 / #15 (2026-10-04)
+
+Selected and published current-note assistant with independent topic/library
+scopes and exact passage citations. Existing Postgres notes provide bounded
+relevance retrieval; source versions and topic membership fence stale answers.
+Unsupported questions offer the existing reading-list preview; live discovery
+remains planned 15. User approved API/model HTTP/database/browser test boundaries.
+Implementation, migration and acceptance pending. Both web records updated;
+native/iOS and its tracker untouched. See docs/assistant-setup.md.

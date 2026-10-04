@@ -19,7 +19,7 @@ pass. Standards/spec reviews have zero remaining findings through `e474faf`.
 Migration 010, hosted API/worker/model/browser acceptance and controlled cleanup
 pass. Desktop development only; concurrent stress/mobile layout checks untested.
 
-**Next unit:** planned 14, grounded assistant with selectable scopes. Draft and not started.
+**Current unit:** planned 14 / [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15), grounded assistant. Selected target; implementation and acceptance pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access,
 assistant/research and production deployment remain planned. YouTube support is
@@ -623,3 +623,15 @@ was controlled fixture setup. All controlled sources, archives and section work
 removed; existing learner note unchanged. GitHub #14 closed. Planned 14/15 remain
 draft/unpublished; native/iOS and its tracker untouched. Evidence: setup and review
 records in docs/long-source-setup.md and docs/reviews/ticket14.md.
+
+
+## Grounded assistant selected — planned 14 / #15, 2026-10-04
+
+Inspected existing preview assistant, completed notes, corrected topics, citation
+readers and current source-version fences. Published and claimed #15. User agreed
+to authenticated question/scope API, external model HTTP, database ownership/
+retrieval/version checks and browser scope/citation/gap flows. Selected scope:
+current note plus optional topic/library evidence, Postgres relevance retrieval,
+strict grounded English answers and original passage citations. Live discovery
+remains planned 15. Implementation/checks/migration/acceptance pending. Setup:
+docs/assistant-setup.md. Native/iOS and its tracker untouched.

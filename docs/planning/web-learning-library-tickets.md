@@ -11,9 +11,9 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **13**, long sources and selected ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14).
 
-**Next unit:** planned **14**, grounded assistant with selectable scopes; draft and not started.
+**Current unit:** planned **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15). Selected target; implementation pending.
 
-**Target behavior:** planned tickets **14–15 remain unpublished drafts**. Existing
+**Target behavior:** planned **14 is selected and published**; planned **15 remains an unpublished draft**. Existing
 example UI does not establish live assistant/research. YouTube support requires
 anonymously accessible English captions; private provider access remains planned.
 
@@ -33,7 +33,7 @@ anonymously accessible English captions; private provider access remains planned
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Complete; local + hosted acceptance | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
-| 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
+| 14 | Grounded assistant with selectable scopes | Selected; implementation pending | [#15](https://github.com/CloudKai/secondBrain/issues/15), [scope](../assistant-setup.md) |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
 Latest completed checks: **144 backend tests, 61 web tests, web build/typecheck
@@ -475,9 +475,9 @@ existing learner note unchanged. Native/iOS untouched.
 
 ## 14: Answer questions using selectable note, topic, and library scopes
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** Selected target — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15). Implementation and acceptance pending.
 
-**Proposed label:** `ready-for-agent`
+**Label:** `ready-for-agent`
 
 ### What to build
 
@@ -495,7 +495,9 @@ A learner uses suggested prompts or free text to ask a source-grounded study ass
 
 ### Blocked by
 
-- Draft ticket 09: Build topic cards and a source-driven graph
+- Planned 09: Topics/graph — #10, complete
+- Planned 12: Stable source versions — #13, complete
+- Planned 13: Bounded long-source evidence — #14, complete
 
 ## 15: Discover credible further-study resources and save selected sources
 
