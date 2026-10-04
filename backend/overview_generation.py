@@ -108,15 +108,21 @@ class OverviewGenerator:
             }
             if not used <= available.keys():
                 raise ValueError("Unknown overview evidence")
-            # Private labels belong to the citation field, not learner prose.
-            # Preserve literal names that actually occur in the source evidence.
+            # Remove only redundant parenthesized metadata already cited by this
+            # claim. Literal source names and unknown/stray labels are preserved
+            # for validation, so no evidence or source wording is silently lost.
             literal_labels = {label for ref in available.values()
                               for label in re.findall(r"\bref\d+\b", ref.passage.excerpt)}
-            for claim in [draft.overview, *draft.agreements, *draft.differences]:
-                if not set(re.findall(r"\bref\d+\b", claim.text)) <= literal_labels:
-                    raise ValueError("Private citation label in overview prose")
             grounded = draft.model_dump()
             for claim in [grounded["overview"], *grounded["agreements"], *grounded["differences"]]:
+                def citation_marker(match):
+                    labels = set(re.findall(r"\bref\d+\b", match.group()))
+                    if labels <= set(claim["reference_ids"]) and not labels & literal_labels:
+                        return ""
+                    return match.group()
+                claim["text"] = re.sub(r"\s*\(ref\d+(?:\s*[,;]\s*ref\d+)*\)", citation_marker, claim["text"])
+                if not set(re.findall(r"\bref\d+\b", claim["text"])) <= literal_labels:
+                    raise ValueError("Private citation label in overview prose")
                 claim["reference_ids"] = [available[k].id for k in claim["reference_ids"]]
             return TopicOverview(
                 **grounded,
