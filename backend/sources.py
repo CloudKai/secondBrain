@@ -228,7 +228,7 @@ async def save_youtube_transcript(
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
     existing = await gateway.find(canonical_url=f"eq.{identity}")
-    if existing:
+    if existing and payload.times is None:
         return existing
     try:
         capture = await capture_youtube(original_url, times=payload.times)
@@ -239,6 +239,8 @@ async def save_youtube_transcript(
             else "YouTube transcript retrieval timed out. Upload or paste it instead."
         )
         raise HTTPException(422, detail) from exc
+    if existing:
+        return existing
     return await persist_transcript(
         gateway, original_url, payload.title.strip() or "YouTube transcript", capture
     )
@@ -316,16 +318,22 @@ async def save_pdf_upload(
         "The PDF upload timed out. Try a smaller file or retry the connection.",
     )
     identity = "urn:pdf:sha256:" + hashlib.sha256(data).hexdigest()
+    try:
+        pages = page_selection(page_start, page_end)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
     existing = await gateway.find(canonical_url=f"eq.{identity}")
     if existing is None:
         existing = await gateway.find_identity(identity)
-    if existing:
+    if existing and pages is None:
         return existing
     try:
-        capture = await capture_pdf(bytes(data), filename, pages=page_selection(page_start, page_end))
+        capture = await capture_pdf(bytes(data), filename, pages=pages)
     except ValueError as exc:
         logger.warning("PDF capture rejected: %s", type(exc).__name__)
         raise HTTPException(422, str(exc)) from exc
+    if existing:
+        return existing
     return await persist_pdf(
         gateway, None, identity, title.strip() or filename, capture, "upload"
     )
@@ -367,13 +375,15 @@ async def save_pdf_link(
     original = str(payload.url)
     identity = canonical_source_url(original)
     existing = await gateway.find(canonical_url=f"eq.{identity}")
-    if existing:
+    if existing and payload.pages is None:
         return existing
     try:
         capture = await capture_pdf_link(identity, payload.pages)
     except ValueError as exc:
         logger.warning("PDF capture rejected: %s", type(exc).__name__)
         raise HTTPException(422, str(exc)) from exc
+    if existing:
+        return existing
     return await persist_pdf(
         gateway,
         original,

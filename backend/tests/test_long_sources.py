@@ -9,6 +9,7 @@ import json
 import httpx
 from backend.study_generation import StudyGenerator, GenerationFailure
 from backend.tests.test_study_generation import DRAFT
+from backend.tests.test_youtube_sources import youtube_http  # noqa: F401
 
 
 def model_response(request, draft):
@@ -271,3 +272,25 @@ def test_dense_supported_transcript_generates_within_section_budget(browser_clie
         assert len(calls) == len(summaries) + 1
         assert note.references[-1].start_ms > 3900000
     asyncio.run(run())
+
+
+def test_saved_pdf_reimport_still_validates_requested_original_pages(browser_client):
+    headers = {"Authorization": "Bearer alice"}
+    first = browser_client.post("/api/v2/sources/pdf?filename=known.pdf", headers=headers, content=pdf_bytes()).json()
+    for query in ["page_start=4&page_end=4", "page_start=3&page_end=1", "page_start=2"]:
+        response = browser_client.post("/api/v2/sources/pdf?filename=known.pdf&" + query, headers=headers, content=pdf_bytes())
+        assert response.status_code == 422, response.text
+    linked = browser_client.post("/api/v2/sources/pdf-link", headers=headers, json={"url": "https://article.test/pdf-file"}).json()
+    invalid = browser_client.post("/api/v2/sources/pdf-link", headers=headers, json={"url": "https://article.test/pdf-file", "pages": {"start": 4, "end": 4}})
+    assert invalid.status_code == 422, invalid.text
+    assert browser_client.get(f"/api/v2/sources/{first['id']}", headers=headers).json() == first
+    assert browser_client.get(f"/api/v2/sources/{linked['id']}", headers=headers).json() == linked
+
+
+def test_saved_youtube_reimport_still_validates_requested_caption_times(browser_client, youtube_http):
+    headers = {"Authorization": "Bearer alice"}
+    payload = {"url": "https://youtu.be/aircAruvnKk"}
+    first = browser_client.post("/api/v2/sources/youtube", headers=headers, json=payload).json()
+    invalid = browser_client.post("/api/v2/sources/youtube", headers=headers, json={**payload, "times": {"start_ms": 90000, "end_ms": 100000}})
+    assert invalid.status_code == 422, invalid.text
+    assert browser_client.get(f"/api/v2/sources/{first['id']}", headers=headers).json() == first
