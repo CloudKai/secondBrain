@@ -11,12 +11,12 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **11**, persistent topic corrections and consistent removal — [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12).
 
-**In progress:** none. Next draft: planned ticket **12**, reuse and versioned refresh.
+**In progress:** planned ticket **12**, reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13). Source-flow inspection complete; TDD boundary agreement pending.
 
-**Target behavior:** planned tickets **12–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**Target behavior:** planned tickets **13–15 remain unpublished drafts**; ticket 12 is published with acceptance pending. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next draft is **12: Reuse repeated sources and refresh changed material**. YouTube support is verified for anonymously accessible English
+The current selected slice is **12: Reuse repeated sources and refresh changed material**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -33,7 +33,7 @@ captions; other automatic providers remain planned.
 | 09 | Saved-source topic cards and graph | Complete; local + hosted acceptance | [#10](https://github.com/CloudKai/secondBrain/issues/10), [setup](../topic-graph-setup.md), [review](../reviews/ticket10.md) |
 | 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
-| 12 | Reuse and versioned refresh | Draft; capture reuse exists, refresh remains planned | Unpublished |
+| 12 | Reuse and versioned refresh | Selected; inspection complete, implementation pending | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Draft; bounded capture exists, ranges remain planned | Unpublished |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
@@ -405,9 +405,13 @@ A learner fixes topic names, duplicates, assignments, or connections and deletes
 
 ## 12: Reuse repeated sources and refresh changed material
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — selected 2026-10-04; implementation and acceptance pending.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#13 — open](https://github.com/CloudKai/secondBrain/issues/13)
+
+**Current progress:** Existing URL/digest reuse and worker/correction boundaries inspected. Target: explicit comparison, stable source identity, immutable saved versions, version/lease fences and correction evidence review. TDD seam agreement requested; no new implementation or tests yet. [Selected scope](../source-revisions-setup.md).
+
+**Label:** `ready-for-agent`
 
 **Already verified:** canonical recording/article identity and PDF upload digests reuse existing captures per learner. Changed-content detection, explicit versioned refresh and correction-preserving rebuilds remain planned.
 

@@ -540,3 +540,17 @@ Sequential after-claim regression only; deterministic concurrent overlap unteste
 GitHub #12 and both web records synchronized. Native/iOS and its tracker unchanged;
 commits local, desktop acceptance only, production unconfigured. Next draft:
 planned 12 reuse/versioned refresh, not started. Setup/review: topic-corrections.
+
+
+## Source reuse/versioned refresh selected — planned 12 / #13 (2026-10-04)
+
+Target unit: compare repeated supported captures, offer explicit refresh, retain
+exact prior capture/note versions and one independent source identity. Lease and
+reader version fences prevent stale citations; current evidence rebuilds topics
+and hides outdated overviews. Preserve learner rules; assignments with missing
+support require evidence review. Uploaded PDF refresh explicitly targets the
+saved source, not a similar filename. No new ingestion/provider services or
+native/iOS changes. Inspected existing capture/queue/correction boundaries and
+published #13 with completed #3/#5/#12 blockers. TDD seam agreement requested;
+implementation/tests/migration/acceptance not started. Both web records updated.
+Setup: docs/source-revisions-setup.md.

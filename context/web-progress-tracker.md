@@ -18,7 +18,7 @@ Independent Standards and Spec re-reviews have no remaining findings. Hosted
 correction API/browser acceptance and scoped fixture cleanup pass. Desktop only;
 sequential after-claim regression, not deterministic concurrent overlap.
 
-**Current unit:** none. Next draft is planned ticket 12, reuse and versioned refresh.
+**Current unit:** planned ticket 12 / [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13), reuse and versioned refresh. Capture/queue/correction boundaries inspected; test-seam agreement pending before implementation.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, refresh/ranges and
 assistant/research remain planned. Existing example UI does not establish those
@@ -449,3 +449,17 @@ Both web records and GitHub #12 synchronized. Setup/review:
 `docs/topic-corrections-setup.md`, `docs/reviews/ticket12.md`. Native/iOS and
 `context/progress-tracker.md` unchanged by this unit. Commits remain local.
 Next draft: planned 12, reuse/versioned refresh; not started.
+
+
+## Source reuse/versioned refresh selected — planned 12 / #13, 2026-10-04
+
+Target slice only. Published #13 with native blocking links to completed #3, #5
+and #12. Existing duplicate URL shortcuts reopen without comparing current
+content; upload digests already reuse identical files. Selected implementation
+will add explicit comparison/confirmation, immutable saved captures/notes and a
+stable source identity with worker/reader version fences. Corrections whose
+evidence disappeared will be retained for learner review rather than linked to
+unrelated new passage numbers. No new implementation, tests or hosted migration
+yet. The TDD skill requires agreement on the proposed API/external HTTP/database/
+browser seams. Both web records updated; native/iOS and its tracker untouched.
+Scope: docs/source-revisions-setup.md.
