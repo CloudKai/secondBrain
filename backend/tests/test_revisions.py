@@ -297,3 +297,115 @@ def test_public_article_recheck_uses_bounded_external_http_without_forwarding_le
         assert response.status_code == 200, response.text
         assert response.json()["current"]["captured_text"] == TEXT.strip()
         assert response.json()["replacement"]["captured_text"] == replacement.strip()
+
+
+def test_pdf_revision_capture_preserves_upload_or_public_link_origin(monkeypatch):
+    from backend.tests.test_pdf_sources import pdf_bytes
+
+    monkeypatch.setenv("SUPABASE_URL", "https://supabase.test")
+    monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", "public-test")
+    monkeypatch.setattr(
+        "socket.getaddrinfo",
+        lambda *args, **kwargs: [(2, 1, 6, "", ("93.184.216.34", 443))],
+    )
+    data = pdf_bytes((TEXT, TEXT + " Replacement evidence."))
+    mode = {"linked": False}
+    source = {
+        "id": SOURCE,
+        "user_id": ALICE,
+        "source_kind": "pdf",
+        "title": "Calculus",
+        "captured_text": TEXT,
+        "captured_at": "2026-10-04T00:00:00Z",
+        "coverage": "complete",
+        "coverage_detail": "Selectable pages",
+        "study_status": "pending",
+        "source_version": 1,
+        "transcript": None,
+        "document": {
+            "filename": "saved.pdf",
+            "page_count": 1,
+            "pages": [{"page": 1, "start": 0, "end": len(TEXT)}],
+        },
+    }
+    staged = []
+
+    def external(request):
+        if request.url.path == "/auth/v1/user":
+            return httpx.Response(200, json={"id": ALICE})
+        if request.url.path == "/rest/v1/sources":
+            return httpx.Response(
+                200,
+                json=[
+                    {
+                        **source,
+                        "original_url": (
+                            "https://example.com/source.pdf" if mode["linked"] else None
+                        ),
+                        "canonical_url": (
+                            "https://example.com/source.pdf"
+                            if mode["linked"]
+                            else "urn:pdf:sha256:" + "a" * 64
+                        ),
+                        "capture_origin": "direct" if mode["linked"] else "upload",
+                        "document": {
+                            **source["document"],
+                            "filename": None if mode["linked"] else "saved.pdf",
+                        },
+                    }
+                ],
+            )
+        if request.url.path == "/rest/v1/rpc/compare_source_capture":
+            body = json.loads(request.content)
+            staged.append(body)
+            assert body["p_capture"]["capture_origin"] == (
+                "direct" if mode["linked"] else "upload"
+            )
+            return httpx.Response(
+                200,
+                json={
+                    "source_id": SOURCE,
+                    "base_version": 1,
+                    "candidate_id": CANDIDATE,
+                    "changed": True,
+                },
+            )
+        assert request.url.path == "/source.pdf"
+        assert request.headers.get("apikey") is None
+        assert request.headers.get("authorization") is None
+        return httpx.Response(
+            200,
+            stream=httpx.ByteStream(data),
+            headers={"content-type": "application/pdf"},
+        )
+
+    original = httpx.AsyncClient
+    monkeypatch.setattr(
+        httpx,
+        "AsyncClient",
+        lambda **kw: original(**{**kw, "transport": httpx.MockTransport(external)}),
+    )
+    with TestClient(app) as client:
+        path = f"/api/v2/sources/{SOURCE}/revision-check"
+        for linked in [False, True]:
+            mode["linked"] = linked
+            response = (
+                client.post(path, json={}, headers={"Authorization": "Bearer alice"})
+                if linked
+                else client.post(
+                    path + "?filename=replacement.pdf",
+                    content=data,
+                    headers={
+                        "Authorization": "Bearer alice",
+                        "Content-Type": "application/pdf",
+                    },
+                )
+            )
+            assert response.status_code == 200, response.text
+            replacement = response.json()["replacement"]
+            assert replacement["capture_origin"] == ("direct" if linked else "upload")
+            assert replacement["document"]["page_count"] == 2
+            assert replacement["document"]["filename"] == (
+                None if linked else "replacement.pdf"
+            )
+        assert len(staged) == 2

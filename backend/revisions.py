@@ -168,6 +168,7 @@ async def compare_source(
                 )
             elif source.source_kind == "pdf" and source.original_url:
                 capture = await capture_pdf_link(str(source.original_url))
+                capture["capture_origin"] = "direct"
             elif (
                 source.source_kind == "video"
                 and source.transcript.provider == "youtube"
@@ -187,6 +188,7 @@ async def compare_source(
             if not filename:
                 raise ValueError("Choose a replacement PDF file.")
             capture = await capture_pdf(data, filename)
+            capture["capture_origin"] = "upload"
             identity = "urn:pdf:sha256:" + hashlib.sha256(data).hexdigest()
         elif source.source_kind == "video":
             data = await read_upload_body(
@@ -231,6 +233,7 @@ async def compare_source(
         detail = (
             str(exc)
             if isinstance(exc, (ValueError, TranscriptUnavailable))
+            and not isinstance(exc, ValidationError)
             and len(str(exc)) <= 500
             else "The replacement could not be captured. Use a supported public source or upload/paste its text."
         )
