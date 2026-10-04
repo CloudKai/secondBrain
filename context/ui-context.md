@@ -209,3 +209,16 @@ including PDF pages and supplied video times. Uncertain assignments require
 confirmation before synthesis; pending/retry/failure and changed-source states
 are visible. Controlled fixtures were removed after acceptance. Broad persistent
 corrections and assistant/research remain planned; native UI is unchanged.
+
+
+## Verified hosted web topic corrections — #12 (2026-10-04)
+
+Saved topic panels offer durable Rename and Merge. Source-note management changes
+1–12 topics and selects exact supporting passages for added memberships; original
+notes remain read-only. Supported graph connections offer Accept/Reject; rejected
+pairs remain visible with Accept if supported and survive merges/reload. Current
+source revisions hide outdated combined overviews with an explicit refresh prompt.
+Desktop rename/merge/assign/reload, rejection precedence and PDF page/video time
+citation checks pass. About copy describes saved corrections as persistent and
+example corrections as session-only. Scoped fixture cleanup and post-removal
+reload passed; native UI unchanged. Assistant/research/refresh remain planned.

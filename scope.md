@@ -522,3 +522,21 @@ The user agreed correction/removal API, database ownership/worker fences and
 browser correction/reload/citation seams. Focused local checks pass; independent
 review, full suite, migration and hosted acceptance remain pending. Native/iOS
 and its tracker remain unchanged. Setup: docs/topic-corrections-setup.md.
+
+
+## Verified persistent topic corrections — planned 11 / #12 (2026-10-04)
+
+Supersedes the pending correction checkpoint. The approved migration is applied;
+owned saved-topic rename/merge, source assignment overrides and connection
+decisions persist in hosted development. Rejection wins merged pairs and remains
+recorded when support disappears. Future worker writes respect learner rules;
+owner-before-row locks serialize completion/corrections. Original notes and exact
+PDF/video passages remain unchanged. Current evidence rebuilds graphs and hides
+stale overviews; source deletion cascades fence obsolete citations/late writes.
+118 backend tests, 46 web tests, build/typecheck/lint and both independent reviews
+pass. Hosted API/browser correction acceptance and scoped fixture cleanup pass;
+merged synthesis succeeded on attempt 1 before correction invalidated it.
+Sequential after-claim regression only; deterministic concurrent overlap untested.
+GitHub #12 and both web records synchronized. Native/iOS and its tracker unchanged;
+commits local, desktop acceptance only, production unconfigured. Next draft:
+planned 12 reuse/versioned refresh, not started. Setup/review: topic-corrections.

@@ -425,3 +425,18 @@ requests are denied. Source removal hides stale results; original notes/maps
 remain authoritative. Controlled inputs exercised the real worker/model and
 exact PDF/video references. No native API, vector service or production change.
 See docs/topic-overview-setup.md for bounds, rollback and acceptance limits.
+
+
+## Verified hosted web correction boundary — #12 (2026-10-04)
+
+Migration 202610040008_topic_corrections.sql is applied. Authenticated atomic
+correct_topic_library validates owned rename/merge/assignment/connection actions.
+Server-only topic_rules and source_topic_overrides constrain future map writes;
+owned read-only topic_connection_decisions retain rejected canonical pairs.
+Redirects flatten merges; rejection takes precedence; citations must resolve to
+exact saved passages. Owner advisory locks precede row locks in claim/completion
+and corrections. Membership revisions hide outdated combined overviews; source
+foreign-key cascades and worker fences prevent deleted content from reappearing.
+Hosted API/browser checks preserve original notes and ownership. Sequential
+after-claim coverage plus static lock review, not concurrent stress testing.
+No native API, vector/provider service or production deployment change.

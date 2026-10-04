@@ -2,27 +2,28 @@
 
 ## Current status — 2026-10-04
 
-**Verified MVP:** planned tickets 01–10 are complete with hosted development
+**Verified MVP:** planned tickets 01–11 are complete with hosted development
 acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9/#10/#11 cover articles, structured notes,
 selectable-text PDFs, supplied transcripts, accessible English YouTube captions,
-Teams/Zoom/Panopto export feedback, saved-source topics/graph, combined overviews and source branches. Extra #4 covers
+Teams/Zoom/Panopto export feedback, saved-source topics/graph, combined overviews, source branches and persistent corrections/removal. GitHub #12
+completes the correction slice. Extra #4 covers
 citation/title polish.
 
-**Last completed:** planned ticket 10 / [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11).
-On-demand cited synthesis preserves disagreements and exact source passages.
-Separate original branches and per-topic view choice persist after reload.
+**Last completed:** planned ticket 11 / [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12).
+Saved rename/merge, source assignments and connection decisions persist.
+Rejections survive merges and missing support; original notes remain read-only.
 
-**Latest checks:** 117 backend tests, 39 web tests, build/typecheck and lint pass.
-Independent Standards and Spec re-reviews have no remaining findings. Backend
-checks use project Python; the bare launcher still has a stale interpreter.
-Hosted/browser acceptance passed with controlled fixtures; desktop checks only.
+**Latest checks:** 118 backend tests, 46 web tests, build/typecheck and lint pass.
+Independent Standards and Spec re-reviews have no remaining findings. Hosted
+correction API/browser acceptance and scoped fixture cleanup pass. Desktop only;
+sequential after-claim regression, not deterministic concurrent overlap.
 
-**Current unit:** planned ticket 11 / [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12), persistent topic corrections and consistent removal; local and hosted acceptance pending.
+**Current unit:** none. Next draft is planned ticket 12, reuse and versioned refresh.
 
-**Target behavior:** Automatic Teams/Zoom/Panopto access, broad persistent
-corrections, refresh/ranges and assistant/research remain planned. Existing example
-UI does not establish those live capabilities. YouTube support is conditional on
-anonymously accessible English captions; production deployment is unconfigured.
+**Target behavior:** Automatic Teams/Zoom/Panopto access, refresh/ranges and
+assistant/research remain planned. Existing example UI does not establish those
+live capabilities. YouTube support is conditional on anonymously accessible
+English captions; production deployment is unconfigured.
 
 **Where to check:** [ticket breakdown](../docs/planning/web-learning-library-tickets.md)
 for acceptance checkboxes and GitHub mapping; published GitHub issues for completion
@@ -416,3 +417,35 @@ Final local checks through acd3c92: 118 backend tests via project Python,
 zero remaining findings. Migration warning approval remains pending; the hosted
 API/browser acceptance helper is prepared but has not run. GitHub #12 stays open.
 Native/iOS and its tracker remain untouched.
+
+
+## Persistent saved-topic corrections — planned 11 / GitHub #12, 2026-10-04
+
+Status: **complete with hosted development acceptance**. User-approved migration
+202610040008_topic_corrections.sql applied successfully. Atomic owned corrections,
+server-only rules/overrides, rejection precedence, owner-before-row worker locks,
+current-evidence graph rebuilds and membership overview fences are implemented.
+Original notes and exact references are preserved; surviving corrections remain
+authoritative through automatic writes and source deletion.
+
+- Local: 118 backend tests, 46 web tests, build/typecheck and lint; both independent
+  Standards and Spec re-reviews have zero remaining findings through acd3c92.
+- Hosted API: owned rename/merge/assign/decisions, cross-learner/direct-ledger
+  denial, preserved original JSON, stale overview hiding, later service
+  completion retention and deletion cascades pass.
+- Browser: rename/reload, merge/rejection precedence, accept/reject/reload,
+  assignment removal/addition/reload and exact PDF page/video time citations
+  pass. Merged-topic synthesis succeeded on attempt 1; changing its assignment
+  hid the old overview with explicit changed-source feedback.
+- All controlled fixtures, overrides, queues, overviews and scoped correction
+  ledgers were removed and verified. Browser reload reflects removal. Deletion
+  itself used authenticated API/scoped REST, not a new UI confirmation flow.
+- Controlled fictional saved material only; desktop acceptance, production
+  unconfigured. Sequential after-claim checks and lock-order review support the
+  race fix; deterministic concurrent overlap is untested. Existing bundle and
+  deprecation warnings/stale bare launchers remain.
+
+Both web records and GitHub #12 synchronized. Setup/review:
+`docs/topic-corrections-setup.md`, `docs/reviews/ticket12.md`. Native/iOS and
+`context/progress-tracker.md` unchanged by this unit. Commits remain local.
+Next draft: planned 12, reuse/versioned refresh; not started.

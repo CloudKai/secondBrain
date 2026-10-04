@@ -2119,12 +2119,13 @@ export default function App() {
                   and supplied video transcripts have persistent structured
                   notes and inspectable citations when the study worker is
                   configured. Confirmed topic placements, cited combined
-                  overviews and separate source branches persist in your library.
+                  overviews, separate source branches, topic renames and merges,
+                  source assignments, and connection decisions persist in your library.
                 </p>
                 <strong>What is still planned</strong>
                 <p>
                   Automatic Teams/Zoom/Panopto transcript access,
-                  broad topic corrections, open-ended AI conversation, live
+                  open-ended AI conversation, live
                   research, and linked accounts.
                 </p>
                 <strong>Your data</strong>
@@ -2132,7 +2133,7 @@ export default function App() {
                   Saved sources and generated notes use your private anonymous
                   library and reopen after reload. Clearing browser data can
                   lose access to that session. Confirmed topic placements and
-                  Combine/Keep separate choices persist. Example material,
+                  Combine/Keep separate choices and saved-topic corrections persist. Example material,
                   example topic corrections, and recall progress stay in memory; examples use
                   labelled paraphrased evidence.
                 </p>
