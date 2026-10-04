@@ -488,3 +488,14 @@ between reviewed topics, and display page/cue boundaries with excerpts. The
 connection regression failed first and now passes at the database seam. Refreshed
 full checks pass: 122 backend, 55 web, build/typecheck and lint. Independent
 re-review pending; hosted migration not applied.
+
+
+### #13 review complete / migration execution approval pending
+
+Implementation 07895b8 and fixes 08d4835: 122 backend tests, 55 web tests, web
+build/typecheck and lint pass. Both independent re-reviews have zero findings.
+Reviewed SQL is staged at 2f6e3734-be16-4f73-a85c-c4d047815618 and exact editor
+text matches the local migration. Automatic approval review blocked Run because
+previous approvals did not cover this migration. Fresh execution approval asked;
+no hosted schema execution or acceptance claimed. Hosted API helper prepared.
+GitHub #13 stays open. Native/iOS and its tracker untouched.

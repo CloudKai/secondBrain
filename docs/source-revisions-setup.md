@@ -12,7 +12,8 @@ Current implementation uses one stable source ID, 1–20 capture versions, one
 candidate per source expiring after 24 hours, and immutable prior capture/note
 snapshots. No hosted migration or browser acceptance is claimed at this checkpoint.
 Full checks pass: 122 backend and 55 web tests, web build/typecheck and lint.
-Independent review is underway. Native/iOS is unchanged.
+Both independent Standards/Spec re-reviews through 08d4835 have zero remaining
+findings. Reviewed migration is staged; fresh execution approval is pending. Native/iOS is unchanged.
 
 ## Implemented learner flow — hosted verification pending
 
@@ -73,6 +74,10 @@ Native/iOS and its tracker remain separate and unchanged.
 ## Completion record
 
 Open: [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
-Update full check counts, independent review, hosted evidence and this status as
-the slice progresses. Check `docs/planning/web-learning-library-tickets.md` and
+Local checks: 122 backend tests, 55 web tests, web build/typecheck and lint pass.
+Both independent re-reviews have zero remaining findings. Automatic approval
+review blocked migration execution because earlier approvals covered other
+migrations. Fresh approval is requested for this exact migration. Staged SQL
+query: 2f6e3734-be16-4f73-a85c-c4d047815618, verified identical to the file.
+Hosted migration and API/browser acceptance remain pending. Check `docs/planning/web-learning-library-tickets.md` and
 `context/web-progress-tracker.md`; do not claim target behavior as verified.

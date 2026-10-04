@@ -434,6 +434,13 @@ Repeated imports reuse existing material, while changed sources can refresh thei
 - Planned ticket 04: Create video study notes from uploaded or pasted transcripts — [GitHub #5](https://github.com/CloudKai/secondBrain/issues/5), complete
 - Planned ticket 11: Correct topic organization and remove sources consistently — [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12), complete
 
+### Implementation checkpoint — 2026-10-04
+
+122 backend tests, 55 web tests, web build/typecheck and lint pass. Both independent
+Standards/Spec re-reviews through 08d4835 have zero findings. Reviewed migration
+is staged and verified; automatic approval review requires fresh approval for
+this exact migration. No hosted execution or acceptance yet; GitHub #13 open.
+
 ## 13: Process long sources with range selection and honest coverage
 
 **Status:** Target behavior — unpublished draft; acceptance is not complete.
