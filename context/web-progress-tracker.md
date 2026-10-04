@@ -18,7 +18,7 @@ pass. Both independent review axes have zero findings through 2bf070f. Hosted
 API/browser acceptance and controlled-fixture cleanup pass. Desktop/development
 only; concurrent stress and deterministic browser delay overlap are untested.
 
-**Current unit:** planned 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14), long sources and page/time ranges. Local range capture/section processing implemented at agreed boundaries. Review, migration and hosted acceptance pending.
+**Current unit:** planned 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14), long sources and page/time ranges. Local range capture/section processing and independent review complete. Migration approval and hosted acceptance pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, long-source ranges,
 assistant/research and production deployment remain planned. YouTube support is
@@ -596,3 +596,14 @@ pass. Initial web suite 60/61 exposed an obsolete Unicode limit assertion, now
 corrected with focused checks passing. Build/typecheck/lint pass. Final web rerun,
 independent review, migration and hosted acceptance pending. GitHub #14 remains
 open; native/iOS and its tracker unchanged. Setup: docs/long-source-setup.md.
+
+
+### Long sources review complete — #14
+
+Implementation `7816966` plus review fixes `4aa30d9`: 142 backend tests, 61 web
+tests, build/typecheck/lint pass. Standards and spec reviews against `3c984fc`
+report no remaining findings. Dense supported transcripts fit the section budget;
+short-source retries preserve original passage evidence. Migration 010 is staged
+in Supabase with the destructive-operation warning awaiting user approval; not
+applied. Hosted worker/model/browser acceptance and controlled cleanup remain
+pending. GitHub #14 stays open. Native/iOS and its tracker untouched.

@@ -603,3 +603,12 @@ original citation readers and saved progress counts are implemented locally.
 140 backend tests pass; initial web 60/61, corrected old Unicode limit assertion
 passes focused checks; build/typecheck/lint pass. Independent review, final web
 rerun, migration and hosted acceptance remain pending. Native/iOS untouched.
+
+
+### Long sources review complete — #14
+
+Implementation/review fixes through `4aa30d9` pass 142 backend and 61 web tests
+and web build/typecheck/lint. Independent standards/spec re-reviews have no
+remaining findings. Migration 010 is staged and awaits browser-warning approval;
+it has not run. Hosted worker/model/browser acceptance and fixture cleanup remain
+pending. GitHub #14 is open; native/iOS and its tracker untouched.

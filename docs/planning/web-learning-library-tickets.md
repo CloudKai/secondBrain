@@ -11,7 +11,7 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **12**, source reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
 
-**Current unit:** planned **13**, long sources and page/time ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Local implementation complete; review, migration and hosted acceptance pending.
+**Current unit:** planned **13**, long sources and page/time ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Local implementation and standards/spec review complete; migration approval and hosted acceptance pending.
 
 **Target behavior:** planned tickets **14–15 remain unpublished drafts**; ticket **13 is selected and published**. Existing
 example UI does not establish live assistant/research. YouTube support requires
@@ -32,7 +32,7 @@ anonymously accessible English captions; private provider access remains planned
 | 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
-| 13 | Long sources and page/time range selection | Local implementation; review/hosted acceptance pending | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
+| 13 | Long sources and page/time range selection | Reviewed locally; migration/hosted acceptance pending | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
@@ -444,7 +444,7 @@ untouched. Bounded captures/versions only; ranges and production remain planned.
 
 ## 13: Process long sources with range selection and honest coverage
 
-**Status:** Selected target — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Local implementation; review, migration and hosted acceptance pending.
+**Status:** Selected target — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Local implementation and review complete; migration approval and hosted acceptance pending.
 
 **Label:** `ready-for-agent`
 

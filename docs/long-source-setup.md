@@ -78,11 +78,15 @@ database ownership/progress/worker fences, browser range/progress/reload/citatio
 Focused RED→GREEN checks cover original PDF pages, timed overlap selection,
 whole long capture, bounded synthesis and saved retry. Local database checks cover
 ownership, incomplete synthesis, stale leases, refresh/deletion cascades, selected
-metadata and unchanged legacy comparisons. Full backend: 140 pass. Initial web
-suite: 60/61, with an obsolete Unicode limit assertion corrected and its focused
-file passing. Build/typecheck/lint pass. Final web rerun and independent reviews
-are pending. Existing backend deprecations and Vite chunk warning remain.
+metadata and unchanged legacy comparisons. Full backend: 142 pass. Full web: 61 pass. Build/typecheck/lint pass.
+Both independent review findings were fixed in `4aa30d9`: dense supported
+transcripts fit the section budget and short-source retries retain full original
+passage evidence. Final standards/spec re-reviews report no remaining findings.
+A single-section retry repeats its one model call from the original passages;
+long-source retries reuse completed section summaries. Existing backend deprecations and Vite chunk warning remain.
 
-Hosted migration, real worker/model, browser and controlled-fixture cleanup are
-pending. Private recording retrieval, OCR, assistant/research and production
+Migration 010 is staged in Supabase query
+`ed60e2b8-f928-4a56-909d-41ef114fa4af`; the browser warning awaits user approval.
+It has not run. Hosted real worker/model, browser and controlled-fixture cleanup
+are pending. Private recording retrieval, OCR, assistant/research and production
 remain planned. GitHub #14 stays open until acceptance is complete.
