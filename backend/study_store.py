@@ -16,7 +16,7 @@ from backend.study_models import (
 )
 
 logger = logging.getLogger(__name__)
-STUDY_COLUMNS = "source_id,user_id,status,attempts,max_attempts,next_attempt_at,error_code,note,updated_at"
+STUDY_COLUMNS = "source_version,source_id,user_id,status,attempts,max_attempts,next_attempt_at,error_code,note,updated_at"
 
 
 class StudyStorageError(Exception):

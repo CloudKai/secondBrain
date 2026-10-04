@@ -1,4 +1,4 @@
-import { type TopicCorrection, topicLibrarySchema, topicRecordSchema } from "./topic-library";
+import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
 import { overviewSnapshotSchema } from "./topic-overview";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -36,6 +36,7 @@ function boundedText(min: number, max: number) {
 }
 export const sourceSchema = z
   .object({
+    source_version: z.number().int().min(1).max(20).optional(),
     id: z.string().uuid(),
     original_url: httpUrl.nullable(),
     canonical_url: z.union([
@@ -123,6 +124,19 @@ export const sourceSchema = z
       });
   });
 export type SavedSource = z.infer<typeof sourceSchema>;
+export const revisionComparisonSchema = z.object({
+  source_id:z.string().uuid(), base_version:z.number().int().min(1).max(20),
+  candidate_id:z.string().uuid().nullable(), changed:z.boolean(),
+  current:sourceSchema, replacement:sourceSchema.nullable(),
+}).strict().refine(v=>v.source_id===v.current.id && v.base_version===(v.current.source_version??1) && v.changed===(v.candidate_id!==null) && v.changed===(v.replacement!==null) && (!v.replacement || v.replacement.id===v.source_id && (v.replacement.source_version??1)===Math.min(v.base_version+1,20)));
+const reviewSchema=topicAnalysisSchema.nullable();
+export const versionHistorySchema=z.object({source_id:z.string().uuid(),current_version:z.number().int().min(1).max(20),versions:z.array(z.object({version:z.number().int().min(1).max(19),captured_at:z.string().datetime({offset:true}),has_note:z.boolean()}).strict()).max(19),correction_review:reviewSchema}).strict();
+export const savedVersionSchema=z.object({source:sourceSchema,study:studySchema.nullable()}).strict();
+export type RevisionComparison=z.infer<typeof revisionComparisonSchema>;
+export type VersionHistory=z.infer<typeof versionHistorySchema>;
+export type SavedVersion=z.infer<typeof savedVersionSchema>;
+export interface ComparisonInput {rawText?:string;file?:File;transcriptText?:string}
+
 const pageSchema = z
   .object({
     sources: z.array(sourceSchema),
@@ -213,6 +227,11 @@ export function createSourceClient(
       );
     }
     if (!response.ok) {
+      if(/\/(revision-check|refresh|versions|correction-review)(?:[/?]|$)/.test(path)) {
+        const body:unknown=await response.json().catch(()=>null);const detail=z.object({detail:boundedText(1,500)}).safeParse(body);
+        throw new Error(detail.success?detail.data.detail:'Source comparison or refresh is unavailable. Reload and retry.');
+      }
+
       if (path === "/sources/youtube" && response.status === 422) {
         const body: unknown = await response.json().catch(() => null);
         const error = z.object({ detail: boundedText(1, 500) }).safeParse(body);
@@ -283,6 +302,29 @@ export function createSourceClient(
       const value = await parse(await request(`/topics/${encodeURIComponent(topicId)}/overview`, { method: 'POST', body: JSON.stringify({view_mode: viewMode, retry}) }), overviewSnapshotSchema);
       if (value.topic_id !== topicId) throw new Error("The library returned incomplete topic material. Reload topics.");
       return value;
+    },
+    async compareSource(id:string,input:ComparisonInput={}) {
+      const params=input.file?`?${new URLSearchParams({filename:input.file.name})}`:'';
+      const body=input.file??(input.transcriptText!==undefined?new Blob([input.transcriptText],{type:'text/plain;charset=utf-8'}):JSON.stringify({raw_text:input.rawText??null}));
+      const result=await parse(await request(`/sources/${encodeURIComponent(id)}/revision-check${params}`,{method:'POST',body}),revisionComparisonSchema);
+      if(result.source_id!==id)throw new Error('The comparison source could not be verified. Compare again.');
+      return result;
+    },
+    async refreshSource(id:string,candidateId:string,expectedVersion:number) {
+      const source=await parse(await request(`/sources/${encodeURIComponent(id)}/refresh`,{method:'POST',body:JSON.stringify({candidate_id:candidateId,expected_version:expectedVersion})}),sourceSchema);
+      if(source.id!==id||(source.source_version??1)!==expectedVersion+1)throw new Error('The refreshed source version could not be verified. Reload your library.');
+      return source;
+    },
+    async sourceVersions(id:string) {
+      const data=await parse(await request(`/sources/${encodeURIComponent(id)}/versions`),versionHistorySchema);
+      if(data.source_id!==id)throw new Error('The version history could not be verified.');return data;
+    },
+    async sourceVersion(id:string,version:number) {
+      const data=await parse(await request(`/sources/${encodeURIComponent(id)}/versions/${version}`),savedVersionSchema);
+      if(data.source.id!==id||(data.source.source_version??1)!==version||(data.study&&(data.study.source_id!==id||(data.study.source_version??1)!==version)))throw new Error('The saved version could not be verified.');return data;
+    },
+    async reviewSourceAssignments(action:Extract<TopicCorrection,{action:'assign'}>) {
+      await request(`/sources/${encodeURIComponent(action.source_id)}/correction-review`,{method:'POST',body:JSON.stringify(action)});
     },
     async correctTopics(action: TopicCorrection) { await request("/topic-corrections", {method:"POST",body:JSON.stringify(action)}); },
     async topicLibrary() { return parse(await request('/topic-library'),topicLibrarySchema); },

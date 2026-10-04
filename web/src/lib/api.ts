@@ -9,7 +9,8 @@ export function noteFromSavedSource(
 ): Note {
   if (
     study &&
-    (study.source_id !== source.id ||
+    ((study.source_version ?? 1) !== (source.source_version ?? 1) ||
+      study.source_id !== source.id ||
       study.note?.references.some(
         (r) =>
           Array.from(source.captured_text).slice(r.start, r.end).join("") !==

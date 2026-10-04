@@ -440,3 +440,16 @@ foreign-key cascades and worker fences prevent deleted content from reappearing.
 Hosted API/browser checks preserve original notes and ownership. Sequential
 after-claim coverage plus static lock review, not concurrent stress testing.
 No native API, vector/provider service or production deployment change.
+
+
+## Source version boundary — #13, local implementation pending hosted acceptance
+
+Stable source UUIDs now carry source_version; source_studies inherit it. Private
+source_versions store immutable capture/note snapshots, source_revision_candidates
+stage a bounded 24-hour replacement, and source_identities retain uploaded PDF
+digest aliases. Owned comparison/expected-version promotion is atomic under the
+correction owner lock, archives prior inputs and queues a new note. Old study/map
+leases cannot publish. Current graph/overview joins exclude archived versions.
+Corrected membership evidence uniquely reanchors by exact excerpt or waits for
+learner review. Rollback disables compare/promote while preserving history,
+aliases, review and version-aware fences. No hosted capability is verified yet.

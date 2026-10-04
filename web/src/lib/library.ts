@@ -14,6 +14,7 @@ export interface LibraryState {
 }
 
 export type LibraryAction =
+  | { type: "refresh-source"; note: Note }
   | { type: "add-sources"; notes: Note[] }
   | { type: "load-sources"; notes: Note[] }
   | { type: "show-examples"; notes: Note[] }
@@ -75,6 +76,13 @@ export function updateLibrary(
   action: LibraryAction,
 ): LibraryState {
   switch (action.type) {
+    case "refresh-source": {
+      const prior = state.notes.find(note => note.id === action.note.id);
+      if (!prior?.savedSource || !action.note.savedSource || (prior.savedSource.source_version ?? 1) > (action.note.savedSource.source_version ?? 1)) return state;
+      const changed = (prior.savedSource.source_version ?? 1) !== (action.note.savedSource.source_version ?? 1);
+      const base = changed ? removeSources(state, [prior]) : state;
+      return { ...base, notes: [action.note, ...base.notes.filter(note => note.id !== action.note.id)] };
+    }
     case "load-sources": {
       const urls = new Set(action.notes.map((note) => sourceIdentity(note)));
       const examples = state.notes.filter(

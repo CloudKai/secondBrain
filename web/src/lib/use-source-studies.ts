@@ -24,7 +24,7 @@ export function useSourceStudies(
           const source = notes.find(
             (n) => n.id === study.source_id,
           )?.savedSource;
-          if (source) noteFromSavedSource(source, study);
+          if (source && (source.source_version ?? 1) === (study.source_version ?? 1)) noteFromSavedSource(source, study);
         }
         if (!active) return;
         setRecords(

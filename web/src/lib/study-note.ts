@@ -61,6 +61,7 @@ const noteSchema = z
   });
 export const studySchema = z
   .object({
+    source_version: z.number().int().min(1).max(20).optional(),
     source_id: z.string().uuid(),
     status: z.enum(["queued", "processing", "succeeded", "failed"]),
     attempts: z.number().int().min(0).max(3),

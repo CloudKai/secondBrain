@@ -18,7 +18,7 @@ Independent Standards and Spec re-reviews have no remaining findings. Hosted
 correction API/browser acceptance and scoped fixture cleanup pass. Desktop only;
 sequential after-claim regression, not deterministic concurrent overlap.
 
-**Current unit:** planned ticket 12 / [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13), reuse and versioned refresh. Capture/queue/correction boundaries inspected; test-seam agreement pending before implementation.
+**Current unit:** planned ticket 12 / [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13), reuse and versioned refresh. Local compare/refresh/history/correction-review implementation and focused checks complete; full suite, independent review and hosted acceptance pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, refresh/ranges and
 assistant/research remain planned. Existing example UI does not establish those
@@ -463,3 +463,15 @@ unrelated new passage numbers. No new implementation, tests or hosted migration
 yet. The TDD skill requires agreement on the proposed API/external HTTP/database/
 browser seams. Both web records updated; native/iOS and its tracker untouched.
 Scope: docs/source-revisions-setup.md.
+
+
+### Versioned refresh implementation checkpoint — #13
+
+The user agreed API, external HTTP, database ownership/version/worker and browser
+seams. Local RED→GREEN tracers pass for unchanged comparison, staged replacement,
+explicit refresh/archive, ownership, stale study leases, correction evidence
+review, unique-excerpt reanchoring, PDF aliases, stale confirmation and rollback.
+Browser adds source versions/refresh, a reviewable comparison and archived exact
+citations. Current reader rejects mismatched note versions; source recall state
+and stale topic/evidence cache are cleared on refresh. Full checks pass: 122 backend and 55 web tests, web build/typecheck and lint.
+Independent review underway; no hosted migration/acceptance claimed. Native/iOS untouched.

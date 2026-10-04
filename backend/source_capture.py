@@ -151,12 +151,15 @@ def _captured_text(text: str, origin: str) -> dict[str, str]:
     }
 
 
-async def capture_article(url: str, pasted_text: str | None = None) -> dict[str, str]:
+async def capture_article(url: str, pasted_text: str | None = None, *, prefer_pasted: bool = False) -> dict[str, str]:
     original = canonical_source_url(url)
     if urlsplit(original).path.lower().endswith(".pdf"):
         raise UnsupportedSource(
             "Use the PDF form for a public PDF link or selectable-text upload."
         )
+    if prefer_pasted and pasted_text is not None:
+        await public_source_address(httpx.URL(original))
+        return _captured_text(pasted_text.strip(), "pasted")
     try:
         async with (
             asyncio.timeout(60),

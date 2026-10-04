@@ -55,6 +55,7 @@ class CaptureYouTubeRequest(StrictModel):
 
 
 class CapturedSource(StrictModel):
+    source_version: int = Field(default=1, ge=1, le=20)
     id: UUID
     user_id: UUID = Field(exclude=True)
     original_url: HttpUrl | None

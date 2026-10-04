@@ -11,7 +11,7 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **11**, persistent topic corrections and consistent removal — [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12).
 
-**In progress:** planned ticket **12**, reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13). Source-flow inspection complete; TDD boundary agreement pending.
+**In progress:** planned ticket **12**, reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13). Local implementation complete; full checks, review and hosted acceptance pending.
 
 **Target behavior:** planned tickets **13–15 remain unpublished drafts**; ticket 12 is published with acceptance pending. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
@@ -33,7 +33,7 @@ captions; other automatic providers remain planned.
 | 09 | Saved-source topic cards and graph | Complete; local + hosted acceptance | [#10](https://github.com/CloudKai/secondBrain/issues/10), [setup](../topic-graph-setup.md), [review](../reviews/ticket10.md) |
 | 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
-| 12 | Reuse and versioned refresh | Selected; inspection complete, implementation pending | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
+| 12 | Reuse and versioned refresh | In progress; local implementation, acceptance pending | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Draft; bounded capture exists, ranges remain planned | Unpublished |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
@@ -409,7 +409,7 @@ A learner fixes topic names, duplicates, assignments, or connections and deletes
 
 **GitHub:** [#13 — open](https://github.com/CloudKai/secondBrain/issues/13)
 
-**Current progress:** Existing URL/digest reuse and worker/correction boundaries inspected. Target: explicit comparison, stable source identity, immutable saved versions, version/lease fences and correction evidence review. TDD seam agreement requested; no new implementation or tests yet. [Selected scope](../source-revisions-setup.md).
+**Current progress:** Agreed API/external HTTP/database/browser seams. Local comparison/confirmation, stable source identity, saved-version readers, version/worker fences, PDF aliases and retained-correction evidence review are implemented. Focused checks pass; full checks/review and hosted migration/browser acceptance pending. [Selected scope](../source-revisions-setup.md).
 
 **Label:** `ready-for-agent`
 

@@ -31,7 +31,7 @@ export function useTopicLibrary(client:SourceClient|null,enabled:boolean,notes:N
   catch(e:unknown){setActionError(e instanceof Error?e.message:'Topic update failed. Retry.');setVersion(v=>v+1);return false;}
   finally{pending.current=false;setBusy(false);}
  }
- return {library,error:actionError||error,busy,reload:()=>setVersion(v=>v+1),
+ return {library,error:actionError||error,busy,invalidate:()=>{++generation.current;setLibrary(emptyTopicLibrary);setVersion(v=>v+1);},reload:()=>setVersion(v=>v+1),
   correct:(action:TopicCorrection)=>client?act(()=>client.correctTopics(action)):Promise.resolve(false),
   retry:(id:string)=>client&&act(()=>client.mapTopics(id,true)),
   place:(source:string,topic:string,target:string|null)=>client&&act(()=>client.confirmPlacement(source,topic,target))};

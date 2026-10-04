@@ -554,3 +554,14 @@ native/iOS changes. Inspected existing capture/queue/correction boundaries and
 published #13 with completed #3/#5/#12 blockers. TDD seam agreement requested;
 implementation/tests/migration/acceptance not started. Both web records updated.
 Setup: docs/source-revisions-setup.md.
+
+
+### Versioned refresh local implementation — #13
+
+At agreed capture/refresh API, external HTTP, database and browser seams, local
+comparison/confirmation, immutable saved-version readers, PDF identity aliases,
+current reader/version/lease fences and retained correction review are implemented.
+Unique saved excerpts reanchor corrected assignments; changed evidence requires
+learner confirmation before graph use. Source recall and stale evidence caches
+reset on refresh. Focused checks pass; full checks/review, migration and hosted
+acceptance pending. Native/iOS and its tracker unchanged.

@@ -222,3 +222,14 @@ Desktop rename/merge/assign/reload, rejection precedence and PDF page/video time
 citation checks pass. About copy describes saved corrections as persistent and
 example corrections as session-only. Scoped fixture cleanup and post-removal
 reload passed; native UI unchanged. Assistant/research/refresh remain planned.
+
+
+## Source versions UI — #13, local implementation pending hosted acceptance
+
+Repeated URL/transcript imports compare material; changed captures offer explicit
+refresh. Saved notes offer Source versions & refresh with replacement PDF or
+transcript inputs, before/after captured text, Keep current version and Refresh
+source. Prior read-only notes use their own capture/page/cue citations. Retained
+assignments with changed passages require current evidence review. Versions count
+as one current source; refresh hides obsolete note/topic/evidence/recall state.
+No hosted browser acceptance or native UI change is claimed yet.

@@ -89,6 +89,7 @@ class StudyNote(DraftStudyNote):
 
 
 class StudyRecord(StrictModel):
+    source_version: int = Field(default=1, ge=1, le=20)
     source_id: UUID
     user_id: UUID = Field(exclude=True)
     status: StudyState

@@ -97,6 +97,11 @@ def browser_client(monkeypatch):
             return httpx.Response(401, json={"message": "Invalid token"})
         if request.url.path == "/auth/v1/user":
             return httpx.Response(200, json={"id": user_id, "is_anonymous": True})
+        if request.url.path == "/rest/v1/rpc/find_source_identity":
+            import json
+            identity = json.loads(request.content)["p_identity"]
+            match = next((row for row in rows if row["user_id"] == user_id and row["canonical_url"] == identity), None)
+            return httpx.Response(200, text=json.dumps(match), headers={"content-type": "application/json"})
         if request.url.path != "/rest/v1/sources":
             return httpx.Response(404)
         visible = [row for row in rows if row["user_id"] == user_id]

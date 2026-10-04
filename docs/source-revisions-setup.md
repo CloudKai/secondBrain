@@ -2,18 +2,19 @@
 
 ## Status
 
-Selected on 2026-10-04. **Target behavior; not implemented or verified.**
-Existing captures reuse canonical article/recording URLs and PDF file digests,
-but repeated URLs are reopened without rechecking content. The browser duplicate
-shortcut and API lookup both need an explicit comparison path. Current notes and
-topic jobs use one stable source ID; worker completion is fenced by a lease token.
+Selected on 2026-10-04. **Implemented locally; hosted acceptance is pending.**
+The user agreed the authenticated capture/refresh API, external capture HTTP,
+database ownership/version/worker fences and browser compare/refresh/reload/
+citation seams. RED→GREEN tracers cover staged comparison, explicit promotion,
+changed correction evidence, PDF digest aliases and the current reader fence.
 
-The TDD skill requires agreed test seams before tests. Proposed boundaries:
-authenticated capture/refresh API, external capture HTTP responses, database
-ownership/version/worker fences and browser compare/refresh/reload/citation flows.
-No implementation or tests have started at this checkpoint.
+Current implementation uses one stable source ID, 1–20 capture versions, one
+candidate per source expiring after 24 hours, and immutable prior capture/note
+snapshots. No hosted migration or browser acceptance is claimed at this checkpoint.
+Full checks pass: 122 backend and 55 web tests, web build/typecheck and lint.
+Independent review is underway. Native/iOS is unchanged.
 
-## Intended learner flow
+## Implemented learner flow — hosted verification pending
 
 - Add repeated material: compare the captured content and citation locations.
   Unchanged material opens the saved note. Changed material offers a refresh
@@ -30,7 +31,7 @@ No implementation or tests have started at this checkpoint.
   retain the correction for review and ask for current supporting passages before
   using that assignment in the graph. Preserve rename/merge and rejected pairs.
 
-## Intended database and browser boundary
+## Implemented database and browser boundary — hosted verification pending
 
 Postgres remains authoritative. Use bounded owned comparison candidates,
 immutable saved-version snapshots and an atomic expected-version confirmation.
@@ -46,6 +47,24 @@ History evidence uses its archived capture and read-only note, without adding
 historical source branches to current graph coverage. Comparison/refresh failure
 keeps the current version available and offers an actionable retry.
 
+Migration `202610040009_source_revisions.sql` adds source/study versions, private
+archive/candidate/identity tables and owned comparison/confirmation/history/review
+RPCs. Current graph and overview members still join only current source rows.
+Uploaded PDF aliases reuse the stable source even when a replacement file has a
+new digest. Identical captured text and page/cue locations reuse the current note.
+
+Corrected assignments reanchor only unique exact supporting excerpts into new
+note passage IDs. Otherwise the map is withheld with retained corrections for
+current-evidence review; old relationships are not replayed after that review.
+Study and topic completion use owner-before-row locks and refreshed leases.
+The current browser reader compares source/study versions before accepting refs;
+refresh clears stale source evidence, topic cache and recall state for that source.
+
+Rollback revokes authenticated comparison and promotion without dropping captures,
+archives, aliases, correction review or version-aware worker fences. Re-enable by
+granting execute on the same two function signatures; do not reapply table DDL.
+This preserves existing refreshed material and prior-version access.
+
 Use existing capture bounds and provider access. No OCR, range selection,
 private recording/account retrieval, assistant/research or production deployment.
 Native/iOS and its tracker remain separate and unchanged.
@@ -53,6 +72,6 @@ Native/iOS and its tracker remain separate and unchanged.
 ## Completion record
 
 Open: [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
-Update acceptance, migrations/rollback, tests, hosted evidence and this status as
+Update full check counts, independent review, hosted evidence and this status as
 the slice progresses. Check `docs/planning/web-learning-library-tickets.md` and
 `context/web-progress-tracker.md`; do not claim target behavior as verified.

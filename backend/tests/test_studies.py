@@ -12,6 +12,7 @@ ALICE = "11111111-1111-4111-8111-111111111111"
 SOURCE = "33333333-3333-4333-8333-333333333333"
 ROW = {
     "source_id": SOURCE,
+    "source_version": 1,
     "user_id": ALICE,
     "status": "queued",
     "attempts": 0,

@@ -55,17 +55,20 @@ import { noteFromSavedSource } from "./lib/api";
 import {
   createSourceClient,
   TranscriptFallbackError,
+  type RevisionComparison,
+  type SavedSource,
 } from "./lib/source-client";
 import { AttentionArt, Graph } from "./components/Graph";
 import Modal from "./components/Modal";
 import Assistant from "./components/Assistant";
 import RecallCards from "./components/RecallCards";
 import StructuredStudy from "./components/StructuredStudy";
+import SourceVersions from "./components/SourceVersions";
 import SavedTopicDetails from "./components/SavedTopicDetails";
 import { studyLabel, studyMessage } from "./lib/study-note";
 import { useSourceStudies } from "./lib/use-source-studies";
 
-type Dialog = "add" | "about" | "delete" | "rename" | "assign" | "merge" | null;
+type Dialog = "add" | "about" | "delete" | "rename" | "assign" | "merge" | "versions" | null;
 // One auth client owns session recovery, including during StrictMode remounts.
 const sourceClient = (() => {
   try {
@@ -133,6 +136,8 @@ export default function App() {
   const videoInputMode = hasExportGuidance ? "supplied" : videoMode;
   const [topicName, setTopicName] = useState(""),
     [mergeTarget, setMergeTarget] = useState("");
+  const [revisionTarget,setRevisionTarget]=useState('');
+  const [revisionComparison,setRevisionComparison]=useState<RevisionComparison|null>(null);
   const mainRef = useRef<HTMLElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const [narrow, setNarrow] = useState(
@@ -161,7 +166,7 @@ export default function App() {
     id: string;
   } | null>(null);
   const enrichNote = (note: Note) =>
-    note.savedSource && studies.records[note.id]
+    note.savedSource && studies.records[note.id] && (note.savedSource.source_version??1)===(studies.records[note.id].source_version??1)
       ? noteFromSavedSource(note.savedSource, studies.records[note.id])
       : note;
   const notes = baseNotes.map(enrichNote).map(n=>({...n,topics:n.savedSource?(topicMaps.library.maps.find(m=>m.source_id===n.id)?.analysis?.topics.map(t=>t.id)??[]):n.topics}));
@@ -335,6 +340,7 @@ export default function App() {
     const isVideo = sourceTab === "Video";
     const uploading = isPDF && pdfMode === "upload";
     let url = "";
+    let existingNote: Note | undefined;
     if (uploading) {
       if (!pdfFile) {
         setError("Choose a selectable-text PDF to upload.");
@@ -390,12 +396,7 @@ export default function App() {
             ? n.savedSource?.canonical_url === identity
             : canonicalUrl(n.url) === identity),
       );
-      if (existing) {
-        setDialog(null);
-        openNote(existing);
-        setToast("Already in your library. Opened the existing note.");
-        return;
-      }
+      existingNote = existing;
       if (
         !isVideo &&
         /(?:youtube\.com|youtu\.be|zoom\.us|panopto|teams\.microsoft|sharepoint\.com|teams\.cloud\.microsoft)/i.test(
@@ -422,7 +423,7 @@ export default function App() {
     }
     setBusy(true);
     try {
-      const note = noteFromSavedSource(
+      const source = existingNote?.savedSource ?? (
         isVideo
           ? videoInputMode === "auto"
             ? await sourceClient.importYouTube({ url, title: sourceTitle })
@@ -445,8 +446,18 @@ export default function App() {
                 url,
                 title: sourceTitle,
                 raw_text: rawText || null,
-              }),
+              })
       );
+      const savedBefore = library.notes.find(n=>n.id===source.id && n.savedSource);
+      if (savedBefore) {
+        const compared=await sourceClient.compareSource(source.id,{file:isPDF&&uploading?(pdfFile??undefined):isVideo&&videoInputMode==='supplied'&&transcriptMode==='upload'?(transcriptFile??undefined):undefined,rawText:!isPDF&&!isVideo&&rawText.trim()?rawText:undefined,transcriptText:isVideo&&videoInputMode==='supplied'&&transcriptMode==='paste'?transcriptText:undefined});
+        replaceSavedSource(compared.current);
+        openNote(noteFromSavedSource(compared.current));
+        if(compared.changed){setRevisionTarget(source.id);setRevisionComparison(compared);setDialog('versions');}
+        else{setDialog(null);setToast('No captured changes. Opened your saved note.');}
+        return;
+      }
+      const note=noteFromSavedSource(source);
       changeLibrary({ type: "add-sources", notes: [note] });
       setDialog(null);
       setSourceUrl("");
@@ -472,6 +483,11 @@ export default function App() {
       setBusy(false);
     }
   }
+  function replaceSavedSource(source: SavedSource) {
+    changeLibrary({type:'refresh-source',note:noteFromSavedSource(source)});
+    setSelectedPassage(null);studies.reload();topicMaps.invalidate();
+  }
+  function openVersions(note:Note){setRevisionTarget(note.id);setRevisionComparison(null);setError('');setDialog('versions');}
   async function removeCurrentSource() {
     if (!currentNote || busy) return;
     setError("");
@@ -1346,6 +1362,7 @@ export default function App() {
                       <ArrowLeft size={15} /> Back to library
                     </button>
                     <div>
+                      {currentNote.savedSource&&<button className="text-button" disabled={busy} onClick={()=>openVersions(currentNote)}>Source versions &amp; refresh</button>}
                       <button
                         className="icon-button"
                         onClick={() => setDialog("assign")}
@@ -1407,7 +1424,7 @@ export default function App() {
                         <BookOpen size={13} />
                         {currentNote.savedSource && !currentNote.study?.note
                           ? "Read-only source"
-                          : "Read-only note"}
+                          : currentNote.savedSource ? `Read-only note · version ${currentNote.savedSource.source_version??1}` : "Read-only note"}
                       </span>
                     </div>
                     <div className="topic-chips clickable">
@@ -1440,7 +1457,7 @@ export default function App() {
                         onCitation={inspectPassage}
                       />
                       <RecallCards
-                        key={`recall-${currentNote.id}`}
+                        key={`recall-${currentNote.id}-${currentNote.savedSource?.source_version??1}`}
                         note={currentNote}
                         mastered={mastered}
                         onMaster={markMaster}
@@ -1853,6 +1870,7 @@ export default function App() {
               rename: "Give this topic a better name",
               assign: "Organize this source",
               merge: "Combine two topics",
+              versions: "Source versions and refresh",
             }[dialog]
           }
           onClose={() => setDialog(null)}
@@ -2265,6 +2283,7 @@ export default function App() {
               </div>
             </form>
           )}
+          {dialog === 'versions' && sourceClient && (()=>{const note=notes.find(n=>n.id===revisionTarget);return note?.savedSource?<SourceVersions key={note.id} note={note} client={sourceClient} initial={revisionComparison} onApplied={source=>{replaceSavedSource(source);setDialog(null);setToast(`Source refreshed to version ${source.source_version??1}. Creating its new study note.`);}} onReviewed={()=>topicMaps.invalidate()} onClose={()=>setDialog(null)}/>:<p>This source is no longer available.</p>;})()}
           {dialog === "assign" && currentNote?.savedSource && <SavedSourceAssignments key={currentNote.id} note={currentNote} library={topicMaps.library} busy={topicMaps.busy} error={topicMaps.error} onSave={topicMaps.correct} onDone={()=>{setDialog(null);}}/>}
           {dialog === "assign" && currentNote && !currentNote.savedSource && (
             <>

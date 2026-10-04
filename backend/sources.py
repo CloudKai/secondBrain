@@ -113,6 +113,27 @@ class SourceGateway:
                 503, "Your sources could not be saved or loaded. Try again."
             ) from exc
 
+    async def find_identity(self, identity: str) -> CapturedSource | None:
+        try:
+            response = await self.client.post(
+                f"{self.project_url}/rest/v1/rpc/find_source_identity",
+                headers=self.headers, json={"p_identity": identity},
+            )
+            if response.status_code in (401, 403):
+                raise HTTPException(401, "Your library session is unavailable. Retry connecting.")
+            response.raise_for_status()
+            value = response.json()
+            if value is None:
+                return None
+            source = CapturedSource.model_validate_json(json.dumps(value))
+            if source.user_id != self.user_id:
+                raise ValueError("Unowned upload identity")
+            return source
+        except HTTPException:
+            raise
+        except (httpx.HTTPError, ValueError, TypeError) as exc:
+            raise HTTPException(503, "Upload reuse is unavailable. Check the source revision migration and retry.") from exc
+
     async def find(self, **filters: str) -> CapturedSource | None:
         sources = await self.request("GET", {"select": "*", "limit": "1", **filters})
         return sources[0] if sources else None
@@ -291,6 +312,8 @@ async def save_pdf_upload(
     )
     identity = "urn:pdf:sha256:" + hashlib.sha256(data).hexdigest()
     existing = await gateway.find(canonical_url=f"eq.{identity}")
+    if existing is None:
+        existing = await gateway.find_identity(identity)
     if existing:
         return existing
     try:
