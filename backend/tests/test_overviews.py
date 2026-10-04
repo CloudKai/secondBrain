@@ -197,6 +197,10 @@ async def synthesis_conflicts():
         )
         assert result.source_ids == [UUID(SOURCE), UUID(second)]
         assert result.overview.reference_ids == [SOURCE + ":p0001", second + ":p0001"]
+        draft["overview"]["text"] = "The evaluations differ (ref1)."
+        with pytest.raises(GenerationFailure, match="invalid_output"):
+            await generator.generate(inputs, source_count=2)
+        draft["overview"]["text"] = "Results differ across these evaluation settings."
         draft["overview"]["reference_ids"] = ["unknown:p0001"]
         with pytest.raises(GenerationFailure, match="invalid_output"):
             await generator.generate(inputs, source_count=2)
