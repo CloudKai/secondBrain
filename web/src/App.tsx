@@ -1,3 +1,4 @@
+import SavedSourceAssignments from "./components/SavedSourceAssignments";
 import { useTopicLibrary } from "./lib/use-topic-library";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
@@ -497,17 +498,19 @@ export default function App() {
       setBusy(false);
     }
   }
-  function renameTopic(e: React.FormEvent) {
+  async function renameTopic(e: React.FormEvent) {
     e.preventDefault();
     if (!topic || !topicName.trim()) return;
-    changeLibrary({ type: "rename-topic", id: topic.id, name: topicName });
+    if(topic.saved){if(!await topicMaps.correct({action:"rename",topic_id:topic.id,title:topicName.trim()}))return;}
+    else changeLibrary({ type: "rename-topic", id: topic.id, name: topicName });
     setDialog(null);
     setToast("Topic renamed. Source notes are preserved.");
   }
-  function mergeTopics(e: React.FormEvent) {
+  async function mergeTopics(e: React.FormEvent) {
     e.preventDefault();
     if (!topic || !mergeTarget) return;
-    changeLibrary({
+    if(topic.saved){if(!await topicMaps.correct({action:"merge",topic_id:topic.id,target_id:mergeTarget}))return;}
+    else changeLibrary({
       type: "merge-topics",
       source: topic.id,
       target: mergeTarget,
@@ -520,7 +523,7 @@ export default function App() {
     changeLibrary({ type: "toggle-recall", id });
   }
   function topicDetails(t: Topic) {
-    if (t.saved) return <SavedTopicDetails key={t.id} topic={t} maps={topicMaps.library.maps} client={sourceClient} enabled={storage === 'ready'} topicError={topicMaps.error} placementBusy={topicMaps.busy} names={names} onReloadTopics={topicMaps.reload} onPlace={topicMaps.place} onOpen={openNote} onEvidence={showEvidence}/>;
+    if (t.saved) return <SavedTopicDetails key={t.id} topic={t} maps={topicMaps.library.maps} client={sourceClient} enabled={storage === 'ready'} topicError={topicMaps.error} placementBusy={topicMaps.busy} names={names} onReloadTopics={topicMaps.reload} onPlace={topicMaps.place} onOpen={openNote} onEvidence={showEvidence} onRename={()=>{setSelectedTopic(t.id);setTopicName(t.title);setDialog("rename");}} onMerge={()=>{setSelectedTopic(t.id);setMergeTarget(topics.find(x=>x.id!==t.id)?.id??"");setDialog("merge");}} canMerge={topics.length>1}/>;
     return (
       <>
         <div className="panel-topic-icon">
@@ -1347,7 +1350,7 @@ export default function App() {
                         className="icon-button"
                         onClick={() => setDialog("assign")}
                         aria-label="Manage this source’s topics"
-                        disabled={Boolean(currentNote.savedSource)}
+                        disabled={Boolean(currentNote.savedSource)&&(!currentNote.study?.note||!topicMaps.library.maps.find(m=>m.source_id===currentNote.id)?.analysis||topicMaps.busy)}
                       >
                         <Layers3 size={17} />
                       </button>
@@ -1651,7 +1654,7 @@ export default function App() {
                       {topics.length} topics <span className="muted">·</span>{" "}
                       {connections.length} connections
                     </span>
-                    {rejected.length > 0 && (
+                    {!showingSavedGraph && rejected.length > 0 && (
                       <button
                         className="text-button"
                         onClick={() =>
@@ -1714,9 +1717,11 @@ export default function App() {
                     {c.evidence&&Object.entries(c.evidence).flatMap(([source,ids])=>ids.map(id=><button className="text-button" key={`${source}:${id}`} onClick={()=>showEvidence(source,id)}>Inspect {notes.find(n=>n.id===source)?.title??'source'} · {id}</button>))}
                     <div>
                       <span>{c.noteIds.length} supporting sources</span>
+                      {c.saved&&<button disabled={topicMaps.busy} onClick={()=>void topicMaps.correct({action:"connection",source:c.source,target:c.target,state:"accepted"})}>{topicMaps.library.connection_decisions.some(d=>d.state==="accepted"&&[d.source,d.target].includes(c.source)&&[d.source,d.target].includes(c.target))?"Connection accepted":"Accept connection"}</button>}
                       <button
-                        disabled={c.saved}
+                        disabled={c.saved && topicMaps.busy}
                         onClick={() => {
+                          if(c.saved){void topicMaps.correct({action:"connection",source:c.source,target:c.target,state:"rejected"});return;}
                           changeLibrary({
                             type: "reject-connection",
                             source: c.source,
@@ -1725,11 +1730,12 @@ export default function App() {
                           setToast("Connection removed for this session.");
                         }}
                       >
-                        {c.saved ? "Connection corrections planned" : "Reject connection"} <X size={12} />
+                        Reject connection <X size={12} />
                       </button>
                     </div>
                   </div>
                 ))}
+                {showingSavedGraph&&topicMaps.library.connection_decisions.filter(d=>d.state==="rejected").map(d=><div className="connection-card" key={`${d.source}:${d.target}`}><div className="connection-label"><span>{names[d.source]??"Topic no longer supported"}</span><Link2 size={14}/><span>{names[d.target]??"Topic no longer supported"}</span></div><p>You rejected this connection. It stays rejected through later automatic organization and topic merges.</p><button className="text-button" disabled={topicMaps.busy} onClick={()=>void topicMaps.correct({action:"connection",source:d.source,target:d.target,state:"accepted"})}>Accept if supported</button></div>)}
                 {!connections.length && (
                   <div className="empty-results">
                     <Link2 size={25} />
@@ -2192,6 +2198,7 @@ export default function App() {
           )}
           {dialog === "rename" && topic && (
             <form onSubmit={renameTopic}>
+              {topic.saved&&topicMaps.error&&<p role="alert" className="form-error">{topicMaps.error}</p>}
               <p className="modal-intro">
                 Use a name that makes sense to you. Supporting source notes stay
                 intact.
@@ -2214,7 +2221,7 @@ export default function App() {
                 >
                   Cancel
                 </button>
-                <button className="button primary">
+                <button className="button primary" disabled={topicMaps.busy}>
                   Save name <Check size={15} />
                 </button>
               </div>
@@ -2222,6 +2229,7 @@ export default function App() {
           )}
           {dialog === "merge" && topic && (
             <form onSubmit={mergeTopics}>
+              {topic.saved&&topicMaps.error&&<p role="alert" className="form-error">{topicMaps.error}</p>}
               <p className="modal-intro">
                 Merge “{topic.title}” into another topic. Original source notes
                 and their evidence will be preserved.
@@ -2250,13 +2258,14 @@ export default function App() {
                 >
                   Cancel
                 </button>
-                <button className="button primary">
-                  Combine topics <Layers3 size={15} />
+                <button className="button primary" disabled={topicMaps.busy}>
+                  Merge topics <Layers3 size={15} />
                 </button>
               </div>
             </form>
           )}
-          {dialog === "assign" && currentNote && (
+          {dialog === "assign" && currentNote?.savedSource && <SavedSourceAssignments key={currentNote.id} note={currentNote} library={topicMaps.library} busy={topicMaps.busy} error={topicMaps.error} onSave={topicMaps.correct} onDone={()=>{setDialog(null);}}/>}
+          {dialog === "assign" && currentNote && !currentNote.savedSource && (
             <>
               <p className="modal-intro">
                 Correct which existing topics this source belongs to. Your study

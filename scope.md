@@ -509,3 +509,16 @@ persistent corrections/removal. Native/iOS and its tracker unchanged; commits
 local, desktop acceptance only, production unconfigured. Semantic synthesis
 quality requires evidence inspection. Setup/review: docs/topic-overview-setup.md
 and docs/reviews/ticket11.md.
+
+
+## Persistent topic corrections — planned 11 / #12 selected (2026-10-04)
+
+Target unit: durable saved-topic rename/merge, source membership corrections and
+connection decisions through one authenticated atomic database boundary.
+Original notes remain read-only. Redirects, assignment overrides and rejection
+precedence must survive later automatic writes and source removal. Current
+evidence drives graph rebuilds; fingerprints hide stale combined citations.
+The user agreed correction/removal API, database ownership/worker fences and
+browser correction/reload/citation seams. Focused local checks pass; independent
+review, full suite, migration and hosted acceptance remain pending. Native/iOS
+and its tracker remain unchanged. Setup: docs/topic-corrections-setup.md.

@@ -90,12 +90,25 @@ class TopicConnection(StrictModel):
     evidence: dict[str, list[str]]
 
 
+class ConnectionDecision(StrictModel):
+    source: UUID
+    target: UUID
+    state: Literal["accepted", "rejected"]
+
+    @model_validator(mode="after")
+    def ordered_pair(self):
+        if self.source >= self.target:
+            raise ValueError("Connection decisions require a canonical distinct pair")
+        return self
+
+
 class TopicLibrary(StrictModel):
     maps: list[TopicRecord]
     topics: list[TopicNode]
     connections: list[TopicConnection]
     graph_ready: bool
     partial: bool
+    connection_decisions: list[ConnectionDecision] = Field(default_factory=list, max_length=5000)
 
 
 class TopicPlacement(StrictModel):

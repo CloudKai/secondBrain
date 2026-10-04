@@ -16,6 +16,7 @@ def topic_client(monkeypatch):
     monkeypatch.setenv("SUPABASE_URL", "https://supabase.test")
     monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", "public-test")
     rows = []
+    decisions = []
 
     def external(request):
         user = ALICE if request.headers.get("authorization") == "Bearer alice" else BOB
@@ -24,6 +25,8 @@ def topic_client(monkeypatch):
         if request.url.path == "/rest/v1/source_topic_maps":
             assert request.url.params["user_id"] == "eq." + user
             return httpx.Response(200, json=[r for r in rows if r["user_id"] == user])
+        if request.url.path == "/rest/v1/topic_connection_decisions":
+            return httpx.Response(200, json=[r for r in decisions if r["user_id"] == user])
         if request.url.path == "/rest/v1/rpc/confirm_topic_placement":
             payload = json.loads(request.content)
             assert payload == {
@@ -42,7 +45,9 @@ def topic_client(monkeypatch):
         "AsyncClient",
         lambda **kw: original(**{**kw, "transport": httpx.MockTransport(external)}),
     )
-    return TestClient(app), rows
+    client = TestClient(app)
+    client.decisions = decisions
+    return client, rows
 
 
 def test_empty_library_has_no_prepared_topics_or_graph(topic_client):
@@ -57,6 +62,7 @@ def test_empty_library_has_no_prepared_topics_or_graph(topic_client):
         "connections": [],
         "graph_ready": False,
         "partial": False,
+        "connection_decisions": [],
     }
     assert client.get("/api/v2/topic-library").status_code == 401
 
@@ -182,6 +188,11 @@ def test_explained_relation_needs_two_sources_and_unrelated_topics_stay_separate
     ]
     assert data["connections"][0]["evidence"] == {SOURCE: ["p0001"]}
     assert "mastery" in data["connections"][0]["reason"]
+    client.decisions.append(dict(user_id=ALICE,source=T1,target=T2,state="rejected"))
+    assert library()["connections"] == []
+    assert library()["connection_decisions"] == [{"source":T1,"target":T2,"state":"rejected"}]
+    client.decisions[0]["state"] = "accepted"
+    assert len(library()["connections"]) == 1
     rows.pop()
     unrelated = assignment("cccccccc-cccc-4ccc-8ccc-cccccccccccc", "Calculus")
     unrelated.update(context="Mathematics", groups=["Math"])

@@ -10,9 +10,11 @@ from backend.topic_store import TopicStore
 from backend.topic_library import build_topic_library
 
 from backend.overviews import router as overview_router
+from backend.topic_corrections import router as correction_router
 
 router = APIRouter(prefix="/api/v2", tags=["browser topics"])
 router.include_router(overview_router)
+router.include_router(correction_router)
 
 
 def storage_failure(error: StudyStorageError):
@@ -32,10 +34,12 @@ def storage_failure(error: StudyStorageError):
 @router.get("/topic-library", response_model=TopicLibrary)
 async def topic_library(gateway: SourceGateway = Depends(owned_sources)):
     try:
-        records = await TopicStore(
+        store = TopicStore(
             gateway.client, gateway.project_url, gateway.headers
-        ).list_owned(gateway.user_id)
-        return build_topic_library(records[:500], partial=len(records) > 500)
+        )
+        records = await store.list_owned(gateway.user_id)
+        decisions = await store.decisions(gateway.user_id)
+        return build_topic_library(records[:500], partial=len(records) > 500 or len(decisions) > 5000, decisions=decisions)
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
 

@@ -10,6 +10,7 @@ interface Props {
   topicError: string; placementBusy: boolean; names: Record<string, string>;
   onReloadTopics: () => void; onPlace: (source: string, topic: string, target: string | null) => unknown;
   onOpen: (note: Note) => void; onEvidence: (source: string, passage: string) => void;
+  onRename: () => void; onMerge: () => void; canMerge: boolean;
 }
 function CitedClaim({claim, overview, onEvidence}: {claim: OverviewClaim; overview: TopicOverview; onEvidence: Props["onEvidence"]}) {
   return <p>{claim.text} {claim.reference_ids.map(id => {
@@ -18,7 +19,7 @@ function CitedClaim({claim, overview, onEvidence}: {claim: OverviewClaim; overvi
     return <button className="citation" key={id} title={ref.title} aria-label={`Inspect ${ref.title} passage ${ref.passage.id}`} onClick={() => onEvidence(ref.source_id, ref.passage.id)}>{index + 1}</button>;
   })}</p>;
 }
-export default function SavedTopicDetails({topic, maps, client, enabled, topicError, placementBusy, names, onReloadTopics, onPlace, onOpen, onEvidence}: Props) {
+export default function SavedTopicDetails({topic, maps, client, enabled, topicError, placementBusy, names, onReloadTopics, onPlace, onOpen, onEvidence, onRename, onMerge, canMerge}: Props) {
   const revision = topic.notes.map(n => `${n.id}:${maps.find(m => m.source_id === n.id)?.updated_at}:${n.study?.updated_at}`).sort().join("|");
   const state = useTopicOverview(client, enabled, topic.id, revision);
   const separate = state.data?.view_mode === "separate";
@@ -37,6 +38,10 @@ export default function SavedTopicDetails({topic, maps, client, enabled, topicEr
     <div className="panel-topic-icon"><Network size={24} aria-hidden="true" /></div>
     <span className="eyebrow">{uncertain ? "SUGGESTED TOPIC" : "SHARED TOPIC"}</span>
     <h2>{topic.title}</h2><p className="panel-description">{topic.description}</p>
+    <div className="panel-actions">
+      <button className="text-button" disabled={placementBusy} onClick={onRename}>Rename topic</button>
+      <button className="text-button" disabled={placementBusy || !canMerge} onClick={onMerge}>Merge with a topic</button>
+    </div>
     {topicError && <div role="alert"><p>{topicError}</p><button className="text-button" onClick={onReloadTopics}>Reload topics</button></div>}
     <p className="micro-copy">{topic.context} · {(topic.groups ?? []).join(" · ")} · {topic.notes.length} supporting sources. Coverage is not mastery.</p>
     {uncertain && topic.notes.length >= 2 && <p className="micro-copy">Confirm the suggested source placements below before combining their evidence.</p>}

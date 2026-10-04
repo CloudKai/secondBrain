@@ -1,4 +1,4 @@
-import { topicLibrarySchema, topicRecordSchema } from "./topic-library";
+import { type TopicCorrection, topicLibrarySchema, topicRecordSchema } from "./topic-library";
 import { overviewSnapshotSchema } from "./topic-overview";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -239,6 +239,7 @@ export function createSourceClient(
               : "This PDF is unsupported. Use an unencrypted selectable-text PDF up to 10 MB and 100 pages.",
         );
       }
+      if (path === "/topic-corrections") throw new Error(response.status === 404 ? "This topic or source is no longer available. Reload topics." : response.status === 422 ? "Choose valid topic names and supporting passages, then retry." : "Topic corrections could not be saved. Check the connection and migration, then retry.");
       throw new Error(
         path.includes("topic") && response.status !== 401 && response.status !== 404
           ? "Topic mapping is unavailable. Check the topic migration and worker, then reload topics."
@@ -260,7 +261,7 @@ export function createSourceClient(
 
   async function parse<T>(
     response: Response,
-    schema: z.ZodType<T>,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
   ): Promise<T> {
     try {
       return schema.parse(await response.json());
@@ -283,6 +284,7 @@ export function createSourceClient(
       if (value.topic_id !== topicId) throw new Error("The library returned incomplete topic material. Reload topics.");
       return value;
     },
+    async correctTopics(action: TopicCorrection) { await request("/topic-corrections", {method:"POST",body:JSON.stringify(action)}); },
     async topicLibrary() { return parse(await request('/topic-library'),topicLibrarySchema); },
     async mapTopics(id: string,retry=false) { return parse(await request(`/sources/${encodeURIComponent(id)}/topics`,{method:'POST',body:JSON.stringify({retry})}),topicRecordSchema); },
     async confirmPlacement(sourceId:string,topicId:string,targetId:string|null) { return parse(await request(`/sources/${encodeURIComponent(sourceId)}/topics/placement`,{method:'POST',body:JSON.stringify({topic_id:topicId,target_id:targetId})}),topicRecordSchema); },

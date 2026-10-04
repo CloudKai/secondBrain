@@ -3,7 +3,7 @@
 import json
 from uuid import UUID
 from backend.study_store import StudyStore, StudyStorageError
-from backend.topic_models import TopicRecord, TopicClaim, TopicAnalysis, TopicPlacement
+from backend.topic_models import TopicRecord, TopicClaim, TopicAnalysis, TopicPlacement, ConnectionDecision
 
 COLUMNS = "source_id,user_id,status,attempts,max_attempts,next_attempt_at,error_code,analysis,updated_at"
 
@@ -11,6 +11,18 @@ COLUMNS = "source_id,user_id,status,attempts,max_attempts,next_attempt_at,error_
 class TopicStore:
     def __init__(self, client, project_url, headers):
         self.transport = StudyStore(client, project_url, headers)
+
+    async def decisions(self, user_id: UUID):
+        values = await self.transport.request("/topic_connection_decisions", params={
+            "select": "user_id,source,target,state", "user_id": f"eq.{user_id}",
+            "order": "source.asc,target.asc", "limit": "5001",
+        })
+        try:
+            if not isinstance(values, list) or any(v.get("user_id") != str(user_id) for v in values):
+                raise ValueError("Invalid owned connection decisions")
+            return [ConnectionDecision.model_validate_json(json.dumps({k: v[k] for k in ("source", "target", "state")})) for v in values]
+        except (ValueError, TypeError, KeyError, AttributeError) as exc:
+            raise StudyStorageError() from exc
 
     async def list_owned(self, user_id: UUID, limit: int = 501):
         values = await self.transport.request(

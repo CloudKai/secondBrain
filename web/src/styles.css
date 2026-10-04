@@ -3344,3 +3344,8 @@ main:focus-visible { outline: none; }
 .source-branch > .eyebrow { display: block; margin-bottom: 8px; font-size: 10px; }
 .source-branch .text-button { display: block; min-height: 32px; text-align: left; }
 .source-branch .source-title { white-space: normal; text-align: left; overflow-wrap: anywhere; }
+
+.correction-choices { border: 0; padding: 0; margin: 20px 0; }
+.correction-choices legend { font-weight: 600; margin-bottom: 12px; }
+.correction-choices .assignment-list { max-height: 240px; overflow: auto; }
+.correction-choices .assignment-list small { color: var(--muted); margin-left: auto; }

@@ -8,10 +8,12 @@ export const topicRecordSchema=z.object({source_id:uuid,status:z.enum(['queued',
  if((r.status==='succeeded')!==(r.analysis!==null))ctx.addIssue({code:'custom',message:'Invalid topic status'});
  if(r.analysis){const ids=new Set(r.analysis.topics.map(t=>t.id));if(ids.size!==r.analysis.topics.length||!r.analysis.topics.some(t=>t.role==='main')||r.analysis.relations.some(t=>t.source===t.target||!ids.has(t.source)||!ids.has(t.target)))ctx.addIssue({code:'custom',message:'Invalid mapped topics'});}
 });
-export const topicLibrarySchema=z.object({maps:z.array(topicRecordSchema).max(500),topics:z.array(z.object({...description,source_ids:z.array(uuid).min(1).max(500),uncertain:z.boolean()}).strict()).max(6000),connections:z.array(z.object({id:text(120),source:uuid,target:uuid,kind:z.enum(['uses','requires','evaluates']),reason:text(1000),source_ids:z.array(uuid).min(2).max(500),evidence:z.record(uuid,z.array(text(16)).min(1).max(10))}).strict()).max(12000),graph_ready:z.boolean(),partial:z.boolean()}).strict().superRefine((library,ctx)=>{
+export const connectionDecisionSchema=z.object({source:uuid,target:uuid,state:z.enum(['accepted','rejected'])}).strict().refine(d=>d.source<d.target);
+export type TopicCorrection = {action:'rename';topic_id:string;title:string}|{action:'merge';topic_id:string;target_id:string}|{action:'assign';source_id:string;topic_ids:string[];evidence_ids:string[]}|{action:'connection';source:string;target:string;state:'accepted'|'rejected'};
+export const topicLibrarySchema=z.object({connection_decisions:z.array(connectionDecisionSchema).max(5000).default([]),maps:z.array(topicRecordSchema).max(500),topics:z.array(z.object({...description,source_ids:z.array(uuid).min(1).max(500),uncertain:z.boolean()}).strict()).max(6000),connections:z.array(z.object({id:text(120),source:uuid,target:uuid,kind:z.enum(['uses','requires','evaluates']),reason:text(1000),source_ids:z.array(uuid).min(2).max(500),evidence:z.record(uuid,z.array(text(16)).min(1).max(10))}).strict()).max(12000),graph_ready:z.boolean(),partial:z.boolean()}).strict().superRefine((library,ctx)=>{
  const ids=new Set(library.topics.map(t=>t.id));
  if(ids.size!==library.topics.length||library.connections.some(c=>c.source===c.target||!ids.has(c.source)||!ids.has(c.target)||new Set(c.source_ids).size<2))ctx.addIssue({code:'custom',message:'Invalid topic graph'});
 });
 export type TopicLibrary=z.infer<typeof topicLibrarySchema>;
 export type TopicRecord=z.infer<typeof topicRecordSchema>;
-export const emptyTopicLibrary:TopicLibrary={maps:[],topics:[],connections:[],graph_ready:false,partial:false};
+export const emptyTopicLibrary:TopicLibrary={connection_decisions:[],maps:[],topics:[],connections:[],graph_ready:false,partial:false};

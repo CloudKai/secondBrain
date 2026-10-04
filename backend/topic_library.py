@@ -1,10 +1,10 @@
 """Rebuild the learner's graph from persisted, source-backed topic analyses."""
 
-from backend.topic_models import TopicLibrary, TopicNode, TopicRecord, TopicConnection
+from backend.topic_models import TopicLibrary, TopicNode, TopicRecord, TopicConnection, ConnectionDecision
 
 
 def build_topic_library(
-    records: list[TopicRecord], *, partial: bool = False
+    records: list[TopicRecord], *, partial: bool = False, decisions: list[ConnectionDecision] | None = None
 ) -> TopicLibrary:
     nodes = {}
     for record in records:
@@ -30,10 +30,13 @@ def build_topic_library(
             node.groups = groups[:100]
             node.aliases = aliases[:500]
     connections = {}
+    rejected = {tuple(sorted((d.source, d.target))) for d in decisions or [] if d.state == "rejected"}
     for record in records:
         if not record.analysis:
             continue
         for relation in record.analysis.relations:
+            if tuple(sorted((relation.source, relation.target))) in rejected:
+                continue
             a, b = nodes[relation.source], nodes[relation.target]
             support = sorted(set(a.source_ids + b.source_ids), key=str)
             if len(support) < 2 or a.uncertain or b.uncertain:
@@ -61,4 +64,5 @@ def build_topic_library(
         or any(len(t.source_ids) >= 2 and not t.uncertain for t in nodes.values()),
         partial=partial
         or any(r.analysis and r.analysis.catalog_partial for r in records),
+        connection_decisions=(decisions or [])[:5000],
     )

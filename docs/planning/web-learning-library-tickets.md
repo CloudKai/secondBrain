@@ -11,12 +11,12 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **10**, combined topic overviews and separate source branches — [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11).
 
-**Next draft:** planned ticket **11**, persistent topic corrections and consistent removal.
+**In progress:** planned ticket **11**, persistent topic corrections and consistent removal — [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12). Agreed API/database/browser boundaries; implementation pending.
 
-**Target behavior:** planned tickets **11–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**Target behavior:** planned tickets **12–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next draft is **11: Correct topic organization and remove sources consistently**. YouTube support is verified for anonymously accessible English
+The current slice is **11: Correct topic organization and remove sources consistently**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -32,7 +32,7 @@ captions; other automatic providers remain planned.
 | 08 | Panopto caption access and fallback | Complete; local + hosted supplied-input acceptance | [#9](https://github.com/CloudKai/secondBrain/issues/9), [setup](../panopto-transcript-setup.md), [review](../reviews/ticket09.md) |
 | 09 | Saved-source topic cards and graph | Complete; local + hosted acceptance | [#10](https://github.com/CloudKai/secondBrain/issues/10), [setup](../topic-graph-setup.md), [review](../reviews/ticket10.md) |
 | 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
-| 11 | Persistent topic corrections and consistent removal | Draft; depends on 10 | Unpublished |
+| 11 | Persistent topic corrections and consistent removal | In progress; local/hosted acceptance pending | [#12](https://github.com/CloudKai/secondBrain/issues/12) |
 | 12 | Reuse and versioned refresh | Draft; capture reuse exists, refresh remains planned | Unpublished |
 | 13 | Long sources and page/time range selection | Draft; bounded capture exists, ranges remain planned | Unpublished |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
@@ -377,9 +377,13 @@ A learner compares overlapping material through a combined topic overview or ind
 
 ## 11: Correct topic organization and remove sources consistently
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — selected 2026-10-04; acceptance pending.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#12 — open](https://github.com/CloudKai/secondBrain/issues/12)
+
+**Current progress:** Existing mappings, corrections and source/overview fences inspected. User agreed authenticated correction/removal API, database ownership/worker fences and browser correction/reload/citation checks. Durable correction boundary selected; native/iOS unchanged.
+
+**Label:** `ready-for-agent`
 
 ### What to build
 

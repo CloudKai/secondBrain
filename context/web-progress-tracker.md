@@ -17,7 +17,7 @@ Independent Standards and Spec re-reviews have no remaining findings. Backend
 checks use project Python; the bare launcher still has a stale interpreter.
 Hosted/browser acceptance passed with controlled fixtures; desktop checks only.
 
-**Next draft:** planned ticket 11, persistent topic corrections and consistent removal.
+**Current unit:** planned ticket 11 / [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12), persistent topic corrections and consistent removal; local and hosted acceptance pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, broad persistent
 corrections, refresh/ranges and assistant/research remain planned. Existing example
@@ -385,3 +385,20 @@ Existing deprecation/bundle warnings and stale bare launchers remain. Semantic
 quality still needs evidence inspection. Setup: docs/topic-overview-setup.md.
 Review: docs/reviews/ticket11.md. Commits remain local; no production release or
 phone-width acceptance. Native/iOS and its progress tracker remain unchanged.
+
+
+## Persistent topic corrections and removal — issue #12, planned 11
+
+Selected 2026-10-04. Published with native dependency on completed #11.
+The user agreed authenticated correction/removal API, database ownership and
+worker fences, and browser correction/reload/citation seams. Existing maps and
+example controls inspected. Implement durable rename/merge redirects, source
+assignment corrections and rejected/accepted connection decisions, preserving
+original notes and surviving corrections. Local/hosted acceptance is pending.
+Review fixed point: 7e9358f. Native/iOS and its tracker remain unchanged.
+
+Local checkpoint: validated correction API; rename/merge redirects; source
+assignment overrides; persisted connection decisions/rejection precedence; saved
+UI controls; membership/worker/deletion fences and reversible migration.
+Focused API/client/Postgres checks and typecheck pass. Full checks, independent
+review, migration and hosted acceptance remain pending.
