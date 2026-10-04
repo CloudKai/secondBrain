@@ -110,9 +110,10 @@ class OverviewGenerator:
                 raise ValueError("Unknown overview evidence")
             # Private labels belong to the citation field, not learner prose.
             # Preserve literal names that actually occur in the source evidence.
+            literal_labels = {label for ref in available.values()
+                              for label in re.findall(r"\bref\d+\b", ref.passage.excerpt)}
             for claim in [draft.overview, *draft.agreements, *draft.differences]:
-                if any(not any(label in r.passage.excerpt for r in available.values())
-                       for label in re.findall(r"\bref\d+\b", claim.text)):
+                if not set(re.findall(r"\bref\d+\b", claim.text)) <= literal_labels:
                     raise ValueError("Private citation label in overview prose")
             grounded = draft.model_dump()
             for claim in [grounded["overview"], *grounded["agreements"], *grounded["differences"]]:

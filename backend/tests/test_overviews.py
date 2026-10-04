@@ -200,6 +200,10 @@ async def synthesis_conflicts():
         draft["overview"]["text"] = "The evaluations differ (ref1)."
         with pytest.raises(GenerationFailure, match="invalid_output"):
             await generator.generate(inputs, source_count=2)
+        inputs[0].note.references[0].excerpt += " ref10"
+        inputs[0].note.references[0].end = len(inputs[0].note.references[0].excerpt)
+        with pytest.raises(GenerationFailure, match="invalid_output"):
+            await generator.generate(inputs, source_count=2)
         draft["overview"]["text"] = "Results differ across these evaluation settings."
         draft["overview"]["reference_ids"] = ["unknown:p0001"]
         with pytest.raises(GenerationFailure, match="invalid_output"):
