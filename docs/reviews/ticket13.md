@@ -26,8 +26,9 @@ both comparison previews. Existing correction and rejection rules remain applied
 ## Checks / status
 
 The relationship regression failed before the fix and passes afterward. Initial
-full checks: 122 backend, 55 web, build/typecheck and lint. Refreshed full checks pass: 122 backend, 55 web, build/typecheck and lint.
-Both independent re-reviews through 08d4835 have zero remaining findings. Hosted migration/API/browser acceptance pending. Automatic approval review
+and refreshed full checks: 122 backend, 55 web, build/typecheck and lint pass.
+Both independent re-reviews through 08d4835 have zero remaining findings.
+Hosted migration/API/browser acceptance pending. Automatic approval review
 blocked Run: earlier approvals did not cover this migration. Reviewed SQL is
 staged at query 2f6e3734-be16-4f73-a85c-c4d047815618 and matches the file exactly.
 Fresh approval requested; no schema execution occurred.

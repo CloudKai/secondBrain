@@ -405,15 +405,15 @@ A learner fixes topic names, duplicates, assignments, or connections and deletes
 
 ## 12: Reuse repeated sources and refresh changed material
 
-**Status:** In progress — selected 2026-10-04; implementation and acceptance pending.
+**Status:** Implemented locally; hosted migration approval and acceptance pending.
 
 **GitHub:** [#13 — open](https://github.com/CloudKai/secondBrain/issues/13)
 
-**Current progress:** Agreed API/external HTTP/database/browser seams. Local comparison/confirmation, stable source identity, saved-version readers, version/worker fences, PDF aliases and retained-correction evidence review are implemented. Focused checks pass; full checks/review and hosted migration/browser acceptance pending. [Selected scope](../source-revisions-setup.md).
+**Current progress:** Agreed API/external HTTP/database/browser seams. Local comparison/confirmation, stable source identity, saved-version readers, version/worker fences, PDF aliases and retained-correction evidence review are implemented. 122 backend tests, 55 web tests, web build/typecheck and lint pass. Both independent re-reviews have zero findings; hosted migration approval and API/browser acceptance pending. [Selected scope](../source-revisions-setup.md).
 
 **Label:** `ready-for-agent`
 
-**Already verified:** canonical recording/article identity and PDF upload digests reuse existing captures per learner. Changed-content detection, explicit versioned refresh and correction-preserving rebuilds remain planned.
+**Already verified:** canonical recording/article identity and PDF upload digests reuse existing captures per learner. Changed-content detection, explicit versioned refresh and correction-preserving rebuilds now pass local checks; hosted verification is pending.
 
 ### What to build
 
