@@ -131,7 +131,7 @@ async def synthesis_conflicts():
             end_ms=9000,
         ),
     ]
-    refs = [SOURCE + ":p0001", second + ":p0001"]
+    refs = ["ref1", "ref2"]
     draft = {
         "overview": {
             "text": "Results differ across these evaluation settings.",
@@ -149,6 +149,9 @@ async def synthesis_conflicts():
     def model_response(request):
         body = json.loads(request.content)
         assert "RAG reduced errors" in json.dumps(body)
+        payload = json.loads(body["messages"][1]["content"])
+        assert [e["id"] for source in payload for e in source["evidence"]] == refs
+        assert SOURCE not in json.dumps(payload) and second not in json.dumps(payload)
         return httpx.Response(
             200,
             json={
@@ -193,6 +196,7 @@ async def synthesis_conflicts():
             result.references[1].passage.excerpt == inputs[1].note.references[0].excerpt
         )
         assert result.source_ids == [UUID(SOURCE), UUID(second)]
+        assert result.overview.reference_ids == [SOURCE + ":p0001", second + ":p0001"]
         draft["overview"]["reference_ids"] = ["unknown:p0001"]
         with pytest.raises(GenerationFailure, match="invalid_output"):
             await generator.generate(inputs, source_count=2)
