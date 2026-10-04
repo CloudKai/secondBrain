@@ -2,8 +2,9 @@
 
 ## Status
 
-Local implementation and checks pass. Independent Standards/Spec review is complete. Hosted migration and
-browser acceptance are pending; this is not yet part of the verified web MVP.
+Complete in hosted development on 2026-10-04. The user approved the dashboard
+warning and migration 202610040007_topic_overviews.sql was applied. The existing
+worker was restarted. Local checks and independent Standards/Spec reviews pass.
 
 ## Learner flow
 
@@ -55,3 +56,29 @@ typecheck and lint pass. Exact bare pytest/uvicorn launchers resolve to stale
 Anaconda; use `python -m pytest` / `python -m uvicorn` in the project environment.
 Vite warns about the existing large single bundle; release pipeline is absent.
 Native/iOS and its progress tracker remain untouched.
+
+## Hosted development acceptance — 2026-10-04
+
+Authenticated API checks passed on-demand generation, stable queue identity,
+persisted switching, cross-learner denial, denied direct-table/worker access,
+exact references, original-note preservation and stale-result hiding after source
+removal. Final real-model/worker synthesis succeeded on attempt 1.
+
+Desktop browser checks passed topic-word navigation, visible overlap choices,
+source branches, both view choices after reload, conflicting findings, pending/
+retry feedback, PDF page 1 and video 0:06–0:12 passage navigation. A mixed-certainty
+pair blocked Combine until the learner confirmed the suggested assignment.
+
+The two PDF/video inputs were controlled fictional acceptance fixtures, seeded
+with valid saved notes/maps to isolate this slice. These checks used the real
+hosted database, worker and model; they do not establish new ingestion/provider
+capabilities. Temporary captures and derived queues were removed and verified.
+No phone-width acceptance or production release is claimed.
+
+Live output exposed ambiguous source IDs and redundant model citation labels.
+The model now receives short whitelisted passage labels; the server resolves
+only those labels to exact saved source/passage identities. Known parenthesized
+labels already declared by a claim are removed from prose, while literal source
+wording and unknown-label rejection are preserved. HTTP regressions and final
+independent re-reviews pass. Citation integrity does not guarantee semantic
+accuracy; inspect the saved evidence when using a synthesis.

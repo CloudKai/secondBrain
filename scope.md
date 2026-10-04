@@ -491,3 +491,21 @@ Local implementation/checks pass at the agreed API/model HTTP/database/browser s
 
 Local checks and both independent reviews pass; hosted acceptance awaits approval
 of the staged Supabase warning. No hosted overview capability is verified yet.
+
+
+## Verified combined topic overviews — planned 10 / #11 (2026-10-04)
+
+Supersedes the local-only checkpoints above. The approved migration is applied
+and the worker restarted. On-demand cited synthesis, attributed disagreements,
+separate source branches and persisted Combine/Keep separate are verified in
+hosted development. Exact PDF/video references and original notes are preserved.
+Mixed certainty requires confirmation; source membership revisions hide stale
+results and fence late workers. Hosted API/browser model runs each passed on
+attempt 1 using controlled fictional saved sources. Fixtures/derived queues were
+removed and verified. 117 backend tests, 39 web tests, build/typecheck and lint
+pass; both independent re-reviews have no remaining findings through a9c4507.
+GitHub #11 and both web records are synchronized. Next draft: planned 11, broad
+persistent corrections/removal. Native/iOS and its tracker unchanged; commits
+local, desktop acceptance only, production unconfigured. Semantic synthesis
+quality requires evidence inspection. Setup/review: docs/topic-overview-setup.md
+and docs/reviews/ticket11.md.

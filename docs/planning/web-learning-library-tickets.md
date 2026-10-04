@@ -5,18 +5,18 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–09 are complete** (9 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#10 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–10 are complete** (10 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#11 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **09**, saved-source topic cards and an explained graph.
+**Last completed:** planned ticket **10**, combined topic overviews and separate source branches — [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11).
 
-**In progress:** planned ticket **10**, combined topic overviews and separate source branches — [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11). Local implementation and independent review complete; migration approval and hosted acceptance pending.
+**Next draft:** planned ticket **11**, persistent topic corrections and consistent removal.
 
 **Target behavior:** planned tickets **11–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The current slice is **10: Offer combined overviews and separate source branches**. YouTube support is verified for anonymously accessible English
+The next draft is **11: Correct topic organization and remove sources consistently**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -31,19 +31,21 @@ captions; other automatic providers remain planned.
 | 07 | Zoom transcript availability and feedback | Complete; local + hosted supplied-transcript acceptance | [#8](https://github.com/CloudKai/secondBrain/issues/8), [setup](../zoom-transcript-setup.md), [review](../reviews/ticket08.md) |
 | 08 | Panopto caption access and fallback | Complete; local + hosted supplied-input acceptance | [#9](https://github.com/CloudKai/secondBrain/issues/9), [setup](../panopto-transcript-setup.md), [review](../reviews/ticket09.md) |
 | 09 | Saved-source topic cards and graph | Complete; local + hosted acceptance | [#10](https://github.com/CloudKai/secondBrain/issues/10), [setup](../topic-graph-setup.md), [review](../reviews/ticket10.md) |
-| 10 | Synthesized topic overviews and source branches | In progress; local checks/review pass, hosted pending | [#11](https://github.com/CloudKai/secondBrain/issues/11) |
+| 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
 | 11 | Persistent topic corrections and consistent removal | Draft; depends on 10 | Unpublished |
 | 12 | Reuse and versioned refresh | Draft; capture reuse exists, refresh remains planned | Unpublished |
 | 13 | Long sources and page/time range selection | Draft; bounded capture exists, ranges remain planned | Unpublished |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **108 backend tests, 30 web tests, build/typecheck and
-lint**, plus hosted Panopto SRT/paste notes, exact timed/untimed references,
-reload/reuse and ownership checks. Standards and Spec reviews found no material
-issues. Controlled fictional recording contexts verify supplied input; they do
-not establish private Panopto access or automatic retrieval. Native/iOS files were
-not changed. Browser checks were at desktop width; production is unconfigured.
+Latest completed checks: **117 backend tests, 39 web tests, build/typecheck and
+lint**, plus hosted topic-overview synthesis, ownership, exact PDF/video passages,
+persisted switching/reload, mixed-certainty placement and stale-result fences.
+Final API/browser model runs each succeeded on attempt 1. Standards and Spec
+re-reviews have no remaining findings. Controlled fictional saved inputs isolate
+this slice; no new private-provider retrieval is established. Temporary fixtures
+were removed and verified. Native/iOS remains unchanged; desktop acceptance only,
+with production unconfigured.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -60,7 +62,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–08 were selected by the user and completed. Remaining
+relationships. Tickets 01–10 were selected by the user and completed. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -70,13 +72,15 @@ At handoff the article adapter used the synchronous four-point API; library stat
 and corrections reset on reload, topic connections represented co-coverage, the
 assistant retrieved stored example note text, and discovery was curated.
 
-### Current verified browser behavior — 2026-10-03
+### Current verified browser behavior — 2026-10-04
 
 Articles, selectable-text PDFs, accessible English YouTube captions and supplied
 video transcripts now use owned,
 persistent captures and asynchronous structured notes with inspectable evidence.
-Topic organization/corrections, combined overviews, model chat and live research
-remain target work; their existing example UI is not live implementation.
+Saved-source topic mapping, explained graph connections, placement confirmation,
+on-demand cited combined overviews and separate source branches are verified.
+Broad persistent corrections, model chat and live research remain target work;
+their existing example UI is not live implementation.
 Supplied transcript links do not retrieve or watch recordings. PDF OCR,
 page/time ranges, source refresh and automatic Teams/Zoom/Panopto retrieval remain planned.
 
@@ -346,11 +350,11 @@ Saved notes produce topic cards, and related independent sources form an explora
 
 ## 10: Offer combined overviews and separate source branches
 
-**Status:** In progress — selected 2026-10-04; implementation and acceptance pending.
+**Status:** Complete — local checks, independent review and hosted development acceptance passed on 2026-10-04.
 
-**GitHub:** [#11 — open](https://github.com/CloudKai/secondBrain/issues/11)
+**GitHub:** [#11 — closed](https://github.com/CloudKai/secondBrain/issues/11)
 
-**Current progress:** Read approved overlap/view decisions and inspected topic maps, source evidence and worker/API boundaries. Combined synthesis will be requested explicitly; view choice persists per learner/topic. Current membership will fence results against stale references. New overview API/model/database/browser test boundaries await user agreement before TDD implementation. Original notes and native/iOS remain authoritative and unchanged.
+**Current progress:** The approved migration is applied and the worker runs. Combine explicitly generates attributed synthesis and disagreements; Keep separate shows original branches. Both choices persist after reload, topic words open the panel, and exact PDF/video citations retain original passages. Mixed certainty requires confirmation. Hosted API checks passed ownership, queue idempotence, preserved originals and stale-result hiding. Final model API/browser runs succeeded on attempt 1. 117 backend tests, 39 web tests, build/typecheck and lint pass; both reviews have zero remaining findings. Fictional controlled fixtures were removed with cascades verified. [Setup](../topic-overview-setup.md), [review](../reviews/ticket11.md). Native/iOS and its tracker remain unchanged.
 
 **Label:** `ready-for-agent`
 
@@ -360,12 +364,12 @@ A learner compares overlapping material through a combined topic overview or ind
 
 ### Acceptance criteria
 
-- [ ] Same-topic overlap is explained, with explicit Combine and Keep separate choices.
-- [ ] Combine opens a synthesized topic overview with supporting references and preserved disagreements.
-- [ ] Keep separate reveals source-note branches under one parent topic; branch types are visibly distinct from primary topic nodes.
-- [ ] Both views retain each original note and its references, and the learner's view choice survives reload.
-- [ ] Clicking a topic word opens the corresponding topic overview in the contextual panel.
-- [ ] Checks cover same-topic sources, conflicting claims, view switching, and reference preservation.
+- [x] Same-topic overlap is explained, with explicit Combine and Keep separate choices.
+- [x] Combine opens a synthesized topic overview with supporting references and preserved disagreements.
+- [x] Keep separate reveals source-note branches under one parent topic; branch types are visibly distinct from primary topic nodes.
+- [x] Both views retain each original note and its references, and the learner's view choice survives reload.
+- [x] Clicking a topic word opens the corresponding topic overview in the contextual panel.
+- [x] Checks cover same-topic sources, conflicting claims, view switching, and reference preservation.
 
 ### Blocked by
 
@@ -392,7 +396,7 @@ A learner fixes topic names, duplicates, assignments, or connections and deletes
 
 ### Blocked by
 
-- Draft ticket 10: Offer combined overviews and separate source branches
+- Planned ticket 10: Combined overviews and source branches — [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11), complete
 
 ## 12: Reuse repeated sources and refresh changed material
 

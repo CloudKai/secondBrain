@@ -2,29 +2,27 @@
 
 ## Current status — 2026-10-04
 
-**Verified MVP:** planned tickets 01–09 are complete with hosted development
-acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9/#10 cover articles, structured notes,
+**Verified MVP:** planned tickets 01–10 are complete with hosted development
+acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9/#10/#11 cover articles, structured notes,
 selectable-text PDFs, supplied transcripts, accessible English YouTube captions,
-Teams/Zoom/Panopto export feedback, and saved-source topics/graph. Extra #4 covers
+Teams/Zoom/Panopto export feedback, saved-source topics/graph, combined overviews and source branches. Extra #4 covers
 citation/title polish.
 
-**Last completed:** planned ticket 09 / [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10).
-Separate owned maps produce source-backed topic cards, clear contextual alias
-matches, uncertain placement choices and explained graph connections after
-independent-source support. Original notes remain read-only and authoritative.
+**Last completed:** planned ticket 10 / [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11).
+On-demand cited synthesis preserves disagreements and exact source passages.
+Separate original branches and per-topic view choice persist after reload.
 
-**Latest checks:** 113 backend tests, 34 web tests, build/typecheck and lint pass.
-Independent Standards and Spec reviews have no remaining findings. Backend
+**Latest checks:** 117 backend tests, 39 web tests, build/typecheck and lint pass.
+Independent Standards and Spec re-reviews have no remaining findings. Backend
 checks use project Python; the bare launcher still has a stale interpreter.
 Hosted/browser acceptance passed with controlled fixtures; desktop checks only.
 
-**Current unit:** planned ticket 10 / [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11), combined topic overviews and separate source branches. Approved scope and existing boundaries inspected; test-boundary extension requested. Implementation and acceptance are pending.
+**Next draft:** planned ticket 11, persistent topic corrections and consistent removal.
 
-**Target behavior:** Automatic Teams/Zoom/Panopto access, combined synthesis,
-broad persistent corrections, refresh/ranges and assistant/research remain
-planned. Existing example UI does not establish those live capabilities.
-YouTube support is conditional on anonymously accessible English captions;
-production deployment is unconfigured.
+**Target behavior:** Automatic Teams/Zoom/Panopto access, broad persistent
+corrections, refresh/ranges and assistant/research remain planned. Existing example
+UI does not establish those live capabilities. YouTube support is conditional on
+anonymously accessible English captions; production deployment is unconfigured.
 
 **Where to check:** [ticket breakdown](../docs/planning/web-learning-library-tickets.md)
 for acceptance checkboxes and GitHub mapping; published GitHub issues for completion
@@ -354,26 +352,36 @@ release or new phone-width acceptance is claimed.
 
 ## Combined topic overviews and source branches — issue #11, planned 10
 
-Selected 2026-10-04. Status: local implementation and independent review complete; migration approval and hosted acceptance pending.
+Selected and completed 2026-10-04. Hosted development acceptance and independent
+review pass; GitHub #11 closed and both web progress records synchronized.
 
-- [x] Inspect approved overlap/view decisions, glossary and shared-topic ADR
-- [x] Inspect owned topic maps, original source references, worker and supplied UI
+- [x] Inspect approved decisions, glossary, ADR and existing boundaries
 - [x] Publish/claim GitHub #11 with completed #10 as its dependency
-- [x] Plan requested synthesis, persisted view choice and membership fences
 - [x] Agree overview API/model HTTP/database/browser test boundaries
-- [x] Implement cited synthesis, disagreements and source branches locally
-- [x] Independent Standards/Spec review and correction (zero remaining findings)
-- [ ] Apply reviewed migration after dashboard warning approval
-- [ ] Hosted browser/API acceptance and final issue synchronization
+- [x] Implement requested synthesis, disagreements, branches and persisted choice
+- [x] Independent Standards/Spec reviews and corrections; zero remaining findings
+- [x] Apply reviewed migration after the user's dashboard warning approval
+- [x] Hosted browser/API acceptance, fixture cleanup and issue synchronization
 
-The user agreed the overview API, synthesis HTTP, owned database/view persistence
-and browser switching/citation seams. Local implementation and checks are underway. Existing topic/notes
-remain the verified MVP. Combined synthesis is target behavior until acceptance
-passes. Native/iOS and its progress tracker remain unchanged.
+Migration 202610040007_topic_overviews.sql is applied; the existing worker was
+restarted. Final real-model API and browser synthesis each succeeded on attempt 1.
+Authenticated checks passed queue idempotence, on-demand generation, view choice,
+cross-learner/direct-table/worker denial, exact references and original-note
+equality. Removing a source hid the stale result; one source cannot Combine.
 
-Local checkpoint: 117 backend tests via project Python, 39 web tests, web build,
-typecheck and lint pass. The exact bare pytest/uvicorn launchers still resolve
-stale Anaconda; project Python module invocations work. Reviewed commits 409b70e
-and 0df3d73. Review: docs/reviews/ticket11.md. Setup: docs/topic-overview-setup.md.
-Supabase query b39709d4-f1a4-4643-8d0b-00d9a466ce8f is staged at its warning.
-No hosted overview capability is claimed yet. Native/iOS remain untouched.
+Desktop browser checks passed overlap explanations, original source branches,
+both views after reload, topic-word navigation, conflicting findings and mint
+citations to PDF page 1/video 0:06–0:12. A mixed-certainty pair blocked Combine
+until confirmed through the public UI. Pending, failed and retry feedback was
+observed. Controlled fictional PDF/video inputs isolate this slice; real model,
+worker and hosted ownership were exercised without new provider access claims.
+Temporary API/browser captures and derived queues were removed and verified.
+
+Live-output corrections disambiguate passage labels, keep internal tags out of
+prose and normalize only redundant grounded markers. Literal source wording and
+unknown-label rejection remain intact. Final reviews through a9c4507 have no
+remaining findings; 117 backend tests, 39 web tests, build/typecheck and lint pass.
+Existing deprecation/bundle warnings and stale bare launchers remain. Semantic
+quality still needs evidence inspection. Setup: docs/topic-overview-setup.md.
+Review: docs/reviews/ticket11.md. Commits remain local; no production release or
+phone-width acceptance. Native/iOS and its progress tracker remain unchanged.

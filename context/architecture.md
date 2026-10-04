@@ -411,3 +411,17 @@ Target pending hosted acceptance: derived topic_overviews/overview_outbox, authe
 
 Local checks and both independent reviews pass; hosted acceptance awaits approval
 of the staged Supabase warning. No hosted overview capability is verified yet.
+
+
+## Verified hosted web overview boundary — #11 (2026-10-04)
+
+The pending overview checkpoints above are superseded by hosted acceptance.
+Migration 202610040007_topic_overviews.sql is applied; authenticated owned
+snapshots/view mutation, service-only worker claims/outbox, stable queue identity,
+bounded retries and membership fences pass. On-demand synthesis resolves model
+passage labels to exact saved source-prefixed identities; only redundant grounded
+prose tags are normalized. Direct learner table/worker access and cross-user
+requests are denied. Source removal hides stale results; original notes/maps
+remain authoritative. Controlled inputs exercised the real worker/model and
+exact PDF/video references. No native API, vector service or production change.
+See docs/topic-overview-setup.md for bounds, rollback and acceptance limits.

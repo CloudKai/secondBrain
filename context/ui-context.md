@@ -196,3 +196,16 @@ Local UI pending hosted acceptance: saved topic words/cards open SavedTopicDetai
 
 Local checks and both independent reviews pass; hosted acceptance awaits approval
 of the staged Supabase warning. No hosted overview capability is verified yet.
+
+
+## Verified hosted web topic overviews — #11 (2026-10-04)
+
+The pending overview checkpoints above are superseded by desktop acceptance.
+Saved topic words open their contextual panel. Explicit Combine creates a cited
+combined overview with agreements and qualified differences. Keep separate
+shows labeled original source-note branches under the parent topic. Both choices
+survive reload. Mint circular citations navigate to exact saved passages,
+including PDF pages and supplied video times. Uncertain assignments require
+confirmation before synthesis; pending/retry/failure and changed-source states
+are visible. Controlled fixtures were removed after acceptance. Broad persistent
+corrections and assistant/research remain planned; native UI is unchanged.
