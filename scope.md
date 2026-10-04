@@ -462,3 +462,21 @@ native/iOS and its tracker unchanged. Next is planned ticket 10, combined topic
 overviews/source branches, unpublished and not started. Setup and review:
 `docs/topic-graph-setup.md`, `docs/reviews/ticket10.md`. Commits remain local; no
 production release or new phone-width acceptance is claimed.
+
+
+## Combined topic overviews — issue #11 selected (2026-10-04)
+
+Target slice: web planned ticket 10, dependent on completed #10. Combine will
+request a cited synthesis across completed owned notes assigned to one topic,
+preserving agreements/disagreements and exact source passage identities. Keep
+separate will show individually styled source-note branches under the same
+parent. View choice will persist per learner/topic; original notes stay read-only.
+Topic-word navigation will open its contextual overview.
+
+Use the existing authenticated Postgres/worker/outbox boundary with bounded
+processing, explicit retry and honest pending/partial/failure feedback. Fence
+results against current source membership so stale or removed-source citations
+cannot appear. Broad topic corrections remain planned ticket 11; no new
+ingestion, vector service, credentials or native/iOS change. New test seams
+await agreement under TDD; no implementation or tests at this checkpoint.
+Both web progress records are updated.

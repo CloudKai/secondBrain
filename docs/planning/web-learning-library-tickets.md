@@ -11,12 +11,12 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **09**, saved-source topic cards and an explained graph.
 
-**Next:** planned ticket **10**, combined topic overviews and separate source branches; unpublished and not started.
+**In progress:** planned ticket **10**, combined topic overviews and separate source branches — [GitHub #11](https://github.com/CloudKai/secondBrain/issues/11). Scope and implementation boundaries inspected; test-boundary agreement pending.
 
-**Target behavior:** planned tickets **10–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
+**Target behavior:** planned tickets **11–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The next slice is **10: Offer combined overviews and separate source branches**. YouTube support is verified for anonymously accessible English
+The current slice is **10: Offer combined overviews and separate source branches**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -31,7 +31,7 @@ captions; other automatic providers remain planned.
 | 07 | Zoom transcript availability and feedback | Complete; local + hosted supplied-transcript acceptance | [#8](https://github.com/CloudKai/secondBrain/issues/8), [setup](../zoom-transcript-setup.md), [review](../reviews/ticket08.md) |
 | 08 | Panopto caption access and fallback | Complete; local + hosted supplied-input acceptance | [#9](https://github.com/CloudKai/secondBrain/issues/9), [setup](../panopto-transcript-setup.md), [review](../reviews/ticket09.md) |
 | 09 | Saved-source topic cards and graph | Complete; local + hosted acceptance | [#10](https://github.com/CloudKai/secondBrain/issues/10), [setup](../topic-graph-setup.md), [review](../reviews/ticket10.md) |
-| 10 | Synthesized topic overviews and source branches | Draft; depends on 09 | Unpublished |
+| 10 | Synthesized topic overviews and source branches | In progress; implementation pending | [#11](https://github.com/CloudKai/secondBrain/issues/11) |
 | 11 | Persistent topic corrections and consistent removal | Draft; depends on 10 | Unpublished |
 | 12 | Reuse and versioned refresh | Draft; capture reuse exists, refresh remains planned | Unpublished |
 | 13 | Long sources and page/time range selection | Draft; bounded capture exists, ranges remain planned | Unpublished |
@@ -346,9 +346,13 @@ Saved notes produce topic cards, and related independent sources form an explora
 
 ## 10: Offer combined overviews and separate source branches
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** In progress — selected 2026-10-04; implementation and acceptance pending.
 
-**Proposed label:** `ready-for-agent`
+**GitHub:** [#11 — open](https://github.com/CloudKai/secondBrain/issues/11)
+
+**Current progress:** Read approved overlap/view decisions and inspected topic maps, source evidence and worker/API boundaries. Combined synthesis will be requested explicitly; view choice persists per learner/topic. Current membership will fence results against stale references. New overview API/model/database/browser test boundaries await user agreement before TDD implementation. Original notes and native/iOS remain authoritative and unchanged.
+
+**Label:** `ready-for-agent`
 
 ### What to build
 
@@ -365,7 +369,7 @@ A learner compares overlapping material through a combined topic overview or ind
 
 ### Blocked by
 
-- Draft ticket 09: Build topic cards and a source-driven graph
+- Planned ticket 09: Saved-source topic graph — [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10), complete
 
 ## 11: Correct topic organization and remove sources consistently
 
