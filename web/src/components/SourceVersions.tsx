@@ -6,15 +6,16 @@ import {noteFromSavedSource} from '../lib/api';
 import {formatVideoTime,videoMomentUrl} from '../lib/transcript';
 import StructuredStudy from './StructuredStudy';
 
-interface Props {note:Note;client:SourceClient;initial:RevisionComparison|null;onApplied:(source:SavedSource)=>void;onReviewed:()=>void;onClose:()=>void}
+interface Props {note:Note;client:SourceClient;initial:RevisionComparison|null;onApplied:(source:SavedSource,active:boolean)=>void;onReviewed:()=>void;onClose:()=>void}
 export default function SourceVersions({note,client,initial,onApplied,onReviewed,onClose}:Props){
  const [history,setHistory]=useState<VersionHistory|null>(null),[comparison,setComparison]=useState(initial),[archive,setArchive]=useState<SavedVersion|null>(null),[passage,setPassage]=useState<SourceReference|null>(null);
  const [file,setFile]=useState<File|null>(null),[text,setText]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[reviewTopics,setReviewTopics]=useState<string[]>([]),[evidence,setEvidence]=useState<string[]>([]);
- const pending=useRef(false);
+ const pending=useRef(false),mounted=useRef(false);
+ useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
  useEffect(()=>{let active=true;client.sourceVersions(note.id).then(data=>{if(active){setHistory(data);setReviewTopics(data.correction_review?.topics.map(t=>t.id)??[]);}}).catch((e:unknown)=>{if(active)setError(e instanceof Error?e.message:'Version history is unavailable. Retry loading.');});return()=>{active=false;};},[client,note.id]);
  async function run(action:()=>Promise<void>){if(pending.current)return;pending.current=true;setBusy(true);setError('');try{await action();}catch(e:unknown){setError(e instanceof Error?e.message:'Source versions are unavailable. Retry.');}finally{pending.current=false;setBusy(false);}}
  async function check(e:React.FormEvent){e.preventDefault();await run(async()=>{setArchive(null);setPassage(null);const data=await client.compareSource(note.id,{file:file??undefined,rawText:note.kind==='Article'&&text.trim()?text:undefined,transcriptText:note.kind==='Video'&&!file&&text.trim()?text:undefined});setComparison(data);});}
- async function refresh(){if(!comparison?.candidate_id)return;await run(async()=>{const updated=await client.refreshSource(note.id,comparison.candidate_id!,comparison.base_version);onApplied(updated);});}
+ async function refresh(){if(!comparison?.candidate_id)return;await run(async()=>{const updated=await client.refreshSource(note.id,comparison.candidate_id!,comparison.base_version);onApplied(updated,mounted.current);if(mounted.current)onClose();});}
  async function openVersion(version:number){await run(async()=>{const saved=await client.sourceVersion(note.id,version);noteFromSavedSource(saved.source,saved.study??undefined);setArchive(saved);setPassage(null);});}
  async function reload(){await run(async()=>{const data=await client.sourceVersions(note.id);setHistory(data);setReviewTopics(data.correction_review?.topics.map(t=>t.id)??[]);});}
  async function review(e:React.FormEvent){e.preventDefault();await run(async()=>{await client.reviewSourceAssignments({action:'assign',source_id:note.id,topic_ids:reviewTopics,evidence_ids:evidence});onReviewed();setHistory(await client.sourceVersions(note.id));});}
@@ -27,7 +28,7 @@ export default function SourceVersions({note,client,initial,onApplied,onReviewed
   <p className="micro-copy">Current saved version {history?.current_version??source.source_version??1} · up to 20 versions per source.</p>
   <form onSubmit={check}>
    {note.kind==='PDF'&&!source.original_url&&<label>Replacement PDF<input type="file" accept=".pdf,application/pdf" disabled={busy} onChange={e=>setFile(e.target.files?.[0]??null)}/></label>}
-   {note.kind==='Video'&&<><label>Replacement transcript<input type="file" accept=".txt,.vtt,.srt" disabled={busy} onChange={e=>setFile(e.target.files?.[0]??null)}/></label><p className="micro-copy">Upload or paste a new transcript. Leave both blank to check accessible YouTube captions.</p></>}
+   {note.kind==='Video'&&<><label>Replacement transcript<input type="file" accept=".txt,.vtt,.srt" disabled={busy} onChange={e=>setFile(e.target.files?.[0]??null)}/></label>{file&&<button className="text-button" type="button" disabled={busy} onClick={()=>setFile(null)}>Use pasted text or accessible captions</button>}<p className="micro-copy">Upload or paste a new transcript. Leave both blank to check accessible YouTube captions.</p></>}
    {(note.kind==='Article'||note.kind==='Video')&&<label>{note.kind==='Article'?'Replacement article text (optional)':'Replacement transcript text (optional)'}<textarea rows={4} value={text} maxLength={note.kind==='Article'?30000:100000} disabled={busy||!!file} onChange={e=>setText(e.target.value)}/></label>}
    <button className="button secondary" disabled={busy||(note.kind==='PDF'&&!source.original_url&&!file)}>{busy?'Working…':'Check for changes'}</button>
   </form>
@@ -35,8 +36,8 @@ export default function SourceVersions({note,client,initial,onApplied,onReviewed
    <h3>{comparison.changed?'Changed material found':'No captured changes found'}</h3>
    <p>{comparison.changed?`Version ${comparison.base_version} stays saved until you confirm. Refresh will queue a new study note and update its topic evidence.`:'Your saved version and note can be reused.'}</p>
    {comparison.replacement&&<div className="version-previews">
-    <details><summary>Current captured text · {Array.from(comparison.current.captured_text).length} characters</summary><pre>{comparison.current.captured_text}</pre></details>
-    <details><summary>Replacement captured text · {Array.from(comparison.replacement.captured_text).length} characters</summary><pre>{comparison.replacement.captured_text}</pre></details>
+    <CapturePreview label="Current" source={comparison.current}/>
+    <CapturePreview label="Replacement" source={comparison.replacement}/>
     <p className="micro-copy">{comparison.replacement.document?`${comparison.replacement.document.page_count} PDF pages · `:''}{comparison.replacement.coverage_detail}</p>
    </div>}
    {comparison.changed&&<div className="modal-footer"><button className="button secondary" disabled={busy} onClick={onClose}>Keep current version</button><button className="button primary" disabled={busy} onClick={()=>void refresh()}>Refresh source</button></div>}
@@ -58,4 +59,13 @@ export default function SourceVersions({note,client,initial,onApplied,onReviewed
    <details><summary>Captured source text for this version</summary><pre>{archive.source.captured_text}</pre></details>
   </section>}
  </div>;
+}
+
+function CapturePreview({label,source}:{label:string;source:SavedSource}){
+ const characters=Array.from(source.captured_text);
+ return <details><summary>{label} captured text and locations · {characters.length} characters</summary>
+  <pre>{source.captured_text}</pre>
+  {source.document&&<><h4>{label} PDF pages</h4><ol className="version-locations">{source.document.pages.map(page=><li key={page.page}>Page {page.page} · characters {page.start}–{page.end}<blockquote>{characters.slice(page.start,page.end).join('')}</blockquote></li>)}</ol></>}
+  {source.transcript&&<><h4>{label} transcript locations</h4><ol className="version-locations">{source.transcript.segments.map((cue,index)=><li key={index}>{cue.start_ms!=null?`${formatVideoTime(cue.start_ms)}–${formatVideoTime(cue.end_ms!)}`:'Untimed passage'} · characters {cue.start}–{cue.end}<blockquote>{characters.slice(cue.start,cue.end).join('')}</blockquote></li>)}</ol></>}
+ </details>;
 }

@@ -43,21 +43,23 @@ test('refresh is owned, invalidates old study leases and preserves exact archive
 
 test('changed passages suspend corrected assignments until the learner supplies current evidence',async()=>{
  const db=await database();try{
- const topic='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';const oldRef={id:'p0001',start:0,end:25,excerpt:'Calculus describes change.'};
+ const topic='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',support='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';const oldRef={id:'p0001',start:0,end:25,excerpt:'Calculus describes change.'};
  const note=(r:typeof oldRef)=>({overview:{text:r.excerpt,citation_ids:[r.id]},concepts:[{title:'Topic',text:r.excerpt,citation_ids:[r.id]}],examples:[],equations:[],recall:[{question:'What is covered?',answer:r.excerpt,citation_ids:[r.id]}],references:[r]});
  const assignment={id:topic,title:'Rates of change',context:'Math',aliases:[],groups:['Math'],description:'How quantities change.',role:'main',citation_ids:['p0001'],uncertain:false,suggested_topic_id:null,placement_reason:'Substantive coverage.'};
  await db.exec('reset role');await db.query(`insert into source_studies(source_id,user_id,status,note) values($1,$2,'succeeded',$3::jsonb)`,[id,alice,JSON.stringify(note(oldRef))]);await db.query(`update source_topic_maps set status='succeeded',analysis=$2::jsonb where source_id=$1`,[id,JSON.stringify({topics:[assignment],relations:[],catalog_partial:false})]);
- await learner(db);await db.query('select correct_topic_library($1::jsonb)',[JSON.stringify({action:'assign',source_id:id,topic_ids:[topic],evidence_ids:['p0001']})]);
+ await db.query(`update source_topic_maps set analysis=$2::jsonb where source_id=$1`,[id,JSON.stringify({topics:[assignment,{...assignment,id:support,title:'Equations',role:'supporting'}],relations:[],catalog_partial:false})]);
+ await learner(db);await db.query('select correct_topic_library($1::jsonb)',[JSON.stringify({action:'assign',source_id:id,topic_ids:[topic,support],evidence_ids:['p0001']})]);
  const staged=await compare(db,capture);await db.query('select confirm_source_refresh($1,$2,1)',[id,staged.candidate_id]);
  await db.exec("reset role;select set_config('request.jwt.claim.sub','',false);set role service_role");
  const study=(await db.query<{value:{lease_token:string}}>('select claim_source_study($1) value',[id])).rows[0].value;
  const newRef={id:'p0001',start:0,end:58,excerpt:changed.slice(0,58)};await db.query('select finish_source_study($1,$2,$3::jsonb,null)',[id,study.lease_token,JSON.stringify(note(newRef))]);
  const mapping=(await db.query<{value:{lease_token:string}}>('select claim_source_topics($1) value',[id])).rows[0].value;
- await db.query('select finish_source_topics($1,$2,$3::jsonb,null)',[id,mapping.lease_token,JSON.stringify({topics:[assignment],relations:[],catalog_partial:false})]);
+ const freshRelation={source:topic,target:support,kind:'uses',reason:'The refreshed explanation uses equations.',citation_ids:['p0001']};
+ await db.query('select finish_source_topics($1,$2,$3::jsonb,null)',[id,mapping.lease_token,JSON.stringify({topics:[assignment,{...assignment,id:support,title:'Equations',role:'supporting'}],relations:[freshRelation],catalog_partial:false})]);
  await learner(db);const versions=(await db.query<{value:{correction_review:{topics:{id:string}[]}}}>('select list_source_versions($1) value',[id])).rows[0].value;assert.equal(versions.correction_review.topics[0].id,topic);
  assert.equal((await db.query<{analysis:unknown}>('select analysis from source_topic_maps')).rows[0].analysis,null);
- await db.query('select review_source_assignments($1,$2::uuid[],$3::text[])',[id,[topic],['p0001']]);
- const corrected=(await db.query<{analysis:{topics:{id:string;citation_ids:string[]}[]}}>('select analysis from source_topic_maps')).rows[0].analysis;assert.equal(corrected.topics[0].id,topic);assert.deepEqual(corrected.topics[0].citation_ids,['p0001']);
+ await db.query('select review_source_assignments($1,$2::uuid[],$3::text[])',[id,[topic,support],['p0001']]);
+ const corrected=(await db.query<{analysis:{topics:{id:string;citation_ids:string[]}[];relations:unknown[]}}>('select analysis from source_topic_maps')).rows[0].analysis;assert.equal(corrected.topics[0].id,topic);assert.deepEqual(corrected.topics[0].citation_ids,['p0001']);assert.deepEqual(corrected.relations,[freshRelation]);
  assert.equal((await db.query<{value:{correction_review:unknown}}>('select list_source_versions($1) value',[id])).rows[0].value.correction_review,null);
  }finally{await db.close();}
 });

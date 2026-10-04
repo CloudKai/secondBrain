@@ -474,4 +474,17 @@ review, unique-excerpt reanchoring, PDF aliases, stale confirmation and rollback
 Browser adds source versions/refresh, a reviewable comparison and archived exact
 citations. Current reader rejects mismatched note versions; source recall state
 and stale topic/evidence cache are cleared on refresh. Full checks pass: 122 backend and 55 web tests, web build/typecheck and lint.
-Independent review underway; no hosted migration/acceptance claimed. Native/iOS untouched.
+Independent review fixes are being checked; no hosted migration/acceptance claimed. Native/iOS untouched.
+
+
+### #13 independent review fixes
+
+Standards: delayed correction responses could restore obsolete graph state; a
+completed refresh could close a newer dialog. Spec: review lost newly generated
+connections; before/after previews omitted changed page/cue locations. Fixed all
+four: generation-guard mutation reads, preserve late authoritative cache updates
+without closing unrelated dialogs, retain only current-capture relationships
+between reviewed topics, and display page/cue boundaries with excerpts. The
+connection regression failed first and now passes at the database seam. Refreshed
+full checks pass: 122 backend, 55 web, build/typecheck and lint. Independent
+re-review pending; hosted migration not applied.

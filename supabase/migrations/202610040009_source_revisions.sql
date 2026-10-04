@@ -108,6 +108,7 @@ begin
   if exists(select 1 from public.source_identities where user_id=auth.uid() and identity=v_candidate.input_identity and source_id<>p_source_id) then raise exception using errcode='23505',message='This file belongs to another saved source';end if;
   insert into public.source_identities(user_id,identity,source_id) values(auth.uid(),v_candidate.input_identity,p_source_id) on conflict(user_id,identity) do nothing;
  end if;
+ update public.source_topic_overrides set pending_analysis=null,needs_review=false where source_id=p_source_id;
  -- Old lease tokens and queue rows disappear atomically with the capture switch.
  delete from public.source_topic_maps where source_id=p_source_id;
  delete from public.source_studies where source_id=p_source_id;
@@ -145,6 +146,7 @@ grant execute on function public.find_source_identity(text),public.compare_sourc
 alter table public.source_topic_overrides add column source_version integer not null default 1;
 alter table public.source_topic_overrides add column saved_references jsonb not null default '[]';
 alter table public.source_topic_overrides add column needs_review boolean not null default false;
+alter table public.source_topic_overrides add column pending_analysis jsonb check(pending_analysis is null or (jsonb_typeof(pending_analysis)='object' and octet_length(pending_analysis::text)<=131072));
 update public.source_topic_overrides o set saved_references=coalesce(n.note->'references','[]') from public.source_studies n where n.source_id=o.source_id;
 
 create or replace function public.remember_source_topics() returns trigger language plpgsql security definer set search_path='' as $$
@@ -153,7 +155,7 @@ begin
   insert into public.source_topic_overrides(source_id,user_id,analysis,source_version,saved_references,needs_review)
    select new.source_id,new.user_id,new.analysis,s.source_version,n.note->'references',false
    from public.sources s join public.source_studies n on n.source_id=s.id where s.id=new.source_id
-  on conflict(source_id) do update set analysis=excluded.analysis,source_version=excluded.source_version,saved_references=excluded.saved_references,needs_review=false;
+  on conflict(source_id) do update set analysis=excluded.analysis,source_version=excluded.source_version,saved_references=excluded.saved_references,needs_review=false,pending_analysis=null;
  end if;
  return new;
 end;$$;
@@ -193,19 +195,31 @@ end;$$;
 revoke execute on function public.reanchor_source_override(uuid) from public,anon,authenticated;
 
 create or replace function public.enforce_topic_rules() returns trigger language plpgsql security definer set search_path='' as $$
-declare v_override jsonb;
+declare v_override jsonb;v_fresh jsonb;v_refreshed boolean;
 begin
  if new.analysis is not null then
+  v_fresh:=public.apply_topic_rules(new.user_id,new.analysis);
+  if exists(select 1 from jsonb_array_elements((v_fresh->'topics')||(v_fresh->'relations')) t,lateral jsonb_array_elements_text(t->'citation_ids') c
+   where not exists(select 1 from public.source_studies s,lateral jsonb_array_elements(s.note->'references') r where s.source_id=new.source_id and s.user_id=new.user_id and r->>'id'=c)) then
+   raise exception using errcode='22023',message='Topic evidence unavailable';
+  end if;
   if auth.uid() is distinct from new.user_id and exists(select 1 from public.source_topic_overrides where source_id=new.source_id) then
+   select o.source_version<>s.source_version into v_refreshed from public.source_topic_overrides o join public.sources s on s.id=o.source_id where o.source_id=new.source_id;
    v_override:=public.reanchor_source_override(new.source_id);
    if v_override is null then
+    -- Keep only this version's validated relationships for the evidence review.
+    update public.source_topic_overrides set pending_analysis=v_fresh where source_id=new.source_id;
     new.analysis:=null;new.status:='failed';new.error_code:='invalid_output';new.lease_token:=null;new.lease_until:=null;
     return new;
+   end if;
+   if v_refreshed then
+    v_override:=public.apply_topic_rules(new.user_id,v_override||jsonb_build_object('relations',v_fresh->'relations'));
+    update public.source_topic_overrides set analysis=v_override,pending_analysis=null where source_id=new.source_id;
    end if;
    new.analysis:=v_override;
   end if;
   new.analysis:=public.apply_topic_rules(new.user_id,new.analysis);
-  if exists(select 1 from jsonb_array_elements(new.analysis->'topics') t,lateral jsonb_array_elements_text(t->'citation_ids') c
+  if exists(select 1 from jsonb_array_elements((new.analysis->'topics')||(new.analysis->'relations')) t,lateral jsonb_array_elements_text(t->'citation_ids') c
    where not exists(select 1 from public.source_studies s,lateral jsonb_array_elements(s.note->'references') r where s.source_id=new.source_id and s.user_id=new.user_id and r->>'id'=c)) then
    raise exception using errcode='22023',message='Topic evidence unavailable';
   end if;
@@ -215,7 +229,7 @@ end;$$;
 
 create function public.review_source_assignments(p_source_id uuid,p_topic_ids uuid[],p_evidence_ids text[])
 returns boolean language plpgsql security definer set search_path='' as $$
-declare v_user uuid:=auth.uid();v_override public.source_topic_overrides;v_topics jsonb:='[]';v_topic jsonb;v_id uuid;v_analysis jsonb;
+declare v_user uuid:=auth.uid();v_override public.source_topic_overrides;v_topics jsonb:='[]';v_topic jsonb;v_id uuid;v_analysis jsonb;v_relations jsonb;
 begin
  perform pg_advisory_xact_lock(hashtextextended(v_user::text,0));
  select * into v_override from public.source_topic_overrides where source_id=p_source_id and user_id=v_user and needs_review for update;
@@ -231,8 +245,12 @@ begin
   v_topics:=v_topics||jsonb_build_array(v_topic||jsonb_build_object('citation_ids',to_jsonb(p_evidence_ids),'uncertain',false,'suggested_topic_id',null,'placement_reason','Source assignment corrected by the learner.'));
  end loop;
  if not exists(select 1 from jsonb_array_elements(v_topics) t where t->>'role'='main') then v_topics:=jsonb_set(v_topics,'{0,role}','"main"');end if;
- -- Connections need fresh supporting evidence; do not replay old relations.
- update public.source_topic_maps set status='succeeded',analysis=jsonb_build_object('topics',v_topics,'relations','[]'::jsonb,'catalog_partial',false),
+ -- Reuse only relationships generated against this capture, between retained topics.
+ v_analysis:=public.apply_topic_rules(v_user,coalesce(v_override.pending_analysis,jsonb_build_object('topics',v_topics,'relations','[]'::jsonb,'catalog_partial',false)));
+ select coalesce(jsonb_agg(r),'[]'::jsonb) into v_relations from jsonb_array_elements(v_analysis->'relations') r
+  where exists(select 1 from jsonb_array_elements(v_topics) t where t->>'id'=r->>'source')
+   and exists(select 1 from jsonb_array_elements(v_topics) t where t->>'id'=r->>'target');
+ update public.source_topic_maps set status='succeeded',analysis=jsonb_build_object('topics',v_topics,'relations',v_relations,'catalog_partial',v_analysis->'catalog_partial'),
   error_code=null,lease_token=null,lease_until=null,updated_at=clock_timestamp() where source_id=p_source_id and user_id=v_user;
  if not found then raise exception using errcode='P0002',message='Topic mapping unavailable';end if;
  delete from public.topic_outbox where source_id=p_source_id;

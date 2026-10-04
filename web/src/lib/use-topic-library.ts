@@ -26,9 +26,9 @@ export function useTopicLibrary(client:SourceClient|null,enabled:boolean,notes:N
  },[client,enabled,notes,verify,version]);
  async function act(action:()=>Promise<unknown>):Promise<boolean>{
   if(pending.current||!client||!enabled)return false;
-  pending.current=true;setBusy(true);setActionError('');++generation.current;
-  try{await action();setLibrary(verify(await client.topicLibrary()));setVersion(v=>v+1);return true;}
-  catch(e:unknown){setActionError(e instanceof Error?e.message:'Topic update failed. Retry.');setVersion(v=>v+1);return false;}
+  pending.current=true;setBusy(true);setActionError('');const sequence=++generation.current;
+  try{await action();const data=await client.topicLibrary();if(sequence!==generation.current)return false;setLibrary(verify(data));setVersion(v=>v+1);return true;}
+  catch(e:unknown){if(sequence===generation.current){setActionError(e instanceof Error?e.message:'Topic update failed. Retry.');setVersion(v=>v+1);}return false;}
   finally{pending.current=false;setBusy(false);}
  }
  return {library,error:actionError||error,busy,invalidate:()=>{++generation.current;setLibrary(emptyTopicLibrary);setVersion(v=>v+1);},reload:()=>setVersion(v=>v+1),

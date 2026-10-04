@@ -3364,3 +3364,7 @@ main:focus-visible { outline: none; }
 .version-review input[type="checkbox"] { flex: 0 0 auto; }
 .version-evidence { padding: 16px; border: 1px solid var(--accent); border-radius: 12px; margin: 16px 0; }
 .version-evidence h4 { margin-bottom: 10px; }
+
+.version-locations { max-height: 240px; overflow: auto; padding-left: 24px; }
+.version-locations li { margin-bottom: 12px; }
+.version-locations blockquote { margin: 6px 0; color: var(--muted); }

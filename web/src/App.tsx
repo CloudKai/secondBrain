@@ -2283,7 +2283,7 @@ export default function App() {
               </div>
             </form>
           )}
-          {dialog === 'versions' && sourceClient && (()=>{const note=notes.find(n=>n.id===revisionTarget);return note?.savedSource?<SourceVersions key={note.id} note={note} client={sourceClient} initial={revisionComparison} onApplied={source=>{replaceSavedSource(source);setDialog(null);setToast(`Source refreshed to version ${source.source_version??1}. Creating its new study note.`);}} onReviewed={()=>topicMaps.invalidate()} onClose={()=>setDialog(null)}/>:<p>This source is no longer available.</p>;})()}
+          {dialog === 'versions' && sourceClient && (()=>{const note=notes.find(n=>n.id===revisionTarget);return note?.savedSource?<SourceVersions key={note.id} note={note} client={sourceClient} initial={revisionComparison} onApplied={(source,active)=>{replaceSavedSource(source);if(active)setToast(`Source refreshed to version ${source.source_version??1}. Creating its new study note.`);}} onReviewed={()=>topicMaps.invalidate()} onClose={()=>setDialog(null)}/>:<p>This source is no longer available.</p>;})()}
           {dialog === "assign" && currentNote?.savedSource && <SavedSourceAssignments key={currentNote.id} note={currentNote} library={topicMaps.library} busy={topicMaps.busy} error={topicMaps.error} onSave={topicMaps.correct} onDone={()=>{setDialog(null);}}/>}
           {dialog === "assign" && currentNote && !currentNote.savedSource && (
             <>

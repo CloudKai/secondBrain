@@ -55,7 +55,8 @@ new digest. Identical captured text and page/cue locations reuse the current not
 
 Corrected assignments reanchor only unique exact supporting excerpts into new
 note passage IDs. Otherwise the map is withheld with retained corrections for
-current-evidence review; old relationships are not replayed after that review.
+current-evidence review; only relationships generated from the current capture between retained topics
+are published after that review.
 Study and topic completion use owner-before-row locks and refreshed leases.
 The current browser reader compares source/study versions before accepting refs;
 refresh clears stale source evidence, topic cache and recall state for that source.
