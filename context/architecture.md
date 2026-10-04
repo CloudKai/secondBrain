@@ -386,3 +386,17 @@ Learner placement confirmation changes only topic metadata. Derived graphs
 require independent saved-source support and remain rebuildable; no Qdrant
 service or new credentials are added. Limits and rollback are documented in
 `docs/topic-graph-setup.md`. Native/v1 contracts are unchanged.
+
+
+## Verified hosted web topic mapping — issue #10 (2026-10-04)
+
+The preceding local-only topic checkpoint is superseded by hosted development
+acceptance. Migration 202610030006_topic_maps.sql is applied and the existing
+worker restarted. Owned topic maps/outbox, automatic backfill, bounded claims,
+contextual matching, placement RPCs and learner isolation passed. UUID string
+parsing is explicitly scoped to the two placement request fields; other strict
+contracts remain. Derived graphs retain the independent-source gate. Controlled
+placement changes preserved notes and references. Disposable fixture removal
+cascaded through study/topic jobs; the real Neural networks note/map remain.
+Model matching used bounded retries and remains subject to evidence inspection.
+No vector service, native persistence or production deployment was added.

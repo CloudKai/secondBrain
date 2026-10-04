@@ -1,30 +1,29 @@
 # Web Progress Tracker
 
-## Current status — 2026-10-03
+## Current status — 2026-10-04
 
-**Verified MVP:** planned tickets 01–08 are complete with hosted development
-acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9 cover articles, structured notes,
-selectable-text PDFs, supplied transcripts, accessible English YouTube captions
-and Teams/Zoom/Panopto export feedback. Extra #4 covers citation/title polish.
+**Verified MVP:** planned tickets 01–09 are complete with hosted development
+acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9/#10 cover articles, structured notes,
+selectable-text PDFs, supplied transcripts, accessible English YouTube captions,
+Teams/Zoom/Panopto export feedback, and saved-source topics/graph. Extra #4 covers
+citation/title polish.
 
-**Last completed:** planned ticket 08 / [GitHub #9](https://github.com/CloudKai/secondBrain/issues/9).
-Panopto viewer links show the site and open upload/paste with conditional export
-and access guidance. Unreadable correction retains URL/title. Hosted SRT/text
-notes, exact citations, reload/reuse, distinct sites and learner denial passed.
-Automatic Panopto retrieval remains unvalidated.
+**Last completed:** planned ticket 09 / [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10).
+Separate owned maps produce source-backed topic cards, clear contextual alias
+matches, uncertain placement choices and explained graph connections after
+independent-source support. Original notes remain read-only and authoritative.
 
-**Latest checks:** 108 backend tests, 30 web tests, build/typecheck and lint pass.
-Independent Standards and Spec reviews have no material findings; Standards
-recorded one optional rendering refactor. Backend checks use project Python;
-the bare launcher still has a stale interpreter. Desktop browser checks only.
+**Latest checks:** 113 backend tests, 34 web tests, build/typecheck and lint pass.
+Independent Standards and Spec reviews have no remaining findings. Backend
+checks use project Python; the bare launcher still has a stale interpreter.
+Hosted/browser acceptance passed with controlled fixtures; desktop checks only.
 
-**Current unit:** planned ticket 09 / [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10),
-saved-source topic cards and explained graph. Inspection and implementation
-planning and local implementation complete. Independent review passed; hosted migration approval and acceptance are pending. No live topic capability is claimed yet.
+**Next unit:** planned ticket 10, combined topic overviews and separate source
+branches. It remains an unpublished draft and has not started.
 
-**Target behavior:** Automatic Teams/Zoom/Panopto access, saved-source topics,
-combined overviews, persistent corrections, refresh/ranges and assistant/research
-remain planned. Existing example UI does not establish those live capabilities.
+**Target behavior:** Automatic Teams/Zoom/Panopto access, combined synthesis,
+broad persistent corrections, refresh/ranges and assistant/research remain
+planned. Existing example UI does not establish those live capabilities.
 YouTube support is conditional on anonymously accessible English captions;
 production deployment is unconfigured.
 
@@ -313,21 +312,42 @@ GitHub #9 is closed; both web records are synchronized. Native history remains
 separate. Planned 09 topic cards and graph is next, unpublished and not started.
 
 
-## Topic cards and explained graph — issue #10, planned 09, 2026-10-03
+## Topic cards and explained graph — issue #10, planned 09
 
-Status: local implementation and independent review complete; hosted acceptance pending.
+Selected 2026-10-03; closeout synchronized 2026-10-04.
+Status: implementation, independent review and hosted acceptance complete.
 
-- [x] Read the approved graph specification, glossary and shared-topic ADR
-- [x] Inspect the owned source/study worker, API and supplied browser views
-- [x] Publish selected slice as GitHub #10 with completed dependency #2
-- [x] Plan separate topic analysis and explicit uncertainty/placement feedback
-- [x] Agree new topic API/model HTTP/database/browser test boundaries
-- [x] Implement persistent, evidence-backed topic mapping and graph threshold (local)
-- [ ] Verify ownership, aliases, unrelated sources and topic navigation
-- [ ] Independent review, hosted acceptance and issue closure
+- [x] Approved graph specification and topic API/model/database/browser seams
+- [x] Separate owned topic jobs, automatic enqueue/backfill and bounded recovery
+- [x] Evidence-backed main/supporting topics, clear aliases and uncertain choices
+- [x] First-source cards and two-independent-source graph threshold
+- [x] Unrelated notes, learner ownership and original-note preservation
+- [x] Exact browser evidence links, reload and saved/example history navigation
+- [x] Seven-topic graph focus with every topic reachable and explained connection
+- [x] Placement request UUID regression: RED→GREEN and hosted verification
+- [x] Independent Standards/Spec re-review with no remaining findings
+- [x] Six disposable sources and their study/topic/outbox rows removed
+- [x] Both web records and GitHub #10 synchronized
 
-Preparatory checkpoint initially added no tests. After user agreement, RED→GREEN
-API/model/database checks and local UI wiring pass: 112 backend tests, 34 web
-tests, build/typecheck and lint. Review fixes passed focused checks. Standards and Spec re-review have zero remaining findings. Supabase displayed its destructive-operation warning for topic queue cleanup; applying the reviewed migration awaits user approval. Hosted acceptance is pending. Native/iOS and its tracker
-remain unchanged. Saved notes stay authoritative; combined topic synthesis and
-broad correction workflows remain planned tickets 10 and 11.
+The user approved the Supabase warning; migration 202610030006_topic_maps.sql
+succeeded and the existing worker restarted. The real Neural networks note was
+mapped on attempt one. Controlled saved notes verified first-source cards,
+RAG alias reuse, meaningful shared-topic support and unrelated calculus. RAG
+matching completed on attempt two; the related Neural networks fixture completed
+on attempt three under the bounded retry policy. Context validation rejects
+conflicting placements; generation quality still needs evidence inspection.
+
+Controlled uncertain analyses verified suggested-topic confirmation and keeping
+a distinct node, with notes unchanged and another learner denied. The browser
+also confirmed a naturally uncertain topic as separate. A controlled supported
+relation verified the seven-topic graph, explanation and exact passage link;
+this does not claim every real model response yields a relationship. Local model
+HTTP checks cover substantive/mention handling and contextual validation. Cleanup
+preserved the original Neural networks capture, note and map.
+
+113 backend tests through project Python, 34 web tests, build/typecheck and lint
+pass. Standards: 0 remaining findings. Spec: 3 initial UI findings fixed,
+0 remaining. Review: docs/reviews/ticket10.md. Setup: docs/topic-graph-setup.md.
+Native/iOS and its tracker remain unchanged. Combined synthesis and broad
+corrections remain planned tickets 10/11. Commits are local; no production
+release or new phone-width acceptance is claimed.

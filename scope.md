@@ -434,3 +434,31 @@ coverage. No new credentials or vector service; native/iOS and v1 unchanged.
 Local checks: 112 backend tests through project Python, 34 web tests, build,
 typecheck and lint pass. Setup: `docs/topic-graph-setup.md`. Combined synthesis
 and broad corrections remain planned tickets 10/11.
+
+
+## Topic-graph hosted acceptance — issue #10 (2026-10-04)
+
+Completed web planned ticket 09; this supersedes its pending checkpoints above.
+The user approved the SQL warning; the topic migration succeeded and the worker
+restarted. The existing Neural networks note mapped on attempt one. Controlled
+RAG notes reused a substantive topic; unrelated calculus created no invented
+relationship. Empty/first-source thresholds and learner API/RLS/worker isolation
+passed. Placement confirmation and keeping separate persisted without changing
+notes. A UUID JSON parsing defect was fixed with an authenticated RED→GREEN
+regression, then verified hosted.
+
+Browser exact passage links, reload, saved/example history and a seven-topic
+focus view passed. The relationship explanation used a controlled supported
+relation; extraction/mention filtering also have model HTTP checks. Six temporary
+sources and their study/topic/outbox rows were removed with cascades verified.
+The original Neural networks capture, study and map remain. Topic matching took
+two attempts for RAG and three for the related Neural networks fixture; its
+results remain evidence to inspect, not a mastery score or guaranteed taxonomy.
+
+Final checks: 113 backend tests through project Python, 34 web tests, build,
+typecheck and lint pass. Bare pytest still has a stale interpreter. Standards
+and Spec re-review: no remaining findings. Both web progress files synchronized;
+native/iOS and its tracker unchanged. Next is planned ticket 10, combined topic
+overviews/source branches, unpublished and not started. Setup and review:
+`docs/topic-graph-setup.md`, `docs/reviews/ticket10.md`. Commits remain local; no
+production release or new phone-width acceptance is claimed.

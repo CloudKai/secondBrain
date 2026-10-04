@@ -1,7 +1,8 @@
 # Saved-source topic graph — planned 09 / GitHub #10
 
-Status: local implementation and checks complete; independent review complete; hosted migration approval and acceptance pending.
-This is the selected target slice, not yet a verified hosted capability.
+Status: implementation, independent review and hosted development acceptance
+complete. Migration applied after user approval; closeout synchronized 2026-10-04.
+Combined synthesis and broad corrections remain target slices.
 
 ## Behavior
 
@@ -24,14 +25,15 @@ Combined synthesis and broad rename/merge/rejection workflows remain tickets
 
 ## Setup and recovery
 
-Apply reviewed `supabase/migrations/202610030006_topic_maps.sql` to the development
-project. It adds owned source maps, transient outbox delivery, learner retry/
+The configured development project has `supabase/migrations/202610030006_topic_maps.sql`
+applied. Apply this reviewed migration when provisioning another environment. It adds owned source maps, transient outbox delivery, learner retry/
 placement RPCs and server-only claims/completion. An atomic trigger queues topic
 work when a source note completes and backfills existing completed notes. It
 preserves existing sources and study notes. Rollback removes the topic trigger,
 functions and topic tables while preserving source/study tables.
 
-Restart the existing study worker after migration. It also dispatches topic IDs;
+The configured worker was restarted. Restart the existing study worker after
+migration in another environment. It also dispatches topic IDs;
 Postgres owns bounded three-attempt retries, 120-second leases, late-result fences
 and outbox recovery. Matching is serialized per learner so simultaneous sources
 do not race catalog decisions. Topic failure leaves the completed note available.
@@ -52,8 +54,25 @@ is fabricated to draw a connection. Aliases and groups remain contextual.
 
 User agreed topic API, model HTTP, database ownership/persistence and browser
 navigation boundaries. RED→GREEN checks cover empty library, first-source cards,
-related/unrelated sources, contextual aliases, uncertainty and ownership. SQL
-checks cover automatic enqueue, worker claim, placement, leases/retries and
-rollback. 112 backend tests through project Python, 34 web tests, build/typecheck and
-lint pass. Review fixes passed focused API/model and SQL/client checks, build and lint. Independent Standards and Spec re-review have zero remaining findings. Hosted/browser acceptance awaits migration approval. Controlled fixtures establish implementation behavior; model quality
-still depends on captured source coverage and should be checked against evidence.
+related/unrelated sources, contextual aliases, uncertainty, ownership and UUID
+placement requests. SQL checks cover automatic enqueue, claims, placement,
+leases/retries and rollback. Final checks: 113 backend tests through project
+Python, 34 web tests, build/typecheck and lint pass. The bare pytest launcher
+still selects a stale external interpreter. Standards and Spec re-review have
+zero remaining findings; see docs/reviews/ticket10.md.
+
+Hosted migration/backfill and real topic generation passed. Controlled saved
+notes verified RAG reuse, unrelated calculus, shared-source thresholds and learner
+isolation. Controlled uncertain analyses verified both placement choices and
+original-note preservation. Browser checks covered exact saved excerpts, reload,
+example-to-saved history and a seven-topic focused graph with a controlled
+supported relationship. That relationship fixture establishes rendering and
+evidence navigation, not model extraction quality for every source. Model HTTP
+checks cover mention filtering and relationships. Six disposable sources were
+removed, with study/topic/outbox cascades verified; the original Neural networks
+note and its generated map remain. Desktop checks only.
+
+RAG matching needed two attempts and the related Neural networks fixture needed
+three. Processing is bounded and may fail after its retry limit; inspect citations
+and placement reasons rather than treating organization as certain. No production
+release or native persistence capability is established by this web ticket.

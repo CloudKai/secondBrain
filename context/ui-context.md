@@ -172,3 +172,16 @@ original source notes, mapping reasons and passage links. Uncertain assignments
 offer Use suggested topic or Keep this topic separate; notes remain read-only.
 The graph shows processing/retry/error and partial-coverage feedback. Combined
 overviews and broad correction workflows remain planned. Native UI is unchanged.
+
+
+## Verified hosted web topic views — issue #10 (2026-10-04)
+
+Saved topic cards, exact passage navigation, reload and saved/example browser
+history passed desktop acceptance. A seven-topic library retained its graph in
+a six-topic focus view with every topic selectable. Shared coverage alone need
+not draw directional lines; only supported uses/requires/evaluates relationships
+do. A controlled relationship verified explanation and exact source navigation.
+A naturally uncertain topic was kept separate from its note panel; hosted
+controlled suggestions also verified confirmation and note preservation.
+Temporary sources were removed and the original learner note/map preserved.
+Combined synthesis and broad corrections remain planned; native UI unchanged.

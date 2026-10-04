@@ -1,22 +1,22 @@
 # Web learning-library ticket breakdown
 
-Last synchronized: **2026-10-03 (Asia/Singapore)** against GitHub Issues and
+Last synchronized: **2026-10-04 (Asia/Singapore)** against GitHub Issues and
 completed acceptance records in `context/web-progress-tracker.md` and `scope.md`.
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–08 are complete** (8 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#9 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–09 are complete** (9 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#10 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **08**, Panopto caption access, site-specific guidance and supplied input.
+**Last completed:** planned ticket **09**, saved-source topic cards and an explained graph.
 
-**In progress:** planned ticket **09**, saved-source topic cards and graph — [GitHub #10](https://github.com/CloudKai/secondBrain/issues/10). Local implementation and independent review complete; hosted migration approval and acceptance pending.
+**Next:** planned ticket **10**, combined topic overviews and separate source branches; unpublished and not started.
 
 **Target behavior:** planned tickets **10–15 remain unpublished drafts**. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
 UI does not count as live target behavior.
-The current slice is **09: Build topic cards and a source-driven graph**. YouTube support is verified for anonymously accessible English
+The next slice is **10: Offer combined overviews and separate source branches**. YouTube support is verified for anonymously accessible English
 captions; other automatic providers remain planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
@@ -30,7 +30,7 @@ captions; other automatic providers remain planned.
 | 06 | Teams transcript access and feedback | Complete; local + hosted supplied-transcript acceptance | [#7](https://github.com/CloudKai/secondBrain/issues/7), [setup](../teams-transcript-setup.md), [review](../reviews/ticket07.md) |
 | 07 | Zoom transcript availability and feedback | Complete; local + hosted supplied-transcript acceptance | [#8](https://github.com/CloudKai/secondBrain/issues/8), [setup](../zoom-transcript-setup.md), [review](../reviews/ticket08.md) |
 | 08 | Panopto caption access and fallback | Complete; local + hosted supplied-input acceptance | [#9](https://github.com/CloudKai/secondBrain/issues/9), [setup](../panopto-transcript-setup.md), [review](../reviews/ticket09.md) |
-| 09 | Saved-source topic cards and graph | In progress; hosted acceptance pending | [#10](https://github.com/CloudKai/secondBrain/issues/10) |
+| 09 | Saved-source topic cards and graph | Complete; local + hosted acceptance | [#10](https://github.com/CloudKai/secondBrain/issues/10), [setup](../topic-graph-setup.md), [review](../reviews/ticket10.md) |
 | 10 | Synthesized topic overviews and source branches | Draft; depends on 09 | Unpublished |
 | 11 | Persistent topic corrections and consistent removal | Draft; depends on 10 | Unpublished |
 | 12 | Reuse and versioned refresh | Draft; capture reuse exists, refresh remains planned | Unpublished |
@@ -317,13 +317,13 @@ A learner submits a Panopto lecture and gets a note from accessible captions or 
 
 ## 09: Build topic cards and a source-driven graph
 
-**Status:** In progress — selected on 2026-10-03; acceptance is not complete.
+**Status:** Complete — implementation, independent review and hosted development acceptance passed. Closeout synchronized 2026-10-04.
 
-**GitHub:** [#10 — open](https://github.com/CloudKai/secondBrain/issues/10)
+**GitHub:** [#10 — closed](https://github.com/CloudKai/secondBrain/issues/10)
 
 **Label:** `ready-for-agent`
 
-**Current progress:** Existing source/study worker, API ownership, browser graph and topic views inspected. Topic analysis will remain separate from completed notes, with no prepared outline or fabricated graph edges. Clear contextual matches reuse topics; uncertain matches remain distinct with a placement suggestion. User agreed topic API/model/database/browser seams. Local implementation passed 112 backend tests, 34 web tests, build/typecheck and lint. Three Spec review findings were fixed; Standards and Spec re-review have zero remaining findings. Supabase migration is prepared and awaits approval of its queue-cleanup warning; hosted acceptance remains pending.
+**Current progress:** Completed notes queue separate evidence-backed topic mapping. Clear contextual aliases share identities; uncertain placements remain distinct until learner confirmation. The approved migration is applied and the worker is running. Hosted checks passed empty/first-source thresholds, real-model RAG matching, unrelated calculus, ownership, placement persistence and original-note preservation. Browser checks passed exact passages, reload, saved/example history, and a seven-topic focus view. The relationship display used a controlled supported relation; model extraction and mention filtering also have HTTP boundary checks. Six disposable sources were removed with cascades verified. Final checks: 113 backend tests, 34 web tests, build/typecheck and lint. Both reviews have no remaining findings; native/iOS and its tracker remain unchanged.
 
 ### What to build
 
@@ -331,14 +331,14 @@ Saved notes produce topic cards, and related independent sources form an explora
 
 ### Acceptance criteria
 
-- [ ] An empty library has no prepared outline. The first completed source produces concise topic cards.
-- [ ] Extract main and substantive supporting topics; passing mentions do not imply meaningful coverage.
-- [ ] Shared topics are canonicalized when context is clear; uncertain placement is presented for learner correction.
-- [ ] A graph emerges after at least two independent saved sources support a shared substantive topic or explained relationship such as uses, requires, or evaluates.
-- [ ] Topic nodes remain distinct from sources; broad subject groups can overlap without implying unsupported direct relationships.
-- [ ] Each connection explains its basis, and saved-material coverage is not presented as mastery.
-- [ ] Graph data and any derived retrieval index are learner-scoped; source records remain authoritative.
-- [ ] Checks cover related and unrelated notes, aliases, uncertainty, source-count thresholds, and topic navigation.
+- [x] An empty library has no prepared outline. The first completed source produces concise topic cards.
+- [x] Extract main and substantive supporting topics; passing mentions do not imply meaningful coverage.
+- [x] Shared topics are canonicalized when context is clear; uncertain placement is presented for learner correction.
+- [x] A graph emerges after at least two independent saved sources support a shared substantive topic or explained relationship such as uses, requires, or evaluates.
+- [x] Topic nodes remain distinct from sources; broad subject groups can overlap without implying unsupported direct relationships.
+- [x] Each connection explains its basis, and saved-material coverage is not presented as mastery.
+- [x] Graph data and any derived retrieval index are learner-scoped; source records remain authoritative.
+- [x] Checks cover related and unrelated notes, aliases, uncertainty, source-count thresholds, and topic navigation.
 
 ### Blocked by
 
