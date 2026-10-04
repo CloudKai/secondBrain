@@ -499,3 +499,32 @@ text matches the local migration. Automatic approval review blocked Run because
 previous approvals did not cover this migration. Fresh execution approval asked;
 no hosted schema execution or acceptance claimed. Hosted API helper prepared.
 GitHub #13 stays open. Native/iOS and its tracker untouched.
+
+
+## Paused checkpoint — ticket #13, 2026-10-04
+
+Paused at the user's explicit request. Approved migration
+202610040009_source_revisions.sql applied successfully in Supabase query
+2f6e3734-be16-4f73-a85c-c4d047815618. Hosted API checks passed unchanged reuse,
+staged promotion, archive equality, ownership/private-table denial, stale study
+and topic leases, stale overview hiding, unique evidence reanchoring, renamed
+assignments, retained-evidence review, current relationships, rejected decisions
+and independent-source counts. Controlled correction/import API fixtures were
+cleaned and their cascades verified.
+
+Browser passed unchanged transcript comparison, timestamp-only changes, decline,
+confirmed video/PDF refresh, exact original/current cue and PDF page citations,
+current-evidence review and reload persistence. Real note and topic workers ran.
+PDF acceptance caught missing origin in refreshed extraction: fix 2bf070f adds
+explicit upload/direct origins and safe validation messages; regression failed
+first then passed. Latest backend: 123 tests pass. Prior web: 55 tests, build,
+typecheck and lint pass; no frontend change after those checks. Both independent
+review axes report zero remaining findings through 2bf070f.
+
+Pending on resume: inspect the last repeated-video import result; clean remaining
+controlled fixtures listed in /private/tmp/revisions-fixture-ids.json and
+/private/tmp/revisions-browser-ids.json with their scoped derived rows; verify
+post-removal browser state; finish docs/GitHub #13 closeout. Do not touch the
+user's real note 79b1b905-ebeb-4896-84bc-d55f395070ce. SQL/test tabs 24/25 retained
+for resume. API and current worker remain running. GitHub #13 stays open.
+Native/iOS and its tracker untouched.

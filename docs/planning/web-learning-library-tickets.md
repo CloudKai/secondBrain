@@ -11,7 +11,7 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **11**, persistent topic corrections and consistent removal — [GitHub #12](https://github.com/CloudKai/secondBrain/issues/12).
 
-**In progress:** planned ticket **12**, reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13). Local implementation complete; full checks, review and hosted acceptance pending.
+**Paused by user:** planned ticket **12**, reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13). Migration applied, checks and reviews pass so far; final cleanup/closeout pending.
 
 **Target behavior:** planned tickets **13–15 remain unpublished drafts**; ticket 12 is published with acceptance pending. Completed shared foundations are checked where they fully satisfy a criterion;
 provider retrieval and other remaining criteria stay unchecked. Existing example
@@ -405,11 +405,11 @@ A learner fixes topic names, duplicates, assignments, or connections and deletes
 
 ## 12: Reuse repeated sources and refresh changed material
 
-**Status:** Implemented locally; hosted migration approval and acceptance pending.
+**Status:** Paused by user; migration applied, live checks passed so far; final cleanup/closeout pending.
 
 **GitHub:** [#13 — open](https://github.com/CloudKai/secondBrain/issues/13)
 
-**Current progress:** Agreed API/external HTTP/database/browser seams. Local comparison/confirmation, stable source identity, saved-version readers, version/worker fences, PDF aliases and retained-correction evidence review are implemented. 122 backend tests, 55 web tests, web build/typecheck and lint pass. Both independent re-reviews have zero findings; hosted migration approval and API/browser acceptance pending. [Selected scope](../source-revisions-setup.md).
+**Current progress:** Agreed API/external HTTP/database/browser seams. Local comparison/confirmation, stable source identity, saved-version readers, version/worker fences, PDF aliases and retained-correction evidence review are implemented. 123 backend tests pass; 55 web tests, build/typecheck and lint previously pass. Both independent re-reviews have zero findings through 2bf070f. Approved migration applied; hosted API and browser checks pass so far. Final duplicate-import result, remaining fixture cleanup and closeout pending after user-requested pause. [Selected scope](../source-revisions-setup.md).
 
 **Label:** `ready-for-agent`
 
