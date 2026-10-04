@@ -454,3 +454,18 @@ Corrected membership evidence uniquely reanchors by exact excerpt or waits for
 learner review. Rollback disables compare/promote while preserving history,
 aliases, review and version-aware fences. Hosted API and desktop acceptance
 passed; production remains unconfigured.
+
+
+## Browser long-source acceptance — #14 (2026-10-04)
+
+Migration 010 and matching worker passed hosted development acceptance. Browser
+captures are bounded at 120,000 characters. Original PDF page/time selections
+retain capture offsets and locations. Worker model inputs have 30,000 source
+characters/200 passages per section, at most 20 sections, with private RLS-protected
+study_sections keyed by source/version/index. Service-only plan/save RPCs renew
+leases and fence current version/live claims under the existing owner lock.
+Owned study reads expose total/completed counts. Long retries reuse summaries;
+single-call retries regenerate from full original passages. Final synthesis
+requires all sections. Refresh/removal cascades old section work; stable source
+identity and graph source counts remain unchanged. Explicit reimport ranges
+are validated before existing source reuse. Native/v1 remains unchanged.

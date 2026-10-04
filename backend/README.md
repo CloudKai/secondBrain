@@ -67,9 +67,9 @@ checks pass; hosted study generation and recovery also passed on 2026-10-03. The
 pipeline remains synchronous.
 
 
-## Browser long captures and ranges — #14, local only
+## Browser long captures and ranges — #14
 
-Local implementation adds original PDF page/timed-caption selection and durable
-section processing/progress with retry. Migration/hosted acceptance are pending;
-apply migration 010 before running the matching worker. Exact limits and rollback:
+Hosted development checks pass for original PDF page/timed-caption selection
+and durable section processing/progress with retry. Migration 010 is applied;
+apply it before running the matching worker in another environment. Exact limits and rollback:
 [long-source setup](../docs/long-source-setup.md). Native/v1 behavior is unchanged.

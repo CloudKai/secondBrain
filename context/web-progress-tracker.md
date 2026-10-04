@@ -2,25 +2,26 @@
 
 ## Current status — 2026-10-04
 
-**Verified MVP:** planned tickets 01–12 are complete with hosted development
+**Verified MVP:** planned tickets 01–13 are complete with hosted development
 acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9/#10/#11 cover articles, structured notes,
 selectable-text PDFs, supplied transcripts, accessible English YouTube captions,
 Teams/Zoom/Panopto export feedback, saved-source topics/graph, combined overviews, source branches and persistent corrections/removal. GitHub #12
 completes the correction slice. Extra #4 covers
 citation/title polish.
 
-**Last completed:** planned ticket 12 / [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
-Unchanged imports reuse a source; explicit refresh archives captures/notes and
-retains correction decisions with current supporting evidence.
+**Last completed:** planned ticket 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14).
+Whole bounded captures, original page/time selections, durable section progress
+and saved retry now produce coherent cited notes. Range refresh preserves source
+identity and prior captures/notes.
 
-**Latest checks:** 123 backend tests, 55 web tests, web build/typecheck and lint
-pass. Both independent review axes have zero findings through 2bf070f. Hosted
-API/browser acceptance and controlled-fixture cleanup pass. Desktop/development
-only; concurrent stress and deterministic browser delay overlap are untested.
+**Latest checks:** 144 backend tests, 61 web tests, web build/typecheck/lint
+pass. Standards/spec reviews have zero remaining findings through `e474faf`.
+Migration 010, hosted API/worker/model/browser acceptance and controlled cleanup
+pass. Desktop development only; concurrent stress/mobile layout checks untested.
 
-**Current unit:** planned 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14), long sources and page/time ranges. Local range capture/section processing and independent review complete. Migration approval and hosted acceptance pending.
+**Next unit:** planned 14, grounded assistant with selectable scopes. Draft and not started.
 
-**Target behavior:** Automatic Teams/Zoom/Panopto access, long-source ranges,
+**Target behavior:** Automatic Teams/Zoom/Panopto access,
 assistant/research and production deployment remain planned. YouTube support is
 conditional on anonymously accessible English captions.
 
@@ -607,3 +608,18 @@ short-source retries preserve original passage evidence. Migration 010 is staged
 in Supabase with the destructive-operation warning awaiting user approval; not
 applied. Hosted worker/model/browser acceptance and controlled cleanup remain
 pending. GitHub #14 stays open. Native/iOS and its tracker untouched.
+
+
+### Long sources complete — planned 13 / #14, 2026-10-04
+
+Migration 010 applied after user approval; matching worker restarted. Final code
+`e474faf` passes 144 backend and 61 web tests plus build/typecheck/lint and both
+review axes. Hosted original page/cue selection, invalid duplicate ranges,
+ownership/private worker denial, saved section failure/retry and real synthesis
+pass. Browser whole/selected PDF, unchanged source counts, old citations, timed
+transcript evidence, progress reload and explicit Retry pass. API/provider outage
+check preserves exact successful checkpoint on attempt 2; browser failed state
+was controlled fixture setup. All controlled sources, archives and section work
+removed; existing learner note unchanged. GitHub #14 closed. Planned 14/15 remain
+draft/unpublished; native/iOS and its tracker untouched. Evidence: setup and review
+records in docs/long-source-setup.md and docs/reviews/ticket14.md.

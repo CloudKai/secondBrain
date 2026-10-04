@@ -234,3 +234,15 @@ assignments with changed passages require current evidence review. Versions coun
 as one current source; refresh hides obsolete note/topic/evidence/recall state.
 Desktop compare/decline/confirm, current-evidence review, old/current PDF page
 and video cue citations, duplicate reuse and reload pass. Native UI unchanged.
+
+
+## Web range/progress acceptance — #14 (2026-10-04)
+
+Hosted browser checks pass for whole-capture default and optional inclusive PDF
+pages / timed transcript ranges in import and Source versions & refresh. Page
+and time fields have labels and validation; untimed transcripts cannot invent
+times. Selected overlapping cues retain original times, with partial/unverified
+coverage labels. Saved section counts and combining stage survive reload. Retry
+resumes completed section work; no unfinished note is shown as complete. Range
+refresh stays under one source and old citation readers remain version-specific.
+Existing mint controls/citation styling retained. Native/iOS unchanged.

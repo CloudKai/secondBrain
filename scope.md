@@ -612,3 +612,17 @@ and web build/typecheck/lint. Independent standards/spec re-reviews have no
 remaining findings. Migration 010 is staged and awaits browser-warning approval;
 it has not run. Hosted worker/model/browser acceptance and fixture cleanup remain
 pending. GitHub #14 is open; native/iOS and its tracker untouched.
+
+
+### Long sources/ranges complete — planned 13 / #14 (2026-10-04)
+
+Migration 010 applied after explicit user approval, matching worker restarted.
+Whole captures up to 120,000 characters, original PDF page/timed cue selection,
+private current-version checkpoints and coherent final synthesis passed hosted
+API/worker/model/browser acceptance. Section failure/retry preserves saved work;
+range refresh keeps one source and archived exact citations. Invalid duplicate
+ranges reject without modifying captures. Final 144 backend/61 web tests and web
+build/typecheck/lint pass; both review axes through e474faf report zero findings.
+Controlled sources, archives and section work cleaned; learner note unchanged.
+GitHub #14 complete. Next planned 14 assistant is draft, not started; private
+providers/OCR/research/production remain planned. Native/iOS/tracker untouched.

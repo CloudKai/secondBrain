@@ -1,7 +1,7 @@
 # Ticket #14 review
 
 Fixed baseline: `3c984fc` (selected scope checkpoint). Final implementation:
-`4aa30d9`. Spec: GitHub #14 and `docs/long-source-setup.md`. Unrelated
+`e474faf`. Spec: GitHub #14 and `docs/long-source-setup.md`. Unrelated
 working-tree changes are preserved and excluded.
 
 ## Standards
@@ -18,11 +18,19 @@ Initial P2: an accepted dense 2,000-cue transcript could exceed 20 sections befo
 any model call. Fixed with a 200-passage section budget while retaining the 30,000
 source-character bound. Authenticated capture/model regression covers 119,959
 characters, original cue locations and successful synthesis. Independent re-review:
-no remaining findings or scope creep; 19 focused long-source checks pass.
+no remaining findings or scope creep; 21 focused long-source checks pass.
 
 ## Checks
 
-142 backend tests and 61 web tests pass. Web build/typecheck/lint pass. Migration
-010 is staged in Supabase query `ed60e2b8-f928-4a56-909d-41ef114fa4af`; the browser
-warning awaits user approval. It has not run. Hosted browser/model/worker acceptance
-and controlled-fixture cleanup remain pending. Native/iOS untouched.
+144 backend tests and 61 web tests pass. Web build/typecheck/lint pass. Migration
+010 applied after user approval. Hosted API/worker/model and browser acceptance,
+section failure/retry, exact citations, range versions, ownership/fences and
+controlled-fixture cleanup pass. Native/iOS untouched.
+
+## Live acceptance correction
+
+Reimport of an existing PDF could bypass requested range validation. Explicit
+ranges now pass actual bounded PDF extraction / YouTube caption retrieval before
+returning the existing source. RED→GREEN regressions preserve stored captures
+and reject invalid ranges. Both independent axes re-reviewed
+`3c984fc...e474faf`: zero remaining findings; 21 focused long-source tests pass.

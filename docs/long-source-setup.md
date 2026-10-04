@@ -2,9 +2,9 @@
 
 ## Status — 2026-10-04
 
-Implemented locally at the user-approved boundaries. Migration and hosted
-acceptance are pending; this is target behavior until those checks pass.
-The preceding verified captures/notes remain the hosted baseline. Native/iOS
+Verified in the hosted development project at the user-approved boundaries.
+Migration 010 is applied and the matching worker is running. Browser/API
+acceptance and controlled-fixture cleanup pass. Production release is unconfigured. Native/iOS
 and its progress tracker are untouched.
 
 ## Learner behavior
@@ -78,15 +78,34 @@ database ownership/progress/worker fences, browser range/progress/reload/citatio
 Focused RED→GREEN checks cover original PDF pages, timed overlap selection,
 whole long capture, bounded synthesis and saved retry. Local database checks cover
 ownership, incomplete synthesis, stale leases, refresh/deletion cascades, selected
-metadata and unchanged legacy comparisons. Full backend: 142 pass. Full web: 61 pass. Build/typecheck/lint pass.
-Both independent review findings were fixed in `4aa30d9`: dense supported
+metadata and unchanged legacy comparisons. Full backend: 144 pass. Full web: 61 pass. Build/typecheck/lint pass.
+Independent review and live acceptance findings were fixed in `4aa30d9` and `e474faf`: dense supported
 transcripts fit the section budget and short-source retries retain full original
-passage evidence. Final standards/spec re-reviews report no remaining findings.
+passage evidence. Explicit PDF/YouTube ranges are also validated before saved
+source reuse. Final standards/spec re-reviews report no remaining findings.
 A single-section retry repeats its one model call from the original passages;
 long-source retries reuse completed section summaries. Existing backend deprecations and Vite chunk warning remain.
 
-Migration 010 is staged in Supabase query
-`ed60e2b8-f928-4a56-909d-41ef114fa4af`; the browser warning awaits user approval.
-It has not run. Hosted real worker/model, browser and controlled-fixture cleanup
-are pending. Private recording retrieval, OCR, assistant/research and production
-remain planned. GitHub #14 stays open until acceptance is complete.
+Migration 010 applied successfully after explicit user approval in Supabase query
+`ed60e2b8-f928-4a56-909d-41ef114fa4af`. Restarted the matching worker. Hosted
+checks cover selected original PDF pages and overlapping transcript cues,
+partial labels, cross-owner denial, private section-table/worker RPC denial,
+invalid ranges including reimports and stable source identities. A controlled
+external provider outage saved section 1/2, published no unfinished note and
+rejected a stale checkpoint. The real worker/model resumed on attempt 2 without
+changing the saved first summary and completed coherent notes with exact excerpts.
+
+Browser acceptance: whole three-page 42,899-character PDF synthesized in two
+sections; later page-3 citations open the exact saved passage. Selected page 3
+refresh stays under one source ID, preserves the old whole-source note/citations,
+and restores selection defaults. A supplied SRT selection at 25–50 seconds
+retains original overlapping cues at 24–42 and 44–55 seconds and generates a
+coherent note. Reload restores progress and explicit Retry resumes saved 1/2
+section work. Controlled failed state is a browser fixture, not a real provider
+outage; the API worker check separately exercises the external failure path.
+
+All controlled API/browser sources, archives and section work were removed;
+an existing learner note was verified unchanged. Desktop development acceptance
+only; browser uploads were slow, and concurrent stress/mobile layout checks were
+not run for this slice. Private recording retrieval, OCR, assistant/research and
+production remain planned. GitHub #14 is complete.

@@ -5,15 +5,15 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–12 are complete** (12 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#13 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–13 are complete** (13 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#14 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **12**, source reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
+**Last completed:** planned ticket **13**, long sources and selected ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14).
 
-**Current unit:** planned **13**, long sources and page/time ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Local implementation and standards/spec review complete; migration approval and hosted acceptance pending.
+**Next unit:** planned **14**, grounded assistant with selectable scopes; draft and not started.
 
-**Target behavior:** planned tickets **14–15 remain unpublished drafts**; ticket **13 is selected and published**. Existing
+**Target behavior:** planned tickets **14–15 remain unpublished drafts**. Existing
 example UI does not establish live assistant/research. YouTube support requires
 anonymously accessible English captions; private provider access remains planned.
 
@@ -32,19 +32,15 @@ anonymously accessible English captions; private provider access remains planned
 | 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
-| 13 | Long sources and page/time range selection | Reviewed locally; migration/hosted acceptance pending | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
+| 13 | Long sources and page/time range selection | Complete; local + hosted acceptance | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **123 backend tests, 55 web tests, web build/typecheck and
-lint**, plus hosted comparison/refresh/archives, ownership, version-bound citations,
-correction/rejection retention, stale workers/overviews and independent-source
-counts. Desktop video/PDF comparison, decline/confirmation, evidence review,
-archive/current citations, duplicate import and reload pass. Controlled fixtures
-and scoped derived records were removed and verified; real note preserved.
-Both independent review axes have zero remaining findings through 2bf070f.
-Native/iOS unchanged; production unconfigured. Concurrent stress and deterministic
-browser response-delay overlap are untested; existing warnings remain.
+Latest completed checks: **144 backend tests, 61 web tests, web build/typecheck
+and lint**. Independent standards/spec re-reviews pass. Migration 010, hosted
+range selection, saved progress/retry, coherent model synthesis, exact page/time
+citations, same-source version refresh, ownership and controlled cleanup pass.
+Desktop development acceptance only; native/iOS remains unchanged.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -444,11 +440,11 @@ untouched. Bounded captures/versions only; ranges and production remain planned.
 
 ## 13: Process long sources with range selection and honest coverage
 
-**Status:** Selected target — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Local implementation and review complete; migration approval and hosted acceptance pending.
+**Status:** Complete — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Local and hosted acceptance pass; see [setup](../long-source-setup.md) and [review](../reviews/ticket14.md).
 
 **Label:** `ready-for-agent`
 
-**Already verified:** published input limits, bounded captures and honest partial/unknown coverage. Section orchestration and selectable page/time ranges are implemented locally; reviewed migration and hosted acceptance remain pending.
+**Verified:** bounded whole-capture sections, original page/time ranges, saved progress/retry, honest coverage and coherent exact citations. Migration and hosted acceptance pass; controlled fixtures cleaned.
 
 ### What to build
 
@@ -456,18 +452,26 @@ A learner processes a full supported article, PDF, or lecture, or selects a page
 
 ### Acceptance criteria
 
-- [ ] Process the whole supported input by default in sections, with learner-visible progress.
-- [ ] Allow PDF page ranges and timed-video ranges; validate ranges against actual source locations.
-- [ ] Aggregate the selected sections into a coherent study note with references that retain original page or time locations.
+- [x] Process the whole supported input by default in sections, with learner-visible progress.
+- [x] Allow PDF page ranges and timed-video ranges; validate ranges against actual source locations.
+- [x] Aggregate the selected sections into a coherent study note with references that retain original page or time locations.
 - [x] Partial extraction or processing is clearly marked and does not claim whole-source completion.
 - [x] Publish enforceable input limits and provide a usable correction path for unsupported input.
-- [ ] Retries do not duplicate source records, and section counts do not inflate independent-source counts.
-- [ ] Checks cover long inputs, selected ranges, section failures, coverage, and citation locations.
+- [x] Retries do not duplicate source records, and section counts do not inflate independent-source counts.
+- [x] Checks cover long inputs, selected ranges, section failures, coverage, and citation locations.
 
-### Blocked by
+### Dependencies
 
-- Planned ticket 03: Create study notes from selectable-text PDF uploads and links — [GitHub #3](https://github.com/CloudKai/secondBrain/issues/3), complete
-- Planned ticket 04: Create video study notes from uploaded or pasted transcripts — [GitHub #5](https://github.com/CloudKai/secondBrain/issues/5), complete
+- Planned ticket 03: Selectable-text PDFs — [GitHub #3](https://github.com/CloudKai/secondBrain/issues/3), complete
+- Planned ticket 04: Supplied transcripts — [GitHub #5](https://github.com/CloudKai/secondBrain/issues/5), complete
+- Planned ticket 12: Stable source/version identity — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13), complete
+
+### Completion — 2026-10-04
+
+Migration applied after user approval. Whole/selected captures, exact page/time
+citations, progress reload, saved section retry, ownership and source identities
+passed hosted API/model/worker/browser acceptance. Controlled fixtures removed;
+existing learner note unchanged. Native/iOS untouched.
 
 ## 14: Answer questions using selectable note, topic, and library scopes
 
