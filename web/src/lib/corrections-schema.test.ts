@@ -23,13 +23,22 @@ async function worker(db:PGlite){await db.exec("reset role;select set_config('re
 async function correct(db:PGlite,action:unknown){return db.query('select correct_topic_library($1::jsonb)',[JSON.stringify(action)]);}
 async function maps(db:PGlite){return (await db.query<{analysis:NonNullable<TopicRecord['analysis']>}>('select analysis from source_topic_maps order by source_id')).rows.map(r=>r.analysis);}
 
+async function automaticMap(db:PGlite,source:string,analysis:unknown){
+ await worker(db);
+ // Setup a later mapping job; refresh submission itself belongs to planned 12.
+ await db.query(`update source_topic_maps set status='queued',analysis=null,attempts=0,next_attempt_at=now() where source_id=$1`,[source]);
+ const claim=(await db.query<{value:{lease_token:string}}>('select claim_source_topics($1) value',[source])).rows[0].value;
+ assert.ok(claim);
+ assert.equal((await db.query<{done:boolean}>('select finish_source_topics($1,$2,$3::jsonb,null) done',[source,claim.lease_token,JSON.stringify(analysis)])).rows[0].done,true);
+}
+
 test('owned rename persists across reads and future worker output without changing source notes',async()=>{
  const db=await database();try{
  await correct(db,{action:'rename',topic_id:a,title:'Retrieval grounded generation'});
  assert.equal((await maps(db))[0].topics[0].title,'Retrieval grounded generation');
  await learner(db,bob);assert.equal((await maps(db)).length,0);await assert.rejects(correct(db,{action:'rename',topic_id:a,title:'Forged name'}));
  await assert.rejects(db.query('select * from topic_rules'));
- await worker(db);await db.query(`update source_topic_maps set analysis=$2::jsonb where source_id=$1`,[first,JSON.stringify({topics:[assignment(a,'RAG')],relations:[],catalog_partial:false})]);
+ await automaticMap(db,first,{topics:[assignment(a,'RAG')],relations:[],catalog_partial:false});
  await learner(db);assert.equal((await maps(db))[0].topics[0].title,'Retrieval grounded generation');assert.deepEqual((await db.query<{note:unknown}>('select note from source_studies order by source_id')).rows.map(r=>r.note),[note,note]);
  }finally{await db.close();}
 });
@@ -38,7 +47,7 @@ test('merge deduplicates memberships and relations while future output follows t
  const db=await database();try{
  await correct(db,{action:'merge',topic_id:c,target_id:a});
  let current=await maps(db);assert.deepEqual(current.map(m=>m.topics.map(t=>t.id)),[[a,b],[a,b]]);assert.equal(current[1].relations[0].source,a);
- await worker(db);await db.query(`update source_topic_maps set analysis=$2::jsonb where source_id=$1`,[second,JSON.stringify({topics:[assignment(c,'RAG duplicate'),assignment(a,'RAG'),assignment(b,'Retrieval')],relations:[{source:c,target:a,kind:'uses',reason:'Duplicate self link.',citation_ids:['p0001']}],catalog_partial:false})]);
+ await automaticMap(db,second,{topics:[assignment(c,'RAG duplicate'),assignment(a,'RAG'),assignment(b,'Retrieval')],relations:[{source:c,target:a,kind:'uses',reason:'Duplicate self link.',citation_ids:['p0001']}],catalog_partial:false});
  await learner(db);current=await maps(db);assert.equal(current[1].topics.filter(t=>t.id===a).length,1);assert.deepEqual(current[1].relations,[]);assert.deepEqual(current[1].topics.find(t=>t.id===a)?.citation_ids,['p0001']);
  await assert.rejects(correct(db,{action:'merge',topic_id:a,target_id:a}));
  assert.deepEqual((await db.query<{note:unknown}>('select note from source_studies order by source_id')).rows.map(r=>r.note),[note,note]);
@@ -64,7 +73,7 @@ test('source assignment correction preserves other memberships and fences later 
  let current=await maps(db);assert.deepEqual(current[0].topics.map(t=>t.id),[a,c]);assert.equal(current[1].topics.some(t=>t.id===b),true);
  await assert.rejects(correct(db,{action:'assign',source_id:first,topic_ids:[a],evidence_ids:['invented']}));
  await worker(db);const analysis={topics:[assignment(a,'RAG'),assignment(b,'Retrieval')],relations:[],catalog_partial:false};
- await db.query(`update source_topic_maps set analysis=$2::jsonb where source_id=$1`,[first,JSON.stringify(analysis)]);
+ await automaticMap(db,first,analysis);
  await learner(db);current=await maps(db);assert.deepEqual(current[0].topics.map(t=>t.id),[a,c]);
  await correct(db,{action:'rename',topic_id:c,title:'Grounded generation'});assert.equal((await maps(db))[0].topics[1].title,'Grounded generation');
  assert.deepEqual((await db.query<{note:unknown}>('select note from source_studies order by source_id')).rows.map(r=>r.note),[note,note]);
@@ -87,5 +96,16 @@ test('assignment changes invalidate combined citations and deleted sources rejec
  assert.equal((await db.query<{done:boolean}>('select finish_source_topics($1,$2,$3::jsonb,null) done',[first,mapping.lease_token,JSON.stringify({topics:[assignment(a,'RAG')],relations:[],catalog_partial:false})])).rows[0].done,false);
  await db.exec('reset role');await db.exec(await readFile(new URL('../../../supabase/rollbacks/202610040008_topic_corrections.sql',import.meta.url),'utf8'));
  assert.deepEqual((await db.query<{note:unknown}>('select note from source_studies')).rows.map(r=>r.note),[note]);assert.equal((await maps(db)).length,1);
+ }finally{await db.close();}
+});
+
+
+test('completion resolves a correction committed after the worker claimed old inputs',async()=>{
+ const db=await database();try{
+ await worker(db);await db.query(`update source_topic_maps set status='queued',analysis=null,attempts=0,next_attempt_at=now() where source_id=$1`,[first]);
+ const claim=(await db.query<{value:{lease_token:string}}>('select claim_source_topics($1) value',[first])).rows[0].value;
+ await learner(db);await correct(db,{action:'rename',topic_id:b,title:'Evidence retrieval'});
+ await worker(db);assert.equal((await db.query<{done:boolean}>('select finish_source_topics($1,$2,$3::jsonb,null) done',[first,claim.lease_token,JSON.stringify({topics:[assignment(a,'RAG'),assignment(b,'Retrieval')],relations:[],catalog_partial:false})])).rows[0].done,true);
+ await learner(db);assert.equal((await maps(db))[0].topics.find(t=>t.id===b)?.title,'Evidence retrieval');
  }finally{await db.close();}
 });

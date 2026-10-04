@@ -41,7 +41,7 @@ class SourceAssignments(StrictModel):
     action: Literal["assign"]
     source_id: WireUUID
     topic_ids: list[WireUUID] = Field(min_length=1, max_length=12)
-    evidence_ids: list[str] = Field(min_length=1, max_length=10)
+    evidence_ids: list[Annotated[str, Field(min_length=1, max_length=16)]] = Field(min_length=1, max_length=10)
 
     @field_validator("topic_ids", "evidence_ids")
     @classmethod

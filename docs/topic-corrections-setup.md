@@ -38,11 +38,11 @@ rejected pairs. Failed mutations retain the dialog with actionable errors.
 Database triggers resolve redirects and title overrides on future worker writes,
 and preserve learner source assignments/placement confirmations. Exact source
 passage IDs must still exist. Existing placement confirmations are backfilled.
-The topic claim function takes the owner lock before row locks, matching the
+The topic claim and completion functions take the owner lock before row locks, matching the
 correction lock order. Existing source foreign keys fence deleted-source writes.
 
 Rollback `supabase/rollbacks/202610040008_topic_corrections.sql` removes correction
-ledgers/triggers and restores the prior claim function. It preserves original
+ledgers/triggers and restores the prior claim/completion functions. It preserves original
 notes and the latest corrected maps; future correction retention is lost after
 rollback. No new credentials, services, ingestion or native API changes.
 

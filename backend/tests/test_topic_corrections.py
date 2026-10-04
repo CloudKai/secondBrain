@@ -41,3 +41,6 @@ def test_owned_rename_delegates_only_valid_correction_and_rejects_forged_owner(m
         ]:
             assert client.post(url, json=correction, headers={"Authorization": "Bearer alice"}).status_code == 204
             assert sent[-1] == {"p_action": correction}
+        for evidence in ["", "x" * 17]:
+            invalid = {"action": "assign", "source_id": "33333333-3333-4333-8333-333333333333", "topic_ids": [TOPIC], "evidence_ids": [evidence]}
+            assert client.post(url, json=invalid, headers={"Authorization": "Bearer alice"}).status_code == 422

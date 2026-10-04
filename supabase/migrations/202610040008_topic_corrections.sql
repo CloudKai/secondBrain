@@ -221,4 +221,40 @@ end;
 $$;
 
 
+-- Completion must serialize with corrections before taking the source row lock.
+create or replace function public.finish_source_topics(p_source_id uuid,p_lease_token uuid,p_analysis jsonb,p_error_code text)
+returns boolean language plpgsql set search_path = '' as $$
+declare v_study public.source_topic_maps;v_user uuid;
+begin
+  if (p_analysis is null) = (p_error_code is null) then
+    raise exception 'Provide either a validated analysis or an error code';
+  end if;
+  select user_id into v_user from public.source_topic_maps where source_id=p_source_id;
+  if not found then return false;end if;
+  perform pg_advisory_xact_lock(hashtextextended(v_user::text,0));
+  select * into v_study from public.source_topic_maps where source_id = p_source_id
+    and status = 'processing' and lease_token = p_lease_token and lease_until > now() for update;
+  if not found then return false; end if;
+  if p_analysis is not null then
+    update public.source_topic_maps set status = 'succeeded',analysis = p_analysis,
+      error_code = null,lease_token = null,lease_until = null,updated_at = now()
+      where source_id = p_source_id;
+    delete from public.topic_outbox where source_id = p_source_id;
+  else
+    update public.source_topic_maps set
+      status = case when attempts >= max_attempts or p_error_code = 'setup_required' then 'failed' else 'queued' end,
+      analysis = null,error_code = p_error_code,lease_token = null,lease_until = null,
+      next_attempt_at = now() + make_interval(secs => case when attempts = 1 then 10 else 30 end),
+      updated_at = now() where source_id = p_source_id returning * into v_study;
+    if v_study.status = 'queued' then
+      update public.topic_outbox set next_delivery_at = v_study.next_attempt_at where source_id = p_source_id;
+    else
+      delete from public.topic_outbox where source_id = p_source_id;
+    end if;
+  end if;
+  return true;
+end;
+$$;
+
+
 commit;
