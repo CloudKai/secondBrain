@@ -188,9 +188,11 @@ class StudyGenerator:
             raise GenerationFailure("invalid_output")
         if on_plan:
             await on_plan(len(sections))
-        if len(sections) == 1 and not summaries:
+        if len(sections) == 1:
+            # A single model call must retry from the original passages: the
+            # progress summary is not a replacement for all of their evidence.
             note = (await self.invoke(self.graph, {"passages": passages}))["note"]
-            if on_section:
+            if on_section and not summaries:
                 await on_section(0, SectionSummary(text=note.overview.text[:1200], citation_ids=note.overview.citation_ids))
             return note
         for index in range(len(summaries), len(sections)):

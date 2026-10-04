@@ -38,7 +38,7 @@ completed section counts and the combining stage; counts survive reload.
 | Transcript upload | 1 MB UTF-8 TXT/VTT/SRT, up to 2,000 ordered timed cues |
 | Pasted transcript | 120–100,000 input characters |
 | Cue time | Within seven days from recording start; original times only |
-| Section model input | At most 30,000 source characters and 100 passages |
+| Section model input | At most 30,000 source characters and 200 passages |
 | Per-source processing | At most 20 sections; each summary at most 1,200 characters |
 | Synthesis input | At most 30,000 serialized summary characters |
 | Model call | 60-second provider / 65-second wall deadline, no SDK retries |

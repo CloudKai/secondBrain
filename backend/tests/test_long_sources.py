@@ -86,7 +86,7 @@ def test_long_source_uses_bounded_sections_then_coherent_grounded_synthesis():
         calls.append(payload)
         if "passages" in payload:
             assert sum(len(p["text"]) for p in payload["passages"]) <= 30_000
-            assert len(payload["passages"]) <= 100
+            assert len(payload["passages"]) <= 200
             ids = [payload["passages"][0]["id"]]
             section_ids.extend(ids)
         else:
@@ -200,4 +200,74 @@ def test_stale_worker_stops_without_publishing_sections_or_a_final_note(boundary
             await build_source_study({"store": StudyStore(client, "https://supabase.test", {"apikey": "sb_secret_test"}), "generator": StudyGenerator(client, api_key="test-key")}, "33333333-3333-4333-8333-333333333333")
         assert "finish_source_study" not in calls
         assert calls[-1] == boundary
+    asyncio.run(run())
+
+
+def test_short_source_retry_retains_supporting_passages_after_checkpoint():
+    from backend.study_models import SectionSummary
+    text = "Calculus studies change. " * 70
+    calls, checkpoints = [], []
+
+    def external(request):
+        payload = json.loads(json.loads(request.content)["messages"][-1]["content"])
+        calls.append(payload)
+        return model_response(request, draft_for(["p0001", "p0002"]))
+
+    async def checkpoint(index, summary):
+        checkpoints.append(summary)
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(external)) as client:
+            note = await StudyGenerator(client, api_key="test-key").generate(
+                text, completed_sections=[SectionSummary(text="Change overview only.", citation_ids=["p0001"])],
+                on_section=checkpoint,
+            )
+        assert "passages" in calls[0]
+        assert [p.id for p in note.references] == ["p0001", "p0002"]
+        assert not checkpoints  # The already saved checkpoint must not be overwritten.
+    asyncio.run(run())
+
+
+def test_dense_supported_transcript_generates_within_section_budget(browser_client, monkeypatch):
+    from backend.transcript_models import TranscriptDocument
+    cues = []
+    for index in range(2000):
+        seconds = index * 2
+        timestamp = lambda value: f"{value // 3600:02}:{value // 60 % 60:02}:{value % 60:02}.000"
+        text = "a" if index < 1960 else "a" * 2900
+        cues.append(f"{timestamp(seconds)} --> {timestamp(seconds + 1)}\n{text}")
+    response = browser_client.post(
+        "/api/v2/sources/video?filename=dense.vtt",
+        headers={"Authorization": "Bearer alice", "X-Video-URL": "https://www.youtube.com/watch?v=ovrv11testA"},
+        content=("WEBVTT\n\n" + "\n\n".join(cues)).encode(),
+    )
+    assert response.status_code == 201, response.text
+    source = response.json()
+    assert len(source["captured_text"]) == 119959
+    # Switch from the authenticated capture HTTP fixture to model HTTP.
+    monkeypatch.undo()
+    summaries, calls = [], []
+
+    def external(request):
+        payload = json.loads(json.loads(request.content)["messages"][-1]["content"])
+        calls.append(payload)
+        if "passages" in payload:
+            assert len(payload["passages"]) <= 200
+            assert sum(len(p["text"]) for p in payload["passages"]) <= 30000
+            summary = {"text": "Supported transcript evidence.", "citation_ids": [payload["passages"][0]["id"]]}
+            summaries.append(summary)
+            return model_response(request, summary)
+        ids = [s["citation_ids"][0] for s in summaries]
+        draft = draft_for(ids[:10])
+        draft["concepts"][0]["citation_ids"] = ids[-10:]
+        return model_response(request, draft)
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(external)) as client:
+            note = await StudyGenerator(client, api_key="test-key").generate(
+                source["captured_text"], transcript=TranscriptDocument.model_validate(source["transcript"]),
+            )
+        assert len(summaries) <= 20
+        assert len(calls) == len(summaries) + 1
+        assert note.references[-1].start_ms > 3900000
     asyncio.run(run())
