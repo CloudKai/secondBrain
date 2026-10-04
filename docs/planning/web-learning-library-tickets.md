@@ -11,9 +11,9 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **12**, source reuse and versioned refresh — [GitHub #13](https://github.com/CloudKai/secondBrain/issues/13).
 
-**Current unit:** none. Next unpublished draft: **13**, long sources and page/time ranges.
+**Current unit:** planned **13**, long sources and page/time ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Scope selected; implementation and acceptance pending.
 
-**Target behavior:** planned tickets **13–15 remain unpublished drafts**. Existing
+**Target behavior:** planned tickets **14–15 remain unpublished drafts**; ticket **13 is selected and published**. Existing
 example UI does not establish live assistant/research. YouTube support requires
 anonymously accessible English captions; private provider access remains planned.
 
@@ -32,7 +32,7 @@ anonymously accessible English captions; private provider access remains planned
 | 10 | Synthesized topic overviews and source branches | Complete; local + hosted acceptance | [#11](https://github.com/CloudKai/secondBrain/issues/11), [setup](../topic-overview-setup.md), [review](../reviews/ticket11.md) |
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
-| 13 | Long sources and page/time range selection | Draft; bounded capture exists, ranges remain planned | Unpublished |
+| 13 | Long sources and page/time range selection | Selected; implementation and acceptance pending | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
 | 14 | Grounded assistant with selectable scopes | Draft; example preview only | Unpublished |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
@@ -61,7 +61,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–12 were selected by the user and completed. Remaining
+relationships. Tickets 01–12 were selected by the user and completed. Ticket 13 is selected and published. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -444,9 +444,9 @@ untouched. Bounded captures/versions only; ranges and production remain planned.
 
 ## 13: Process long sources with range selection and honest coverage
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** Selected target — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14). Implementation and acceptance pending.
 
-**Proposed label:** `ready-for-agent`
+**Label:** `ready-for-agent`
 
 **Already verified:** published input limits, bounded captures and honest partial/unknown coverage. Whole-input section orchestration and selectable page/time ranges remain planned.
 

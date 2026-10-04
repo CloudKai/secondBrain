@@ -18,7 +18,7 @@ pass. Both independent review axes have zero findings through 2bf070f. Hosted
 API/browser acceptance and controlled-fixture cleanup pass. Desktop/development
 only; concurrent stress and deterministic browser delay overlap are untested.
 
-**Current unit:** none. Next unpublished draft: planned 13, long sources/ranges.
+**Current unit:** planned 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14), long sources and page/time ranges. Scope selected; test-boundary agreement requested. Implementation and acceptance pending.
 
 **Target behavior:** Automatic Teams/Zoom/Panopto access, long-source ranges,
 assistant/research and production deployment remain planned. YouTube support is
@@ -568,3 +568,18 @@ remain. Native/iOS and its tracker untouched. Commits remain local.
 GitHub #13 and both web records synchronized. Next unpublished draft: planned
 13, long sources and page/time ranges; not started. Setup/review:
 docs/source-revisions-setup.md and docs/reviews/ticket13.md.
+
+
+## Long sources selected — planned 13 / #14, 2026-10-04
+
+Inspected capture limits, exact page/cue metadata, source identity/version reuse,
+worker claims/leases, note synthesis and browser import/readers. Published #14
+with completed #3/#5/#13 dependencies. Target: bounded whole-capture section
+processing with saved progress/retry, validated original page/time selection,
+and coherent final notes with exact citations. Existing partial/unknown coverage
+must remain honest. New capture/processing limits will be published and enforced;
+no native/iOS change. The implement/TDD skills require agreement on test boundaries
+before tests; authenticated import/range API, external capture/model HTTP,
+database ownership/progress/worker fences and browser flows were proposed.
+Implementation, checks, review, migration and hosted acceptance have not started.
+See docs/long-source-setup.md for the selected target and implementation plan.

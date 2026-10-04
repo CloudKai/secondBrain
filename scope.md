@@ -578,3 +578,16 @@ and reload pass. Controlled fixtures/scoped records cleaned; real note preserved
 123 backend tests, 55 web tests, build/typecheck and lint pass. Both review axes
 have zero findings through 2bf070f. Desktop/development only, production and ranges
 remain planned. Native/iOS and its tracker untouched. Next draft: planned 13.
+
+
+## Long sources/ranges selected — planned 13 / #14 (2026-10-04)
+
+Target unit: browser whole-capture section processing with persisted progress and
+retry, validated original PDF page/timed-transcript selection, and coherent
+final notes with exact capture citations. Preserve stable source/version identity,
+learner corrections and one-source graph counts. Existing limits and omitted-text
+feedback remain verified; expanded capture budgets, section orchestration and
+range controls are pending. Published #14, inspected capture/worker/browser
+boundaries, and updated both web records. The TDD skill requires agreed seams;
+user agreement requested before test writing. No implementation, migration or
+hosted acceptance yet. Native/iOS and its tracker untouched.
