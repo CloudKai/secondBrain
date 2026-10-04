@@ -381,7 +381,7 @@ A learner compares overlapping material through a combined topic overview or ind
 
 **GitHub:** [#12 — open](https://github.com/CloudKai/secondBrain/issues/12)
 
-**Current progress:** Existing mappings, corrections and source/overview fences inspected. User agreed authenticated correction/removal API, database ownership/worker fences and browser correction/reload/citation checks. Durable correction boundary selected; native/iOS unchanged.
+**Current progress:** Local rename/merge, source assignment overrides, connection decisions/rejection precedence and saved UI controls are implemented (39b1807). Review correction acd3c92 serializes completion with corrections and bounds passage IDs. Both independent re-reviews have zero remaining findings. Final local checks pass: 118 backend tests, 46 web tests, build/typecheck and lint. Migration is staged at the dashboard warning; user approval and hosted acceptance remain pending. [Setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md). Native/iOS and its tracker unchanged.
 
 **Label:** `ready-for-agent`
 

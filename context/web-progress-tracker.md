@@ -402,3 +402,17 @@ assignment overrides; persisted connection decisions/rejection precedence; saved
 UI controls; membership/worker/deletion fences and reversible migration.
 Focused API/client/Postgres checks and typecheck pass. Full checks, independent
 review, migration and hosted acceptance remain pending.
+
+Independent reviews: Standards found one P2 completion race and one P3 unbounded
+passage-ID item; Spec found the completion race. acd3c92 fixes owner-before-row
+completion serialization and 1–16-character IDs; both re-reviews have zero
+remaining findings. Six focused DB tests and HTTP validation pass. Full checks
+are being refreshed. The reviewed migration is staged at query
+69038fae-191b-4dbb-8e99-7ff1b3ab70c9; browser warning approval is requested.
+No hosted correction capability is claimed yet. Review: docs/reviews/ticket12.md.
+
+Final local checks through acd3c92: 118 backend tests via project Python,
+46 web tests, build/typecheck and lint pass. Both independent re-reviews have
+zero remaining findings. Migration warning approval remains pending; the hosted
+API/browser acceptance helper is prepared but has not run. GitHub #12 stays open.
+Native/iOS and its tracker remain untouched.

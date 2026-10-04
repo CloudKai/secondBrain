@@ -2,8 +2,8 @@
 
 ## Status
 
-Local implementation and focused agreed-seam checks pass. Independent review,
-full checks and hosted development acceptance are pending. The migration has
+Local implementation, full checks and both independent re-reviews pass.
+Hosted development acceptance is pending. The migration has
 not been applied; this is target behavior until hosted acceptance passes.
 Native/iOS and its progress tracker remain untouched.
 
@@ -49,6 +49,7 @@ rollback. No new credentials, services, ingestion or native API changes.
 ## Checks
 
 Agreed with the user: authenticated correction/removal API, database ownership
-and worker fences, and browser corrections/reload/citation flows. Focused HTTP,
-Postgres migration/rollback and authenticated client checks pass. Full suite,
-independent review, hosted migration and browser acceptance remain pending.
+and worker fences, and browser corrections/reload/citation flows. HTTP, Postgres migration/rollback and authenticated client checks pass.
+Final local suite: 118 backend tests, 46 web tests, build/typecheck and lint.
+Both independent re-reviews have zero remaining findings through acd3c92.
+Hosted migration/browser acceptance remain pending at the dashboard warning.
