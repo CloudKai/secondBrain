@@ -190,3 +190,9 @@ Combined synthesis and broad corrections remain planned; native UI unchanged.
 ## Web topic views — ticket #11
 
 Local UI pending hosted acceptance: saved topic words/cards open SavedTopicDetails; Combine queues a cited overview and differences, Keep separate shows original source-note branches below the parent. Existing mint inline citations open exact source evidence. Choice persists server-side; uncertain placement and pending/error/partial feedback are explicit. Example topics stay in the separate example preview.
+
+
+### Topic overview review checkpoint — #11
+
+Local checks and both independent reviews pass; hosted acceptance awaits approval
+of the staged Supabase warning. No hosted overview capability is verified yet.

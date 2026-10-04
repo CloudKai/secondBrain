@@ -485,3 +485,9 @@ Both web progress records are updated.
 ## Combined topic overview implementation — planned 10 / #11
 
 Local implementation/checks pass at the agreed API/model HTTP/database/browser seams. Hosted acceptance and independent review remain pending. Explicit Combine queues cited synthesis; Keep separate preserves source branches and persisted per-topic choice. Membership changes hide stale results and fence late workers. Original notes are read-only; broad corrections remain planned 11.
+
+
+### Topic overview review checkpoint — #11
+
+Local checks and both independent reviews pass; hosted acceptance awaits approval
+of the staged Supabase warning. No hosted overview capability is verified yet.

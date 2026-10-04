@@ -405,3 +405,9 @@ No vector service, native persistence or production deployment was added.
 ## Web topic overview boundary — ticket #11
 
 Target pending hosted acceptance: derived topic_overviews/overview_outbox, authenticated owned RPC snapshots and view mutation, stable-ID ARQ synthesis with bounded attempts/leases. Exact source-prefixed passage references and membership revision fences preserve authoritative source_studies/source_topic_maps. No native API change or new vector/provider service.
+
+
+### Topic overview review checkpoint — #11
+
+Local checks and both independent reviews pass; hosted acceptance awaits approval
+of the staged Supabase warning. No hosted overview capability is verified yet.

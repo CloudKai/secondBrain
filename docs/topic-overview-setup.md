@@ -2,7 +2,7 @@
 
 ## Status
 
-Local implementation and checks pass. Hosted migration, independent review and
+Local implementation and checks pass. Independent Standards/Spec review is complete. Hosted migration and
 browser acceptance are pending; this is not yet part of the verified web MVP.
 
 ## Learner flow

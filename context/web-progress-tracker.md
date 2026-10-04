@@ -354,17 +354,26 @@ release or new phone-width acceptance is claimed.
 
 ## Combined topic overviews and source branches — issue #11, planned 10
 
-Selected 2026-10-04. Status: implementation in progress; hosted acceptance pending.
+Selected 2026-10-04. Status: local implementation and independent review complete; migration approval and hosted acceptance pending.
 
 - [x] Inspect approved overlap/view decisions, glossary and shared-topic ADR
 - [x] Inspect owned topic maps, original source references, worker and supplied UI
 - [x] Publish/claim GitHub #11 with completed #10 as its dependency
 - [x] Plan requested synthesis, persisted view choice and membership fences
 - [x] Agree overview API/model HTTP/database/browser test boundaries
-- [ ] Implement and verify cited synthesis, disagreements and source branches
-- [ ] Independent review, hosted acceptance and final issue synchronization
+- [x] Implement cited synthesis, disagreements and source branches locally
+- [x] Independent Standards/Spec review and correction (zero remaining findings)
+- [ ] Apply reviewed migration after dashboard warning approval
+- [ ] Hosted browser/API acceptance and final issue synchronization
 
 The user agreed the overview API, synthesis HTTP, owned database/view persistence
 and browser switching/citation seams. Local implementation and checks are underway. Existing topic/notes
 remain the verified MVP. Combined synthesis is target behavior until acceptance
 passes. Native/iOS and its progress tracker remain unchanged.
+
+Local checkpoint: 117 backend tests via project Python, 39 web tests, web build,
+typecheck and lint pass. The exact bare pytest/uvicorn launchers still resolve
+stale Anaconda; project Python module invocations work. Reviewed commits 409b70e
+and 0df3d73. Review: docs/reviews/ticket11.md. Setup: docs/topic-overview-setup.md.
+Supabase query b39709d4-f1a4-4643-8d0b-00d9a466ce8f is staged at its warning.
+No hosted overview capability is claimed yet. Native/iOS remain untouched.
