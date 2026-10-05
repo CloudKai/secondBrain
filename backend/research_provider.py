@@ -1,7 +1,7 @@
 """Bounded Search → Fetch verification. Discovery never writes saved material."""
 import asyncio
 import json
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urljoin
 import httpx
 from pydantic import BaseModel, Field, ValidationError
 from backend.source_capture import public_source_address, canonical_source_url
@@ -39,9 +39,11 @@ def resource_kind(hit: SearchHit, paper: bool) -> str:
     host = (urlsplit(hit.url).hostname or '').lower()
     if host in DOCUMENTATION_HOSTS:
         return 'documentation'
+    if paper or host in {'arxiv.org', 'proceedings.neurips.cc', 'openreview.net', 'aclanthology.org'}:
+        return 'paper'
     if host.endswith(('.edu', '.ac.uk', '.edu.au', '.edu.sg')):
-        return 'teaching'
-    return 'paper' if paper or host in {'arxiv.org', 'proceedings.neurips.cc', 'openreview.net', 'aclanthology.org'} else 'article'
+        return 'university'
+    return 'article'
 
 async def safe_url(value: str) -> str:
     if len(value) > 2048:
@@ -49,6 +51,34 @@ async def safe_url(value: str) -> str:
     url = httpx.URL(value)
     await public_source_address(url)
     return canonical_source_url(str(url))
+
+async def verify_capture_kind(client: httpx.AsyncClient, source_url: str) -> str:
+    """Check response type without downloading a body or guessing from a suffix."""
+    current = source_url
+    publisher = (urlsplit(source_url).hostname or '').removeprefix('www.')
+    for _ in range(5):
+        url = httpx.URL(current)
+        address = await public_source_address(url)
+        if (url.host or '').removeprefix('www.') != publisher:
+            raise ValueError('publisher_changed')
+        for method in ('HEAD', 'GET'):
+            async with client.stream(method, url.copy_with(host=address), headers={'Host': url.netloc.decode(), 'Accept-Encoding': 'identity', 'Range': 'bytes=0-0'}, extensions={'sni_hostname':url.host}, timeout=httpx.Timeout(7, connect=5)) as response:
+                if response.status_code in (301, 302, 303, 307, 308):
+                    location = response.headers.get('location')
+                    if not location:
+                        raise ValueError('redirect')
+                    current = urljoin(current, location)
+                    break
+                if method == 'HEAD' and (response.status_code in (405, 501) or not response.headers.get('content-type')):
+                    continue
+                response.raise_for_status()
+                mime = response.headers.get('content-type', '').split(';',1)[0].strip().lower()
+                if mime == 'application/pdf':
+                    return 'pdf'
+                if mime in {'text/html', 'application/xhtml+xml', 'text/plain'}:
+                    return 'article'
+                raise ValueError('unsupported_content')
+    raise ValueError('redirect_limit')
 
 async def provider_json(client: httpx.AsyncClient, method: str, host: str, key: str, **kwargs) -> dict:
     async with client.stream(method, host, headers={'X-API-Key': key, 'Accept-Encoding': 'identity'}, timeout=httpx.Timeout(25, connect=7), **kwargs) as response:
@@ -90,12 +120,16 @@ async def discover_resources(client: httpx.AsyncClient, query: str, key: str) ->
                 if partial:
                     raise ResearchFailure('search_unavailable')
                 return ResearchResults(query=query, resources=[], partial=False)
-            priority = {'documentation': 0, 'teaching': 1, 'paper': 2, 'article': 3}
+            priority = {'documentation': 0, 'university': 1, 'paper': 2, 'article': 3}
             selected = sorted(candidates, key=lambda url: priority[candidates[url][1]])[:6]
             fetched = FetchPage.model_validate(await provider_json(client, 'POST', 'https://api.fetch.tinyfish.ai', key, json={'urls': selected, 'format': 'markdown', 'ttl': 0, 'per_url_timeout_ms': 15000, 'page_metadata': True}))
             verified = {canonical_source_url(p.url): p for p in fetched.results}
+            capture_types = await asyncio.gather(*(verify_capture_kind(client, url) for url in selected), return_exceptions=True)
             resources: dict[str, ResearchResource] = {}
-            for url in selected:
+            for url, capture_kind in zip(selected, capture_types):
+                if isinstance(capture_kind, Exception):
+                    partial = True
+                    continue
                 page = verified.get(url)
                 if not page or len(page.text.strip()) < 40:
                     partial = True
@@ -115,7 +149,7 @@ async def discover_resources(client: httpx.AsyncClient, query: str, key: str) ->
                 from_index = bool((not source_author and authors) or (not page.published_date and hit.year))
                 host = urlsplit(final).hostname or ''
                 preprint = 'preprint' in (hit.venue or '').lower() or host in {'arxiv.org', 'www.arxiv.org', 'biorxiv.org', 'www.biorxiv.org', 'medrxiv.org', 'www.medrxiv.org'}
-                resources.setdefault(final, ResearchResource(url=final, title=(page.title or hit.title).strip()[:200] or hit.title[:200], authors=authors, organization=host[:200], date=date, kind=kind, capture_kind='pdf' if urlsplit(final).path.lower().endswith('.pdf') else 'article', publication_status='preprint' if preprint else 'unverified', metadata_origin='mixed' if from_source and from_index else 'source' if from_source else 'search_index', relevance=hit.snippet.strip()[:1000] or f'Returned by search for “{query}”. Inspect the original to judge relevance.'))
+                resources.setdefault(final, ResearchResource(url=final, title=(page.title or hit.title).strip()[:200] or hit.title[:200], authors=authors, organization=host[:200], date=date, kind=kind, capture_kind=capture_kind, publication_status='preprint' if preprint else 'unverified', metadata_origin='mixed' if from_source and from_index else 'source' if from_source else 'search_index', relevance=hit.snippet.strip()[:1000] or f'Returned by search for “{query}”. Inspect the original to judge relevance.'))
             return ResearchResults(query=query, resources=list(resources.values()), partial=partial)
     except ResearchFailure:
         raise

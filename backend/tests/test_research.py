@@ -24,6 +24,9 @@ def research_client(monkeypatch):
             assert request.method == 'GET', 'Discovery must not mutate the library'
             return httpx.Response(200, json=[])
         assert 'authorization' not in request.headers and 'apikey' not in request.headers
+        if request.method == 'HEAD':
+            assert 'x-api-key' not in request.headers
+            return httpx.Response(200, headers={'content-type': state.get('mime', 'text/html')})
         assert request.headers['x-api-key'] == 'search-test'
         if request.url.host == 'api.search.tinyfish.ai':
             return httpx.Response(state['status'], json={'results': state['search']})
@@ -107,6 +110,7 @@ def test_results_are_prioritized_bounded_and_deduplicated_after_verification(res
     client,state=research_client
     urls=['https://blog.test/rag','https://arxiv.org/abs/2401.00001','https://docs.python.org/3/library/asyncio.html','https://mit.edu/lecture.pdf']+[f'https://arxiv.org/abs/2401.0000{i}' for i in range(2,10)]
     state['search']=[{'url':url,'title':'A source about retrieval','snippet':'Retrieval evidence.'} for url in urls]
+    state['mime']='application/pdf'
     state['pages']=[{'url':url,'final_url':url,'text':'This readable source discusses retrieval and learning from source material.'} for url in urls[:4]+urls[4:6]]
     response=discover(client)
     assert response.status_code==200,response.text
@@ -133,14 +137,14 @@ from backend.tests.test_sources import browser_client
 def test_discovered_material_changes_the_owned_library_only_after_explicit_article_or_pdf_save(browser_client,monkeypatch,pdf):
     from backend.tests.test_pdf_sources import pdf_bytes
     monkeypatch.setenv('TINYFISH_API_KEY','search-test')
-    url='https://pdf.test/study.pdf' if pdf else 'https://article.test/learning'
+    url='https://pdf.test/download' if pdf else 'https://article.test/learning'
     original=HTTPClient.send
     async def external(client,request,**kw):
         if request.url.host=='api.search.tinyfish.ai':
             return httpx.Response(200,json={'results':[{'url':url,'title':'Discovered calculus'}]},request=request)
         if request.url.host=='api.fetch.tinyfish.ai':
             return httpx.Response(200,json={'results':[{'url':url,'final_url':url,'text':'This source describes calculus and how quantities change and accumulate.'}]},request=request)
-        if request.url.path=='/study.pdf':
+        if request.url.path=='/download':
             return httpx.Response(200,headers={'content-type':'application/pdf'},stream=httpx.ByteStream(pdf_bytes()),request=request)
         return await original(client,request,**kw)
     monkeypatch.setattr(HTTPClient,'send',external)
@@ -158,3 +162,23 @@ def test_discovered_material_changes_the_owned_library_only_after_explicit_artic
     assert browser_client.get('/api/v2/sources/'+source['id'],headers={'Authorization':'Bearer bob'}).status_code==404
     again=browser_client.post('/api/v2/sources/pdf-link' if pdf else '/api/v2/sources',headers=headers,json={'url':url,'title':'Discovered calculus'})
     assert again.json()['id']==source['id']
+
+
+def test_extensionless_pdf_links_use_the_pdf_capture_flow(research_client):
+    client,state=research_client
+    url='https://arxiv.org/pdf/2401.00001'
+    state['search'][0]['url']=url
+    state['pages'][0].update(url=url,final_url=url)
+    state['mime']='application/pdf'
+    response=discover(client)
+    assert response.status_code==200,response.text
+    assert response.json()['resources'][0]['capture_kind']=='pdf'
+
+def test_a_university_host_does_not_turn_an_indexed_paper_into_teaching_material(research_client):
+    client,state=research_client
+    url='https://repository.lsu.edu/paper'
+    state['search'][0]['url']=url
+    state['pages'][0].update(url=url,final_url=url)
+    response=discover(client)
+    assert response.status_code==200,response.text
+    assert response.json()['resources'][0]['kind']=='paper'

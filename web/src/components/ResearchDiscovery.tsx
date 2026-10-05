@@ -3,7 +3,7 @@ import {ArrowRight,ExternalLink,FileText,LoaderCircle,Search,Sparkles} from 'luc
 import type {SourceClient} from '../lib/source-client';
 import type {ResearchResource,ResearchResults} from '../lib/research';
 
-const kindLabels={paper:'Research paper',documentation:'Official documentation',teaching:'University material',article:'Public web source'};
+const kindLabels={paper:'Research paper',documentation:'Official documentation',university:'University resource',article:'Public web source'};
 export default function ResearchDiscovery({client,connected,initialQuery,onSave,savedUrl}:{client:SourceClient|null;connected:boolean;initialQuery:string;onSave:(resource:ResearchResource)=>void;savedUrl:(url:string)=>boolean}){
  const [query,setQuery]=useState(initialQuery),[results,setResults]=useState<ResearchResults|null>(null),[working,setWorking]=useState(false),[error,setError]=useState('');
  const mounted=useRef(true),busy=useRef(false);

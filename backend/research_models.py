@@ -19,7 +19,7 @@ class ResearchResource(StrictModel):
     authors: list[str] = Field(max_length=20)
     organization: str = Field(min_length=1, max_length=200)
     date: str | None = Field(max_length=100)
-    kind: Literal['paper', 'documentation', 'teaching', 'article']
+    kind: Literal['paper', 'documentation', 'university', 'article']
     capture_kind: Literal['article', 'pdf']
     publication_status: Literal['preprint', 'unverified']
     metadata_origin: Literal['source', 'search_index', 'mixed']

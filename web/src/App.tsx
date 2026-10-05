@@ -350,6 +350,9 @@ export default function App() {
     setPanelTab('Sources');setPanelOpen(true);
     requestAnimationFrame(()=>document.getElementById('source-passage')?.focus());
   }
+  function findSavedResource(url:string) {
+    return notes.find(n=>!!n.savedSource&&!!n.url&&canonicalUrl(n.url)===canonicalUrl(url));
+  }
   function showAdd(url = "") {
     setSourceUrl(url);
     setError("");
@@ -1810,9 +1813,9 @@ export default function App() {
           )}
           {route.page === "discover" && <ResearchDiscovery
             key={researchSeed} client={sourceClient} connected={storage==='ready'} initialQuery={researchSeed}
-            savedUrl={url=>notes.some(n=>!!n.savedSource&&!!n.url&&canonicalUrl(n.url)===canonicalUrl(url))}
+            savedUrl={url=>!!findSavedResource(url)}
             onSave={resource=>{
-              const existing=notes.find(n=>!!n.savedSource&&!!n.url&&canonicalUrl(n.url)===canonicalUrl(resource.url));
+              const existing=findSavedResource(resource.url);
               if(existing){openNote(existing);return;}
               showAdd(resource.url);setSourceTab(resource.capture_kind==='pdf'?'PDF':'Article');
               setSourceTitle(resource.title);setRawText('');
