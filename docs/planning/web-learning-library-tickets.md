@@ -11,9 +11,9 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15).
 
-**Current unit:** none. Planned **15**, live reliable-resource discovery, is the next unpublished draft.
+**Current unit:** planned **15**, live reliable-resource discovery — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16). Selected and published; implementation and acceptance pending.
 
-**Target behavior:** live discovery remains planned **15**. Saved-note assistant
+**Target behavior:** live discovery is selected planned **15**, published as #16; it is not implemented yet. Saved-note assistant
 answers are verified; curated reading-list examples remain a preview. YouTube
 support requires anonymously accessible English captions; private provider access
 remains planned.
@@ -35,7 +35,7 @@ remains planned.
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Complete; local + hosted acceptance | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
 | 14 | Grounded assistant with selectable scopes | Complete; local + hosted acceptance | [#15](https://github.com/CloudKai/secondBrain/issues/15), [setup](../assistant-setup.md), [review](../reviews/ticket15.md) |
-| 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
+| 15 | Live reliable-resource discovery and explicit saving | Selected; implementation/acceptance pending | [#16](https://github.com/CloudKai/secondBrain/issues/16), [scope](../research-discovery-setup.md) |
 
 Latest completed checks: **161 backend tests, 64 web tests, web build/typecheck
 and lint**. Independent standards/spec re-reviews pass. Migration 011, hosted
@@ -59,8 +59,8 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–14 were selected by the user and completed. Remaining
-drafts keep their proposed labels and dependencies until selected for publication.
+relationships. Tickets 01–14 were selected by the user and completed. Ticket 15 is now selected
+and published; its acceptance is pending.
 No production hosting provider or recording-provider account connection is selected.
 
 ### Original handoff baseline — historical, 2026-10-02
@@ -515,9 +515,11 @@ A learner uses suggested prompts or free text to ask a source-grounded study ass
 
 ## 15: Discover credible further-study resources and save selected sources
 
-**Status:** Target behavior — unpublished draft; acceptance is not complete.
+**Status:** Selected target — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16). Implementation and acceptance pending.
 
-**Proposed label:** `ready-for-agent`
+**Scope:** [Research discovery setup](../research-discovery-setup.md). Proposed TDD boundaries await user confirmation.
+
+**Label:** `ready-for-agent`
 
 ### What to build
 

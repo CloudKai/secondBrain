@@ -663,3 +663,16 @@ Controlled sources and dependent records removed and verified; existing learner
 source not targeted. GitHub #15 closed. Planned 15 live reliable-resource
 discovery remains unpublished; production/native work is unchanged. Setup/review:
 docs/assistant-setup.md and docs/reviews/ticket15.md.
+
+
+## Live discovery selected — planned 15 / #16 (2026-10-05)
+
+The user requested continuation after #15 completion. Published #16 for the
+final planned slice: on-demand credible resource discovery, verified public
+links, honest metadata and explicit article/PDF saving through the existing
+note/topic pipeline. Inspected reading-list preview, capture paths and official
+TinyFish Search/Fetch contracts. No new database or model provider selected;
+results stay external and local until saved. Proposed API/external HTTP/save/
+browser TDD boundaries await user confirmation. No implementation/tests/hosted
+acceptance yet. Native/iOS and its progress tracker untouched. Setup:
+docs/research-discovery-setup.md.
