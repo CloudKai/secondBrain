@@ -116,5 +116,8 @@ PDF support, and automatic access to private Teams, Zoom and Panopto transcripts
 The existing iPhone app is an earlier article-sharing version; the connected
 learning library described here is currently built for the browser.
 
-For development setup, see the [web guide](web/README.md),
+The browser app lives in `web/`, the iPhone app in `mobile/`, and the shared API
+in `backend/`, all in this repository. A regular clone includes both apps.
+
+For development setup, see the [web guide](web/README.md), [mobile guide](mobile/README.md),
 [backend guide](backend/README.md) and [database setup](supabase/README.md).

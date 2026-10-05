@@ -3,6 +3,10 @@
 Expo Router and TypeScript client for receiving shared web links, selecting a
 folder, and rendering the processed Feynman summary and adaptive diagram.
 
+This app lives in the regular `mobile/` folder of `CloudKai/secondBrain`, alongside
+`web/` and `backend/`. Clone the main repository and run the commands below from
+`mobile/`. Mobile changes are committed and pushed from the repository root.
+
 ## Configure the backend
 
 Copy `.env.example` to `.env` and set `EXPO_PUBLIC_API_BASE_URL` to an address

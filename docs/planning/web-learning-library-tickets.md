@@ -13,6 +13,10 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Current unit:** none; the original 15-slice web plan is complete.
 
+**Repository organization — #19:** `mobile/` is now a regular folder alongside
+`web/` in `CloudKai/secondBrain`, with its Git history preserved. This changes
+repository layout; the completed web feature acceptance remains unchanged.
+
 **Target behavior:** private recording-provider access, PDF OCR, linked accounts
 and production deployment remain planned. Saved-note assistant answers and live
 external research are verified; example-note assistant remains a preview. YouTube

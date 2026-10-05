@@ -51,11 +51,9 @@ Skip the approval pause for a one-line or one-file fix.
 
 ## Repository boundary
 
-- The parent repository is `CloudKai/secondBrain`.
-- `mobile/` is a Git submodule backed by `CloudKai/mobile`.
-- For a mobile change: commit and push inside `mobile/` first, then commit the
-  updated submodule pointer in the parent repository.
-- Never stage mobile working-tree changes as parent-repository content.
+- `CloudKai/secondBrain` contains `web/`, `mobile/`, and `backend/` as regular folders.
+- Commit and push all application changes from the repository root.
+- Keep generated native folders, dependencies, and populated environment files ignored.
 
 ## Commands
 

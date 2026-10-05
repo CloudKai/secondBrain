@@ -46,8 +46,8 @@ The rules in this section describe the target architecture; Supabase, ARQ/Redis,
 - A change that alters a public contract must update the relevant context documents and tests in the same root-repository commit.
 - Comments explain non-obvious reasons or native limitations, not syntax. Put deferred product work in `scope.md` or the progress tracker rather than scattering vague TODOs.
 
-## Repository and submodule commits
+## Repository commits
 
-- `mobile/` is a Git submodule with its own history. Commit and push mobile changes in `CloudKai/mobile` first.
-- Only after that commit is reachable should the root repository commit the new submodule pointer alongside related backend or documentation changes.
+- `web/`, `mobile/`, and `backend/` are regular folders in `CloudKai/secondBrain`.
+- Commit application and related documentation changes together from the repository root. The imported mobile history is retained in this repository.
 - Never stage unrelated untracked files, generated native artifacts, build products, secrets, or local environment files.

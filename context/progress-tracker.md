@@ -9,6 +9,10 @@
 and simulator checks are recorded below. Web implementation does not change this
 native acceptance status.
 
+**Repository layout:** `mobile/` is now a regular folder in `CloudKai/secondBrain`,
+with the original mobile Git history retained. Repository organization is tracked
+in [issue #19](https://github.com/CloudKai/secondBrain/issues/19).
+
 **Next native targets:** anonymous identity, authoritative folder/item persistence,
 asynchronous mobile states and later release hardening. These remain the native
 roadmap; no new native work or verification is part of the current web ticket.
@@ -39,7 +43,7 @@ roadmap; no new native work or verification is part of the current web ticket.
 - [x] Empty-library demo and recent-learning dashboard
 - [x] TypeScript and lint checks pass
 - [x] End-to-end share flow and interactive learning modes verified in the iOS simulator
-- [x] Mobile repository published separately and referenced as a root submodule
+- [x] Mobile initially published separately; imported into the main repository on 2026-10-05
 
 ### Engineering workflow — 2026-10-02
 
@@ -109,7 +113,7 @@ already implemented do not establish acceptance of native integration.
 - Native sharing requires an Expo development build; Expo Go is insufficient.
 - The mobile API base URL must be reachable from the selected simulator or device.
 - The diagram WebView currently loads React Flow, Dagre, and D3 assets over the network.
-- `mobile/` is a separate Git repository and a submodule of the root repository.
+- `mobile/` is a regular folder committed with the rest of `CloudKai/secondBrain`.
 - Supabase, Redis, ARQ, Qdrant, persistence, asynchronous processing, and production release work above are targets, not current capabilities.
 
 
@@ -119,3 +123,13 @@ already implemented do not establish acceptance of native integration.
 At the user's request, browser UI history and web ticket acceptance records moved
 to `context/web-progress-tracker.md`. The native roadmap remains here. Web work
 updates that tracker and `docs/planning/web-learning-library-tickets.md`.
+
+## Mobile repository consolidation — 2026-10-05, #19
+
+- Imported all 51 tracked mobile files from `c01bfdc` with full Git history.
+- Removed the gitlink, `.gitmodules`, and nested Git checkout metadata.
+- Preserved application-source bytes and local dependency/native-folder identity.
+- Updated repository instructions and layout documentation for root-level commits.
+- Verified tracked-file hashes, imported history, ownership by the root Git checkout
+  and ignore rules. No application tests, builds or simulator checks were run;
+  this changes repository organization, not native functionality.

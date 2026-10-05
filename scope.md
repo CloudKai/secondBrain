@@ -895,3 +895,20 @@ so the previous 200 backend/68 web checks remain the application baseline.
 
 Ticket #17 and both web records updated. The user's original existing note was
 updated; native/iOS and its tracker untouched. Refresh the saved note to load it.
+
+
+### Mobile repository consolidation — #19 (2026-10-05)
+
+The user requested one repository with the mobile app in its own folder. Imported
+all 51 tracked files from mobile commit `c01bfdc` into the regular `mobile/` folder
+using a history-preserving subtree import. Removed the gitlink, `.gitmodules` and
+nested checkout metadata. Future web, mobile and backend changes are committed
+and pushed together from the root of `CloudKai/secondBrain`.
+
+The original application-source bytes and local ignored dependency/native folders
+were preserved. A complete mobile Git bundle and the original checkout metadata
+are retained locally outside the repository. The former GitHub mobile repository
+remains available as historical storage. This task does not add mobile features,
+alter native generated files or establish new application acceptance. Repository
+checks cover file identity, retained history, normal tracking and ignore rules;
+application tests were not run.

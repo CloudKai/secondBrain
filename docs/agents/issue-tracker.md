@@ -1,8 +1,8 @@
 # Issue tracker: GitHub
 
 Issues and specs live in GitHub Issues for CloudKai/secondBrain.
-Use the gh CLI from the parent repository. When working inside the
-mobile submodule, explicitly target CloudKai/secondBrain with --repo.
+Use the gh CLI from the repository root. All applications, including `mobile/`,
+belong to this repository; explicitly target CloudKai/secondBrain with --repo.
 
 ## Operations
 

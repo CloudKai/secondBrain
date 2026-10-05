@@ -804,3 +804,13 @@ so the previous 200 backend/68 web checks remain the application baseline.
 
 Ticket #17 and both web records updated. The user's original existing note was
 updated; native/iOS and its tracker untouched. Refresh the saved note to load it.
+
+
+### Shared repository layout — #19 (2026-10-05)
+
+At the user's request, `mobile/` became a regular folder alongside `web/` and
+`backend/` in `CloudKai/secondBrain`. Its tracked files and Git history were
+preserved; application code and generated native content were unchanged. This
+repository-organization task is tracked in GitHub #19 and the native tracker.
+The completed web feature acceptance remains unchanged. No application tests
+were run for the folder import.

@@ -12,13 +12,19 @@ CloudKai/secondBrain
 ├── scope.md
 ├── context/                 planning and product truth
 ├── backend/                 FastAPI and LangGraph service
-└── mobile/                  Git submodule → CloudKai/mobile
+├── web/                     React browser learning library
+├── supabase/                versioned database migrations
+└── mobile/                  Expo app, tracked in this repository
     ├── app/                 Expo Router screens and native-intent handling
     ├── components/          rendering components
     ├── lib/                 API transport and response validation
     ├── state/               current transient knowledge state
     └── types/               shared mobile domain types
 ```
+
+On 2026-10-05, the existing mobile files and history were imported into this
+repository. All applications now use one Git checkout; a fresh clone needs no
+submodule initialization. Generated native folders and dependencies remain local.
 
 ## Current verified MVP
 
