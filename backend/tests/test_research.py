@@ -182,3 +182,11 @@ def test_a_university_host_does_not_turn_an_indexed_paper_into_teaching_material
     response=discover(client)
     assert response.status_code==200,response.text
     assert response.json()['resources'][0]['kind']=='paper'
+
+def test_bot_challenges_are_not_presented_as_checked_research_material(research_client):
+    client,state=research_client
+    state['pages'][0].update(title="Making sure you're not a bot!",text='Please wait while we check your browser. Verify you are human to access the requested page.')
+    response=discover(client)
+    assert response.status_code==200,response.text
+    assert response.json()['resources']==[]
+    assert response.json()['partial'] is True

@@ -1,6 +1,7 @@
 """Bounded Search → Fetch verification. Discovery never writes saved material."""
 import asyncio
 import json
+import re
 from urllib.parse import urlsplit, urljoin
 import httpx
 from pydantic import BaseModel, Field, ValidationError
@@ -131,7 +132,9 @@ async def discover_resources(client: httpx.AsyncClient, query: str, key: str) ->
                     partial = True
                     continue
                 page = verified.get(url)
-                if not page or len(page.text.strip()) < 40:
+                blocked_title = bool(page and re.match(r"^(making sure you['’]re not a bot|just a moment|access denied|verify (?:that )?you are human|checking your browser|sign in|log in)\s*(?:[!|—:-]|$)", (page.title or '').strip(), re.IGNORECASE))
+                blocked_intro = bool(page and re.match(r"^(?:please wait while we check your browser|verify you are human to access|enable javascript and cookies to continue)", page.text.lstrip('# ').strip(), re.IGNORECASE))
+                if not page or len(page.text.strip()) < 40 or blocked_title or blocked_intro:
                     partial = True
                     continue
                 try:
