@@ -38,8 +38,10 @@ remains planned.
 | 14 | Grounded assistant with selectable scopes | Complete; local + hosted acceptance | [#15](https://github.com/CloudKai/secondBrain/issues/15), [setup](../assistant-setup.md), [review](../reviews/ticket15.md) |
 | 15 | Live reliable-resource discovery and explicit saving | Complete; local + hosted development acceptance | [#16](https://github.com/CloudKai/secondBrain/issues/16), [setup](../research-discovery-setup.md), [review](../reviews/ticket16.md) |
 
-Latest completed checks: **182 backend tests, 66 web tests, web build/typecheck
-and lint**. Independent standards/spec re-reviews pass through `fecfb77`.
+Latest completed checks: **188 backend tests, 66 web tests, web build/typecheck
+and lint**. The provider replacement uses OpenAI search and direct public fetch;
+TinyFish is not used. Independent standards/spec reviews pass through `a5491c3`;
+the replacement review is recorded in the setup/review documents.
 Real discovery/auth/storage checks and browser explicit article saving through
 the model/worker/topic pipeline pass. Extensionless PDF discovery/save is checked
 at the API HTTP boundary. Unsaved results leave library/graph unchanged;
@@ -554,3 +556,26 @@ build/typecheck/lint pass; both reviews clear. Controlled source/dependent rows
 removed. Live browser PDF saving was not exercised for this slice; its capture
 path is covered by the existing PDF acceptance and the new discovery API tests.
 All 15 planned slices complete for development; production/native unchanged.
+
+
+### TinyFish replacement complete — #16 (2026-10-05)
+
+The user requested no TinyFish usage. `d465fd9` replaces research with OpenAI
+Responses web search using the existing server-only key, plus direct public
+HTML/plain-text/PDF verification. The configuration template no longer includes
+a TinyFish key. Completed search tool URLs are validated; generated prose links
+are ignored. Direct downloads retain DNS/TLS pinning, same-publisher redirects,
+bounded bodies/deadlines and original metadata. Search never saves sources.
+
+`a5491c3` corrects direct-page title provenance with API RED→GREEN coverage.
+Both standards/spec reviews and final follow-ups have no remaining findings.
+Final backend suite: 188 passed, including 27 discovery tests. The frontend is
+unchanged; previous 66 tests/build/typecheck/lint remain valid. Hosted replacement
+search verified six readable resources with unchanged library/topic reads;
+browser documentation search returned six resources with zero sources/topics.
+No replacement acceptance sources were created. Discovery verification is bounded
+to 2 MB per source; the separate PDF capture form retains its 10 MB limit.
+
+GitHub #16 and web setup/review/planning records updated for the current provider.
+All original web slices remain development-complete. No migration. Production
+acceptance remains unverified; native/iOS and its tracker untouched.

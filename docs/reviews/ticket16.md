@@ -44,7 +44,7 @@ ownership denial and unchanged saved state before capture. Initial route,
 publisher redirects, client transport, MIME routing and challenge cases had
 recorded RED→GREEN checks at the agreed public seams.
 
-## Hosted and browser acceptance
+## Original hosted and browser acceptance — before provider replacement
 
 Real anonymous auth, TinyFish Search/Fetch and development Supabase library/topic
 reads pass. Unauthenticated and invalid requests reject. Search alone creates
@@ -71,3 +71,34 @@ development acceptance only; production/load acceptance remains unverified.
 Evidence screenshots: `/private/tmp/ticket16-discovery.png` and
 `/private/tmp/ticket16-saved-note.png`. These show verification data removed
 afterward. GitHub #16 completes the original 15 planned web slices.
+
+## No-TinyFish replacement — 2026-10-05
+
+The user requested no TinyFish usage. Commit `d465fd9` replaces its requests
+with OpenAI Responses `web_search` using the existing server key and bounded
+direct public HTML/plain-text/PDF downloads. The TinyFish configuration template
+entry was removed. No provider fallback calls TinyFish. Only URLs from completed
+search-tool sources become candidates; generated prose URLs are ignored.
+Provider credentials are sent only to OpenAI, never to source sites.
+
+Baseline `e197edc`; standards review found no breaches or remaining smells.
+Spec review found no additional findings beyond the known direct-title provenance
+label. Commit `a5491c3` fixes that label with authenticated API RED→GREEN coverage.
+Both final follow-ups report no remaining findings. Missing author/date remain
+explicit; source titles now count as original metadata.
+
+Final rerun: **188 backend tests**, including **27 discovery tests**, pass.
+The frontend was unchanged; its previous **66 tests**, typecheck/build/lint
+remain valid. Two existing dependency deprecation warnings persist. New checks
+reject TinyFish calls, verify completed search tool URLs, ignore invented prose
+URLs, isolate credentials, cap original downloads, extract original metadata,
+reject incomplete provider output and preserve explicit article/PDF capture.
+
+Hosted OpenAI search/direct public verification returned six readable research
+pages; owned library/topic reads were identical before and after. Browser Python
+documentation search returned six checked resources and retained zero sources
+and topics. No replacement acceptance sources were created. Original explicit
+article save/model/worker and new API article/PDF capture coverage remain valid.
+Screenshot: `/private/tmp/ticket16-openai-discovery.png`. Discovery downloads are
+limited to 2 MB, including PDFs; the separate PDF capture form still supports
+its existing 10 MB limit. Production acceptance remains unverified.

@@ -17,13 +17,18 @@ and its progress tracker were not changed by this slice.
 
 ### Runtime configuration
 
-Set `TINYFISH_API_KEY` in the ignored `backend/.env`, or provide it through the
-backend process environment. The example file contains only a placeholder.
-The development API used the existing process credential during acceptance;
-that credential was not copied into `.env`. A separately launched API needs
-its own server environment configuration. Never expose this key through Vite
-or a client bundle. Existing Supabase/Redis/OpenAI configuration remains needed
-for authentication and the saved-source note/topic pipeline.
+Research now uses the existing server-only `OPENAI_API_KEY` in ignored
+`backend/.env` or the backend process environment. No TinyFish key or call is
+used. The canonical template no longer includes `TINYFISH_API_KEY`. Never expose
+the OpenAI key through Vite or a client bundle. Existing Supabase/Redis settings
+remain needed for authentication and the saved-source note/topic pipeline.
+
+OpenAI Responses uses `gpt-4.1-mini` and a required `web_search` tool call, with
+one tool call, 2,000 output tokens and `store: false`. Only URLs in completed
+search tool results become candidates. Generated prose URLs are ignored.
+FastAPI directly downloads public HTML/plain-text/PDF bodies with DNS pinning,
+TLS verification and same-publisher redirects; it extracts readable text and
+page-provided metadata. Direct checks never send provider keys to source sites.
 
 Start the configured API and study worker using the existing setup instructions.
 The authenticated research endpoint is `POST /api/v2/research` with an explicit
@@ -33,8 +38,11 @@ deadline, bounded provider responses and public-only same-publisher redirects.
 
 ### Acceptance and limits
 
-182 backend tests, 66 web tests, build/typecheck/lint pass; both independent
-reviews clear through `fecfb77`. Real hosted auth/Search/Fetch checks prove no
+The original completion passed 182 backend tests, 66 web tests and
+build/typecheck/lint; both reviews cleared `fecfb77`. The provider replacement
+passes 188 backend tests (27 discovery tests); both reviews clear through
+`a5491c3`. The unchanged frontend retains 66 passing tests and build/typecheck/lint.
+Real hosted OpenAI search/direct-fetch checks prove no
 source/topic changes before saving. Browser checks cover missing metadata,
 original-link opening, explicit article capture, real model/worker notes and
 four topics, original passage inspection, empty/partial results, and editable
@@ -46,10 +54,36 @@ restored the test library to zero. No original learner source was targeted.
 Live browser PDF saving was not exercised for this slice. Its capture path has
 existing hosted PDF acceptance and new discovery API coverage. A checked link
 means readable public content was returned at that time, not a guarantee of
-truth, peer review, full-paper access or future availability. Search snippets
-are labelled search relevance; original-page and index metadata are distinguished.
-Direct response verification can omit resources that block public header
-requests. Production deployment/load acceptance remains unverified.
+truth, peer review, full-paper access or future availability. Relevance identifies
+the explicit search question rather than presenting generated claims as evidence;
+original-page and search title metadata are distinguished.
+Direct response verification can omit resources that block public downloads.
+Discovery downloads are capped at 2 MB per source, including PDFs; larger PDFs
+can still be captured separately through the existing 10 MB PDF form. No source
+is saved during research verification. Production deployment/load acceptance
+remains unverified.
+
+## Provider replacement — 2026-10-05
+
+The user requested no TinyFish usage after the original completion. OpenAI
+search and direct fetching replace it; the route/client/UI contracts and explicit
+save behavior are preserved. The original selection/checkpoint history below
+records the earlier provider and does not configure the current runtime.
+
+Official [OpenAI web search documentation](https://developers.openai.com/api/docs/guides/tools-web-search)
+was checked before implementation. It documents required search, completed tool
+sources, citation annotations and Responses support for `gpt-4.1-mini`.
+The approved API/external HTTP/save/browser seams are reused. A regression first
+failed without a TinyFish key, then passed using OpenAI and direct source content,
+rejecting any TinyFish call and ignoring generated prose URLs. Provider failure,
+incomplete responses, direct page limits, metadata, redirect/ownership and
+article/PDF capture checks pass. Real hosted search produced six readable results
+with unchanged library/topic reads; browser search produced six documentation/
+web resources and left the library empty. Independent standards/spec review of
+`e197edc..d465fd9` found only the already identified title provenance correction;
+both follow-ups through `a5491c3` report no remaining findings. Directly extracted
+titles are now labelled source metadata even when author/date are absent.
+No new browser/API source was saved during replacement acceptance.
 
 ## Original selected target — historical, 2026-10-05
 
@@ -82,7 +116,7 @@ metadata, unverified/unsafe links, provider outages and no library changes
 before saving. The user approved these boundaries on 2026-10-05.
 
 
-## Documentation checked
+## Original provider documentation checked — historical
 
 Official TinyFish [Search API](https://docs.tinyfish.ai/search-api) and
 [Fetch API](https://docs.tinyfish.ai/fetch-api) inspected on 2026-10-05.

@@ -714,3 +714,26 @@ must receive it through its own environment. GitHub #16 closed. All 15 original
 planned web slices are complete for development. Production/private provider
 access/OCR/linked accounts remain planned. Native/iOS and its tracker unchanged.
 Setup/review: docs/research-discovery-setup.md and docs/reviews/ticket16.md.
+
+
+### TinyFish replacement complete — #16 (2026-10-05)
+
+The user requested no TinyFish usage. `d465fd9` replaces research with OpenAI
+Responses web search using the existing server-only key, plus direct public
+HTML/plain-text/PDF verification. The configuration template no longer includes
+a TinyFish key. Completed search tool URLs are validated; generated prose links
+are ignored. Direct downloads retain DNS/TLS pinning, same-publisher redirects,
+bounded bodies/deadlines and original metadata. Search never saves sources.
+
+`a5491c3` corrects direct-page title provenance with API RED→GREEN coverage.
+Both standards/spec reviews and final follow-ups have no remaining findings.
+Final backend suite: 188 passed, including 27 discovery tests. The frontend is
+unchanged; previous 66 tests/build/typecheck/lint remain valid. Hosted replacement
+search verified six readable resources with unchanged library/topic reads;
+browser documentation search returned six resources with zero sources/topics.
+No replacement acceptance sources were created. Discovery verification is bounded
+to 2 MB per source; the separate PDF capture form retains its 10 MB limit.
+
+GitHub #16 and web setup/review/planning records updated for the current provider.
+All original web slices remain development-complete. No migration. Production
+acceptance remains unverified; native/iOS and its tracker untouched.
