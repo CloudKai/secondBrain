@@ -142,6 +142,7 @@ async def check_resource(client: httpx.AsyncClient, link: SearchLink, query: str
             encoding = response.encoding or 'utf-8'
         final = await safe_url(current)
         title, authors, date = link.title, [], None
+        source_title = False
         kind = resource_kind(final)
         if mime == 'application/pdf':
             text = (await capture_pdf(body))['captured_text']
@@ -163,7 +164,9 @@ async def check_resource(client: httpx.AsyncClient, link: SearchLink, query: str
                                 values.append(value.strip())
                     return values
                 source_titles = metadata('citation_title', 'og:title')
-                title = source_titles[0] if source_titles else soup.title.get_text(' ', strip=True) if soup.title else title
+                page_title = source_titles[0] if source_titles else soup.title.get_text(' ', strip=True) if soup.title else ''
+                if page_title.strip():
+                    title, source_title = page_title, True
                 authors = metadata('citation_author', 'author', 'dc.creator')[:20]
                 dates = metadata('citation_publication_date', 'article:published_time', 'dc.date', 'date')
                 date = dates[0][:100] if dates else None
@@ -182,7 +185,7 @@ async def check_resource(client: httpx.AsyncClient, link: SearchLink, query: str
             url=final, title=(title.strip() or host)[:200], authors=[a[:200] for a in authors],
             organization=host[:200], date=date, kind=kind, capture_kind=capture_kind,
             publication_status='preprint' if preprint else 'unverified',
-            metadata_origin='source' if authors or date else 'search_index',
+            metadata_origin='source' if source_title or authors or date else 'search_index',
             relevance=f'Found by web search for “{query}”. Inspect the original to judge relevance.',
         )
     raise ValueError('redirect_limit')

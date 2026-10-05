@@ -95,7 +95,7 @@ def test_discovery_requires_a_learner_request_and_returns_verified_external_reso
     assert resource['title'] == 'A RAG study'
     assert resource['authors'] == []
     assert resource['date'] is None
-    assert resource['metadata_origin'] == 'search_index'
+    assert resource['metadata_origin'] == 'source'
     assert resource['publication_status'] == 'preprint'
     assert resource['capture_kind'] == 'article'
     assert 'Found by web search' in data['resources'][0]['relevance']
@@ -246,6 +246,14 @@ def test_original_page_authors_and_dates_are_extracted_without_using_generated_m
     state['pages'][0].update(author='Original Author',published_date='2024-03-12')
     resource=discover(client).json()['resources'][0]
     assert resource['authors']==['Original Author'] and resource['date']=='2024-03-12'
+    assert resource['metadata_origin']=='source'
+
+def test_original_page_title_is_labelled_as_source_metadata_even_when_author_and_date_are_missing(research_client):
+    client,state=research_client
+    state['search'][0]['title']='Indexed title'
+    state['pages'][0]['title']='Original page title'
+    resource=discover(client).json()['resources'][0]
+    assert resource['title']=='Original page title'
     assert resource['metadata_origin']=='source'
 
 @pytest.mark.parametrize('status',['incomplete','failed'])
