@@ -10,7 +10,7 @@ and release hardening.
 ## Stack
 
 - **Current:** Expo/React Native/Expo Router, FastAPI/Pydantic, LangGraph/OpenAI,
-  React Flow/Dagre in a WebView, transient React context.
+  React Flow with Dagre and D3 in a WebView, transient React context.
 - **Target:** Supabase Auth/Postgres, ARQ/Redis, Qdrant Cloud, and OpenAI
   `text-embedding-3-small`; deployment remains provider-neutral.
 
@@ -38,29 +38,38 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - `POST /api/v1/process-link` remains synchronous and returns the complete typed
   result while the MVP is active.
 - The only folders are `AI Engineering` and `System Design`.
-- React Flow with Dagre is the active graph renderer; Mermaid remains in the API
-  for compatibility.
+- The API returns typed nodes/edges plus a validated preferred diagram and
+  compatible Flow, Hierarchy, or Network options.
 - Items are stored only in mobile memory. The folder count includes every item
   in the current session, while the detail screen shows the newest item.
 
 ### What got built
 
 - `backend/graph.py` — bounded ingestion, three-node LangGraph pipeline, summary,
-  Mermaid, and typed graph output.
+  typed graph output, and deterministic diagram compatibility.
 - `backend/main.py` and `backend/schemas.py` — strict FastAPI boundary.
 - `mobile/app/modal/share.tsx` — native share folder selection and submission.
-- `mobile/app/folder/[id].tsx` — read-only summary, graph, and sources.
-- `mobile/components/InteractiveGraphViewer.tsx` — React Flow/Dagre WebView.
+- `mobile/app/index.tsx` — learning dashboard, library status, recent ideas, and
+  an immediately available demo lesson.
+- `mobile/app/folder/[id].tsx` — guided Learn, Visual, Recall, and Source modes with
+  session mastery and multi-item switching.
+- `mobile/components/AdaptiveDiagramViewer.tsx` — React Flow WebView with Dagre
+  flow/hierarchy layout and D3 force-directed network layout.
+- `mobile/components/LearningDeck.tsx` and `RecallQuiz.tsx` — interactive concept
+  cards and graph-derived recall practice.
 
 ### Verified on 2026-09-17
 
-- Backend: `8 passed` with
+- Backend: `15 passed` with
   `uv run --project backend --extra dev pytest backend/tests -q`.
 - Mobile TypeScript: passed with `cd mobile && npx tsc --noEmit`.
 - Mobile lint: passed with `cd mobile && npm run lint`.
 - Expo Doctor: `21/21` checks passed.
 - iOS simulator: Safari share → folder selection → processing → detail view;
   four bullets, source link, graph rendering/zoom, and folder count were checked.
+- iOS simulator: demo launch, lesson completion, mastery updates, concept-to-visual
+  navigation, recall reveal/advance, source expansion, and the redesigned share
+  sheet were checked.
 - The previously blocked Medium article completed through the live local API.
 
 ### Current limitations
@@ -68,7 +77,7 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - Data is lost when the app process restarts.
 - There is no authentication, tenancy, database, queue, or vector search.
 - Processing blocks the HTTP request and can be affected by provider latency.
-- Graph assets load from jsDelivr and require network access.
+- Diagram assets load from jsDelivr and require network access.
 - Android is configured but not an acceptance platform and remains unverified.
 
 ## Phase 3: Identity and persistence
@@ -125,6 +134,89 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - [ ] Add observability for API, queue, worker, and provider failures.
 - [ ] Configure a release pipeline and complete a physical-device share test.
 - [ ] Document TestFlight/App Store delivery when a release channel exists.
+
+## Engineering workflow
+
+- 2026-10-02 — Configured the Matt Pocock engineering skills to use GitHub
+  Issues in `CloudKai/secondBrain`, the five default triage labels, and a
+  single-context domain layout. `CLAUDE.md` points to the configuration in
+  `docs/agents/`; glossary and ADR files are created as decisions are resolved.
+
+## Web learning library — confirmed target specification
+
+- 2026-10-02 — The grill-with-docs interview is designing study notes from web
+  articles, selectable-text PDFs, and transcript-backed videos, a shared topic
+  graph that grows from saved material, and a study assistant. Deliver this
+  target experience in a web browser first; retain the existing iPhone design
+  for adaptation after the web experience is well designed.
+- Target behavior, source-support UI copy, and acceptance scenarios are
+  recorded in `context/learning-library-design.md` and confirmed by the user on
+  2026-10-02. GitHub ticket breakdown is in progress. The user is creating the
+  UI/UX. On 2026-10-02 the user separately authorized working dark-mode
+  browser pages using `ui-ux-pro-max` and this feature specification. The
+  frontend slice below is implemented; full target services remain planned.
+- The draft GitHub ticket breakdown and dependencies are recorded in
+  `docs/planning/web-learning-library-tickets.md`. Publish after breakdown
+  approval. The user supplied `web/src` as the UI/UX handoff on 2026-10-02;
+  source inspection confirmed the existing browser workspace and service gaps.
+  The draft now builds on that frontend, and the design-link gate is removed.
+- Provider account connections are excluded. Attempt accessible transcripts;
+  inaccessible or private recordings use transcript upload/paste. Access facts
+  are recorded in `docs/research/transcript-access.md`.
+- Resolved terms and the shared-topic decision are recorded in `GLOSSARY.md`
+  and `docs/adr/0001-use-shared-topics-in-library-graph.md`.
+- The target delivery order is recorded in
+  `docs/adr/0002-deliver-web-before-mobile-redesign.md`.
+
+## Web browser UI slice — 2026-10-02
+
+Status: **verified frontend interactions with curated examples**; all-target
+service acceptance is not complete.
+
+- Added `web/` as a separate React/TypeScript/Vite frontend. Mobile, native
+  folders, and the v1 backend contract were not changed by this slice.
+- Built a dark-default library, study-note workspace with expandable
+  Topic/Graph/Sources context, topic graph, and curated reading list. A paired
+  light appearance is available.
+- Verified search/filter/sort, source evidence, recall reveal/advance and session
+  marks, assistant scope/reference/gap behavior, duplicate URL reuse, topic
+  rename, connection rejection/restoration, empty state, and narrow-screen routes.
+- Topic merging, source assignment correction, and deletion are interactive
+  organizational controls. Notes remain read-only.
+- The assistant is explicitly a stored-note lookup preview; the reading list is
+  curated. Examples carry paraphrased evidence and original-source links.
+- Article import validates and adapts the existing synchronous four-point API.
+  Transport integration is verified with controlled fixtures; real provider
+  ingestion from the browser still needs a running configured backend.
+- State is session-only and resets on reload. PDF/video ingestion, richer web
+  generation, passage alignment, live AI chat/research, semantic topic comparison,
+  changed-source refresh, auth, and persistence remain target work.
+- Validation: web production bundle/typecheck and lint pass; 7 web tests pass.
+  Backend: 15 tests pass via the project interpreter. The exact repository
+  pytest command fails because its copied virtualenv entrypoint has an obsolete
+  shebang; `uv run --project backend --extra dev python -m pytest backend/tests -q`
+  succeeds. No backend environment or API changes were made.
+- Run instructions and boundaries: `web/README.md`. Local visual evidence:
+  `output/playwright/`.
+
+## Web library organization refactor — 2026-10-02
+
+Status: **implemented; static checks passed**. Behavioral acceptance was not
+rerun for this refactor.
+
+- The user approved session-only library organization and rejected connections
+  taking precedence after topic merges. The existing UI and read-only source
+  notes are retained.
+- Library creation, learner actions, and consistent read views now share one
+  module. Topic corrections, source/example removal, and recall cleanup no
+  longer coordinate independent library setters in the rendering module.
+- Search reads corrected topic names. Merging remaps and deduplicates rejected
+  topic pairs and removes self-connections; restoring connections remains an
+  explicit learner action. Removing examples preserves surviving corrections.
+- Typecheck: `npm --prefix web run typecheck`. Lint:
+  `npm --prefix web run lint`. Both pass. No tests were added or run.
+- This slice changes only browser code and documentation. Native/mobile,
+  backend, persistence, and the pending GitHub publication are unchanged.
 
 ## Explicitly out of scope
 
@@ -637,7 +729,6 @@ Unsupported questions offer the existing reading-list preview; live discovery
 remains planned 15. User approved API/model HTTP/database/browser test boundaries.
 Implementation, migration and acceptance pending. Both web records updated;
 native/iOS and its tracker untouched. See docs/assistant-setup.md.
-
 
 ### Grounded assistant local implementation — #15 (2026-10-05)
 

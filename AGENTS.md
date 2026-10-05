@@ -4,8 +4,8 @@ Always-on instructions for Cursor, Codex, Copilot, and Claude Code (through
 `CLAUDE.md`). Keep this file short and use the indexed context files for detail.
 
 Second Brain helps learners capture dense web articles from the native share
-sheet and turns them into four plain-language points and an interactive concept
-map organized by folder.
+sheet and turns them into a guided four-point lesson, an explorable adaptive
+diagram, and active-recall practice organized by folder.
 
 Do not invent product behavior that is not written in `context/` or `scope.md`.
 Every roadmap document must label target behavior separately from the verified

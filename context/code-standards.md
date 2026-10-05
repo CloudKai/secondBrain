@@ -7,13 +7,13 @@ These rules apply to the current MVP and to roadmap work unless a later architec
 - TypeScript must compile in strict mode. Do not introduce `any`; narrow `unknown` at network and native-module boundaries.
 - Keep shared mobile domain types in `mobile/types/knowledge.ts`. Components consume typed props and do not reinterpret API payloads ad hoc.
 - Every structured knowledge request and response must use a Pydantic model. Models reject unknown fields, constrain strings and URLs, and return a stable JSON shape.
-- Keep the LangGraph state explicit. The current `TypedDict` carries `raw_text`, `simplified_summary`, `mermaid_code`, `nodes`, and `edges`; add fields deliberately when a node contract changes.
+- Keep the LangGraph state explicit. The current `TypedDict` carries `raw_text`, `simplified_summary`, `diagram_type`, `diagram_options`, `nodes`, and `edges`; add fields deliberately when a node contract changes.
 - Treat external responses, share-extension values, WebView messages, JWT claims, and database rows as untrusted until validated.
 
 ## Current application boundaries
 
 - Expo Router route files coordinate screens. Reusable UI belongs in `mobile/components`, network access in `mobile/lib`, state in `mobile/state`, and shared types in `mobile/types`.
-- Use the palette and spacing tokens in `mobile/constants/theme.ts`. The HTML inside `InteractiveGraphViewer` is an isolated document and may mirror its required palette locally.
+- Use the palette and spacing tokens in `mobile/constants/theme.ts`. The HTML inside `AdaptiveDiagramViewer` is an isolated document and may mirror its required palette locally.
 - Backend routes validate and delegate. Extraction, summarization, and graph generation belong in the LangGraph pipeline rather than in `main.py`.
 - Keep ingestion bounded: page downloads are limited to 2 MB, and model input is limited to 30,000 characters. New ingestion paths need equivalent limits and timeouts.
 - Preserve the synchronous `POST /api/v1/process-link` contract until the documented v2 migration is available.

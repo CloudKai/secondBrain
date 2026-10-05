@@ -1,5 +1,7 @@
 """Strict API and model-output schemas."""
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
 
@@ -18,16 +20,6 @@ class ProcessLinkRequest(StrictModel):
         if not value.strip():
             raise ValueError("folder_id must not be blank")
         return value
-
-
-class ProcessLinkResponse(StrictModel):
-    folder_id: str
-    source_url: HttpUrl
-    raw_text: str
-    simplified_summary: str
-    mermaid_code: str
-    nodes: list["GraphNode"]
-    edges: list["GraphEdge"]
 
 
 class FeynmanSummary(BaseModel):
@@ -59,36 +51,55 @@ class GraphEdge(BaseModel):
     label: str | None = Field(default=None, max_length=80)
 
 
-class MermaidDiagram(BaseModel):
-    """Structured output requested from the visualizer model."""
+DiagramType = Literal["flow", "hierarchy", "network"]
+
+
+def _validate_graph_references(
+    nodes: list[GraphNode], edges: list[GraphEdge]
+) -> None:
+    node_ids = [node.id for node in nodes]
+    if len(node_ids) != len(set(node_ids)):
+        raise ValueError("Graph node IDs must be unique")
+    edge_ids = [edge.id for edge in edges]
+    if len(edge_ids) != len(set(edge_ids)):
+        raise ValueError("Graph edge IDs must be unique")
+    known_nodes = set(node_ids)
+    if any(
+        edge.source not in known_nodes or edge.target not in known_nodes
+        for edge in edges
+    ):
+        raise ValueError("Every graph edge must reference an existing node")
+
+
+class GraphVisualization(BaseModel):
+    """Structured graph and preferred presentation requested from the model."""
 
     model_config = ConfigDict(extra="forbid")
-    mermaid_code: str
+    diagram_type: DiagramType
     nodes: list[GraphNode] = Field(min_length=2, max_length=16)
     edges: list[GraphEdge] = Field(min_length=1, max_length=24)
 
-    @field_validator("mermaid_code")
-    @classmethod
-    def validate_mermaid(cls, value: str) -> str:
-        code = value.strip()
-        if code.startswith("```"):
-            raise ValueError("Mermaid output must not contain Markdown fences")
-        if not code.startswith("graph TD"):
-            raise ValueError("Mermaid output must start with 'graph TD'")
-        return code
+    @model_validator(mode="after")
+    def validate_graph_references(self) -> "GraphVisualization":
+        _validate_graph_references(self.nodes, self.edges)
+        return self
+
+
+class ProcessLinkResponse(StrictModel):
+    folder_id: str
+    source_url: HttpUrl
+    raw_text: str
+    simplified_summary: str
+    diagram_type: DiagramType
+    diagram_options: list[DiagramType] = Field(min_length=1, max_length=3)
+    nodes: list[GraphNode] = Field(min_length=2, max_length=16)
+    edges: list[GraphEdge] = Field(min_length=1, max_length=24)
 
     @model_validator(mode="after")
-    def validate_graph_references(self) -> "MermaidDiagram":
-        node_ids = [node.id for node in self.nodes]
-        if len(node_ids) != len(set(node_ids)):
-            raise ValueError("Graph node IDs must be unique")
-        edge_ids = [edge.id for edge in self.edges]
-        if len(edge_ids) != len(set(edge_ids)):
-            raise ValueError("Graph edge IDs must be unique")
-        known_nodes = set(node_ids)
-        if any(
-            edge.source not in known_nodes or edge.target not in known_nodes
-            for edge in self.edges
-        ):
-            raise ValueError("Every graph edge must reference an existing node")
+    def validate_diagram_contract(self) -> "ProcessLinkResponse":
+        if len(self.diagram_options) != len(set(self.diagram_options)):
+            raise ValueError("diagram_options must not contain duplicates")
+        if self.diagram_type not in self.diagram_options:
+            raise ValueError("diagram_type must be included in diagram_options")
+        _validate_graph_references(self.nodes, self.edges)
         return self

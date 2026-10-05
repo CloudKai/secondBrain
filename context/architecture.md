@@ -30,7 +30,7 @@ CloudKai/secondBrain
 | API | FastAPI, Pydantic | Synchronous typed HTTP boundary |
 | Pipeline | LangGraph, OpenAI | Ingest, four-point summary, and graph generation |
 | Fetching | HTTPX, BeautifulSoup, reader fallback | Bounded source extraction |
-| Graph | React Flow 11, Dagre 0.8 in WebView | Layout and interaction |
+| Diagram | React Flow 11, Dagre 0.8, D3 7 in WebView | Adaptive layout and interaction |
 | State | React context | Process-lifetime items only |
 
 ### Boundaries
@@ -43,19 +43,20 @@ CloudKai/secondBrain
 | `mobile/app/` | Routes, screens, and share workflow orchestration | Provider SDKs or secrets |
 | `mobile/lib/api.ts` | HTTP transport and runtime response validation | UI rendering |
 | `KnowledgeContext` | Transient items and folder filtering | Durable-storage claims |
-| `InteractiveGraphViewer` | Isolated WebView HTML and graph interaction | API calls or persistence |
+| `AdaptiveDiagramViewer` | Isolated WebView HTML and adaptive diagram interaction | API calls or persistence |
 
 ### Current API
 
 - `GET /health` → `200 { "status": "ok" }`.
 - `POST /api/v1/process-link` accepts a valid HTTP URL, optional `raw_text` up
   to 30,000 characters, and a nonblank `folder_id`.
-- Success is synchronous `200` with folder/source/raw text, summary, Mermaid,
-  typed nodes, and typed edges.
+- Success is synchronous `200` with folder/source/raw text, summary, preferred
+  diagram type, compatible diagram options, typed nodes, and typed edges.
 - Schema validation and pipeline `ValueError` failures are `422`; upstream HTTP
   and provider failures are translated to user-safe `502` responses.
 
-The v1 contract stays unchanged until mobile and backend migrate together.
+Mobile and backend migrate the v1 diagram fields together; there is no legacy
+diagram-syntax compatibility field.
 
 ### Current pipeline
 
@@ -65,7 +66,7 @@ request
   → rendered reader fallback
   → meaningful shared-text fallback
   → Feynman simplifier (exactly four points)
-  → Mermaid + typed graph visualizer
+  → typed adaptive graph visualizer
   → synchronous response
 ```
 
@@ -112,8 +113,8 @@ below.
 - `folders`: UUID, `user_id` UUID, fixed slug, display name, timestamps. Seed
   `ai-engineering` and `system-design` once per user; no folder CRUD in scope.
 - `knowledge_items`: UUID, `user_id` UUID, folder UUID, source URL, shared/raw text,
-  title, four-point summary, Mermaid, graph nodes/edges JSON, source links,
-  processing status, safe error text, idempotency key, and timestamps.
+  title, four-point summary, diagram type/options, graph nodes/edges JSON,
+  source links, processing status, safe error text, idempotency key, and timestamps.
 - `job_outbox`: UUID, knowledge-item UUID, delivery status, attempts, next-attempt
   time, and timestamps. It is transport bookkeeping, not duplicated item data.
 - Unique `(user_id, idempotency_key)` prevents duplicate share retries.
@@ -187,18 +188,42 @@ terminal failure details on the item resource.
 
 1. A completed summary contains exactly four non-empty points.
 2. Downloads are capped at 2 MB and model input at 30,000 characters.
-3. Mermaid begins with `graph TD`.
-4. Node/edge IDs are unique and every edge references existing nodes.
-5. Generated content is read-only.
-6. Current v1 stays synchronous until an explicit coordinated migration.
-7. Target mutations validate the authenticated owner at API and RLS boundaries.
-8. Queue payloads contain stable IDs, not copied article or generated content.
-9. Jobs are idempotent; retries cannot duplicate items or vectors.
-10. Postgres is authoritative; Redis is transport and Qdrant is derived.
-11. Item creation and its queue outbox record commit atomically; a dispatcher
+3. The preferred diagram is `flow`, `hierarchy`, or `network` and must appear
+   in the compatible options returned with it.
+4. Flow requires an acyclic graph; hierarchy requires one connected rooted
+   tree; network is the safe fallback for every valid graph.
+5. Node/edge IDs are unique and every edge references existing nodes.
+6. Generated content is read-only.
+7. Current v1 stays synchronous until an explicit coordinated migration.
+8. Target mutations validate the authenticated owner at API and RLS boundaries.
+9. Queue payloads contain stable IDs, not copied article or generated content.
+10. Jobs are idempotent; retries cannot duplicate items or vectors.
+11. Postgres is authoritative; Redis is transport and Qdrant is derived.
+12. Item creation and its queue outbox record commit atomically; a dispatcher
     reconciles delivery to Redis.
-12. React Flow, React, ReactDOM, and Dagre currently load from jsDelivr inside
-    the WebView, so graph rendering is online-only until release hardening.
+13. React Flow, React, ReactDOM, Dagre, and D3 currently load from jsDelivr
+    inside the WebView, so diagram rendering is online-only until release
+    hardening.
+
+## Browser library organization — 2026-10-02
+
+The session-only browser learning-library module lives in
+`web/src/lib/library.ts`. Its interface creates a library, applies learner
+actions, and reads a consistent view. Its implementation owns saved notes,
+topic names and assignments, rejected topic pairs, recall marks, and graph/search
+derivation. `web/src/App.tsx` sends actions through a React reducer and retains
+navigation, dialogs, form state, and rendering.
+
+Topic merges remap rejected pairs to the surviving topic, deduplicate pairs,
+and drop self-connections. Rejection takes precedence over a visible connection
+until explicitly restored. Connection identity encodes the topic pair without
+relying on a delimiter inside topic names. Search uses the same corrected names
+as topic display. Source removal and hiding examples share recall cleanup and
+preserve surviving corrections.
+
+This is an in-process module; persistence and a storage adapter remain target
+work. The existing article adapter and native contract are unchanged. Typecheck
+and lint are the checks for this refactor; behavioral tests were not added or run.
 
 
 ## Browser article capture — ticket #1, 2026-10-02

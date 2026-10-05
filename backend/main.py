@@ -6,23 +6,23 @@ from fastapi import FastAPI, HTTPException, status
 from backend.graph import DeepFeynmanState, deep_feynman_graph
 from backend.schemas import ProcessLinkRequest, ProcessLinkResponse
 from backend.sources import router as sources_router
+from backend.studies import router as studies_router
+from backend.topics import router as topics_router
 from backend.revisions import router as revisions_router
 from backend.assistant import router as assistant_router
 from backend.research import router as research_router
-from backend.studies import router as studies_router
-from backend.topics import router as topics_router
 
 app = FastAPI(
     title="AI Second Brain API",
     version="0.1.0",
-    description="Turns shared links into Feynman summaries and Mermaid diagrams.",
+    description="Turns shared links into Feynman summaries and adaptive diagrams.",
 )
 app.include_router(sources_router)
+app.include_router(studies_router)
+app.include_router(topics_router)
 app.include_router(revisions_router)
 app.include_router(assistant_router)
 app.include_router(research_router)
-app.include_router(studies_router)
-app.include_router(topics_router)
 
 
 @app.get("/health", tags=["system"])
@@ -40,7 +40,8 @@ async def process_link(payload: ProcessLinkRequest) -> ProcessLinkResponse:
     initial_state: DeepFeynmanState = {
         "raw_text": payload.raw_text or "",
         "simplified_summary": "",
-        "mermaid_code": "",
+        "diagram_type": "network",
+        "diagram_options": ["network"],
         "nodes": [],
         "edges": [],
     }
@@ -76,7 +77,8 @@ async def process_link(payload: ProcessLinkRequest) -> ProcessLinkResponse:
         source_url=payload.url,
         raw_text=result["raw_text"],
         simplified_summary=result["simplified_summary"],
-        mermaid_code=result["mermaid_code"],
+        diagram_type=result["diagram_type"],
+        diagram_options=result["diagram_options"],
         nodes=result["nodes"],
         edges=result["edges"],
     )

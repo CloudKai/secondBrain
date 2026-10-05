@@ -5,7 +5,7 @@
 Second Brain is an iOS-first personal knowledge app for learners and technical
 professionals. A user shares a dense webpage from another app, chooses a topic
 folder, and receives a read-only four-point explanation, an interactive concept
-map, and traceable source links.
+diagram, and traceable source links.
 
 ## The problem it solves
 
@@ -27,9 +27,9 @@ system-design articles and wants a faster way to understand and recall them.
 
 | Route / entry | Behavior |
 | --- | --- |
-| `/` | Dark folder dashboard with in-session item counts |
-| `/modal/share` | Native-share folder selector and `Simplify & save` action |
-| `/folder/[id]` | Newest in-session item, four Markdown bullets, interactive graph, and sources |
+| `/` | Learning dashboard with in-session metrics, folders, recent ideas, and an empty-library demo |
+| `/modal/share` | Captured-source preview, folder selector, and `Build my lesson` action |
+| `/folder/[id]` | In-session item switcher with Learn, Visual, Recall, and Source modes |
 | `app/+native-intent.ts` | Rewrites share-extension wake-up URLs to `/` before routing |
 
 ### Core flow
@@ -40,9 +40,11 @@ system-design articles and wants a faster way to understand and recall them.
 4. Mobile posts `{ url, raw_text, folder_id }` to
    `POST /api/v1/process-link`.
 5. The synchronous backend fetches the source, produces exactly four simple
-   points, and returns Mermaid plus typed graph nodes and edges.
+   points, and returns typed graph nodes/edges with a preferred diagram and
+   compatible Flow, Hierarchy, or Network options.
 6. Mobile stores the result in React context and opens the chosen folder.
-7. The user reads the summary, pans/zooms/drags the graph, and can open sources.
+7. The user works through concept cards, explores graph relationships, practices
+   active recall, and returns to original source context.
 
 ### Current data boundaries
 
@@ -75,8 +77,10 @@ system-design articles and wants a faster way to understand and recall them.
 
 - iOS native share capture for HTTP(S) sources.
 - Two fixed folders.
-- Exactly four beginner-friendly bullet points.
-- Read-only React Flow/Dagre graph and source list.
+- Exactly four beginner-friendly lesson cards with transient understood-state.
+- Adaptive Flow, Hierarchy, and Network exploration with native relationship
+  explanations.
+- Graph-derived recall practice and expandable source context.
 - Strict mobile and backend response validation.
 
 ### Target
@@ -103,7 +107,7 @@ system-design articles and wants a faster way to understand and recall them.
 1. A Safari share opens the selectable folder sheet without an unmatched route.
 2. A valid source produces exactly four non-empty Markdown bullets.
 3. Every returned edge references existing uniquely identified nodes.
-4. The detail view renders the summary, interactive graph, and source link as
+4. The detail view renders the summary, adaptive diagram, and source link as
    read-only content.
 5. Backend tests, mobile typecheck, lint, and Expo Doctor pass.
 

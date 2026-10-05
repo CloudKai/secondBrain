@@ -21,23 +21,41 @@ Use the centralized values in `mobile/constants/theme.ts` rather than repeating 
 
 Spacing uses `6`, `10`, `16`, `24`, and `32` through `spacing.xs` to `spacing.xl`. Controls and cards use generous 15–20 point rounded corners. Use the native system typeface, clear size/weight hierarchy, and no decorative font dependency.
 
-The WebView graph is an isolated HTML document and intentionally uses a local dark palette. Graph cards use `#1c1c1e`, rounded borders, crisp white labels, and green glowing accent edges to stay visually aligned with the native screen.
+The WebView diagram is an isolated HTML document and intentionally uses a
+local dark palette. Cards use `#1c1c1e`, rounded borders, crisp white labels,
+and view-specific green, blue, or purple accent edges while staying aligned
+with the native screen.
 
 ## Current layout and interaction patterns
 
-- The dashboard is the root route and shows the two fixed folder cards with item counts.
+- The dashboard is the root route and combines an immediate demo/resume action,
+  session learning metrics, the two fixed folder cards, recent ideas, and native
+  share guidance.
 - Native sharing opens a transparent modal route containing a bottom sheet over the dashboard. The sheet must respect the safe area, expose a visible drag handle, dim the backdrop, and allow pan-down dismissal only while no request is submitting.
 - Folder choices behave as a radio group. The selected row changes border/background treatment, and the primary action stays visibly disabled until a folder and valid shared URL exist.
-- The detail screen reads top to bottom: concise title, exactly four Feynman Markdown bullets, interactive graph, then source links.
-- Graph interaction must preserve pan, pinch-to-zoom, fit-to-view, and smooth node dragging. Dagre may switch between top-to-bottom and left-to-right layout without changing the content model.
-- Long content scrolls in the native screen. Do not allow the graph WebView to trap the whole screen or render outside its bounded card.
+- The detail screen has four focused modes: Learn, Visual, Recall, and Source. Keep
+  the title, session mastery, and mode switcher above mode-specific content.
+- Learn shows one Feynman concept at a time with progress, understood-state, and
+  a direct jump into the corresponding graph concept.
+- Visual starts with the backend-recommended compatible view and lets users
+  switch among Flow, Hierarchy, and Network when graph structure allows it.
+  Flow and Hierarchy expose top-to-bottom/left-to-right controls; Network uses
+  a force-directed layout without a direction toggle.
+- Recall derives question cards from graph edges, requires a deliberate reveal,
+  and records `Study again` or `I knew it` for session mastery.
+- Source keeps outbound links distinct from expandable original article context.
+- Diagram interaction must preserve pan, pinch-to-zoom, fit-to-view, smooth node
+  dragging, node selection, and native relationship explanations across views.
+- Long content scrolls in the native screen. Do not allow the diagram WebView
+  to trap the whole screen or render outside its bounded card.
 
 ## Current UI states
 
-- Dashboard: empty folder counts or updated transient counts.
-- Share sheet: waiting for selection, selected, submitting, missing URL, request failure, and dismissible idle state.
-- Folder detail: empty folder or populated item.
-- Graph: loading, interactive, and readable error fallback.
+- Dashboard: empty-library demo, resume lesson, recent ideas, and updated session metrics.
+- Share sheet: captured-source preview, waiting for selection, selected, submitting with processing explanation, missing URL, request failure, and dismissible idle state.
+- Folder detail: empty guided onboarding, item switching, four learning modes, and mastery progress.
+- Diagram: loading, suggested view, compatible-view switching, selected-concept
+  explanation, relevant direction controls, and readable error fallback.
 - Network errors: short user-safe message with a retry path; never expose provider exceptions or stack traces.
 
 ## Accessibility
@@ -65,6 +83,28 @@ These are planned states, not current functionality:
 - Do not render unvalidated API data or provider error text directly.
 - Do not apply web-only styling conventions to native components. React Native styles and centralized TypeScript tokens are authoritative.
 - Do not replace native navigation or bottom-sheet behavior with a browser-styled overlay.
+
+## Separate browser UI slice — 2026-10-02
+
+`web/` implements the explicitly authorized web-first design independently of
+the native UI. It uses React, plain CSS semantic tokens, Lucide icons, a
+charcoal/mint dark default, and a paired light appearance. The mobile token
+system and native screens remain untouched.
+
+- `#library`: source cards, search/filter/sort, resume, and a contextual topic map.
+- `#note/<id>`: read-only notes, examples/equations for curated fixtures, recall,
+  saved-note assistant preview, and expandable Topic/Graph/Sources context.
+- `#topics`: source-driven topics and inspectable co-coverage connections, with
+  organizational corrections. Graph coverage is not mastery.
+- `#discover`: curated original-paper/university reading list, not live research.
+
+Examples, paraphrased evidence, session-only state, and planned services are
+labelled in the UI. Article import uses a validated adapter over the unchanged
+four-point v1 API. It does not claim the richer web-note contract is available.
+PDF/video tabs explain planned support rather than accepting unsupported input.
+On narrow screens navigation becomes a dismissible drawer and note context
+follows the main reading content. Respect visible focus, keyboard tab behavior,
+native dialog semantics, and reduced motion. See `web/README.md`.
 
 
 ## Structured browser notes — ticket #2
