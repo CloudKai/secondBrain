@@ -554,6 +554,8 @@ def test_generated_reference_joins_caption_fragments_using_real_overlapping_time
 
 
 @pytest.mark.parametrize('cues,times,expected', [
+    (['alice: Retrieval supplies evidence', 'bob: Search finds documents', 'alice: Generation uses them.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['alice: Retrieval supplies evidence', 'bob: Search finds documents', 'alice: Generation uses them.']),
+    (['Retrieval supplies evidence\n\nfrom saved documents', 'for grounded answers.', 'Generation follows.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Retrieval supplies evidence\n\nfrom saved documents\nfor grounded answers.', 'Generation follows.']),
     (['Lecturer: Retrieval supplies evidence', 'for grounded answers.', 'Generation follows.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Lecturer: Retrieval supplies evidence\nfor grounded answers.', 'Generation follows.']),
     (['Lecturer: Retrieval supplies evidence', 'Student: How is it found?', 'Lecturer: Search ranks documents.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Lecturer: Retrieval supplies evidence', 'Student: How is it found?', 'Lecturer: Search ranks documents.']),
     (['Retrieval supplies evidence', 'for grounded answers without a sentence ending', 'Generation follows.'], [(0, 2000), (4000, 6000), (8000, 10000)], ['Retrieval supplies evidence', 'for grounded answers without a sentence ending', 'Generation follows.']),

@@ -16,7 +16,9 @@ PassagePolicy = Literal['legacy', 'thought_v1']
 MAX_PASSAGE_CHARS = 900
 _SENTENCE = re.compile(r'[.!?][\"”’\')\]]*(?:\s+|$)')
 _PARAGRAPH = re.compile(r'\n[ \t]*\n+')
-_SPEAKER = re.compile(r'^\s*(?:[-–]\s*)?([A-Z][\w .\'-]{0,40}):')
+# Capture preserves VTT voice labels of up to 200 characters, including
+# lowercase and Unicode names. Require label punctuation, not name casing.
+_SPEAKER = re.compile(r'^\s*(?:[-–]\s*)?([^\n]{1,200}?):(?=\s)')
 _ABBREVIATIONS = {'mr.', 'mrs.', 'ms.', 'dr.', 'prof.', 'e.g.', 'i.e.', 'vs.', 'etc.', 'al.'}
 
 
@@ -96,7 +98,12 @@ def source_passages(text: str, document: PDFDocument | None = None,
         spans = [(0, len(text), None, None, None)]
     passages = []
     for first, last, page, start_ms, end_ms in spans:
-        for start, end in _text_spans(text, first, last, policy):
+        # Joined cues already form one bounded thought. Splitting that group
+        # again at an embedded paragraph could attach unrelated cue times.
+        timed_group = transcript and transcript.format != 'text' and policy == 'thought_v1'
+        offsets = ([(first, last)] if timed_group and last - first <= MAX_PASSAGE_CHARS
+                   else _text_spans(text, first, last, policy))
+        for start, end in offsets:
             passages.append(SourceReference(id=f'p{len(passages) + 1:04d}', start=start, end=end,
                 excerpt=text[start:end], page=page, start_ms=start_ms, end_ms=end_ms))
     return passages
