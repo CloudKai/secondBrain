@@ -57,13 +57,19 @@ Update this overview and the relevant acceptance checkboxes when a slice closes.
 
 | Work | Status | Ticket and scope |
 | --- | --- | --- |
-| Complete-thought citation passages and caption grouping | Complete; migration 012 applied, local + hosted development acceptance | [#17](https://github.com/CloudKai/secondBrain/issues/17), [spec](citation-passages.md), [setup](../citation-passages-setup.md) |
+| Complete-thought citation passages and caption grouping | Complete; migration 012 applied, existing saved note updated, local + hosted acceptance | [#17](https://github.com/CloudKai/secondBrain/issues/17), [spec](citation-passages.md), [setup](../citation-passages-setup.md) |
 
 Citation work passes 200 backend and 68 web tests plus web build/typecheck/lint.
 Independent standards/spec reviews are clear through `074f157`. A six-cue live
 fixture produced three exact joined references, with note/assistant inspection
 and reload verified. The temporary source and dependent records were cleaned.
 The original 15 slices above remain development-complete.
+
+Existing-note follow-up: the sole saved **Neural networks** note now has 12
+complete-thought citation passages (previously 13 cue references). Its original
+text, capture, source version and four topic assignments are preserved. Topic
+evidence IDs were remapped atomically. Exact saved text/times and preserved
+source/job/map state were verified; no model regeneration or new migration.
 
 ## Supplied UI/UX and implementation baseline
 

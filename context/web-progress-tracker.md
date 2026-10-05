@@ -780,3 +780,27 @@ punctuation-based grouping, not semantic topic detection or inferred word times.
 Production, OCR and private provider retrieval remain planned. Native/iOS and
 its progress tracker untouched. Setup/review: docs/citation-passages-setup.md
 and docs/reviews/ticket17.md.
+
+
+### Existing saved-note citations updated — #17 follow-up (2026-10-05)
+
+The learner requested the improved grouping for existing notes too. Read-only
+development inventory found one saved note: Neural networks, source
+79b1b905-ebeb-4896-84bc-d55f395070ce, current version 1, 18,430 characters and
+286 timed cues. Its 13 legacy references were remapped to 12 exact complete-thought
+passages from the same capture. Every claim keeps its original text and receives
+all overlapping supporting passage IDs; four existing topic assignments and their
+evidence IDs were preserved/remapped together. No overrides or combined overviews
+existed for this source. No model call or job requeue was needed.
+
+Applied a one-time owner/source/version/content/note/topic guarded transaction.
+A local private rollback snapshot was retained outside Git. Strict note/topic
+models and postflight hosted reads verify exact excerpts/times, updated payloads,
+unchanged source data, unchanged job/map state and all topic references resolving.
+Only note/map citation payloads and their revision timestamps changed. Historical
+completed-job policy/checkpoints retain their original generation meaning; current
+notes use the improved citation passages. No schema or application code changed,
+so the previous 200 backend/68 web checks remain the application baseline.
+
+Ticket #17 and both web records updated. The user's original existing note was
+updated; native/iOS and its tracker untouched. Refresh the saved note to load it.

@@ -61,3 +61,22 @@ Grouping uses bounded English punctuation, pauses and explicit labels, not
 semantic topic inference. Hard limits still split unusually long/unpunctuated
 text; long individual cues retain supplied cue-level timestamps. Existing notes
 are not regenerated automatically. Production acceptance remains unverified.
+
+
+## Existing-note follow-up — 2026-10-05
+
+User authorization: “change the exisiting notes too.” Inventory found one source
+with one completed note, Neural networks (18,430 characters, 286 timed cues).
+Prepared and validated a citation-only update: each prior evidence range maps
+to every substantive overlapping thought passage. Claim prose remains identical.
+Topic evidence is remapped with its original IDs/names/assignments. There were
+no correction overrides or topic overviews for this source.
+
+Applied one atomic transaction guarded by the original source owner/version/text
+hash, note payload/revision and topic payload/revision, under the existing owner
+advisory lock and row locks. No broader library writes or permanent function
+changes. Original snapshot retained locally with private permissions outside Git.
+Postflight hosted reads match the exact prepared note/topic payloads, all twelve
+references validate against the capture, all four topic assignments retain
+resolvable evidence, and other source/study/map fields are unchanged. No model
+calls or job requeues. App code unchanged; prior application checks remain valid.

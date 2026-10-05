@@ -58,3 +58,19 @@ generation, saved exact text/time validation, browser note/assistant citation
 inspection and reload pass for a temporary six-cue video fixture. The fixture
 and dependent records were removed and verified. See the web progress tracker,
 ticket #17 and docs/reviews/ticket17.md. Production acceptance is not claimed.
+
+
+## Existing-note update — 2026-10-05
+
+At the learner's explicit request, the one existing saved Neural networks note
+was updated in place. Citation IDs in its claims and topic evidence were remapped
+to all overlapping new complete-thought passages from the unchanged capture.
+Thirteen prior cue references became twelve passages; original note prose and
+four topic assignments remain unchanged. No new model generation was required.
+
+The one-time transaction guarded owner, version, capture content, note/map
+payloads and revision timestamps. Postflight strict models and hosted reads
+verified exact locations and unchanged source/job/map state. Historical completed
+job policy/checkpoints were preserved; no completed study was requeued. Future
+existing-note updates require equivalent checks rather than silently changing
+in-flight passage plans. Original snapshot was retained locally outside Git.

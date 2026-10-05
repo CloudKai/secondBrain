@@ -43,3 +43,13 @@ applied in development; the real model/worker/browser flow produced three exact
 references from six supplied cues, including overlapping times and blank lines.
 Note and assistant inspection and note reload passed. The temporary source and
 its dependent records were cleaned. Production acceptance is not claimed.
+
+
+## Existing-note follow-up
+
+The learner explicitly requested existing-note updates after the implementation.
+The sole saved Neural networks note was updated in a guarded atomic transaction:
+13 prior references map to 12 exact complete-thought passages, with original
+prose, source/version and four topic assignments retained. Claim and topic
+evidence IDs resolve to the new passages. Strict models and hosted postflight
+reads pass; no model generation, schema change or application change was needed.
