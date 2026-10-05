@@ -48,3 +48,17 @@ comparison with original video 6–12s, combined topic/library ordering and dedu
 unsupported answer without citations or links, cross-learner denial and real
 post-model note-revision rejection (409). API fixture sources cleaned. Browser
 acceptance and final rerun/re-review after the provider fix remain pending.
+
+### Browser follow-up fixes
+
+The live browser checked current-note default, both scopes together, exact PDF
+page 3 and video 6–12s with seeking link, and anchor/conversation preservation.
+A controlled version-2 citation rejects with an actionable retry message. A
+follow-up repeated prior generated phrasing; model context now keeps bounded
+learner questions only and explicitly avoids causal claims from differing
+settings. Public model/API RED→GREEN regression passes (17 assistant tests).
+Unsupported answers expose preview-only discovery. That action found an existing
+uploaded-PDF empty-URL crash in reading-list duplicate checks; guards now skip
+notes without web URLs, and the reading list is explicitly labelled preview.
+Browser RED→GREEN verifies the loaded three-source library no longer crashes.
+Returning to the anchor clears the conversation and scope state as intended.

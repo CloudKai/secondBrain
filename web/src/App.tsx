@@ -1828,7 +1828,7 @@ export default function App() {
                     planned. Inspect an original before choosing to add it.
                   </p>
                 </div>
-                <span className="badge">Curated list</span>
+                <span className="badge">Reading-list preview</span>
               </div>
               <div className="reading-grid">
                 {sampleNotes.map((n) => (
@@ -1868,14 +1868,14 @@ export default function App() {
                         className="text-button"
                         onClick={() => {
                           const existing = notes.find(
-                            (x) => canonicalUrl(x.url) === canonicalUrl(n.url),
+                            (x) => !!x.url && canonicalUrl(x.url) === canonicalUrl(n.url),
                           );
                           if (existing) openNote(existing);
                           else showAdd(n.url);
                         }}
                       >
                         {notes.some(
-                          (x) => canonicalUrl(x.url) === canonicalUrl(n.url),
+                          (x) => !!x.url && canonicalUrl(x.url) === canonicalUrl(n.url),
                         )
                           ? "View saved note"
                           : "Add to library"}{" "}

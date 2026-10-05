@@ -144,3 +144,11 @@ def test_redundant_known_citation_metadata_becomes_badges_without_losing_attribu
     assert response.status_code==200,response.text
     assert response.json()['claims'][0]['text']=='It retrieves saved evidence.'
     assert response.json()['claims'][0]['reference_ids']==[SOURCE+':p0001']
+
+def test_prior_assistant_claims_do_not_become_followup_model_evidence(assistant_client):
+    client,state=assistant_client
+    response=ask(client,history=[{'role':'user','text':'Explain evaluation A.'},{'role':'assistant','text':'RAG is universally reliable because of the curated data.'}])
+    assert response.status_code==200,response.text
+    model=next(r for r in state['calls'] if r.url.path=='/v1/chat/completions')
+    payload=json.loads(json.loads(model.content)['messages'][1]['content'])
+    assert payload['history']==[{'role':'user','text':'Explain evaluation A.'}]
