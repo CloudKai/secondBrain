@@ -1,0 +1,592 @@
+"""User-supplied video transcripts through the owned-source HTTP interface."""
+
+from backend.tests.test_sources import browser_client  # noqa: F401
+import pytest
+
+
+TRANSCRIPT = (
+    "Algebra uses symbols to express relationships between quantities. "
+    "A variable represents an unknown quantity, and an equation states that two expressions are equal."
+)
+
+
+def test_pasted_video_transcript_reopens_with_supplied_provenance(browser_client):
+    headers = {
+        "Authorization": "Bearer alice",
+        "Content-Type": "text/plain",
+        "X-Video-URL": "https://youtu.be/aircAruvnKk?t=5",
+    }
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        params={"title": "Algebra"},
+        headers=headers,
+        content=TRANSCRIPT,
+    )
+    assert response.status_code == 201, response.text
+    source = response.json()
+    assert source["source_kind"] == "video"
+    assert source["original_url"] == "https://youtu.be/aircAruvnKk?t=5"
+    assert source["canonical_url"] == "https://www.youtube.com/watch?v=aircAruvnKk"
+    assert source["captured_text"] == TRANSCRIPT
+    assert source["capture_origin"] == "pasted"
+    assert source["coverage"] == "unknown"
+    assert "User-supplied" in source["coverage_detail"]
+    assert source["transcript"]["format"] == "text"
+    assert source["transcript"]["provider"] == "youtube"
+    assert source["transcript"]["segments"] == [
+        {"start": 0, "end": len(TRANSCRIPT), "start_ms": None, "end_ms": None}
+    ]
+    reopened = browser_client.get(f"/api/v2/sources/{source['id']}", headers=headers)
+    assert reopened.status_code == 200
+    assert reopened.json() == source
+
+
+def test_uploaded_vtt_retains_real_cue_times_and_speaker_text(browser_client):
+    transcript = (
+        "WEBVTT\n\nintro\n00:00:05.250 --> 00:00:20.500 align:start\n<v Lecturer>"
+        + TRANSCRIPT
+        + "\n\n00:00:30.000 --> 00:00:40.000\nCalculus studies how quantities change."
+    )
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        params={"filename": "lecture.vtt"},
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": "https://www.youtube.com/watch?v=aircAruvnKk",
+        },
+        content=transcript,
+    )
+    assert response.status_code == 201, response.text
+    source = response.json()
+    assert source["capture_origin"] == "upload"
+    assert source["transcript"]["format"] == "vtt"
+    assert (
+        source["captured_text"]
+        == "Lecturer: " + TRANSCRIPT + "\nCalculus studies how quantities change."
+    )
+    assert [(s["start_ms"], s["end_ms"]) for s in source["transcript"]["segments"]] == [
+        (5250, 20500),
+        (30000, 40000),
+    ]
+    assert (
+        source["transcript"]["segments"][1]["start"]
+        == len("Lecturer: " + TRANSCRIPT) + 1
+    )
+
+
+def test_transcript_model_references_receive_only_supplied_cue_times():
+    import asyncio
+    import copy
+    import httpx
+    from backend.study_generation import StudyGenerator
+    from backend.transcript_models import TranscriptDocument
+    from backend.tests.test_study_generation import DRAFT, completion
+
+    second = "Calculus studies how quantities change."
+    text = TRANSCRIPT + "\n" + second
+    transcript = TranscriptDocument(
+        provider="youtube",
+        format="vtt",
+        segments=[
+            {"start": 0, "end": len(TRANSCRIPT), "start_ms": 5250, "end_ms": 20500},
+            {
+                "start": len(TRANSCRIPT) + 1,
+                "end": len(text),
+                "start_ms": 30000,
+                "end_ms": 40000,
+            },
+        ],
+    )
+    draft = copy.deepcopy(DRAFT)
+    for claim in [
+        draft["overview"],
+        *draft["concepts"],
+        *draft["examples"],
+        *draft["equations"],
+        *draft["recall"],
+    ]:
+        claim["citation_ids"] = ["p0002"]
+
+    async def run():
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(lambda request: completion(request, draft))
+        ) as client:
+            note = await StudyGenerator(client, api_key="test-key").generate(
+                text, transcript=transcript
+            )
+        reference = note.references[0]
+        assert reference.excerpt == second
+        assert (reference.start_ms, reference.end_ms) == (30000, 40000)
+        assert reference.page is None
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize(
+    "url,provider",
+    [
+        ("https://tenant.sharepoint.com/:v:/s/lecture/recording", "teams"),
+        ("https://teams.microsoft.com/l/recording/lecture", "teams"),
+        ("https://school.zoom.us/rec/share/recording?pwd=fixture", "zoom"),
+        (
+            "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=33333333-3333-4333-8333-333333333333",
+            "panopto",
+        ),
+    ],
+)
+def test_recording_context_is_owned_without_provider_access(
+    browser_client, url, provider
+):
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        headers={"Authorization": "Bearer alice", "X-Video-URL": url},
+        content=TRANSCRIPT,
+    )
+    assert response.status_code == 201, response.text
+    source = response.json()
+    assert source["original_url"] == url
+    assert source["transcript"]["provider"] == provider
+    assert "No video was fetched" in source["coverage_detail"]
+    bob = {"Authorization": "Bearer bob"}
+    assert (
+        browser_client.get(f"/api/v2/sources/{source['id']}", headers=bob).status_code
+        == 404
+    )
+    assert (
+        browser_client.delete(
+            f"/api/v2/sources/{source['id']}", headers=bob
+        ).status_code
+        == 404
+    )
+    assert (
+        browser_client.get(
+            f"/api/v2/sources/{source['id']}", headers={"Authorization": "Bearer alice"}
+        ).status_code
+        == 200
+    )
+
+
+def test_srt_paste_preserves_zero_time_and_reuses_one_owned_video(browser_client):
+    content = "1\n00:00:00,000 --> 00:00:20,125\n" + TRANSCRIPT
+    headers = {
+        "Authorization": "Bearer alice",
+        "X-Video-URL": "https://youtu.be/aircAruvnKk",
+    }
+    first = browser_client.post(
+        "/api/v2/sources/video", headers=headers, content=content
+    )
+    assert first.status_code == 201, first.text
+    source = first.json()
+    assert source["transcript"]["format"] == "srt"
+    assert source["transcript"]["segments"][0]["start_ms"] == 0
+    assert source["transcript"]["segments"][0]["end_ms"] == 20125
+    duplicate = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            **headers,
+            "X-Video-URL": "https://www.youtube.com/watch?v=aircAruvnKk&t=10s",
+        },
+        content=content,
+    )
+    assert duplicate.json()["id"] == source["id"]
+    bob = browser_client.post(
+        "/api/v2/sources/video",
+        headers={**headers, "Authorization": "Bearer bob"},
+        content=content,
+    )
+    assert bob.status_code == 201
+    assert bob.json()["id"] != source["id"]
+
+
+@pytest.mark.parametrize(
+    "filename,data,detail",
+    [
+        ("lecture.docx", b"PK" + b"x" * 200, "paste"),
+        ("lecture", TRANSCRIPT.encode(), "TXT"),
+        ("lecture.txt", b"\xff" * 200, "UTF-8"),
+        ("lecture.txt", b"\x00" * 200, "readable"),
+        (
+            "lecture.vtt",
+            ("WEBVTT\n\n00:00:60.000 --> 00:01:10.000\n" + TRANSCRIPT).encode(),
+            "time",
+        ),
+        (
+            "lecture.srt",
+            ("1\n00:00:10,000 --> 00:00:05,000\n" + TRANSCRIPT).encode(),
+            "times",
+        ),
+        (
+            "lecture.srt",
+            (
+                "1\n00:00:10,000 --> 00:00:15,000\n"
+                + TRANSCRIPT
+                + "\n\n2\n00:00:05,000 --> 00:00:08,000\nEarlier"
+            ).encode(),
+            "source order",
+        ),
+        ("lecture.txt", b"x" * 1_000_001, "1 MB"),
+        ("lecture.txt", b"short", "120"),
+    ],
+)
+def test_unsupported_transcripts_receive_correction_without_saving(
+    browser_client, filename, data, detail
+):
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        params={"filename": filename},
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": "https://youtu.be/aircAruvnKk",
+        },
+        content=data,
+    )
+    assert response.status_code in (413, 422)
+    assert detail in response.json()["detail"]
+    assert (
+        browser_client.get(
+            "/api/v2/sources", headers={"Authorization": "Bearer alice"}
+        ).json()["sources"]
+        == []
+    )
+
+
+def test_long_transcript_marks_partial_and_limits_captured_cue_span(browser_client):
+    content = "WEBVTT\n\n00:00:05.000 --> 00:02:00.000\n" + TRANSCRIPT * 1000
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        params={"filename": "long.vtt"},
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": "https://youtu.be/aircAruvnKk",
+        },
+        content=content,
+    )
+    assert response.status_code == 201, response.text
+    source = response.json()
+    assert source["coverage"] == "partial"
+    assert len(source["captured_text"]) == 120000
+    assert source["transcript"]["segments"] == [
+        {"start": 0, "end": 120000, "start_ms": 5000, "end_ms": 120000}
+    ]
+
+
+def test_video_capture_requires_session_and_supported_recording(browser_client):
+    assert (
+        browser_client.post(
+            "/api/v2/sources/video",
+            headers={"X-Video-URL": "https://youtu.be/aircAruvnKk"},
+            content=TRANSCRIPT,
+        ).status_code
+        == 401
+    )
+    for url in [
+        "http://youtu.be/aircAruvnKk",
+        "https://youtube.com/@channel",
+        "https://school.zoom.us/j/12345",
+        "https://youtube.com.evil.test/watch?v=aircAruvnKk",
+        "https://user:password@youtu.be/aircAruvnKk",
+    ]:
+        response = browser_client.post(
+            "/api/v2/sources/video",
+            headers={"Authorization": "Bearer alice", "X-Video-URL": url},
+            content=TRANSCRIPT,
+        )
+        assert response.status_code == 422
+
+
+def test_untimed_transcript_can_contain_a_literal_arrow(browser_client):
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": "https://youtu.be/aircAruvnKk",
+        },
+        content=TRANSCRIPT + "\nInput --> Output is an illustrative relationship.",
+    )
+    assert response.status_code == 201, response.text
+    assert response.json()["transcript"]["format"] == "text"
+    assert response.json()["transcript"]["segments"][0]["start_ms"] is None
+
+
+def test_panopto_presentation_parameters_reuse_the_recording(browser_client):
+    base = "https://school.hosted.panopto.com/Panopto/Pages/Viewer.aspx"
+    first = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": base + "?id=session-id&start=5",
+        },
+        content=TRANSCRIPT,
+    )
+    second = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": base + "?start=30&id=session-id&isLive=false",
+        },
+        content=TRANSCRIPT,
+    )
+    assert first.status_code == second.status_code == 201
+    assert first.json()["id"] == second.json()["id"]
+    assert first.json()["canonical_url"] == base + "?id=session-id"
+
+
+def test_saved_video_contract_rejects_inconsistent_identity(browser_client):
+    from backend.source_models import CapturedSource
+    from pydantic import ValidationError
+    import json
+
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        headers={
+            "Authorization": "Bearer alice",
+            "X-Video-URL": "https://youtu.be/aircAruvnKk",
+        },
+        content=TRANSCRIPT,
+    )
+    row = {**response.json(), "user_id": "11111111-1111-4111-8111-111111111111"}
+    CapturedSource.model_validate_json(json.dumps(row))
+    for update in [
+        {"canonical_url": "https://example.com/unrelated"},
+        {"original_url": "https://school.zoom.us/rec/share/different"},
+        {"transcript": {**row["transcript"], "provider": "panopto"}},
+        {"coverage": "complete"},
+    ]:
+        with pytest.raises(ValidationError):
+            CapturedSource.model_validate_json(json.dumps({**row, **update}))
+
+
+def test_teams_recap_vtt_preserves_original_context_speaker_and_real_times(
+    browser_client,
+):
+    url = "https://teams.cloud.microsoft/l/meetingrecap?threadId=meeting-fixture&organizerId=organizer-fixture"
+    caption = "WEBVTT\n\n00:00:05.250 --> 00:00:20.500\n<v Lecturer>" + TRANSCRIPT
+    headers = {"Authorization": "Bearer alice", "X-Video-URL": url}
+    first = browser_client.post(
+        "/api/v2/sources/video",
+        headers=headers,
+        params={"filename": "teams-export.vtt", "title": "Algebra"},
+        content=caption,
+    )
+    assert first.status_code == 201, first.text
+    source = first.json()
+    assert source["original_url"] == url
+    assert source["canonical_url"] == url
+    assert source["transcript"]["provider"] == "teams"
+    assert source["transcript"]["filename"] == "teams-export.vtt"
+    assert source["captured_text"] == "Lecturer: " + TRANSCRIPT
+    assert source["transcript"]["segments"] == [
+        {"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}
+    ]
+    assert source["capture_origin"] == "upload"
+    assert "User-supplied" in source["coverage_detail"]
+    assert "No video was fetched" in source["coverage_detail"]
+    assert (
+        browser_client.get("/api/v2/sources/" + source["id"], headers=headers).json()
+        == source
+    )
+    duplicate = browser_client.post(
+        "/api/v2/sources/video",
+        headers={**headers, "X-Video-URL": url + "#recap"},
+        params={"filename": "teams-export.vtt"},
+        content=caption,
+    )
+    assert duplicate.json()["id"] == source["id"]
+    assert (
+        browser_client.get(
+            "/api/v2/sources/" + source["id"], headers={"Authorization": "Bearer bob"}
+        ).status_code
+        == 404
+    )
+
+
+@pytest.mark.parametrize("link_kind", ["share", "play"])
+def test_zoom_export_preserves_recording_context_and_supplied_evidence(
+    browser_client, link_kind
+):
+    url = f"https://us02web.zoom.us/rec/{link_kind}/lecture-fixture?startTime=5000&pwd=synthetic-passcode"
+    caption = "WEBVTT\n\n1\n00:00:05.250 --> 00:00:20.500\nLecturer: " + TRANSCRIPT
+    headers = {"Authorization": "Bearer alice", "X-Video-URL": url}
+    response = browser_client.post(
+        "/api/v2/sources/video",
+        headers=headers,
+        params={"filename": "zoom-export.vtt", "title": "Algebra"},
+        content=caption,
+    )
+    assert response.status_code == 201, response.text
+    source = response.json()
+    assert source["original_url"] == url
+    assert source["canonical_url"] == url
+    assert source["capture_origin"] == "upload"
+    assert source["transcript"] == {
+        "provider": "zoom",
+        "format": "vtt",
+        "filename": "zoom-export.vtt",
+        "selected_time": None,
+        "segments": [{"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}],
+    }
+    assert source["captured_text"] == "Lecturer: " + TRANSCRIPT
+    assert "No video was fetched" in source["coverage_detail"]
+    assert "completeness is unverified" in source["coverage_detail"]
+    reopened = browser_client.get("/api/v2/sources/" + source["id"], headers=headers)
+    assert reopened.json() == source
+    duplicate = browser_client.post(
+        "/api/v2/sources/video",
+        headers={**headers, "X-Video-URL": url + "#transcript"},
+        params={"filename": "zoom-export.vtt"},
+        content=caption,
+    )
+    assert duplicate.json()["id"] == source["id"]
+    assert (
+        browser_client.get(
+            "/api/v2/sources/" + source["id"], headers={"Authorization": "Bearer bob"}
+        ).status_code
+        == 404
+    )
+
+
+def test_panopto_caption_export_keeps_sites_distinct_and_reuses_session(browser_client):
+    session_id = "11111111-2222-4333-8444-555555555555"
+    caption = "1\n00:00:05,250 --> 00:00:20,500\nLecturer: " + TRANSCRIPT
+    sources = []
+    for site in ["course.hosted.panopto.com", "other.hosted.panopto.eu"]:
+        base = f"https://{site}/Panopto/Pages/Viewer.aspx"
+        url = base + f"?id={session_id}&start=5"
+        headers = {"Authorization": "Bearer alice", "X-Video-URL": url}
+        response = browser_client.post(
+            "/api/v2/sources/video",
+            headers=headers,
+            params={"filename": "panopto-export.srt", "title": "Algebra"},
+            content=caption,
+        )
+        assert response.status_code == 201, response.text
+        source = response.json()
+        sources.append(source)
+        assert source["original_url"] == url
+        assert source["canonical_url"] == base + f"?id={session_id}"
+        assert source["captured_text"] == "Lecturer: " + TRANSCRIPT
+        assert source["capture_origin"] == "upload"
+        assert source["transcript"] == {
+            "provider": "panopto",
+            "format": "srt",
+            "filename": "panopto-export.srt",
+            "selected_time": None,
+            "segments": [{"start": 0, "end": 173, "start_ms": 5250, "end_ms": 20500}],
+        }
+        assert "No video was fetched" in source["coverage_detail"]
+        assert (
+            browser_client.get("/api/v2/sources/" + source["id"], headers=headers).json()
+            == source
+        )
+        duplicate = browser_client.post(
+            "/api/v2/sources/video",
+            headers={
+                **headers,
+                "X-Video-URL": base + f"?start=90&isLive=false&id={session_id}#captions",
+            },
+            params={"filename": "panopto-export.srt"},
+            content=caption,
+        )
+        assert duplicate.json()["id"] == source["id"]
+        assert (
+            browser_client.get(
+                "/api/v2/sources/" + source["id"], headers={"Authorization": "Bearer bob"}
+            ).status_code
+            == 404
+        )
+    assert sources[0]["id"] != sources[1]["id"]
+
+
+def test_unreadable_panopto_export_can_be_corrected_without_saving_bad_input(browser_client):
+    headers = {
+        "Authorization": "Bearer alice",
+        "X-Video-URL": "https://course.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=11111111-2222-4333-8444-555555555555",
+    }
+    rejected = browser_client.post(
+        "/api/v2/sources/video",
+        headers=headers,
+        params={"filename": "panopto-export.srt"},
+        content=b"\xff" * 200,
+    )
+    assert rejected.status_code == 422
+    assert "UTF-8" in rejected.json()["detail"]
+    assert "paste" in rejected.json()["detail"]
+    assert (
+        browser_client.get("/api/v2/sources", headers=headers).json()["sources"] == []
+    )
+    corrected = browser_client.post(
+        "/api/v2/sources/video", headers=headers, content="Lecturer: " + TRANSCRIPT
+    )
+    assert corrected.status_code == 201, corrected.text
+    source = corrected.json()
+    assert source["capture_origin"] == "pasted"
+    assert source["transcript"]["format"] == "text"
+    assert source["transcript"]["segments"] == [
+        {"start": 0, "end": 173, "start_ms": None, "end_ms": None}
+    ]
+
+
+def test_generated_reference_joins_caption_fragments_using_real_overlapping_times():
+    import asyncio
+    import httpx
+    from backend.study_generation import StudyGenerator
+    from backend.transcript_models import TranscriptDocument
+    from backend.tests.test_study_generation import completion
+
+    first = 'Retrieval pulls useful supporting documents from a knowledge store'
+    second = 'and supplies that evidence to the generator.'
+    third = 'The generator then uses those documents to support its answer.'
+    text = '\n'.join([first, second, third])
+    transcript = TranscriptDocument(provider='youtube', format='vtt', segments=[
+        {'start': 0, 'end': len(first), 'start_ms': 12000, 'end_ms': 18000},
+        {'start': len(first) + 1, 'end': len(first) + 1 + len(second), 'start_ms': 14000, 'end_ms': 16000},
+        {'start': len(first) + 2 + len(second), 'end': len(text), 'start_ms': 16000, 'end_ms': 20000},
+    ])
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(completion)) as client:
+            note = await StudyGenerator(client, api_key='test-key').generate(text, transcript=transcript)
+        assert note.references[0].excerpt == first + '\n' + second
+        assert (note.references[0].start_ms, note.references[0].end_ms) == (12000, 18000)
+        assert note.references[0].end == len(first) + 1 + len(second)
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize('cues,times,expected', [
+    (['alice: Retrieval supplies evidence', 'bob: Search finds documents', 'alice: Generation uses them.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['alice: Retrieval supplies evidence', 'bob: Search finds documents', 'alice: Generation uses them.']),
+    (['Retrieval supplies evidence\n\nfrom saved documents', 'for grounded answers.', 'Generation follows.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Retrieval supplies evidence\n\nfrom saved documents\nfor grounded answers.', 'Generation follows.']),
+    (['Lecturer: Retrieval supplies evidence', 'for grounded answers.', 'Generation follows.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Lecturer: Retrieval supplies evidence\nfor grounded answers.', 'Generation follows.']),
+    (['Lecturer: Retrieval supplies evidence', 'Student: How is it found?', 'Lecturer: Search ranks documents.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Lecturer: Retrieval supplies evidence', 'Student: How is it found?', 'Lecturer: Search ranks documents.']),
+    (['Retrieval supplies evidence', 'for grounded answers without a sentence ending', 'Generation follows.'], [(0, 2000), (4000, 6000), (8000, 10000)], ['Retrieval supplies evidence', 'for grounded answers without a sentence ending', 'Generation follows.']),
+    (['Retrieval supplies evidence', 'over a long explanation without punctuation', 'Generation follows.'], [(0, 30000), (30000, 46000), (46000, 50000)], ['Retrieval supplies evidence', 'over a long explanation without punctuation\nGeneration follows.']),
+])
+def test_model_receives_caption_groups_at_sentence_pause_speaker_and_duration_boundaries(cues, times, expected):
+    import asyncio
+    import httpx
+    import json
+    from backend.study_generation import StudyGenerator
+    from backend.transcript_models import TranscriptDocument
+    from backend.tests.test_study_generation import completion
+
+    # The extra sentence meets the capture floor without changing the tested cues.
+    cues = [*cues, 'Further study compares retrieval strategies and checks whether their evidence supports each answer.']
+    times = [*times, (times[-1][1] + 2000, times[-1][1] + 4000)]
+    text = '\n'.join(cues)
+    segments, offset = [], 0
+    for cue, (start_ms, end_ms) in zip(cues, times):
+        segments.append({'start': offset, 'end': offset + len(cue), 'start_ms': start_ms, 'end_ms': end_ms})
+        offset += len(cue) + 1
+    transcript = TranscriptDocument(provider='youtube', format='vtt', segments=segments)
+    seen = []
+
+    def external(request):
+        seen.extend(json.loads(json.loads(request.content)['messages'][-1]['content'])['passages'])
+        return completion(request)
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(external)) as client:
+            await StudyGenerator(client, api_key='test-key').generate(text, transcript=transcript)
+        assert [p['text'] for p in seen] == [*expected, cues[-1]]
+
+    asyncio.run(run())

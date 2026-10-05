@@ -21,23 +21,41 @@ Use the centralized values in `mobile/constants/theme.ts` rather than repeating 
 
 Spacing uses `6`, `10`, `16`, `24`, and `32` through `spacing.xs` to `spacing.xl`. Controls and cards use generous 15–20 point rounded corners. Use the native system typeface, clear size/weight hierarchy, and no decorative font dependency.
 
-The WebView graph is an isolated HTML document and intentionally uses a local dark palette. Graph cards use `#1c1c1e`, rounded borders, crisp white labels, and green glowing accent edges to stay visually aligned with the native screen.
+The WebView diagram is an isolated HTML document and intentionally uses a
+local dark palette. Cards use `#1c1c1e`, rounded borders, crisp white labels,
+and view-specific green, blue, or purple accent edges while staying aligned
+with the native screen.
 
 ## Current layout and interaction patterns
 
-- The dashboard is the root route and shows the two fixed folder cards with item counts.
+- The dashboard is the root route and combines an immediate demo/resume action,
+  session learning metrics, the two fixed folder cards, recent ideas, and native
+  share guidance.
 - Native sharing opens a transparent modal route containing a bottom sheet over the dashboard. The sheet must respect the safe area, expose a visible drag handle, dim the backdrop, and allow pan-down dismissal only while no request is submitting.
 - Folder choices behave as a radio group. The selected row changes border/background treatment, and the primary action stays visibly disabled until a folder and valid shared URL exist.
-- The detail screen reads top to bottom: concise title, exactly four Feynman Markdown bullets, interactive graph, then source links.
-- Graph interaction must preserve pan, pinch-to-zoom, fit-to-view, and smooth node dragging. Dagre may switch between top-to-bottom and left-to-right layout without changing the content model.
-- Long content scrolls in the native screen. Do not allow the graph WebView to trap the whole screen or render outside its bounded card.
+- The detail screen has four focused modes: Learn, Visual, Recall, and Source. Keep
+  the title, session mastery, and mode switcher above mode-specific content.
+- Learn shows one Feynman concept at a time with progress, understood-state, and
+  a direct jump into the corresponding graph concept.
+- Visual starts with the backend-recommended compatible view and lets users
+  switch among Flow, Hierarchy, and Network when graph structure allows it.
+  Flow and Hierarchy expose top-to-bottom/left-to-right controls; Network uses
+  a force-directed layout without a direction toggle.
+- Recall derives question cards from graph edges, requires a deliberate reveal,
+  and records `Study again` or `I knew it` for session mastery.
+- Source keeps outbound links distinct from expandable original article context.
+- Diagram interaction must preserve pan, pinch-to-zoom, fit-to-view, smooth node
+  dragging, node selection, and native relationship explanations across views.
+- Long content scrolls in the native screen. Do not allow the diagram WebView
+  to trap the whole screen or render outside its bounded card.
 
 ## Current UI states
 
-- Dashboard: empty folder counts or updated transient counts.
-- Share sheet: waiting for selection, selected, submitting, missing URL, request failure, and dismissible idle state.
-- Folder detail: empty folder or populated item.
-- Graph: loading, interactive, and readable error fallback.
+- Dashboard: empty-library demo, resume lesson, recent ideas, and updated session metrics.
+- Share sheet: captured-source preview, waiting for selection, selected, submitting with processing explanation, missing URL, request failure, and dismissible idle state.
+- Folder detail: empty guided onboarding, item switching, four learning modes, and mastery progress.
+- Diagram: loading, suggested view, compatible-view switching, selected-concept
+  explanation, relevant direction controls, and readable error fallback.
 - Network errors: short user-safe message with a retry path; never expose provider exceptions or stack traces.
 
 ## Accessibility
@@ -65,3 +83,206 @@ These are planned states, not current functionality:
 - Do not render unvalidated API data or provider error text directly.
 - Do not apply web-only styling conventions to native components. React Native styles and centralized TypeScript tokens are authoritative.
 - Do not replace native navigation or bottom-sheet behavior with a browser-styled overlay.
+
+## Separate browser UI slice — 2026-10-02
+
+`web/` implements the explicitly authorized web-first design independently of
+the native UI. It uses React, plain CSS semantic tokens, Lucide icons, a
+charcoal/mint dark default, and a paired light appearance. The mobile token
+system and native screens remain untouched.
+
+- `#library`: source cards, search/filter/sort, resume, and a contextual topic map.
+- `#note/<id>`: read-only notes, examples/equations for curated fixtures, recall,
+  saved-note assistant preview, and expandable Topic/Graph/Sources context.
+- `#topics`: source-driven topics and inspectable co-coverage connections, with
+  organizational corrections. Graph coverage is not mastery.
+- `#discover`: curated original-paper/university reading list, not live research.
+
+Examples, paraphrased evidence, session-only state, and planned services are
+labelled in the UI. Article import uses a validated adapter over the unchanged
+four-point v1 API. It does not claim the richer web-note contract is available.
+PDF/video tabs explain planned support rather than accepting unsupported input.
+On narrow screens navigation becomes a dismissible drawer and note context
+follows the main reading content. Respect visible focus, keyboard tab behavior,
+native dialog semantics, and reduced motion. See `web/README.md`.
+
+
+## Structured browser notes — ticket #2
+
+The supplied browser design now renders verified read-only structured
+article notes: overview, substantive concepts, optional supported examples/
+equations and recall answers. Each section's citations open the matching exact
+captured passage in Sources, focus it and preserve Open original. Location labels
+refer to captured-text characters, not PDF pages/video times. Full captured text
+is still available.
+
+Saved sources show queued/processing/retrying/failed/ready states from Postgres.
+Pending jobs poll every 5s; reload restores saved notes and status. Generate study
+note recovers an unrequested capture, and Retry generation starts a fresh bounded
+cycle after failure. Storage errors retain the capture and offer reload. Recall
+marks remain session-only. Real-source topic organization is explicitly planned;
+new generated concepts do not create fake graph assignments.
+
+Hosted generation, citations, reload, ownership isolation and worker recovery
+passed on 2026-10-03. Local desktop/narrow browser checks cover note-to-evidence, reload and
+failed-note recovery. Setup: `docs/study-note-setup.md`.
+
+
+## PDF browser controls — ticket #3
+
+Verified with deterministic browser fixtures and real hosted upload/reload. Add source → PDF offers Upload PDF and
+PDF link, published limits, and unsupported-file feedback. PDF sources have a
+separate filter and reuse the read-only note viewer. Sources shows physical page
+numbers and exact excerpts after citation clicks; full text is grouped by page.
+Linked PDFs open the cited original page; uploads explain that only captured
+page text and filename are retained. Video controls remain labelled planned.
+The live three-page upload preserves its blank second page and opens the page-3
+calculus excerpt after reload. Narrow-screen fixture checks also passed.
+
+
+## Browser transcript form — issue #5 (2026-10-03)
+
+Verified locally and against hosted Supabase. Video in Add material now
+accepts a supported recording URL and either a supplied transcript file or pasted
+text, with Topic title and visible limits. Saved videos filter as Video. Inline
+mint citation badges open Sources with the exact transcript excerpt, supplied
+cue range if present, provenance and original recording link. Full text groups
+timed cues with their supplied times. Untimed TXT has no fabricated time labels.
+YouTube uses a supplied start-time link; other providers explicitly open without
+seeking. Source notes stay read-only. Native screens are untouched.
+
+
+## YouTube caption import — issue #6 (2026-10-03)
+
+Verified with real hosted generation and desktop browser checks. Video in Add
+material offers Import YouTube captions and Upload or paste. The automatic choice
+accepts a YouTube URL without requiring transcript text and explains accessible
+English captions and limits. A retrieval failure preserves URL/title and opens
+paste/upload controls; authentication/storage errors remain retry errors. Sources
+distinguishes retrieved captions from user-supplied transcripts, preserving real
+cue times and exact passage citations. Notes remain read-only; reload and canonical
+reuse restore the same note. Native UI is untouched; no new phone-width check is
+claimed. Other automatic recording providers remain planned.
+
+
+## Teams transcript access — issue #7 (2026-10-03)
+
+The Video form immediately selects upload/paste for recognized Teams/SharePoint
+context. A mint access panel explains that the app lacks Teams authorization,
+links to the original recording/recap and expands VTT export/DOCX paste steps.
+It avoids claims about the specific recording's availability or permission state.
+Existing transcript controls, limits, read-only notes and citation styles remain.
+Desktop hosted checks verified timed VTT citations after reload and untimed text
+paste/reuse. No new phone-width check is claimed; native UI is unchanged.
+Automatic Teams retrieval is unvalidated and is not advertised.
+
+
+## Zoom transcript availability — issue #8 (2026-10-03)
+
+Zoom recording share/play links now immediately select Upload or paste. The
+existing mint access-panel style explains that transcript download needs access
+the app lacks, even when a learner has a playback link or passcode. Expandable
+cloud VTT export instructions provide conditional next steps for processing,
+missing, restricted, expired/deleted material without claiming to inspect status.
+Original and official-guide links remain available. Existing transcript limits,
+read-only notes and citation styling are preserved. Hosted controlled VTT and
+untimed paste, exact citations, reload/reuse passed at desktop width. Native UI
+is untouched; no automatic Zoom or new phone-width acceptance is claimed.
+
+
+## Panopto caption access — issue #9 (2026-10-03)
+
+Recognized Panopto viewer links immediately select Upload or paste. The existing
+mint access-panel style displays the actual hostname and offers expandable,
+conditional caption-export, lecturer/site administrator and unreadable-export
+help, plus the original lecture link. No specific menu or lecture status is
+inferred. UTF-8 errors retain URL/title for correction. Controlled hosted SRT
+and untimed paste, exact citations, reload and canonical reuse passed at desktop
+width. Existing limits and read-only notes remain. Automatic access is
+unvalidated; no new phone-width acceptance or native UI change is claimed.
+
+
+## Saved-source topics — issue #10 (2026-10-03)
+
+Local implementation uses the existing browser design; hosted acceptance is
+pending. Empty libraries start without an outline. Saved topics and explicitly
+selected examples are separate. Topic cards precede the supported graph; broad
+groups appear as overlapping badges without implied edges. Topic details list
+original source notes, mapping reasons and passage links. Uncertain assignments
+offer Use suggested topic or Keep this topic separate; notes remain read-only.
+The graph shows processing/retry/error and partial-coverage feedback. Combined
+overviews and broad correction workflows remain planned. Native UI is unchanged.
+
+
+## Verified hosted web topic views — issue #10 (2026-10-04)
+
+Saved topic cards, exact passage navigation, reload and saved/example browser
+history passed desktop acceptance. A seven-topic library retained its graph in
+a six-topic focus view with every topic selectable. Shared coverage alone need
+not draw directional lines; only supported uses/requires/evaluates relationships
+do. A controlled relationship verified explanation and exact source navigation.
+A naturally uncertain topic was kept separate from its note panel; hosted
+controlled suggestions also verified confirmation and note preservation.
+Temporary sources were removed and the original learner note/map preserved.
+Combined synthesis and broad corrections remain planned; native UI unchanged.
+
+
+## Web topic views — ticket #11
+
+Local UI pending hosted acceptance: saved topic words/cards open SavedTopicDetails; Combine queues a cited overview and differences, Keep separate shows original source-note branches below the parent. Existing mint inline citations open exact source evidence. Choice persists server-side; uncertain placement and pending/error/partial feedback are explicit. Example topics stay in the separate example preview.
+
+
+### Topic overview review checkpoint — #11
+
+Local checks and both independent reviews pass; hosted acceptance awaits approval
+of the staged Supabase warning. No hosted overview capability is verified yet.
+
+
+## Verified hosted web topic overviews — #11 (2026-10-04)
+
+The pending overview checkpoints above are superseded by desktop acceptance.
+Saved topic words open their contextual panel. Explicit Combine creates a cited
+combined overview with agreements and qualified differences. Keep separate
+shows labeled original source-note branches under the parent topic. Both choices
+survive reload. Mint circular citations navigate to exact saved passages,
+including PDF pages and supplied video times. Uncertain assignments require
+confirmation before synthesis; pending/retry/failure and changed-source states
+are visible. Controlled fixtures were removed after acceptance. Broad persistent
+corrections and assistant/research remain planned; native UI is unchanged.
+
+
+## Verified hosted web topic corrections — #12 (2026-10-04)
+
+Saved topic panels offer durable Rename and Merge. Source-note management changes
+1–12 topics and selects exact supporting passages for added memberships; original
+notes remain read-only. Supported graph connections offer Accept/Reject; rejected
+pairs remain visible with Accept if supported and survive merges/reload. Current
+source revisions hide outdated combined overviews with an explicit refresh prompt.
+Desktop rename/merge/assign/reload, rejection precedence and PDF page/video time
+citation checks pass. About copy describes saved corrections as persistent and
+example corrections as session-only. Scoped fixture cleanup and post-removal
+reload passed; native UI unchanged. Assistant/research/refresh remain planned.
+
+
+## Source versions UI — #13, verified desktop acceptance
+
+Repeated URL/transcript imports compare material; changed captures offer explicit
+refresh. Saved notes offer Source versions & refresh with replacement PDF or
+transcript inputs, before/after captured text, Keep current version and Refresh
+source. Prior read-only notes use their own capture/page/cue citations. Retained
+assignments with changed passages require current evidence review. Versions count
+as one current source; refresh hides obsolete note/topic/evidence/recall state.
+Desktop compare/decline/confirm, current-evidence review, old/current PDF page
+and video cue citations, duplicate reuse and reload pass. Native UI unchanged.
+
+
+## Web range/progress acceptance — #14 (2026-10-04)
+
+Hosted browser checks pass for whole-capture default and optional inclusive PDF
+pages / timed transcript ranges in import and Source versions & refresh. Page
+and time fields have labels and validation; untimed transcripts cannot invent
+times. Selected overlapping cues retain original times, with partial/unverified
+coverage labels. Saved section counts and combining stage survive reload. Retry
+resumes completed section work; no unfinished note is shown as complete. Range
+refresh stays under one source and old citation readers remain version-specific.
+Existing mint controls/citation styling retained. Native/iOS unchanged.

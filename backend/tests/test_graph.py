@@ -1,8 +1,22 @@
 import asyncio
 
 import httpx
+import pytest
+from pydantic import ValidationError
 
 from backend import graph
+from backend.schemas import GraphEdge, GraphNode, GraphVisualization
+
+
+def _nodes(*node_ids: str) -> list[GraphNode]:
+    return [GraphNode(id=node_id, label=node_id) for node_id in node_ids]
+
+
+def _edges(*pairs: tuple[str, str]) -> list[GraphEdge]:
+    return [
+        GraphEdge(id=f"edge-{index}", source=source, target=target)
+        for index, (source, target) in enumerate(pairs)
+    ]
 
 
 def test_fetch_source_text_uses_reader_after_source_403(monkeypatch) -> None:
@@ -81,7 +95,8 @@ def test_ingest_uses_meaningful_shared_text_when_fetching_fails(monkeypatch) -> 
     state: graph.DeepFeynmanState = {
         "raw_text": shared_text,
         "simplified_summary": "",
-        "mermaid_code": "",
+        "diagram_type": "network",
+        "diagram_options": ["network"],
         "nodes": [],
         "edges": [],
     }
@@ -93,3 +108,68 @@ def test_ingest_uses_meaningful_shared_text_when_fetching_fails(monkeypatch) -> 
     )
 
     assert result == {"raw_text": shared_text.strip()}
+
+
+def test_tree_graph_offers_every_diagram_type() -> None:
+    nodes = _nodes("root", "left", "right")
+    edges = _edges(("root", "left"), ("root", "right"))
+
+    assert graph.compatible_diagram_types(nodes, edges) == [
+        "flow",
+        "hierarchy",
+        "network",
+    ]
+
+
+def test_non_tree_dag_offers_flow_and_network() -> None:
+    nodes = _nodes("start", "left", "right", "finish")
+    edges = _edges(
+        ("start", "left"),
+        ("start", "right"),
+        ("left", "finish"),
+        ("right", "finish"),
+    )
+
+    assert graph.compatible_diagram_types(nodes, edges) == ["flow", "network"]
+    assert graph.normalize_diagram_type("hierarchy", ["flow", "network"]) == "flow"
+
+
+def test_cycle_falls_back_to_network() -> None:
+    nodes = _nodes("one", "two")
+    edges = _edges(("one", "two"), ("two", "one"))
+    options = graph.compatible_diagram_types(nodes, edges)
+
+    assert options == ["network"]
+    assert graph.normalize_diagram_type("flow", options) == "network"
+
+
+def test_graph_visualization_rejects_duplicate_node_ids() -> None:
+    with pytest.raises(ValidationError, match="Graph node IDs must be unique"):
+        GraphVisualization.model_validate(
+            {
+                "diagram_type": "network",
+                "nodes": [
+                    {"id": "same", "label": "One"},
+                    {"id": "same", "label": "Two"},
+                ],
+                "edges": [
+                    {"id": "edge", "source": "same", "target": "same"}
+                ],
+            }
+        )
+
+
+def test_graph_visualization_rejects_dangling_edges() -> None:
+    with pytest.raises(ValidationError, match="must reference an existing node"):
+        GraphVisualization.model_validate(
+            {
+                "diagram_type": "flow",
+                "nodes": [
+                    {"id": "one", "label": "One"},
+                    {"id": "two", "label": "Two"},
+                ],
+                "edges": [
+                    {"id": "edge", "source": "one", "target": "missing"}
+                ],
+            }
+        )

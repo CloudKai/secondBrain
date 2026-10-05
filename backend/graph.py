@@ -13,7 +13,13 @@ from langchain_core.runnables import RunnableConfig
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 
-from backend.schemas import FeynmanSummary, GraphEdge, GraphNode, MermaidDiagram
+from backend.schemas import (
+    DiagramType,
+    FeynmanSummary,
+    GraphEdge,
+    GraphNode,
+    GraphVisualization,
+)
 
 MAX_DOWNLOAD_BYTES = 2_000_000
 MAX_MODEL_INPUT_CHARS = 30_000
@@ -26,7 +32,8 @@ class DeepFeynmanState(TypedDict):
 
     raw_text: str
     simplified_summary: str
-    mermaid_code: str
+    diagram_type: DiagramType
+    diagram_options: list[DiagramType]
     nodes: list[GraphNode]
     edges: list[GraphEdge]
 
@@ -176,25 +183,103 @@ async def feynman_simplifier_node(state: DeepFeynmanState) -> dict[str, str]:
     }
 
 
-async def mermaid_visualizer_node(state: DeepFeynmanState) -> dict[str, object]:
-    """Turn the explanation into Mermaid plus a typed interactive graph."""
+def _is_acyclic(nodes: list[GraphNode], edges: list[GraphEdge]) -> bool:
+    """Return whether the directed graph can be topologically ordered."""
 
-    structured_model = _model().with_structured_output(MermaidDiagram)
+    adjacency = {node.id: [] for node in nodes}
+    indegree = {node.id: 0 for node in nodes}
+    for edge in edges:
+        adjacency[edge.source].append(edge.target)
+        indegree[edge.target] += 1
+
+    queue = sorted(node_id for node_id, degree in indegree.items() if degree == 0)
+    visited = 0
+    while queue:
+        node_id = queue.pop(0)
+        visited += 1
+        for target in adjacency[node_id]:
+            indegree[target] -= 1
+            if indegree[target] == 0:
+                queue.append(target)
+                queue.sort()
+    return visited == len(nodes)
+
+
+def _is_hierarchy(nodes: list[GraphNode], edges: list[GraphEdge]) -> bool:
+    """Return whether the graph is one connected, directed rooted tree."""
+
+    if len(edges) != len(nodes) - 1 or not _is_acyclic(nodes, edges):
+        return False
+
+    indegree = {node.id: 0 for node in nodes}
+    adjacency = {node.id: [] for node in nodes}
+    for edge in edges:
+        indegree[edge.target] += 1
+        adjacency[edge.source].append(edge.target)
+
+    roots = [node_id for node_id, degree in indegree.items() if degree == 0]
+    if len(roots) != 1 or any(
+        degree != 1 for node_id, degree in indegree.items() if node_id != roots[0]
+    ):
+        return False
+
+    reachable: set[str] = set()
+    pending = [roots[0]]
+    while pending:
+        node_id = pending.pop()
+        if node_id in reachable:
+            continue
+        reachable.add(node_id)
+        pending.extend(adjacency[node_id])
+    return len(reachable) == len(nodes)
+
+
+def compatible_diagram_types(
+    nodes: list[GraphNode], edges: list[GraphEdge]
+) -> list[DiagramType]:
+    """Derive safe presentation choices from validated graph structure."""
+
+    options: list[DiagramType] = []
+    if _is_acyclic(nodes, edges):
+        options.append("flow")
+    if _is_hierarchy(nodes, edges):
+        options.append("hierarchy")
+    options.append("network")
+    return options
+
+
+def normalize_diagram_type(
+    preferred: DiagramType, options: list[DiagramType]
+) -> DiagramType:
+    if preferred in options:
+        return preferred
+    if "flow" in options:
+        return "flow"
+    return "network"
+
+
+async def graph_visualizer_node(state: DeepFeynmanState) -> dict[str, object]:
+    """Turn the explanation into a typed graph with an adaptive presentation."""
+
+    structured_model = _model().with_structured_output(GraphVisualization)
     result = await structured_model.ainvoke(
         [
             (
                 "system",
-                "Convert the summary into valid Mermaid.js flowchart syntax. The "
-                "first line must be exactly 'graph TD'. Use simple node IDs, concise "
-                "labels, and directional edges. Also return the same graph as typed "
-                "nodes and edges: every edge needs a unique ID and must reference "
-                "existing node IDs. Do not include Markdown fences or styling.",
+                "Convert the summary into a concise semantic graph with typed nodes "
+                "and directional edges. Give every node and edge a unique simple ID, "
+                "use short concrete labels, and make every edge reference existing "
+                "nodes. Choose diagram_type='flow' for sequences, pipelines, or "
+                "cause-and-effect; 'hierarchy' for taxonomies and part-whole trees; "
+                "or 'network' for interconnected or cyclic concepts.",
             ),
             ("human", f"Summary:\n\n{state['simplified_summary']}"),
         ]
     )
+    options = compatible_diagram_types(result.nodes, result.edges)
     return {
-        "mermaid_code": result.mermaid_code,
+        "diagram_type": normalize_diagram_type(result.diagram_type, options),
+        "diagram_options": options,
         "nodes": result.nodes,
         "edges": result.edges,
     }
@@ -204,11 +289,11 @@ def build_graph():
     builder = StateGraph(DeepFeynmanState)
     builder.add_node("ingest", ingest_node)
     builder.add_node("feynman_simplifier", feynman_simplifier_node)
-    builder.add_node("mermaid_visualizer", mermaid_visualizer_node)
+    builder.add_node("graph_visualizer", graph_visualizer_node)
     builder.add_edge(START, "ingest")
     builder.add_edge("ingest", "feynman_simplifier")
-    builder.add_edge("feynman_simplifier", "mermaid_visualizer")
-    builder.add_edge("mermaid_visualizer", END)
+    builder.add_edge("feynman_simplifier", "graph_visualizer")
+    builder.add_edge("graph_visualizer", END)
     return builder.compile()
 
 

@@ -4,7 +4,7 @@ This is the authoritative baseline for completed Phase 1 and Phase 2 behavior. I
 
 ## User outcome
 
-An iOS user shares a web link to Second Brain, chooses one of two fixed folders, and receives a concise learning card containing a title, four Feynman-style Markdown bullets, an interactive concept graph, and source links.
+An iOS user shares a web link to Second Brain, chooses one of two fixed folders, and receives a guided learning experience containing a title, four Feynman-style concept cards, an adaptive diagram, graph-derived recall prompts, and source context.
 
 ## Implemented flow
 
@@ -14,7 +14,9 @@ An iOS user shares a web link to Second Brain, chooses one of two fixed folders,
 4. The mobile client posts the shared data to `POST /api/v1/process-link`.
 5. FastAPI validates the request and synchronously invokes the LangGraph extraction, simplification, and diagram pipeline.
 6. The mobile app derives a concise title from share metadata or the source hostname, extracts and de-duplicates at most eight source URLs, and stores the result in memory.
-7. The folder detail route renders the four-bullet Markdown summary and a React Flow graph laid out by Dagre. The graph supports pan, pinch-to-zoom, and node dragging.
+7. The folder detail route turns the response into four modes: Learn presents one concept card at a time; Visual offers compatible Flow, Hierarchy, and Network presentations; Recall builds relationship cards from graph edges; Source exposes links and bounded original context.
+8. Session-only progress tracks understood lesson cards and mastered graph relationships, updating a visible mastery score on the detail screen and learning metrics on the dashboard.
+9. When the library is empty, a clearly labeled local demo exercises the complete learning UI without calling the backend.
 
 ## Current API contract
 
@@ -34,7 +36,8 @@ Successful response remains synchronous HTTP `200` and contains:
 - `source_url`
 - `raw_text`
 - `simplified_summary`
-- `mermaid_code`
+- `diagram_type` (`flow`, `hierarchy`, or `network`)
+- `diagram_options` (the compatible types, including the default)
 - `nodes`
 - `edges`
 
@@ -45,16 +48,17 @@ Unknown request fields are rejected. `url` must be an HTTP or HTTPS URL, and `fo
 - Results are transient and disappear when the mobile process restarts.
 - There is no account, database, background worker, vector index, or cross-linking.
 - The two existing folders are fixed; users cannot create, rename, delete, or reorder folders.
-- Knowledge items are read-only after processing.
+- Generated knowledge remains read-only, while users can record transient lesson and recall progress.
 - This milestone does not include an Android acceptance requirement, App Store distribution, offline processing, collaboration, or a web client.
-- Mermaid code remains in the v1 response for compatibility, but the mobile detail view uses structured `nodes` and `edges` with React Flow and Dagre.
+- Flow is offered for acyclic graphs, Hierarchy for a connected rooted tree, and Network for every valid graph. Mobile renders only the validated options.
 
 ## Baseline acceptance evidence
 
-- [x] Eight backend tests pass.
+- [x] Fifteen backend tests pass.
 - [x] Mobile TypeScript compilation passes.
 - [x] Mobile lint passes.
-- [x] The iOS simulator flow completes from Safari share through folder selection, API processing, four-bullet display, interactive graph/source display, and updated folder count.
+- [x] The iOS simulator flow completes from Safari share through folder selection, API processing, guided lesson display, interactive graph/source display, and updated folder count.
+- [x] The demo flow verifies concept completion, mastery updates, concept-to-visual navigation, adaptive layout switching, recall reveal/advance, and original-context expansion.
 - [x] Invalid input and backend failures produce bounded, user-readable errors rather than unvalidated UI state.
 
 ## Roadmap handoff

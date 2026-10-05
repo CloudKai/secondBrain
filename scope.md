@@ -10,7 +10,7 @@ and release hardening.
 ## Stack
 
 - **Current:** Expo/React Native/Expo Router, FastAPI/Pydantic, LangGraph/OpenAI,
-  React Flow/Dagre in a WebView, transient React context.
+  React Flow with Dagre and D3 in a WebView, transient React context.
 - **Target:** Supabase Auth/Postgres, ARQ/Redis, Qdrant Cloud, and OpenAI
   `text-embedding-3-small`; deployment remains provider-neutral.
 
@@ -38,29 +38,38 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - `POST /api/v1/process-link` remains synchronous and returns the complete typed
   result while the MVP is active.
 - The only folders are `AI Engineering` and `System Design`.
-- React Flow with Dagre is the active graph renderer; Mermaid remains in the API
-  for compatibility.
+- The API returns typed nodes/edges plus a validated preferred diagram and
+  compatible Flow, Hierarchy, or Network options.
 - Items are stored only in mobile memory. The folder count includes every item
   in the current session, while the detail screen shows the newest item.
 
 ### What got built
 
 - `backend/graph.py` — bounded ingestion, three-node LangGraph pipeline, summary,
-  Mermaid, and typed graph output.
+  typed graph output, and deterministic diagram compatibility.
 - `backend/main.py` and `backend/schemas.py` — strict FastAPI boundary.
 - `mobile/app/modal/share.tsx` — native share folder selection and submission.
-- `mobile/app/folder/[id].tsx` — read-only summary, graph, and sources.
-- `mobile/components/InteractiveGraphViewer.tsx` — React Flow/Dagre WebView.
+- `mobile/app/index.tsx` — learning dashboard, library status, recent ideas, and
+  an immediately available demo lesson.
+- `mobile/app/folder/[id].tsx` — guided Learn, Visual, Recall, and Source modes with
+  session mastery and multi-item switching.
+- `mobile/components/AdaptiveDiagramViewer.tsx` — React Flow WebView with Dagre
+  flow/hierarchy layout and D3 force-directed network layout.
+- `mobile/components/LearningDeck.tsx` and `RecallQuiz.tsx` — interactive concept
+  cards and graph-derived recall practice.
 
 ### Verified on 2026-09-17
 
-- Backend: `8 passed` with
+- Backend: `15 passed` with
   `uv run --project backend --extra dev pytest backend/tests -q`.
 - Mobile TypeScript: passed with `cd mobile && npx tsc --noEmit`.
 - Mobile lint: passed with `cd mobile && npm run lint`.
 - Expo Doctor: `21/21` checks passed.
 - iOS simulator: Safari share → folder selection → processing → detail view;
   four bullets, source link, graph rendering/zoom, and folder count were checked.
+- iOS simulator: demo launch, lesson completion, mastery updates, concept-to-visual
+  navigation, recall reveal/advance, source expansion, and the redesigned share
+  sheet were checked.
 - The previously blocked Medium article completed through the live local API.
 
 ### Current limitations
@@ -68,7 +77,7 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - Data is lost when the app process restarts.
 - There is no authentication, tenancy, database, queue, or vector search.
 - Processing blocks the HTTP request and can be affected by provider latency.
-- Graph assets load from jsDelivr and require network access.
+- Diagram assets load from jsDelivr and require network access.
 - Android is configured but not an acceptance platform and remains unverified.
 
 ## Phase 3: Identity and persistence
@@ -126,6 +135,89 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - [ ] Configure a release pipeline and complete a physical-device share test.
 - [ ] Document TestFlight/App Store delivery when a release channel exists.
 
+## Engineering workflow
+
+- 2026-10-02 — Configured the Matt Pocock engineering skills to use GitHub
+  Issues in `CloudKai/secondBrain`, the five default triage labels, and a
+  single-context domain layout. `CLAUDE.md` points to the configuration in
+  `docs/agents/`; glossary and ADR files are created as decisions are resolved.
+
+## Web learning library — confirmed target specification
+
+- 2026-10-02 — The grill-with-docs interview is designing study notes from web
+  articles, selectable-text PDFs, and transcript-backed videos, a shared topic
+  graph that grows from saved material, and a study assistant. Deliver this
+  target experience in a web browser first; retain the existing iPhone design
+  for adaptation after the web experience is well designed.
+- Target behavior, source-support UI copy, and acceptance scenarios are
+  recorded in `context/learning-library-design.md` and confirmed by the user on
+  2026-10-02. GitHub ticket breakdown is in progress. The user is creating the
+  UI/UX. On 2026-10-02 the user separately authorized working dark-mode
+  browser pages using `ui-ux-pro-max` and this feature specification. The
+  frontend slice below is implemented; full target services remain planned.
+- The draft GitHub ticket breakdown and dependencies are recorded in
+  `docs/planning/web-learning-library-tickets.md`. Publish after breakdown
+  approval. The user supplied `web/src` as the UI/UX handoff on 2026-10-02;
+  source inspection confirmed the existing browser workspace and service gaps.
+  The draft now builds on that frontend, and the design-link gate is removed.
+- Provider account connections are excluded. Attempt accessible transcripts;
+  inaccessible or private recordings use transcript upload/paste. Access facts
+  are recorded in `docs/research/transcript-access.md`.
+- Resolved terms and the shared-topic decision are recorded in `GLOSSARY.md`
+  and `docs/adr/0001-use-shared-topics-in-library-graph.md`.
+- The target delivery order is recorded in
+  `docs/adr/0002-deliver-web-before-mobile-redesign.md`.
+
+## Web browser UI slice — 2026-10-02
+
+Status: **verified frontend interactions with curated examples**; all-target
+service acceptance is not complete.
+
+- Added `web/` as a separate React/TypeScript/Vite frontend. Mobile, native
+  folders, and the v1 backend contract were not changed by this slice.
+- Built a dark-default library, study-note workspace with expandable
+  Topic/Graph/Sources context, topic graph, and curated reading list. A paired
+  light appearance is available.
+- Verified search/filter/sort, source evidence, recall reveal/advance and session
+  marks, assistant scope/reference/gap behavior, duplicate URL reuse, topic
+  rename, connection rejection/restoration, empty state, and narrow-screen routes.
+- Topic merging, source assignment correction, and deletion are interactive
+  organizational controls. Notes remain read-only.
+- The assistant is explicitly a stored-note lookup preview; the reading list is
+  curated. Examples carry paraphrased evidence and original-source links.
+- Article import validates and adapts the existing synchronous four-point API.
+  Transport integration is verified with controlled fixtures; real provider
+  ingestion from the browser still needs a running configured backend.
+- State is session-only and resets on reload. PDF/video ingestion, richer web
+  generation, passage alignment, live AI chat/research, semantic topic comparison,
+  changed-source refresh, auth, and persistence remain target work.
+- Validation: web production bundle/typecheck and lint pass; 7 web tests pass.
+  Backend: 15 tests pass via the project interpreter. The exact repository
+  pytest command fails because its copied virtualenv entrypoint has an obsolete
+  shebang; `uv run --project backend --extra dev python -m pytest backend/tests -q`
+  succeeds. No backend environment or API changes were made.
+- Run instructions and boundaries: `web/README.md`. Local visual evidence:
+  `output/playwright/`.
+
+## Web library organization refactor — 2026-10-02
+
+Status: **implemented; static checks passed**. Behavioral acceptance was not
+rerun for this refactor.
+
+- The user approved session-only library organization and rejected connections
+  taking precedence after topic merges. The existing UI and read-only source
+  notes are retained.
+- Library creation, learner actions, and consistent read views now share one
+  module. Topic corrections, source/example removal, and recall cleanup no
+  longer coordinate independent library setters in the rendering module.
+- Search reads corrected topic names. Merging remaps and deduplicates rejected
+  topic pairs and removes self-connections; restoring connections remains an
+  explicit learner action. Removing examples preserves surviving corrections.
+- Typecheck: `npm --prefix web run typecheck`. Lint:
+  `npm --prefix web run lint`. Both pass. No tests were added or run.
+- This slice changes only browser code and documentation. Native/mobile,
+  backend, persistence, and the pending GitHub publication are unchanged.
+
 ## Explicitly out of scope
 
 - Rich-text editing.
@@ -133,3 +225,673 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 - Android acceptance or release work.
 - A specific API/worker/Redis hosting provider.
 - Treating Redis or Qdrant as authoritative storage.
+
+
+## Browser article capture — ticket #1, 2026-10-02
+
+Status: implementation and local checks complete; hosted Supabase acceptance
+pending project provisioning. The user selected ticket 01 and confirmed no
+Supabase project is set up. GitHub issue: https://github.com/CloudKai/secondBrain/issues/1.
+
+- Extended the supplied browser design with anonymous session restoration,
+  owned-source save/list/reopen/delete, capture provenance/coverage, storage
+  retry/error states, and a clear read-only **Study note pending** viewer.
+- Added `/api/v2/sources` with verified Supabase Auth ownership, learner-token
+  PostgREST access, strict validation, and bounded public-article capture.
+- Reviewed browser-only source migration and rollback are in `supabase/`.
+  The schema is source-first and independent of native fixed folders; topic,
+  note, queue/outbox, and vector tables are deferred to their selected slices.
+- Verified: 13 web tests, build/typecheck, lint; 31 backend tests through the
+  project interpreter. The exact pytest entrypoint selects an obsolete external
+  interpreter and fails collection (`langchain_openai` missing); the project
+  interpreter passes. Existing native/mobile files and v1 behavior were not
+  modified by this ticket.
+- Desktop and 390px browser fixtures cover save, captured-text inspection,
+  original-link identity, reload recovery, capture/storage errors, disabled
+  saving, and deletion followed by reload.
+  A real public-page capture also passed; this is not hosted storage acceptance.
+- Setup and remaining live checks: `supabase/README.md`. Structured generation
+  is ticket 02; the other 14 proposed tickets remain unpublished drafts.
+
+
+## Browser hosted acceptance — ticket #1, 2026-10-03
+
+Status: **verified against the configured hosted Supabase development project**.
+The user supplied its public settings; anonymous sign-ins are enabled and the
+source schema is available. Backend and Vite environment files are configured
+locally and ignored by Git. Native/mobile behavior remains unchanged.
+
+- A real anonymous browser saved a public page, loaded its capture through the
+  API, reloaded, and reopened the same source ID, original URL, text, timestamp,
+  provenance, and pending study status. No fixture routes were used.
+- An isolated second browser had zero owned sources. Cross-owner API read and
+  deletion returned 404. Direct PostgREST SELECT/DELETE returned zero matching
+  rows; the owner's record remained readable afterward.
+- A private-network source was rejected with 422; requests without a bearer
+  session returned 401. Owner deletion succeeded in the UI, and reload plus
+  API read confirmed permanent removal of the temporary verification source.
+- Ticket #1 acceptance is complete. Structured study-note generation, PDF/video
+  ingestion, topic persistence, model assistant/research, and production release
+  remain target work. The native application has no new auth or persistence.
+- Local API/browser servers are available at `http://127.0.0.1:8000` and
+  `http://127.0.0.1:5173`. The backend uses `python -m uvicorn` through the
+  project interpreter to avoid the pre-existing copied entrypoint problem.
+- Evidence is in ignored `output/playwright/supabase-live-*.yml` and
+  `supabase-live-reopened.png`. No session tokens or populated environment
+  files are included in the commit or issue record.
+
+
+## Structured browser study notes — ticket #2, 2026-10-03
+
+Status: **verified locally and against the hosted development project**.
+GitHub issue: https://github.com/CloudKai/secondBrain/issues/2.
+
+- Captured articles request persistent English notes with an overview, variable
+  substantive concepts, supported examples/equations and recall questions. Notes
+  are read-only; citations open exact saved passages and the original URL.
+- Added owned study acceptance/list endpoints and a reversible Postgres migration.
+  Generation acceptance atomically creates one study and outbox per source. ARQ
+  transports source IDs; SQL owns three-attempt cycles, leases and fenced writes.
+  Redis loss and interrupted workers are recoverable without duplicating notes.
+- The first capture persists separately. A failed generation request leaves a
+  saved source with Generate study note; explicit retry reuses the failed study.
+- Verified locally: 54 backend tests via the project interpreter; 20 web tests,
+  build/typecheck and lint; desktop/narrow browser fixtures for citations, reload
+  and failure/retry. The exact pytest entrypoint still selects a stale external
+  interpreter; `python -m pytest` passes.
+- Hosted generation and recovery passed with the applied migration and configured
+  server-only keys. Keep Redis and the worker running for development; see
+  `docs/study-note-setup.md`. Ticket #1 hosted capture remains verified.
+- This unit does not implement PDF/video ingestion, persistent topic organization,
+  live assistant/research, source refresh or native integration. Existing native
+  changes and v1 contracts are preserved.
+
+Hosted acceptance passed on 2026-10-03 after the user approved applying the
+reviewed migration to AI Study Friends. A real article completed on attempt one;
+citations opened exact excerpts, reload restored the same note, and repeated
+requests reused it. Another anonymous learner could neither read nor generate
+that source's note. A request accepted while Redis was stopped remained in the
+persistent outbox. After a processing worker was killed, its lease expired and
+the restarted worker completed attempt two with 13 exact references, one note
+and no remaining dispatch. Disposable verification captures were removed.
+
+
+## Selectable-text PDF notes — ticket #3, 2026-10-03
+
+Status: **verified locally and against the hosted development project**.
+Issue: https://github.com/CloudKai/secondBrain/issues/3.
+
+PDF uploads and public PDF links join the owned source/study workflow with
+physical page metadata and exact page-bound references. Inputs are bounded to
+10 MB, 100 pages and 30,000 captured characters; missing/omitted text is labelled.
+Scanned-only, encrypted, oversized and unreadable files receive correction paths.
+Uploads retain captured page text and filename, not the original binary. Source
+identity, RLS, read-only notes, retry limits and worker fencing are preserved.
+Live upload and a 15-page public PDF completed through the worker. Exact page
+citations, reload, digest reuse and second-learner API/RLS isolation passed.
+Final checks: 71 backend tests, 24 web tests, web build/typecheck and lint passed.
+Independent standards/spec reviews are complete; two standards findings were
+fixed and re-reviewed. Temporary acceptance sources and their jobs were removed.
+Migration/rollback and limits: `docs/pdf-study-setup.md`. Native code is unchanged.
+PDF page-range selection, OCR, videos, topics and research remain target work.
+
+
+## Citation and PDF title polish — issue #4, 2026-10-03
+
+Implemented: citation numbers inherit the surrounding text size and use inline
+circular mint badges matching the supplied reference. Touchscreens retain a
+44px pointer target. The PDF input is labelled Topic
+title with a topic-name example. No automatic PDF acceptance prefix exists;
+that wording was a manually entered disposable verification title. A supplied
+title is kept as-is; uploads otherwise use their filename.
+Web typecheck/lint passed and the circular badges were inspected in the browser.
+No new tests were requested or run. Native files are untouched.
+
+
+## Supplied video transcripts — issue #5, 2026-10-03
+
+Status: verified locally and against the hosted development project.
+Issue: https://github.com/CloudKai/secondBrain/issues/5 (planning draft 04).
+
+The browser Video form saves YouTube, Teams/SharePoint, Zoom and Panopto
+recording context with uploaded UTF-8 TXT/VTT/SRT or pasted transcript text.
+Owned immutable captures preserve supplied speaker labels and cue times; study
+notes cite exact passages with no inferred times. YouTube links can open at a
+supplied time; other providers open the original recording with visible times.
+Limits and migration/rollback: `docs/video-transcript-setup.md`. Native files
+are untouched. Automatic retrieval, provider connections, topics and research
+remain target work. GitHub issue #5 acceptance is complete.
+
+Final checks: 93 backend tests, 28 web tests, web build/typecheck and lint pass.
+Timed VTT upload and untimed paste generated live notes; reload, exact cue and
+excerpt citations, Panopto reuse, SRT zero time, Teams context and second-learner
+API/REST/RPC isolation passed. Review: Standards 0 remaining; Spec 0 remaining.
+Six disposable verification captures and their notes/jobs were removed and
+the cascade was verified; private test session tokens were discarded.
+The browser viewport override remained at 1265px; phone-width verification
+is not claimed. Existing responsive styles and native files were unchanged.
+
+
+## Web ticket progress synchronization — 2026-10-03
+
+The ticket breakdown now marks planned slices 01–04 complete and maps them to
+closed GitHub #1/#2/#3/#5; the additional citation/title polish is GitHub #4.
+Tickets 05–15 remain target behavior and unpublished. Later provider/long-source
+criteria already satisfied by shared capture work are checked individually,
+without marking automatic access, range selection or whole future slices complete.
+The progress tracker headline now points to the latest verified web work and
+links to the full ticket overview. GitHub completion records were checked; no
+implementation or new tests were added by this documentation update.
+
+
+## Accessible YouTube captions — issue #6, planned ticket 05 (2026-10-03)
+
+Status: complete, verified locally and against the hosted development project.
+Real anonymous English caption retrieval returned 286 cues / 18,430 characters
+and generated a persistent read-only note. Its 13 references match saved excerpts
+and real cue ranges. Browser citation p0020 shows 1:15.120–1:18.950 and links to
+75 seconds; reload/canonical reuse restored the same note. Unavailable retrieval
+retained URL/title and opened upload/paste; supplied VTT then generated a note
+with pasted provenance and exact 5.250–20.500 second timing. Cross-learner
+API/REST/RPC access was denied. The real Neural networks note is retained; only
+the synthetic fallback capture was removed, with its study/outbox cascade verified.
+
+Final checks: 103 backend tests, 30 web tests, web build/typecheck and lint pass.
+Standards — three findings fixed, no remaining material issue; Spec — zero
+material defects. Minor timeout documentation corrected. Setup and reviewed
+migration/rollback: `docs/youtube-transcript-setup.md`; review:
+`docs/reviews/ticket06.md`. No account, authentication/consent cookies, proxy
+bypass, audio/video download or transcription. Other providers’ automatic access
+remains planned. Browser checks were at desktop width; production is unconfigured.
+
+Web progress lives in `context/web-progress-tracker.md` and per-ticket status in
+`docs/planning/web-learning-library-tickets.md`; native progress stays in
+`context/progress-tracker.md`, as requested. Existing unrelated native/v1 working
+tree changes are not part of this ticket. Next proposed slice: planned ticket 06,
+Teams transcript access and feedback.
+
+
+## Teams transcript access — issue #7 (2026-10-03)
+
+Status: complete; verified locally and against hosted development storage.
+Independent Standards and Spec review found no material issues; a naming
+suggestion was applied. Planned ticket 06 shows permission/export guidance
+and immediately opens upload/paste for Teams/SharePoint recording context.
+No anonymous retrieval method is validated; automatic Teams retrieval is not a
+current capability. The app does not inspect recording-specific permissions,
+existence, processing or deletion, and connects no Microsoft account.
+
+Controlled VTT upload generated a saved note with the Lecturer label and exact
+5.250–20.500 second citation; reload restored it. Readable text paste generated
+an untimed note. Duplicate import reopened the same note; all three references
+matched saved text/cues, and second-learner API/REST/RPC access was denied.
+Fixtures use fictional recording context, not private Teams access. Local checks:
+104 backend tests, 30 web tests, build/typecheck and lint pass using the project
+Python interpreter. Setup: `docs/teams-transcript-setup.md`. No migration or new
+credentials; native/v1 changes are excluded. Web status remains in the dedicated
+web tracker and ticket breakdown. Zoom/Panopto automatic support remains target work.
+
+Both controlled captures and their study/outbox rows were removed with cascade
+verified; existing learner notes are preserved. Review: `docs/reviews/ticket07.md`.
+The web ticket breakdown and GitHub #7 are synchronized. Next proposed slice is
+planned ticket 07, Zoom transcript availability/export feedback; not started.
+
+
+## Zoom transcript availability — issue #8 (2026-10-03)
+
+Status: complete; verified locally and against hosted development storage.
+Independent Standards and Spec reviews found zero material issues. Planned ticket 07 immediately opens upload/paste
+for Zoom share/play recording context, with cloud VTT export instructions and
+conditional next steps for processing, missing, restricted, expired/deleted
+material. The app lacks Zoom download authorization and does not infer the
+specific recording's state. A URL or passcode alone is not transcript permission.
+No anonymous retrieval method is validated or advertised; account integration,
+webhooks, private-page scraping, bypass and media processing are excluded.
+
+Hosted controlled VTT upload preserved the Lecturer label and 5.250–20.500
+second citation after reload. Text paste generated untimed evidence; duplicate
+intake with transcript input and a fragment variant reopened the same note.
+All three references matched stored text/cues; another learner received
+API404/RESTempty/RPCdenied. Fixtures use fictional recording context, not private
+Zoom access. Local checks: 106 backend tests, 30 web tests, build/typecheck and
+lint pass using project Python. Setup: `docs/zoom-transcript-setup.md`. No new
+migration/credentials or native/v1 changes. Web progress and planning files are
+updated; native history remains separate. Panopto is the next proposed slice.
+
+Both controlled captures and their study/outbox rows were removed with cascade
+verified; existing learner notes are preserved. Review: `docs/reviews/ticket08.md`.
+GitHub #8 and both web progress records are synchronized. Planned ticket 08,
+Panopto caption access/tenant fallback, remains an unpublished draft; not started.
+
+
+## Panopto caption access — issue #9 (2026-10-03)
+
+Status: complete; local checks, hosted acceptance and independent review passed.
+Planned ticket 08 opens supplied transcript controls for recognized Panopto viewer
+links and displays the actual site hostname. Conditional export, lecturer/site
+administrator and UTF-8 correction help preserves URL/title. It does not infer
+an institution name, site policy, lecture existence, permissions or captions.
+No anonymous caption path for a concrete session is validated or advertised;
+automatic retrieval and institutional integrations remain target work.
+
+Controlled SRT upload preserved the Lecturer label and 5.250–20.500 second
+citation after reload. Paste generated untimed excerpt evidence. The same session
+ID on two sites remained distinct; display/query/fragment variants reused the
+saved note. All three references matched stored text/cues. Another learner
+received API404/RESTempty/RPCdenied. These fictional contexts verify supplied
+intake, not private lecture access. Checks: 108 backend tests through project
+Python, 30 web tests, build/typecheck and lint pass. The bare pytest launcher
+retains its stale external interpreter. No migration, credentials or native/v1
+changes. Setup: `docs/panopto-transcript-setup.md`. Web progress stays in the web
+tracker and ticket breakdown. Next proposed slice: planned 09, saved-source
+topic cards and graph; unpublished and not started.
+
+Both reviews found no material findings; Standards noted one optional future
+rendering cleanup. Both synthetic captures and note/job rows were removed with
+cascade verified; existing learner notes remain. Review: `docs/reviews/ticket09.md`.
+GitHub #9 is closed and both web records are synchronized. Commits are local.
+
+
+## Saved-source topic graph — issue #10 (2026-10-03)
+
+Status: selected planned ticket 09; implementation and acceptance pending.
+The existing approved plan is published with completed GitHub #2 as its blocker.
+Inspection covers the owned study worker and supplied browser topic/graph views.
+Topic analysis will be stored separately from completed notes so mapping failure
+does not invalidate source notes. Main/supporting topics need saved evidence;
+no prepared outline, mention-only coverage or unsupported broad-group edges.
+Clear contextual matches share identities; uncertain suggestions remain distinct
+until learner placement confirmation. Two independent sources gate meaningful
+connections; repeat imports do not count twice. No vector service is required.
+
+New topic API/model HTTP/database/browser test-boundary agreement is pending
+under the TDD skill. No tests or implementation changes at this checkpoint.
+Combined topic synthesis and broad corrections remain planned tickets 10/11.
+Both web progress files reflect current work; native history stays separate.
+
+
+## Topic-graph implementation checkpoint — issue #10 (2026-10-03)
+
+Status: local implementation and checks complete; independent review and hosted
+migration/acceptance pending. User agreed topic API, model HTTP, database and
+browser-navigation test boundaries. Source-backed cards and contextual alias
+matching, uncertain placement confirmation, explained relationships and the
+two-source threshold reuse the supplied design. Examples are explicitly selected
+and separate from saved topics. Source notes and evidence are preserved.
+
+Separate owned topic mapping jobs use the existing Postgres/outbox/ARQ transport;
+claims serialize matching within a learner. Migration/rollback preserve source
+notes and backfill existing completed notes. Model and graph limits show partial
+coverage. No new credentials or vector service; native/iOS and v1 unchanged.
+Local checks: 112 backend tests through project Python, 34 web tests, build,
+typecheck and lint pass. Setup: `docs/topic-graph-setup.md`. Combined synthesis
+and broad corrections remain planned tickets 10/11.
+
+
+## Topic-graph hosted acceptance — issue #10 (2026-10-04)
+
+Completed web planned ticket 09; this supersedes its pending checkpoints above.
+The user approved the SQL warning; the topic migration succeeded and the worker
+restarted. The existing Neural networks note mapped on attempt one. Controlled
+RAG notes reused a substantive topic; unrelated calculus created no invented
+relationship. Empty/first-source thresholds and learner API/RLS/worker isolation
+passed. Placement confirmation and keeping separate persisted without changing
+notes. A UUID JSON parsing defect was fixed with an authenticated RED→GREEN
+regression, then verified hosted.
+
+Browser exact passage links, reload, saved/example history and a seven-topic
+focus view passed. The relationship explanation used a controlled supported
+relation; extraction/mention filtering also have model HTTP checks. Six temporary
+sources and their study/topic/outbox rows were removed with cascades verified.
+The original Neural networks capture, study and map remain. Topic matching took
+two attempts for RAG and three for the related Neural networks fixture; its
+results remain evidence to inspect, not a mastery score or guaranteed taxonomy.
+
+Final checks: 113 backend tests through project Python, 34 web tests, build,
+typecheck and lint pass. Bare pytest still has a stale interpreter. Standards
+and Spec re-review: no remaining findings. Both web progress files synchronized;
+native/iOS and its tracker unchanged. Next is planned ticket 10, combined topic
+overviews/source branches, unpublished and not started. Setup and review:
+`docs/topic-graph-setup.md`, `docs/reviews/ticket10.md`. Commits remain local; no
+production release or new phone-width acceptance is claimed.
+
+
+## Combined topic overviews — issue #11 selected (2026-10-04)
+
+Target slice: web planned ticket 10, dependent on completed #10. Combine will
+request a cited synthesis across completed owned notes assigned to one topic,
+preserving agreements/disagreements and exact source passage identities. Keep
+separate will show individually styled source-note branches under the same
+parent. View choice will persist per learner/topic; original notes stay read-only.
+Topic-word navigation will open its contextual overview.
+
+Use the existing authenticated Postgres/worker/outbox boundary with bounded
+processing, explicit retry and honest pending/partial/failure feedback. Fence
+results against current source membership so stale or removed-source citations
+cannot appear. Broad topic corrections remain planned ticket 11; no new
+ingestion, vector service, credentials or native/iOS change. New test seams
+await agreement under TDD; no implementation or tests at this checkpoint.
+Both web progress records are updated.
+
+
+## Combined topic overview implementation — planned 10 / #11
+
+Local implementation/checks pass at the agreed API/model HTTP/database/browser seams. Hosted acceptance and independent review remain pending. Explicit Combine queues cited synthesis; Keep separate preserves source branches and persisted per-topic choice. Membership changes hide stale results and fence late workers. Original notes are read-only; broad corrections remain planned 11.
+
+
+### Topic overview review checkpoint — #11
+
+Local checks and both independent reviews pass; hosted acceptance awaits approval
+of the staged Supabase warning. No hosted overview capability is verified yet.
+
+
+## Verified combined topic overviews — planned 10 / #11 (2026-10-04)
+
+Supersedes the local-only checkpoints above. The approved migration is applied
+and the worker restarted. On-demand cited synthesis, attributed disagreements,
+separate source branches and persisted Combine/Keep separate are verified in
+hosted development. Exact PDF/video references and original notes are preserved.
+Mixed certainty requires confirmation; source membership revisions hide stale
+results and fence late workers. Hosted API/browser model runs each passed on
+attempt 1 using controlled fictional saved sources. Fixtures/derived queues were
+removed and verified. 117 backend tests, 39 web tests, build/typecheck and lint
+pass; both independent re-reviews have no remaining findings through a9c4507.
+GitHub #11 and both web records are synchronized. Next draft: planned 11, broad
+persistent corrections/removal. Native/iOS and its tracker unchanged; commits
+local, desktop acceptance only, production unconfigured. Semantic synthesis
+quality requires evidence inspection. Setup/review: docs/topic-overview-setup.md
+and docs/reviews/ticket11.md.
+
+
+## Persistent topic corrections — planned 11 / #12 selected (2026-10-04)
+
+Target unit: durable saved-topic rename/merge, source membership corrections and
+connection decisions through one authenticated atomic database boundary.
+Original notes remain read-only. Redirects, assignment overrides and rejection
+precedence must survive later automatic writes and source removal. Current
+evidence drives graph rebuilds; fingerprints hide stale combined citations.
+The user agreed correction/removal API, database ownership/worker fences and
+browser correction/reload/citation seams. Focused local checks pass; independent
+review, full suite, migration and hosted acceptance remain pending. Native/iOS
+and its tracker remain unchanged. Setup: docs/topic-corrections-setup.md.
+
+
+## Verified persistent topic corrections — planned 11 / #12 (2026-10-04)
+
+Supersedes the pending correction checkpoint. The approved migration is applied;
+owned saved-topic rename/merge, source assignment overrides and connection
+decisions persist in hosted development. Rejection wins merged pairs and remains
+recorded when support disappears. Future worker writes respect learner rules;
+owner-before-row locks serialize completion/corrections. Original notes and exact
+PDF/video passages remain unchanged. Current evidence rebuilds graphs and hides
+stale overviews; source deletion cascades fence obsolete citations/late writes.
+118 backend tests, 46 web tests, build/typecheck/lint and both independent reviews
+pass. Hosted API/browser correction acceptance and scoped fixture cleanup pass;
+merged synthesis succeeded on attempt 1 before correction invalidated it.
+Sequential after-claim regression only; deterministic concurrent overlap untested.
+GitHub #12 and both web records synchronized. Native/iOS and its tracker unchanged;
+commits local, desktop acceptance only, production unconfigured. Next draft:
+planned 12 reuse/versioned refresh, not started. Setup/review: topic-corrections.
+
+
+## Source reuse/versioned refresh selected — planned 12 / #13 (2026-10-04)
+
+Target unit: compare repeated supported captures, offer explicit refresh, retain
+exact prior capture/note versions and one independent source identity. Lease and
+reader version fences prevent stale citations; current evidence rebuilds topics
+and hides outdated overviews. Preserve learner rules; assignments with missing
+support require evidence review. Uploaded PDF refresh explicitly targets the
+saved source, not a similar filename. No new ingestion/provider services or
+native/iOS changes. Inspected existing capture/queue/correction boundaries and
+published #13 with completed #3/#5/#12 blockers. TDD seam agreement requested;
+implementation/tests/migration/acceptance not started. Both web records updated.
+Setup: docs/source-revisions-setup.md.
+
+
+### Versioned refresh local implementation — #13
+
+At agreed capture/refresh API, external HTTP, database and browser seams, local
+comparison/confirmation, immutable saved-version readers, PDF identity aliases,
+current reader/version/lease fences and retained correction review are implemented.
+Unique saved excerpts reanchor corrected assignments; changed evidence requires
+learner confirmation before graph use. Source recall and stale evidence caches
+reset on refresh. Focused checks pass; full checks/review, migration and hosted
+acceptance pending. Native/iOS and its tracker unchanged.
+
+
+### Versioned refresh completed — #13, 2026-10-04
+
+User-approved migration applied. Owned reuse/comparison/confirmation, exact saved
+capture/note archives, stable source IDs/PDF aliases and worker/reader version
+fences pass hosted development checks. Renamed assignments and rejected decisions
+persist; unique excerpts reanchor or require current evidence review. Browser
+PDF/video comparison, decline/refresh, archived/current citations, duplicate reuse
+and reload pass. Controlled fixtures/scoped records cleaned; real note preserved.
+123 backend tests, 55 web tests, build/typecheck and lint pass. Both review axes
+have zero findings through 2bf070f. Desktop/development only, production and ranges
+remain planned. Native/iOS and its tracker untouched. Next draft: planned 13.
+
+
+## Long sources/ranges selected — planned 13 / #14 (2026-10-04)
+
+Target unit: browser whole-capture section processing with persisted progress and
+retry, validated original PDF page/timed-transcript selection, and coherent
+final notes with exact capture citations. Preserve stable source/version identity,
+learner corrections and one-source graph counts. Existing limits and omitted-text
+feedback remain verified; expanded capture budgets, section orchestration and
+range controls are pending. Published #14, inspected capture/worker/browser
+boundaries, and updated both web records. The TDD skill requires agreed seams;
+user agreement requested before test writing. No implementation, migration or
+hosted acceptance yet. Native/iOS and its tracker untouched.
+
+
+### Long-source local implementation — #14
+
+At user-agreed seams, original PDF page/timed-caption selection and whole browser
+captures up to 120,000 characters feed bounded section model calls. Private
+current-version/lease checkpoints retain successful work across retry. A final
+note requires all sections and grounded synthesis. Browser import/refresh controls,
+original citation readers and saved progress counts are implemented locally.
+140 backend tests pass; initial web 60/61, corrected old Unicode limit assertion
+passes focused checks; build/typecheck/lint pass. Independent review, final web
+rerun, migration and hosted acceptance remain pending. Native/iOS untouched.
+
+
+### Long sources review complete — #14
+
+Implementation/review fixes through `4aa30d9` pass 142 backend and 61 web tests
+and web build/typecheck/lint. Independent standards/spec re-reviews have no
+remaining findings. Migration 010 is staged and awaits browser-warning approval;
+it has not run. Hosted worker/model/browser acceptance and fixture cleanup remain
+pending. GitHub #14 is open; native/iOS and its tracker untouched.
+
+
+### Long sources/ranges complete — planned 13 / #14 (2026-10-04)
+
+Migration 010 applied after explicit user approval, matching worker restarted.
+Whole captures up to 120,000 characters, original PDF page/timed cue selection,
+private current-version checkpoints and coherent final synthesis passed hosted
+API/worker/model/browser acceptance. Section failure/retry preserves saved work;
+range refresh keeps one source and archived exact citations. Invalid duplicate
+ranges reject without modifying captures. Final 144 backend/61 web tests and web
+build/typecheck/lint pass; both review axes through e474faf report zero findings.
+Controlled sources, archives and section work cleaned; learner note unchanged.
+GitHub #14 complete. Next planned 14 assistant is draft, not started; private
+providers/OCR/research/production remain planned. Native/iOS/tracker untouched.
+
+
+## Grounded assistant selected — planned 14 / #15 (2026-10-04)
+
+Selected and published current-note assistant with independent topic/library
+scopes and exact passage citations. Existing Postgres notes provide bounded
+relevance retrieval; source versions and topic membership fence stale answers.
+Unsupported questions offer the existing reading-list preview; live discovery
+remains planned 15. User approved API/model HTTP/database/browser test boundaries.
+Implementation, migration and acceptance pending. Both web records updated;
+native/iOS and its tracker untouched. See docs/assistant-setup.md.
+
+### Grounded assistant local implementation — #15 (2026-10-05)
+
+Current note plus optional confirmed-topic/library evidence implemented through
+owned Postgres retrieval and strict bounded server model answers. Live UI cites
+exact saved original passages without navigating away from the anchor note.
+Changed source/note/map evidence rejects before delivery. Unsupported answers
+open the reading-list preview; live research remains planned 15. Focused checks
+pass; full checks/review/migration/hosted acceptance pending. Native/iOS untouched.
+
+
+### Grounded assistant complete — planned 14 / #15 (2026-10-05)
+
+Implementation/review fixes through `fb813e0`: 161 backend tests, 64 web tests,
+build/typecheck/lint and both independent re-reviews pass. Migration 011 applied.
+Hosted real auth/database/model/browser checks verify current-note default,
+combined topic-first/library scopes, exact original PDF/video citations,
+unsupported gaps, ownership isolation and changed-evidence rejection. Citation
+inspection preserves the note/conversation; reload/reopen clears local chat.
+Follow-ups use recent learner questions and current saved evidence. Discovery
+remains a labelled preview; its uploaded-PDF empty-URL crash was fixed.
+Controlled sources and dependent records removed and verified; existing learner
+source not targeted. GitHub #15 closed. Planned 15 live reliable-resource
+discovery remains unpublished; production/native work is unchanged. Setup/review:
+docs/assistant-setup.md and docs/reviews/ticket15.md.
+
+
+## Live discovery selected — planned 15 / #16 (2026-10-05)
+
+The user requested continuation after #15 completion. Published #16 for the
+final planned slice: on-demand credible resource discovery, verified public
+links, honest metadata and explicit article/PDF saving through the existing
+note/topic pipeline. Inspected reading-list preview, capture paths and official
+TinyFish Search/Fetch contracts. No new database or model provider selected;
+results stay external and local until saved. Proposed API/external HTTP/save/
+browser TDD boundaries await user confirmation. No implementation/tests/hosted
+acceptance yet. Native/iOS and its progress tracker untouched. Setup:
+docs/research-discovery-setup.md.
+
+
+### Live discovery local implementation — #16 (2026-10-05)
+
+The user approved discovery API, external Search/Fetch HTTP, article/PDF save
+and browser boundaries. Authenticated on-demand retrieval, bounded verified
+results, safe URLs/redirects, honest metadata and external-resource UI are
+implemented locally. Explicit saves reuse owned capture/study/topic flows;
+search never writes the library. RED→GREEN checks cover the new route, publisher
+redirect rejection and web client. Full 179 backend/66 web tests and web
+build/typecheck/lint pass. Browser live results left the library empty until
+explicit save; a discovered Python documentation article then produced a real
+note and four topics. Independent review, remaining hosted/browser checks and
+controlled cleanup pending. No migration; native/iOS and tracker untouched.
+
+
+### Live discovery complete — planned 15 / #16 (2026-10-05)
+
+Implementation `5b14de7` plus fixes `a7500eb` / `fecfb77` passes 182 backend
+tests, 66 web tests and build/typecheck/lint. Both independent reviews report
+no remaining findings. Authenticated bounded live research, honest metadata,
+verified public links/MIME types, preprint labels, safe redirects and blocked-page
+omission are implemented. Search/open actions leave library/graph unchanged;
+explicit article/PDF saves reuse capture, study and topic comparison.
+
+Real hosted auth/Search/Fetch and browser article/model/worker flows pass. A
+discovered documentation article produced a cited note and four topics. Browser
+original links, passage inspection, empty/partial results and editable assistant
+gap navigation pass. Extensionless PDF save routing, duplicate reuse and owner
+isolation pass at the API HTTP boundary; live browser PDF saving was not exercised
+for this slice. Controlled article/dependent records removed; browser reload
+restored zero sources/topics and original learner source remains present.
+
+No migration. Runtime uses a server-only TinyFish key; a separately launched API
+must receive it through its own environment. GitHub #16 closed. All 15 original
+planned web slices are complete for development. Production/private provider
+access/OCR/linked accounts remain planned. Native/iOS and its tracker unchanged.
+Setup/review: docs/research-discovery-setup.md and docs/reviews/ticket16.md.
+
+
+### TinyFish replacement complete — #16 (2026-10-05)
+
+The user requested no TinyFish usage. `d465fd9` replaces research with OpenAI
+Responses web search using the existing server-only key, plus direct public
+HTML/plain-text/PDF verification. The configuration template no longer includes
+a TinyFish key. Completed search tool URLs are validated; generated prose links
+are ignored. Direct downloads retain DNS/TLS pinning, same-publisher redirects,
+bounded bodies/deadlines and original metadata. Search never saves sources.
+
+`a5491c3` corrects direct-page title provenance with API RED→GREEN coverage.
+Both standards/spec reviews and final follow-ups have no remaining findings.
+Final backend suite: 188 passed, including 27 discovery tests. The frontend is
+unchanged; previous 66 tests/build/typecheck/lint remain valid. Hosted replacement
+search verified six readable resources with unchanged library/topic reads;
+browser documentation search returned six resources with zero sources/topics.
+No replacement acceptance sources were created. Discovery verification is bounded
+to 2 MB per source; the separate PDF capture form retains its 10 MB limit.
+
+GitHub #16 and web setup/review/planning records updated for the current provider.
+All original web slices remain development-complete. No migration. Production
+acceptance remains unverified; native/iOS and its tracker untouched.
+
+
+### Citation passage improvement — #17 (2026-10-05)
+
+Implemented the approved complete-thought passage grouping in the backend Source
+reference module, with shared browser verification for saved notes and assistant
+citations. Exact original text/Unicode offsets, PDF pages and real overlapping
+cue times are preserved. Sentence/paragraph cuts, caption pauses/speaker changes
+and bounded duration/length grouping are covered. Private per-source-version
+policies preserve existing jobs and retries; old claims default to legacy.
+
+Local checks: 198 backend tests and 68 web tests pass; web build/typecheck/lint
+pass. The documented uv command selected the global Anaconda pytest without
+LangChain; the existing backend virtualenv Python ran the equivalent full suite.
+Migration 012 is prepared and tested locally, not applied. Independent review and
+hosted activation/acceptance remain pending. No changes to native/iOS or its
+progress tracker. Scope/setup: docs/planning/citation-passages.md and
+docs/citation-passages-setup.md.
+
+
+### Citation passages complete — #17 (2026-10-05)
+
+Implementation `df49f05` and review fixes `074f157` pass 200 backend tests,
+68 web tests and web build/typecheck/lint. Final independent standards and
+specification reviews both report zero findings. Lowercase/Unicode speaker
+labels and embedded caption paragraphs are covered without changing legacy
+grouping. Migration 012 applied successfully to the AI Study Friends development
+project; the matching API, worker and frontend are running.
+
+A controlled six-cue VTT source generated three exact complete-thought references
+at 0:00–0:07, 0:06–0:12 and 0:14–0:18, with real overlapping times and original
+blank lines. Hosted storage verifies `thought_v1`, exact excerpts and locations.
+Browser note/assistant citation inspection and saved-note reload pass. The
+temporary source and six dependent record sets were removed and verified; browser
+reload restores the original empty acceptance workspace. Existing learner sources
+were not targeted. GitHub #17 complete; both web planning/progress records updated.
+
+New studies and changed source versions use the new grouping; existing notes and
+previous jobs retain their saved references/policy. This is bounded English
+punctuation-based grouping, not semantic topic detection or inferred word times.
+Production, OCR and private provider retrieval remain planned. Native/iOS and
+its progress tracker untouched. Setup/review: docs/citation-passages-setup.md
+and docs/reviews/ticket17.md.
+
+
+### Existing saved-note citations updated — #17 follow-up (2026-10-05)
+
+The learner requested the improved grouping for existing notes too. Read-only
+development inventory found one saved note: Neural networks, source
+79b1b905-ebeb-4896-84bc-d55f395070ce, current version 1, 18,430 characters and
+286 timed cues. Its 13 legacy references were remapped to 12 exact complete-thought
+passages from the same capture. Every claim keeps its original text and receives
+all overlapping supporting passage IDs; four existing topic assignments and their
+evidence IDs were preserved/remapped together. No overrides or combined overviews
+existed for this source. No model call or job requeue was needed.
+
+Applied a one-time owner/source/version/content/note/topic guarded transaction.
+A local private rollback snapshot was retained outside Git. Strict note/topic
+models and postflight hosted reads verify exact excerpts/times, updated payloads,
+unchanged source data, unchanged job/map state and all topic references resolving.
+Only note/map citation payloads and their revision timestamps changed. Historical
+completed-job policy/checkpoints retain their original generation meaning; current
+notes use the improved citation passages. No schema or application code changed,
+so the previous 200 backend/68 web checks remain the application baseline.
+
+Ticket #17 and both web records updated. The user's original existing note was
+updated; native/iOS and its tracker untouched. Refresh the saved note to load it.

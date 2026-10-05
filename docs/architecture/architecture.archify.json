@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Second Brain architecture",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/CloudKai/secondBrain",
+      "revision": "310e74782824dca6b3ff5a4feb4092be88cab978"
+    }
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "Learning library",
+      "sublabel": "React / TypeScript",
+      "pos": [
+        40,
+        330
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "web/src/lib/source-client.ts",
+          "line": 178,
+          "end_line": 198,
+          "label": "Browser source session"
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "type": "security",
+      "label": "Anonymous auth",
+      "sublabel": "Supabase session",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "backend/sources.py",
+          "line": 47,
+          "end_line": 59,
+          "label": "Session verification"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Capture & study API",
+      "sublabel": "FastAPI",
+      "pos": [
+        400,
+        330
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "backend/sources.py",
+          "line": 16,
+          "end_line": 35,
+          "label": "Capture routes"
+        },
+        {
+          "path": "backend/assistant.py",
+          "line": 18,
+          "end_line": 24,
+          "label": "Grounded questions"
+        },
+        {
+          "path": "backend/research.py",
+          "line": 12,
+          "end_line": 16,
+          "label": "Explicit research"
+        }
+      ]
+    },
+    {
+      "id": "sources",
+      "type": "external",
+      "label": "Learning sources",
+      "sublabel": "Articles / PDFs / captions",
+      "pos": [
+        760,
+        60
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "backend/source_capture.py",
+          "label": "Public article capture"
+        },
+        {
+          "path": "backend/pdf_capture.py",
+          "label": "Selectable PDF extraction"
+        },
+        {
+          "path": "backend/youtube_capture.py",
+          "label": "Public captions"
+        }
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "Saved library",
+      "sublabel": "Supabase Postgres / RLS",
+      "pos": [
+        760,
+        330
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "backend/study_store.py",
+          "line": 117,
+          "end_line": 145,
+          "label": "Durable claims and completion"
+        }
+      ]
+    },
+    {
+      "id": "transport",
+      "type": "messagebus",
+      "label": "Job transport",
+      "sublabel": "Redis",
+      "pos": [
+        1120,
+        660
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "compose.yaml",
+          "line": 1,
+          "end_line": 6,
+          "label": "Local Redis transport"
+        }
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Study worker",
+      "sublabel": "ARQ / LangGraph",
+      "pos": [
+        760,
+        660
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "backend/study_worker.py",
+          "line": 24,
+          "end_line": 66,
+          "label": "Dispatch and generation"
+        }
+      ]
+    },
+    {
+      "id": "models",
+      "type": "external",
+      "label": "AI models & search",
+      "sublabel": "OpenAI",
+      "pos": [
+        400,
+        660
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "backend/study_generation.py",
+          "line": 80,
+          "end_line": 104,
+          "label": "Note models"
+        },
+        {
+          "path": "backend/research_provider.py",
+          "line": 80,
+          "end_line": 95,
+          "label": "Web search provider"
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "sign-in",
+      "from": "browser",
+      "to": "identity",
+      "label": "Sign in",
+      "variant": "security"
+    },
+    {
+      "id": "owned-api",
+      "from": "browser",
+      "to": "api",
+      "label": "Bearer token",
+      "variant": "emphasis"
+    },
+    {
+      "id": "capture-content",
+      "from": "api",
+      "to": "sources",
+      "label": "Public capture",
+      "variant": "default",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "owned-storage",
+      "from": "api",
+      "to": "store",
+      "label": "Owned reads / writes",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dispatch-jobs",
+      "from": "transport",
+      "to": "worker",
+      "label": "Dispatch IDs",
+      "variant": "dashed",
+      "labelDy": -30
+    },
+    {
+      "id": "dispatch-outbox",
+      "from": "worker",
+      "to": "transport",
+      "label": "Publish jobs",
+      "variant": "dashed",
+      "labelDy": 30
+    },
+    {
+      "id": "claim-persist",
+      "from": "worker",
+      "to": "store",
+      "label": "Claim / save",
+      "variant": "dashed"
+    },
+    {
+      "id": "generate-study",
+      "from": "worker",
+      "to": "models",
+      "label": "Generate notes",
+      "variant": "default"
+    },
+    {
+      "id": "answer-search",
+      "from": "api",
+      "to": "models",
+      "label": "Answer / search",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        490,
+        420
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Learning experience",
+      "items": [
+        "Source notes, recall and exact citations",
+        "Topic graph, overviews and scoped questions"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Saved evidence",
+      "items": [
+        "Postgres owns sources, versions and durable jobs",
+        "Research saves only after learner confirmation"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Access boundaries",
+      "items": [
+        "API verifies the learner session; Postgres applies RLS",
+        "Model and worker credentials stay on the server"
+      ]
+    }
+  ]
+}
