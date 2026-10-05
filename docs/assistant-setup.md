@@ -1,9 +1,9 @@
 # Grounded assistant — planned 14 / GitHub #15
 
-## Selected target — 2026-10-04
+## Historical selection — 2026-10-04
 
-Not implemented or verified yet. Current hosted baseline is planned tickets
-01–13. Native/iOS and its progress tracker remain untouched.
+At selection this slice was not implemented or verified. The hosted baseline
+then was planned tickets 01–13. Native/iOS and its progress tracker remain untouched.
 
 A completed saved note gains a live English study assistant beneath its content.
 Current note always participates. Ask this topic and Ask my library are independent
@@ -29,7 +29,7 @@ questions explain the evidence gap and offer Find reliable sources, opening the
 existing clearly labelled reading-list preview. Live discovery remains planned
 15; existing example assistant remains labelled preview. Notes are read-only.
 
-## Agreed checks
+## Agreed checks at selection
 
 Authenticated question/scope API; model HTTP responses; database
 ownership/retrieval and source-version checks; browser scope/citation/unsupported
@@ -37,7 +37,7 @@ answer flows. Follow RED→GREEN at these boundaries, full checks at closeout,
 and independent standards/spec review. Reviewed reversible migration and hosted
 API/model/browser acceptance remain pending.
 
-## Local implementation — 2026-10-05
+## Initial local implementation — 2026-10-05
 
 Implemented `POST /api/v2/sources/{id}/ask`, owned Postgres retrieval and
 post-generation source/note/map fences, strict grounded model answers, bounded
@@ -77,3 +77,49 @@ commit;
 ```
 
 Rollback removes assistant retrieval and its index while preserving saved data.
+
+## Verified completion — 2026-10-05
+
+Implementation and review fixes through `fb813e0` pass **161 backend tests and
+64 web tests**, build/typecheck/lint. Independent standards/spec re-reviews have
+zero remaining findings. Migration 011 applied successfully to development
+Supabase. GitHub #15 is closed; planned slices 01–14 are complete.
+
+Hosted real auth/database/model acceptance verifies current-note answers,
+confirmed-topic comparison, combined topic-first/library retrieval without
+source duplicates, unsupported questions without invented facts/links,
+unauthenticated and cross-learner denial, and changed note revisions rejecting
+after generation. Controlled fictional evidence supports exact PDF page 3 and
+video cues at 6–12 seconds.
+
+Browser acceptance verifies both scope toggles and topic selection, exact PDF
+and video citation inspection without changing the anchor note or losing the
+conversation, stale citation retry guidance, follow-up answers that preserve
+source limitations, unsupported-answer discovery navigation and reset on
+reload/reopen. The uploaded-PDF empty-URL crash in discovery was fixed; the
+reading list is explicitly labelled a preview. The model receives bounded recent
+learner questions plus current saved evidence; prior generated assistant claims
+are excluded from follow-up evidence.
+
+All controlled API/browser sources were removed. Browser-owner source counts
+and dependent studies/maps/outboxes/versions/identities/overrides/sections were
+verified empty. The original learner source was not targeted. Native/iOS and
+its progress tracker are untouched. Live research remains planned 15; production
+deployment is not configured. Existing dependency deprecation and large-bundle
+warnings remain.
+
+Commands from the repository root:
+
+```bash
+uv run --project backend --extra dev python -m pytest backend/tests -q
+cd web && npm test && npm run build && npm run lint
+```
+
+The bare `pytest`/`uvicorn` entrypoints resolved to a stale global runtime in this
+environment; module commands use the project's interpreter. Development API:
+
+```bash
+uv run --project backend python -m uvicorn backend.main:app --reload --env-file backend/.env
+```
+
+No new credentials are required beyond the existing ignored server environment.

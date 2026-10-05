@@ -5,17 +5,18 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–13 are complete** (13 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#14 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–14 are complete** (14 of 15 slices), including
+hosted development acceptance. GitHub issues **#1–#15 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **13**, long sources and selected ranges — [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14).
+**Last completed:** planned ticket **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15).
 
-**Current unit:** planned **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15). Local implementation and focused checks pass; full checks, review, migration and hosted acceptance pending.
+**Current unit:** none. Planned **15**, live reliable-resource discovery, is the next unpublished draft.
 
-**Target behavior:** planned **14 is selected and published**; planned **15 remains an unpublished draft**. Existing
-example UI does not establish live assistant/research. YouTube support requires
-anonymously accessible English captions; private provider access remains planned.
+**Target behavior:** live discovery remains planned **15**. Saved-note assistant
+answers are verified; curated reading-list examples remain a preview. YouTube
+support requires anonymously accessible English captions; private provider access
+remains planned.
 
 | Planned ticket | Work | Status | GitHub / evidence |
 | --- | --- | --- | --- |
@@ -33,14 +34,15 @@ anonymously accessible English captions; private provider access remains planned
 | 11 | Persistent topic corrections and consistent removal | Complete; local + hosted acceptance | [#12](https://github.com/CloudKai/secondBrain/issues/12), [setup](../topic-corrections-setup.md), [review](../reviews/ticket12.md) |
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Complete; local + hosted acceptance | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
-| 14 | Grounded assistant with selectable scopes | Local implementation; review/migration/acceptance pending | [#15](https://github.com/CloudKai/secondBrain/issues/15), [scope](../assistant-setup.md) |
+| 14 | Grounded assistant with selectable scopes | Complete; local + hosted acceptance | [#15](https://github.com/CloudKai/secondBrain/issues/15), [setup](../assistant-setup.md), [review](../reviews/ticket15.md) |
 | 15 | Live reliable-resource discovery and explicit saving | Draft; curated examples only | Unpublished |
 
-Latest completed checks: **144 backend tests, 61 web tests, web build/typecheck
-and lint**. Independent standards/spec re-reviews pass. Migration 010, hosted
-range selection, saved progress/retry, coherent model synthesis, exact page/time
-citations, same-source version refresh, ownership and controlled cleanup pass.
-Desktop development acceptance only; native/iOS remains unchanged.
+Latest completed checks: **161 backend tests, 64 web tests, web build/typecheck
+and lint**. Independent standards/spec re-reviews pass. Migration 011, hosted
+saved-evidence answers, combined scopes, original page/time citations, unsupported
+questions, changed-evidence rejection and controlled cleanup pass. Browser reload
+clears local conversation while preserving saved notes. Desktop development
+acceptance only; native/iOS remains unchanged.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -57,7 +59,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–12 were selected by the user and completed. Ticket 13 is selected and published. Remaining
+relationships. Tickets 01–14 were selected by the user and completed. Remaining
 drafts keep their proposed labels and dependencies until selected for publication.
 No production hosting provider or recording-provider account connection is selected.
 
@@ -67,15 +69,17 @@ At handoff the article adapter used the synchronous four-point API; library stat
 and corrections reset on reload, topic connections represented co-coverage, the
 assistant retrieved stored example note text, and discovery was curated.
 
-### Current verified browser behavior — 2026-10-04
+### Current verified browser behavior — 2026-10-05
 
 Articles, selectable-text PDFs, accessible English YouTube captions and supplied
 video transcripts now use owned,
 persistent captures and asynchronous structured notes with inspectable evidence.
 Saved-source topic mapping, explained graph connections, placement confirmation,
 on-demand cited combined overviews, separate source branches and durable topic
-corrections/removal are verified. Model chat and live research remain target work;
-their existing example UI is not live implementation.
+corrections/removal are verified. The saved-note assistant answers from current
+note/topic/library evidence with exact citations and evidence-gap feedback. Its
+conversation resets on reload/reopen. Live research remains target work; the
+reading list and example-note assistant are labelled previews.
 Supplied transcript links do not retrieve or watch recordings. Whole/selected captures with original page/time ranges and resumable section
 processing are verified. PDF OCR and automatic Teams/Zoom/Panopto retrieval remain planned.
 Unchanged imports reuse saved sources; explicit versioned refresh preserves prior
@@ -475,7 +479,17 @@ existing learner note unchanged. Native/iOS untouched.
 
 ## 14: Answer questions using selectable note, topic, and library scopes
 
-**Status:** Selected target — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15). Implementation and acceptance pending.
+**Status:** Complete — local and hosted development acceptance on 2026-10-05.
+
+**GitHub:** [#15 — closed](https://github.com/CloudKai/secondBrain/issues/15)
+
+**Completion:** Current-note default, independent combined scopes, owned topic-first
+retrieval, exact saved citations, changed-evidence rejection, unsupported gaps,
+follow-up grounding and browser conversation/reset flows pass. Migration 011
+applied; 161 backend/64 web tests and build/typecheck/lint pass, with no remaining
+independent review findings. Controlled sources and dependent records cleaned.
+[Setup](../assistant-setup.md), [review](../reviews/ticket15.md). Live research
+remains planned 15; native/iOS and its tracker unchanged.
 
 **Label:** `ready-for-agent`
 
@@ -485,13 +499,13 @@ A learner uses suggested prompts or free text to ask a source-grounded study ass
 
 ### Acceptance criteria
 
-- [ ] Place the assistant beneath the notes and default to the current note.
-- [ ] Ask this topic and Ask my library buttons are selectable independently and together in the textbox.
-- [ ] Always include the current note; with both buttons selected, prioritize topic material and retrieve relevant library evidence without duplicate sources.
-- [ ] Answers cite the actual selected material and open evidence through the same source panel.
-- [ ] When material cannot support an answer, explain the gap and offer Find reliable sources.
-- [ ] Generate English answers, enforce learner isolation, and keep provider and retrieval operations on the backend.
-- [ ] Checks cover scope combinations, source attribution, unsupported questions, and cross-learner denial.
+- [x] Place the assistant beneath the notes and default to the current note.
+- [x] Ask this topic and Ask my library buttons are selectable independently and together in the textbox.
+- [x] Always include the current note; with both buttons selected, prioritize topic material and retrieve relevant library evidence without duplicate sources.
+- [x] Answers cite the actual selected material and open evidence through the same source panel.
+- [x] When material cannot support an answer, explain the gap and offer Find reliable sources.
+- [x] Generate English answers, enforce learner isolation, and keep provider and retrieval operations on the backend.
+- [x] Checks cover scope combinations, source attribution, unsupported questions, and cross-learner denial.
 
 ### Blocked by
 
@@ -521,5 +535,5 @@ A learner requests further research, inspects relevant papers or documents, and 
 
 ### Blocked by
 
-- Draft ticket 14: Answer questions using selectable note, topic, and library scopes
+- Planned ticket 14: Answer questions using selectable note, topic, and library scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15), complete
 - Planned ticket 03: Create study notes from selectable-text PDF uploads and links — [GitHub #3](https://github.com/CloudKai/secondBrain/issues/3), complete

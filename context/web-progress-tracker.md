@@ -645,3 +645,19 @@ bounded recent conversation and preview-only research navigation are implemented
 14 focused API/model tests and three client/database tests pass; typecheck/lint
 pass. Full checks, independent review, migration 011 and hosted acceptance remain
 pending. GitHub #15 open. Native/iOS and its tracker untouched.
+
+
+### Grounded assistant complete — planned 14 / #15 (2026-10-05)
+
+Implementation/review fixes through `fb813e0`: 161 backend tests, 64 web tests,
+build/typecheck/lint and both independent re-reviews pass. Migration 011 applied.
+Hosted real auth/database/model/browser checks verify current-note default,
+combined topic-first/library scopes, exact original PDF/video citations,
+unsupported gaps, ownership isolation and changed-evidence rejection. Citation
+inspection preserves the note/conversation; reload/reopen clears local chat.
+Follow-ups use recent learner questions and current saved evidence. Discovery
+remains a labelled preview; its uploaded-PDF empty-URL crash was fixed.
+Controlled sources and dependent records removed and verified; existing learner
+source not targeted. GitHub #15 closed. Planned 15 live reliable-resource
+discovery remains unpublished; production/native work is unchanged. Setup/review:
+docs/assistant-setup.md and docs/reviews/ticket15.md.

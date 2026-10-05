@@ -62,3 +62,18 @@ uploaded-PDF empty-URL crash in reading-list duplicate checks; guards now skip
 notes without web URLs, and the reading list is explicitly labelled preview.
 Browser RED→GREEN verifies the loaded three-source library no longer crashes.
 Returning to the anchor clears the conversation and scope state as intended.
+
+## Final verification — 2026-10-05
+
+Both independent reviewers re-reviewed fixes through `fb813e0` and reported zero
+remaining findings. The citation helper now shares safe metadata normalization
+while preserving each generator's distinct evidence contract. Follow-up model
+context excludes prior assistant claims and retains recent learner questions.
+
+Final full checks: 161 backend tests, 64 web tests, build/typecheck/lint pass.
+Migration 011 and hosted real auth/database/model/browser acceptance pass.
+Browser reload/reopen clears conversation/scopes; exact PDF/video evidence
+preserves the anchor/conversation; changed citations reject; unsupported-answer
+navigation opens the labelled preview without the uploaded-PDF URL crash.
+Controlled API/browser sources and dependent records are verified removed.
+GitHub #15 closed. Production/live discovery remain planned; native/iOS unchanged.
