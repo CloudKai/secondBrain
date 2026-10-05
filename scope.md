@@ -690,3 +690,27 @@ build/typecheck/lint pass. Browser live results left the library empty until
 explicit save; a discovered Python documentation article then produced a real
 note and four topics. Independent review, remaining hosted/browser checks and
 controlled cleanup pending. No migration; native/iOS and tracker untouched.
+
+
+### Live discovery complete — planned 15 / #16 (2026-10-05)
+
+Implementation `5b14de7` plus fixes `a7500eb` / `fecfb77` passes 182 backend
+tests, 66 web tests and build/typecheck/lint. Both independent reviews report
+no remaining findings. Authenticated bounded live research, honest metadata,
+verified public links/MIME types, preprint labels, safe redirects and blocked-page
+omission are implemented. Search/open actions leave library/graph unchanged;
+explicit article/PDF saves reuse capture, study and topic comparison.
+
+Real hosted auth/Search/Fetch and browser article/model/worker flows pass. A
+discovered documentation article produced a cited note and four topics. Browser
+original links, passage inspection, empty/partial results and editable assistant
+gap navigation pass. Extensionless PDF save routing, duplicate reuse and owner
+isolation pass at the API HTTP boundary; live browser PDF saving was not exercised
+for this slice. Controlled article/dependent records removed; browser reload
+restored zero sources/topics and original learner source remains present.
+
+No migration. Runtime uses a server-only TinyFish key; a separately launched API
+must receive it through its own environment. GitHub #16 closed. All 15 original
+planned web slices are complete for development. Production/private provider
+access/OCR/linked accounts remain planned. Native/iOS and its tracker unchanged.
+Setup/review: docs/research-discovery-setup.md and docs/reviews/ticket16.md.

@@ -1,5 +1,12 @@
 # Grounded assistant — planned 14 / GitHub #15
 
+**Discovery follow-up — 2026-10-05:** planned 15 / #16 is now complete. The
+saved-note evidence-gap action opens live research with an editable question;
+search remains explicit. External results are separate from saved assistant
+evidence, and saving reuses the article/PDF workflow. See
+[research discovery setup](research-discovery-setup.md). Preview-only discovery
+statements below describe the #15 implementation checkpoint before that follow-up.
+
 ## Historical selection — 2026-10-04
 
 At selection this slice was not implemented or verified. The hosted baseline

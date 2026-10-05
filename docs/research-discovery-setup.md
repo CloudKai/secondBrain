@@ -1,6 +1,57 @@
 # Live further-study discovery — planned 15 / GitHub #16
 
-## Selected target — 2026-10-05
+## Verified development behavior — 2026-10-05
+
+Planned 15 / GitHub #16 is complete. The reading list performs explicit live
+research and shows at most six checked external resources. Original links,
+author/date availability, publisher hosts, resource type, relevance, metadata
+origin and preprint status are visible. Missing metadata is labelled. Public
+response MIME types determine article/PDF capture, including extensionless PDFs;
+blocked pages and unverified links are omitted with partial-results feedback.
+
+Search/open actions never save sources or modify the graph. Save to my library
+prefills the existing article/PDF form; the learner confirms capture there.
+Saved-note evidence gaps open an editable question without starting a search.
+No database migration or new persistent discovery store was added. Native/iOS
+and its progress tracker were not changed by this slice.
+
+### Runtime configuration
+
+Set `TINYFISH_API_KEY` in the ignored `backend/.env`, or provide it through the
+backend process environment. The example file contains only a placeholder.
+The development API used the existing process credential during acceptance;
+that credential was not copied into `.env`. A separately launched API needs
+its own server environment configuration. Never expose this key through Vite
+or a client bundle. Existing Supabase/Redis/OpenAI configuration remains needed
+for authentication and the saved-source note/topic pipeline.
+
+Start the configured API and study worker using the existing setup instructions.
+The authenticated research endpoint is `POST /api/v2/research` with an explicit
+`query` of 1–500 characters. Missing configuration/provider failures return
+actionable errors rather than example results. Discovery has a 60-second outer
+deadline, bounded provider responses and public-only same-publisher redirects.
+
+### Acceptance and limits
+
+182 backend tests, 66 web tests, build/typecheck/lint pass; both independent
+reviews clear through `fecfb77`. Real hosted auth/Search/Fetch checks prove no
+source/topic changes before saving. Browser checks cover missing metadata,
+original-link opening, explicit article capture, real model/worker notes and
+four topics, original passage inspection, empty/partial results, and editable
+assistant-gap navigation. Article/PDF API checks prove explicit capture,
+extensionless PDF routing, duplicate reuse and cross-owner denial.
+
+The browser-created article and dependent records were removed; reloading
+restored the test library to zero. No original learner source was targeted.
+Live browser PDF saving was not exercised for this slice. Its capture path has
+existing hosted PDF acceptance and new discovery API coverage. A checked link
+means readable public content was returned at that time, not a guarantee of
+truth, peer review, full-paper access or future availability. Search snippets
+are labelled search relevance; original-page and index metadata are distinguished.
+Direct response verification can omit resources that block public header
+requests. Production deployment/load acceptance remains unverified.
+
+## Original selected target — historical, 2026-10-05
 
 Not implemented or verified. Planned slices 01–14 are the current verified web
 baseline. The user selected the final discovery slice by asking to continue.
@@ -45,13 +96,13 @@ learner explicitly saves them. Provider failures must not silently substitute
 curated examples as live search results. Existing credentials are checked by
 presence only; their values are not printed or committed.
 
-## Progress
+## Selection progress — historical
 
 GitHub #16 published with acceptance checks. API/UI/save boundaries inspected.
 The user approved the proposed TDD boundaries. Local implementation is in
 progress; hosted acceptance and review remain pending. Native/iOS and its progress tracker remain untouched.
 
-## Local implementation checkpoint
+## Local implementation checkpoint — historical
 
 Authenticated Search → Fetch discovery returns at most six verified public
 resources with honest metadata, preprint status and safe publisher redirects.

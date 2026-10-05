@@ -5,16 +5,17 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 
 ## Progress at a glance
 
-**Verified MVP:** planned tickets **01–14 are complete** (14 of 15 slices), including
-hosted development acceptance. GitHub issues **#1–#15 are closed**; #4 is an extra
+**Verified MVP:** planned tickets **01–15 are complete** (15 of 15 slices), including
+development acceptance. GitHub issues **#1–#16 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15).
+**Last completed:** planned ticket **15**, live reliable-resource discovery and explicit saving — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16).
 
-**Current unit:** planned **15**, live reliable-resource discovery — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16). Local implementation and full checks pass; independent review and hosted acceptance pending.
+**Current unit:** none; the original 15-slice web plan is complete.
 
-**Target behavior:** live discovery is selected planned **15**, published as #16; it is not implemented yet. Saved-note assistant
-answers are verified; curated reading-list examples remain a preview. YouTube
+**Target behavior:** private recording-provider access, PDF OCR, linked accounts
+and production deployment remain planned. Saved-note assistant answers and live
+external research are verified; example-note assistant remains a preview. YouTube
 support requires anonymously accessible English captions; private provider access
 remains planned.
 
@@ -35,14 +36,15 @@ remains planned.
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Complete; local + hosted acceptance | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
 | 14 | Grounded assistant with selectable scopes | Complete; local + hosted acceptance | [#15](https://github.com/CloudKai/secondBrain/issues/15), [setup](../assistant-setup.md), [review](../reviews/ticket15.md) |
-| 15 | Live reliable-resource discovery and explicit saving | Local implementation; review/acceptance pending | [#16](https://github.com/CloudKai/secondBrain/issues/16), [scope](../research-discovery-setup.md) |
+| 15 | Live reliable-resource discovery and explicit saving | Complete; local + hosted development acceptance | [#16](https://github.com/CloudKai/secondBrain/issues/16), [setup](../research-discovery-setup.md), [review](../reviews/ticket16.md) |
 
-Latest completed checks: **161 backend tests, 64 web tests, web build/typecheck
-and lint**. Independent standards/spec re-reviews pass. Migration 011, hosted
-saved-evidence answers, combined scopes, original page/time citations, unsupported
-questions, changed-evidence rejection and controlled cleanup pass. Browser reload
-clears local conversation while preserving saved notes. Desktop development
-acceptance only; native/iOS remains unchanged.
+Latest completed checks: **182 backend tests, 66 web tests, web build/typecheck
+and lint**. Independent standards/spec re-reviews pass through `fecfb77`.
+Real discovery/auth/storage checks and browser explicit article saving through
+the model/worker/topic pipeline pass. Extensionless PDF discovery/save is checked
+at the API HTTP boundary. Unsaved results leave library/graph unchanged;
+controlled sources cleaned. No migration for #16. Desktop development acceptance
+only; native/iOS remains unchanged.
 
 GitHub Issues for `CloudKai/secondBrain` hold published acceptance checklists and
 completion comments. This document maps them to the original 15-slice plan;
@@ -59,8 +61,7 @@ this separate React/TypeScript/Vite frontend using its current design. Preserve
 the native application and its existing API contract.
 
 Published implementation slices use `ready-for-agent` with native GitHub blocking
-relationships. Tickets 01–14 were selected by the user and completed. Ticket 15 is now selected
-and published; its acceptance is pending.
+relationships. Tickets 01–15 were selected by the user and completed.
 No production hosting provider or recording-provider account connection is selected.
 
 ### Original handoff baseline — historical, 2026-10-02
@@ -78,8 +79,9 @@ Saved-source topic mapping, explained graph connections, placement confirmation,
 on-demand cited combined overviews, separate source branches and durable topic
 corrections/removal are verified. The saved-note assistant answers from current
 note/topic/library evidence with exact citations and evidence-gap feedback. Its
-conversation resets on reload/reopen. Live research remains target work; the
-reading list and example-note assistant are labelled previews.
+conversation resets on reload/reopen. The reading list supports explicit live
+research, checked original links and article/PDF saves. External results stay
+separate from saved evidence; the example-note assistant remains a preview.
 Supplied transcript links do not retrieve or watch recordings. Whole/selected captures with original page/time ranges and resumable section
 processing are verified. PDF OCR and automatic Teams/Zoom/Panopto retrieval remain planned.
 Unchanged imports reuse saved sources; explicit versioned refresh preserves prior
@@ -515,9 +517,9 @@ A learner uses suggested prompts or free text to ask a source-grounded study ass
 
 ## 15: Discover credible further-study resources and save selected sources
 
-**Status:** Selected target — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16). Implementation and acceptance pending.
+**Status:** Complete — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16), local and hosted development acceptance on 2026-10-05.
 
-**Scope:** [Research discovery setup](../research-discovery-setup.md). Proposed TDD boundaries await user confirmation.
+**Scope:** [Research discovery setup](../research-discovery-setup.md), [review](../reviews/ticket16.md). Approved TDD boundaries used; no migration.
 
 **Label:** `ready-for-agent`
 
@@ -527,15 +529,28 @@ A learner requests further research, inspects relevant papers or documents, and 
 
 ### Acceptance criteria
 
-- [ ] Research runs only on learner request, including the assistant's Find reliable sources action.
-- [ ] Prioritize original papers, official documentation, and university teaching materials.
-- [ ] Show verified source links, author or organization, date, type, and relevance where available; label preprints and avoid invented metadata.
-- [ ] Let the learner open the original result and explicitly choose Save to my library.
-- [ ] Saving a public article or selectable-text PDF uses the existing capture, note, and topic-comparison flow; unsaved results do not change the library graph.
-- [ ] Distinguish discovered external material from saved-source evidence in the conversation.
-- [ ] Checks cover grounded results, missing metadata, explicit saving, and unchanged library state before saving.
+- [x] Research runs only on learner request, including the assistant's Find reliable sources action.
+- [x] Prioritize original papers, official documentation, and university teaching materials.
+- [x] Show verified source links, author or organization, date, type, and relevance where available; label preprints and avoid invented metadata.
+- [x] Let the learner open the original result and explicitly choose Save to my library.
+- [x] Saving a public article or selectable-text PDF uses the existing capture, note, and topic-comparison flow; unsaved results do not change the library graph.
+- [x] Distinguish discovered external material from saved-source evidence in the conversation.
+- [x] Checks cover grounded results, missing metadata, explicit saving, and unchanged library state before saving.
 
 ### Blocked by
 
 - Planned ticket 14: Answer questions using selectable note, topic, and library scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15), complete
 - Planned ticket 03: Create study notes from selectable-text PDF uploads and links — [GitHub #3](https://github.com/CloudKai/secondBrain/issues/3), complete
+
+### Completion — 2026-10-05
+
+Authenticated bounded Search/Fetch and public response-type checks, honest
+metadata/preprints, safe redirects and blocked-page omission pass. Browser
+article save generated a real cited note and four topics; unsupported assistant
+questions prefill an editable research question without automatic searching.
+Empty/partial results and original-link opening pass. API checks cover explicit
+article/PDF saves, duplicate reuse and ownership. 182 backend/66 web tests and
+build/typecheck/lint pass; both reviews clear. Controlled source/dependent rows
+removed. Live browser PDF saving was not exercised for this slice; its capture
+path is covered by the existing PDF acceptance and the new discovery API tests.
+All 15 planned slices complete for development; production/native unchanged.

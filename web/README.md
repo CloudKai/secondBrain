@@ -5,6 +5,21 @@ specification in `context/learning-library-design.md`. Dark mode is the default;
 the sidebar appearance control switches to a paired light theme. Mobile and
 native projects are untouched.
 
+## Current development status — 2026-10-05
+
+All 15 planned web slices are complete. Owned article/PDF/transcript captures,
+structured cited notes, topics/graph, overviews, corrections, source refresh,
+long-source processing, grounded assistant answers and explicit live research
+are verified for development. See the [web progress tracker](../context/web-progress-tracker.md)
+and [ticket breakdown](../docs/planning/web-learning-library-tickets.md) for
+current checks and limits. Research setup is in
+[research-discovery-setup.md](../docs/research-discovery-setup.md); its TinyFish
+credential is server-only. Production deployment is not verified.
+
+The implementation snapshots below describe earlier slices. Their preview,
+session-only and future-work statements are historical; use the tracker for
+current capability status.
+
 ## Run
 
 From the repository root:

@@ -1,28 +1,29 @@
 # Web Progress Tracker
 
-## Current status — 2026-10-04
+## Current status — 2026-10-05
 
-**Verified MVP:** planned tickets 01–13 are complete with hosted development
-acceptance. GitHub #1/#2/#3/#5/#6/#7/#8/#9/#10/#11 cover articles, structured notes,
-selectable-text PDFs, supplied transcripts, accessible English YouTube captions,
-Teams/Zoom/Panopto export feedback, saved-source topics/graph, combined overviews, source branches and persistent corrections/removal. GitHub #12
-completes the correction slice. Extra #4 covers
-citation/title polish.
+**Verified MVP:** all planned tickets 01–15 are complete with development
+acceptance. GitHub #1–#16 cover the plan plus the extra citation/title polish
+in #4. Current web behavior includes owned captures, cited notes, topics/graph,
+overviews, corrections, versioned refresh, bounded long sources, grounded
+assistant answers and on-demand external research with explicit saving.
 
-**Last completed:** planned ticket 13 / [GitHub #14](https://github.com/CloudKai/secondBrain/issues/14).
-Whole bounded captures, original page/time selections, durable section progress
-and saved retry now produce coherent cited notes. Range refresh preserves source
-identity and prior captures/notes.
+**Last completed:** planned ticket 15 / [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16).
+Authenticated live discovery checks public results and labels missing metadata
+and preprints. Opening or searching never saves; explicit article/PDF saves
+reuse the note/topic pipeline.
 
-**Latest checks:** 144 backend tests, 61 web tests, web build/typecheck/lint
-pass. Standards/spec reviews have zero remaining findings through `e474faf`.
-Migration 010, hosted API/worker/model/browser acceptance and controlled cleanup
-pass. Desktop development only; concurrent stress/mobile layout checks untested.
+**Latest checks:** 182 backend tests, 66 web tests, web build/typecheck/lint
+pass. Standards/spec reviews have zero remaining findings through `fecfb77`.
+Hosted real search/auth/database and browser article/model/worker flows pass;
+controlled sources cleaned. PDF discovery/save routing is checked at the API
+HTTP boundary. Desktop development only; production and concurrent stress
+acceptance remain unverified.
 
-**Current unit:** planned 14 / [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15), grounded assistant. Selected target; implementation and acceptance pending.
+**Current unit:** none; the original 15-slice web plan is complete.
 
-**Target behavior:** Automatic Teams/Zoom/Panopto access,
-assistant/research and production deployment remain planned. YouTube support is
+**Target behavior:** Automatic Teams/Zoom/Panopto access, PDF OCR,
+linked accounts and production deployment remain planned. YouTube support is
 conditional on anonymously accessible English captions.
 
 **Where to check:** [ticket breakdown](../docs/planning/web-learning-library-tickets.md)
@@ -688,3 +689,27 @@ build/typecheck/lint pass. Browser live results left the library empty until
 explicit save; a discovered Python documentation article then produced a real
 note and four topics. Independent review, remaining hosted/browser checks and
 controlled cleanup pending. No migration; native/iOS and tracker untouched.
+
+
+### Live discovery complete — planned 15 / #16 (2026-10-05)
+
+Implementation `5b14de7` plus fixes `a7500eb` / `fecfb77` passes 182 backend
+tests, 66 web tests and build/typecheck/lint. Both independent reviews report
+no remaining findings. Authenticated bounded live research, honest metadata,
+verified public links/MIME types, preprint labels, safe redirects and blocked-page
+omission are implemented. Search/open actions leave library/graph unchanged;
+explicit article/PDF saves reuse capture, study and topic comparison.
+
+Real hosted auth/Search/Fetch and browser article/model/worker flows pass. A
+discovered documentation article produced a cited note and four topics. Browser
+original links, passage inspection, empty/partial results and editable assistant
+gap navigation pass. Extensionless PDF save routing, duplicate reuse and owner
+isolation pass at the API HTTP boundary; live browser PDF saving was not exercised
+for this slice. Controlled article/dependent records removed; browser reload
+restored zero sources/topics and original learner source remains present.
+
+No migration. Runtime uses a server-only TinyFish key; a separately launched API
+must receive it through its own environment. GitHub #16 closed. All 15 original
+planned web slices are complete for development. Production/private provider
+access/OCR/linked accounts remain planned. Native/iOS and its tracker unchanged.
+Setup/review: docs/research-discovery-setup.md and docs/reviews/ticket16.md.
