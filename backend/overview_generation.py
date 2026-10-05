@@ -9,6 +9,7 @@ from openai import APITimeoutError
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from backend.study_generation import GenerationFailure
+from backend.citation_grounding import citation_prose
 from backend.overview_models import (
     OverviewInput,
     DraftTopicOverview,
@@ -115,14 +116,7 @@ class OverviewGenerator:
                               for label in re.findall(r"\bref\d+\b", ref.passage.excerpt)}
             grounded = draft.model_dump()
             for claim in [grounded["overview"], *grounded["agreements"], *grounded["differences"]]:
-                def citation_marker(match):
-                    labels = set(re.findall(r"\bref\d+\b", match.group()))
-                    if labels <= set(claim["reference_ids"]) and not labels & literal_labels:
-                        return ""
-                    return match.group()
-                claim["text"] = re.sub(r"\s*\(ref\d+(?:\s*[,;]\s*ref\d+)*\)", citation_marker, claim["text"])
-                if not set(re.findall(r"\bref\d+\b", claim["text"])) <= literal_labels:
-                    raise ValueError("Private citation label in overview prose")
+                claim["text"] = citation_prose(claim["text"], set(claim["reference_ids"]), literal_labels)
                 claim["reference_ids"] = [available[k].id for k in claim["reference_ids"]]
             return TopicOverview(
                 **grounded,

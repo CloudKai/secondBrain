@@ -136,3 +136,11 @@ def test_long_library_context_is_bounded_and_discloses_omitted_passages(assistan
     assert response.json()['partial'] is True
     model=next(r for r in state['calls'] if r.url.path=='/v1/chat/completions')
     assert len(json.loads(model.content)['messages'][1]['content'])<=30000
+
+def test_redundant_known_citation_metadata_becomes_badges_without_losing_attribution(assistant_client):
+    client,state=assistant_client
+    state['draft']['claims'][0]['text']='It retrieves saved evidence (ref1).'
+    response=ask(client)
+    assert response.status_code==200,response.text
+    assert response.json()['claims'][0]['text']=='It retrieves saved evidence.'
+    assert response.json()['claims'][0]['reference_ids']==[SOURCE+':p0001']

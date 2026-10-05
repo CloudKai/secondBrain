@@ -30,3 +30,21 @@ Initial full checks: 158 backend, 64 web tests, build/typecheck/lint pass; the
 additional bounded-context API check passes, bringing focused assistant checks
 to 15. Review fixes and final rerun pending. Migration 011 and hosted acceptance
 are not yet verified.
+
+## Review follow-up and hosted API — 2026-10-05
+
+Standards re-review of `0a4a69b` reports zero remaining findings. Final local
+checks at that point: 159 backend / 64 web tests and build/typecheck/lint pass.
+Migration 011 applied successfully in the development project (no warning).
+Initial live provider acceptance exposed supported answers putting limits in
+the gap field and redundant `(ref1)` prose metadata. The output instructions
+now explicitly state the supported/unsupported contract. A model/API RED→GREEN
+regression adds safe normalization of only known parenthesized citation metadata;
+unknown and stray IDs still reject. Shared normalization retains existing topic
+synthesis behavior. Focused assistant/overview checks: 20 pass.
+
+Hosted real auth/database/model checks pass: current note with PDF page 3, topic
+comparison with original video 6–12s, combined topic/library ordering and dedup,
+unsupported answer without citations or links, cross-learner denial and real
+post-model note-revision rejection (409). API fixture sources cleaned. Browser
+acceptance and final rerun/re-review after the provider fix remain pending.
