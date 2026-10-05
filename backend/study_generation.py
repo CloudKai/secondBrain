@@ -12,9 +12,10 @@ from pydantic import ValidationError
 from openai import APITimeoutError
 
 from backend.study_models import DraftStudyNote, SourceReference, StudyError, StudyNote, SectionSummary
-from backend.capture_limits import MAX_CAPTURE_CHARS, MAX_SECTION_CHARS, MAX_SECTION_PASSAGES, MAX_SECTIONS
+from backend.capture_limits import MAX_SECTION_CHARS, MAX_SECTION_PASSAGES, MAX_SECTIONS
 from backend.source_models import PDFDocument
 from backend.transcript_models import TranscriptDocument
+from backend.source_references import PassagePolicy, source_passages
 
 
 class GenerationFailure(Exception):
@@ -27,45 +28,13 @@ def captured_passages(
     text: str,
     document: PDFDocument | None = None,
     transcript: TranscriptDocument | None = None,
+    *,
+    policy: PassagePolicy = "thought_v1",
 ) -> list[SourceReference]:
-    if not 120 <= len(text) <= MAX_CAPTURE_CHARS:
-        raise GenerationFailure("invalid_output")
-    if document and document.pages[-1].end != len(text):
-        raise GenerationFailure("invalid_output")
-    if transcript and (document or transcript.segments[-1].end != len(text)):
-        raise GenerationFailure("invalid_output")
-    spans = (
-        [(p.start, p.end, p.page, None, None) for p in document.pages]
-        if document
-        else [(s.start, s.end, None, s.start_ms, s.end_ms) for s in transcript.segments]
-        if transcript
-        else [(0, len(text), None, None, None)]
-    )
-    passages = []
-    for first, last, page, start_ms, end_ms in spans:
-        start = first
-        while start < last:
-            end = min(start + 900, last)
-            if end < last:
-                boundary = max(
-                    text.rfind("\n", start + 450, end),
-                    text.rfind(" ", start + 450, end),
-                )
-                if boundary >= 0:
-                    end = boundary + 1
-            passages.append(
-                SourceReference(
-                    id=f"p{len(passages) + 1:04d}",
-                    start=start,
-                    end=end,
-                    excerpt=text[start:end],
-                    page=page,
-                    start_ms=start_ms,
-                    end_ms=end_ms,
-                )
-            )
-            start = end
-    return passages
+    try:
+        return source_passages(text, document, transcript, policy=policy)
+    except ValueError as exc:
+        raise GenerationFailure("invalid_output") from exc
 
 
 def study_sections(passages: list[SourceReference]) -> list[list[SourceReference]]:
@@ -175,10 +144,11 @@ class StudyGenerator:
         document: PDFDocument | None = None,
         transcript: TranscriptDocument | None = None,
         completed_sections: list[SectionSummary] | None = None,
+        passage_policy: PassagePolicy = "thought_v1",
         on_plan: Callable[[int], Awaitable[None]] | None = None,
         on_section: Callable[[int, SectionSummary], Awaitable[None]] | None = None,
     ) -> StudyNote:
-        passages = captured_passages(text, document, transcript)
+        passages = captured_passages(text, document, transcript, policy=passage_policy)
         sections = study_sections(passages)
         summaries = list(completed_sections or [])
         if len(summaries) > len(sections) or any(

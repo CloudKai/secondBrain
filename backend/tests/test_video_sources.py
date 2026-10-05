@@ -524,3 +524,67 @@ def test_unreadable_panopto_export_can_be_corrected_without_saving_bad_input(bro
     assert source["transcript"]["segments"] == [
         {"start": 0, "end": 173, "start_ms": None, "end_ms": None}
     ]
+
+
+def test_generated_reference_joins_caption_fragments_using_real_overlapping_times():
+    import asyncio
+    import httpx
+    from backend.study_generation import StudyGenerator
+    from backend.transcript_models import TranscriptDocument
+    from backend.tests.test_study_generation import completion
+
+    first = 'Retrieval pulls useful supporting documents from a knowledge store'
+    second = 'and supplies that evidence to the generator.'
+    third = 'The generator then uses those documents to support its answer.'
+    text = '\n'.join([first, second, third])
+    transcript = TranscriptDocument(provider='youtube', format='vtt', segments=[
+        {'start': 0, 'end': len(first), 'start_ms': 12000, 'end_ms': 18000},
+        {'start': len(first) + 1, 'end': len(first) + 1 + len(second), 'start_ms': 14000, 'end_ms': 16000},
+        {'start': len(first) + 2 + len(second), 'end': len(text), 'start_ms': 16000, 'end_ms': 20000},
+    ])
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(completion)) as client:
+            note = await StudyGenerator(client, api_key='test-key').generate(text, transcript=transcript)
+        assert note.references[0].excerpt == first + '\n' + second
+        assert (note.references[0].start_ms, note.references[0].end_ms) == (12000, 18000)
+        assert note.references[0].end == len(first) + 1 + len(second)
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize('cues,times,expected', [
+    (['Lecturer: Retrieval supplies evidence', 'for grounded answers.', 'Generation follows.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Lecturer: Retrieval supplies evidence\nfor grounded answers.', 'Generation follows.']),
+    (['Lecturer: Retrieval supplies evidence', 'Student: How is it found?', 'Lecturer: Search ranks documents.'], [(0, 2000), (2000, 4000), (4000, 6000)], ['Lecturer: Retrieval supplies evidence', 'Student: How is it found?', 'Lecturer: Search ranks documents.']),
+    (['Retrieval supplies evidence', 'for grounded answers without a sentence ending', 'Generation follows.'], [(0, 2000), (4000, 6000), (8000, 10000)], ['Retrieval supplies evidence', 'for grounded answers without a sentence ending', 'Generation follows.']),
+    (['Retrieval supplies evidence', 'over a long explanation without punctuation', 'Generation follows.'], [(0, 30000), (30000, 46000), (46000, 50000)], ['Retrieval supplies evidence', 'over a long explanation without punctuation\nGeneration follows.']),
+])
+def test_model_receives_caption_groups_at_sentence_pause_speaker_and_duration_boundaries(cues, times, expected):
+    import asyncio
+    import httpx
+    import json
+    from backend.study_generation import StudyGenerator
+    from backend.transcript_models import TranscriptDocument
+    from backend.tests.test_study_generation import completion
+
+    # The extra sentence meets the capture floor without changing the tested cues.
+    cues = [*cues, 'Further study compares retrieval strategies and checks whether their evidence supports each answer.']
+    times = [*times, (times[-1][1] + 2000, times[-1][1] + 4000)]
+    text = '\n'.join(cues)
+    segments, offset = [], 0
+    for cue, (start_ms, end_ms) in zip(cues, times):
+        segments.append({'start': offset, 'end': offset + len(cue), 'start_ms': start_ms, 'end_ms': end_ms})
+        offset += len(cue) + 1
+    transcript = TranscriptDocument(provider='youtube', format='vtt', segments=segments)
+    seen = []
+
+    def external(request):
+        seen.extend(json.loads(json.loads(request.content)['messages'][-1]['content'])['passages'])
+        return completion(request)
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(external)) as client:
+            await StudyGenerator(client, api_key='test-key').generate(text, transcript=transcript)
+        assert [p['text'] for p in seen] == [*expected, cues[-1]]
+
+    asyncio.run(run())

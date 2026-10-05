@@ -737,3 +737,21 @@ to 2 MB per source; the separate PDF capture form retains its 10 MB limit.
 GitHub #16 and web setup/review/planning records updated for the current provider.
 All original web slices remain development-complete. No migration. Production
 acceptance remains unverified; native/iOS and its tracker untouched.
+
+
+### Citation passage improvement — #17 (2026-10-05)
+
+Implemented the approved complete-thought passage grouping in the backend Source
+reference module, with shared browser verification for saved notes and assistant
+citations. Exact original text/Unicode offsets, PDF pages and real overlapping
+cue times are preserved. Sentence/paragraph cuts, caption pauses/speaker changes
+and bounded duration/length grouping are covered. Private per-source-version
+policies preserve existing jobs and retries; old claims default to legacy.
+
+Local checks: 198 backend tests and 68 web tests pass; web build/typecheck/lint
+pass. The documented uv command selected the global Anaconda pytest without
+LangChain; the existing backend virtualenv Python ran the equivalent full suite.
+Migration 012 is prepared and tested locally, not applied. Independent review and
+hosted activation/acceptance remain pending. No changes to native/iOS or its
+progress tracker. Scope/setup: docs/planning/citation-passages.md and
+docs/citation-passages-setup.md.

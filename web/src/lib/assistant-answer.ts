@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {referenceMatchesSource} from './source-references';
 import {referenceSchema} from './study-note';
 import type {SavedSource} from './source-client';
 const text=(max:number)=>z.string().refine(v=>!!v.trim()&&Array.from(v).length<=max);
@@ -13,9 +14,5 @@ export type AssistantReference=z.infer<typeof assistantReferenceSchema>;
 export interface AssistantQuestion {question:string;source_version:number;topic_id?:string|null;library?:boolean;history?:{role:'user'|'assistant';text:string}[];}
 
 export function citationMatchesSource(ref:AssistantReference,source:SavedSource){
- const p=ref.passage;
- if(ref.source_id!==source.id||ref.source_version!==(source.source_version??1)||Array.from(source.captured_text).slice(p.start,p.end).join('')!==p.excerpt)return false;
- if(source.document)return p.start_ms==null&&source.document.pages.some(page=>page.page===p.page&&page.start<=p.start&&p.end<=page.end);
- if(source.transcript)return p.page==null&&source.transcript.segments.some(c=>c.start<=p.start&&p.end<=c.end&&c.start_ms===p.start_ms&&c.end_ms===p.end_ms);
- return p.page==null&&p.start_ms==null;
+ return ref.source_id===source.id && ref.source_version===(source.source_version??1) && referenceMatchesSource(ref.passage,source);
 }

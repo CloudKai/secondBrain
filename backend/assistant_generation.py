@@ -9,17 +9,12 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from backend.study_generation import GenerationFailure
 from backend.citation_grounding import citation_prose
+from backend.source_references import reference_matches_source
 from backend.assistant_models import AssistantQuestion, AssistantInput, DraftAssistantAnswer, AssistantAnswer, AssistantReference
 
 
 def exact_location(row, passage):
-    if row.captured_text[passage.start:passage.end] != passage.excerpt:
-        return False
-    if row.document:
-        return passage.start_ms is None and any(p.page == passage.page and p.start <= passage.start < passage.end <= p.end for p in row.document.pages)
-    if row.transcript:
-        return passage.page is None and any(s.start <= passage.start < passage.end <= s.end and s.start_ms == passage.start_ms and s.end_ms == passage.end_ms for s in row.transcript.segments)
-    return passage.page is None and passage.start_ms is None
+    return reference_matches_source(row.captured_text, passage, row.document, row.transcript)
 
 
 class AnswerState(TypedDict):

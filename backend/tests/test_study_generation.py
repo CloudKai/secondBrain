@@ -189,3 +189,40 @@ def test_provider_timeout_has_one_attempt_and_a_retryable_code():
         assert len(calls) == 1
 
     asyncio.run(run())
+
+
+def test_generated_citation_ends_at_a_complete_paragraph_before_long_next_sentence():
+    first = 'Evidence should retain a complete explanation. ' * 3 + '\n\n'
+    text = first + 'An extended explanation ' + 'continues without punctuation ' * 40
+    seen = []
+
+    def external(request):
+        seen.extend(json.loads(json.loads(request.content)['messages'][-1]['content'])['passages'])
+        return completion(request)
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(external)) as client:
+            note = await StudyGenerator(client, api_key='test-key').generate(text)
+        assert note.references[0].excerpt == first
+        assert note.references[0].end == len(first)
+        assert len(seen[0]['text']) <= 900
+
+    asyncio.run(run())
+
+
+def test_pdf_citation_prefers_sentence_ending_across_soft_lines_and_keeps_original_page():
+    from backend.source_models import PDFDocument
+    first = 'Dr. Lane explains how a derivative 🚀 measures\na rate of change. '
+    text = first + 'An extended explanation ' + 'continues without punctuation ' * 40
+    document = PDFDocument(filename='calculus.pdf', page_count=5, selected_pages={'start': 3, 'end': 3},
+                           pages=[{'page': 3, 'start': 0, 'end': len(text)}])
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(completion)) as client:
+            note = await StudyGenerator(client, api_key='test-key').generate(text, document=document)
+        assert note.references[0].excerpt == first
+        assert note.references[0].page == 3
+        assert note.references[0].start_ms is None
+        assert note.references[0].end == len(first)
+
+    asyncio.run(run())

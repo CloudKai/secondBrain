@@ -152,3 +152,26 @@ def test_prior_assistant_claims_do_not_become_followup_model_evidence(assistant_
     model=next(r for r in state['calls'] if r.url.path=='/v1/chat/completions')
     payload=json.loads(json.loads(model.content)['messages'][1]['content'])
     assert payload['history']==[{'role':'user','text':'Explain evaluation A.'}]
+
+
+@pytest.mark.parametrize('end_ms,expected_status',[(18000,200),(16000,503),(19000,503)])
+def test_assistant_uses_exact_joined_caption_evidence_and_rejects_fabricated_times(assistant_client,end_ms,expected_status):
+    client,state=assistant_client
+    first,second='Retrieval 🚀 supplies documents','to support generated answers.'
+    remainder='The generator uses this evidence and keeps attribution to the original source.'
+    text='\n'.join([first,second,remainder])
+    passage={'id':'p0001','start':0,'end':len(first)+1+len(second),'excerpt':first+'\n'+second,'page':None,'start_ms':12000,'end_ms':end_ms}
+    row=state['rows'][0]
+    row['captured_text']=text
+    row['transcript']={'provider':'youtube','format':'vtt','filename':None,'segments':[
+        {'start':0,'end':len(first),'start_ms':12000,'end_ms':18000},
+        {'start':len(first)+1,'end':len(first)+1+len(second),'start_ms':14000,'end_ms':16000},
+        {'start':len(first)+2+len(second),'end':len(text),'start_ms':18000,'end_ms':22000},
+    ]}
+    row['note']=json.loads(json.dumps(NOTE));row['note']['references']=[passage]
+    response=ask(client)
+    assert response.status_code==expected_status,response.text
+    if expected_status==200:
+        assert response.json()['references'][0]['passage']==passage
+    else:
+        assert not any(r.url.path=='/v1/chat/completions' for r in state['calls'])

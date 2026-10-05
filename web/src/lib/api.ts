@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { referenceMatchesSource } from "./source-references";
 import type { Note } from "../types";
 import type { SavedSource } from "./source-client";
 import { studyLabel, studyMessage, type StudyRecord } from "./study-note";
@@ -11,26 +12,7 @@ export function noteFromSavedSource(
     study &&
     ((study.source_version ?? 1) !== (source.source_version ?? 1) ||
       study.source_id !== source.id ||
-      study.note?.references.some(
-        (r) =>
-          Array.from(source.captured_text).slice(r.start, r.end).join("") !==
-            r.excerpt ||
-          (source.source_kind === "pdf"
-            ? !source.document?.pages.some(
-                (p) =>
-                  p.page === r.page && r.start >= p.start && r.end <= p.end,
-              )
-            : r.page != null) ||
-          (source.source_kind === "video"
-            ? !source.transcript?.segments.some(
-                (s) =>
-                  r.start >= s.start &&
-                  r.end <= s.end &&
-                  (r.start_ms ?? null) === s.start_ms &&
-                  (r.end_ms ?? null) === s.end_ms,
-              )
-            : r.start_ms != null || r.end_ms != null),
-      ))
+      study.note?.references.some((r) => !referenceMatchesSource(r, source)))
   ) {
     throw new Error(
       "The saved note's source references could not be verified. Retry loading.",

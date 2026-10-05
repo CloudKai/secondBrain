@@ -129,6 +129,7 @@ class StudyRequest(StrictModel):
 
 
 class WorkerClaim(StrictModel):
+    passage_policy: Literal["legacy", "thought_v1"] = "legacy"
     source_version: int = Field(default=1, ge=1, le=20)
     completed_sections: list[SectionSummary] = Field(default_factory=list, max_length=20)
     source_id: UUID

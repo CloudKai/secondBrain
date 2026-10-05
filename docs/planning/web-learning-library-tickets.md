@@ -53,6 +53,15 @@ completion comments. This document maps them to the original 15-slice plan;
 `context/web-progress-tracker.md` records web checks, and `scope.md` records decisions.
 Update this overview and the relevant acceptance checkboxes when a slice closes.
 
+## Post-plan improvements
+
+| Work | Status | Ticket and scope |
+| --- | --- | --- |
+| Complete-thought citation passages and caption grouping | Implemented locally; review and migration 012 activation pending | [#17](https://github.com/CloudKai/secondBrain/issues/17), [spec](citation-passages.md), [setup](../citation-passages-setup.md) |
+
+Citation work passes 198 backend and 68 web tests plus web build/typecheck/lint.
+The original 15 slices above remain development-complete.
+
 ## Supplied UI/UX and implementation baseline
 
 The product specification in `context/learning-library-design.md` is confirmed.

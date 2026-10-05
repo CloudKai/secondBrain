@@ -87,3 +87,38 @@ test('original page and cue ranges validate under RLS and unchanged legacy captu
  await learner(db,bob);assert.deepEqual((await db.query('select id from sources')).rows,[]);
  }finally{await db.close();}
 });
+
+test('passage policies preserve existing jobs and pin new source versions under worker ownership',async()=>{
+ const db=await database();try{
+ await db.exec('reset role');
+ const migration=await readFile(new URL('../../../supabase/migrations/202610050012_citation_passages.sql',import.meta.url),'utf8').catch(()=> '');
+ if(migration)await db.exec(migration);
+ await worker(db);
+ const old=(await db.query<{v:{passage_policy:string}}>('select claim_source_study($1) v',[id])).rows[0].v;
+ assert.equal(old.passage_policy,'legacy');
+ await learner(db);
+ const freshId='77777777-7777-4777-8777-777777777777';
+ await db.query(`insert into sources(id,user_id,original_url,canonical_url,title,captured_text,capture_origin,coverage,coverage_detail) values($1,$2,'https://example.com/fresh','https://example.com/fresh','New calculus',$3,'pasted','unknown','Supplied article')`,[freshId,alice,text]);
+ await db.query('select request_source_study($1)',[freshId]);
+ await assert.rejects(db.query('select * from study_passage_policies'));
+ await assert.rejects(db.query('select claim_source_study($1)',[freshId]));
+ await worker(db);
+ const current=(await db.query<{v:{passage_policy:string;lease_token:string}}>('select claim_source_study($1) v',[freshId])).rows[0].v;
+ assert.equal(current.passage_policy,'thought_v1');
+ await db.query('select plan_source_study($1,1,$2,2)',[freshId,current.lease_token]);
+ await db.query('select save_study_section($1,1,$2,0,$3::jsonb)',[freshId,current.lease_token,JSON.stringify(summary)]);
+ await db.query("select finish_source_study($1,$2,null,'provider_unavailable')",[freshId,current.lease_token]);
+ await db.query('update source_studies set next_attempt_at=now() where source_id=$1',[freshId]);
+ const retry=(await db.query<{v:{passage_policy:string;completed_sections:unknown[]}}>('select claim_source_study($1) v',[freshId])).rows[0].v;
+ assert.equal(retry.passage_policy,'thought_v1');assert.deepEqual(retry.completed_sections,[summary]);
+ await learner(db,bob);assert.deepEqual((await db.query('select source_id from source_studies')).rows,[]);
+ await learner(db);
+ const replacement={captured_text:text+' Updated explanation.',capture_origin:'pasted',coverage:'unknown',coverage_detail:'Supplied replacement',document:null,transcript:null};
+ const candidate=(await db.query<{v:{candidate_id:string}}>('select compare_source_capture($1,$2::jsonb) v',[id,JSON.stringify(replacement)])).rows[0].v;
+ await db.query('select confirm_source_refresh($1,$2,1)',[id,candidate.candidate_id]);
+ await db.query('select request_source_study($1)',[id]);
+ await worker(db);
+ const refresh=(await db.query<{v:{source_version:number;passage_policy:string}}>('select claim_source_study($1) v',[id])).rows[0].v;
+ assert.equal(refresh.source_version,2);assert.equal(refresh.passage_policy,'thought_v1');
+ }finally{await db.close();}
+});

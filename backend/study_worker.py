@@ -42,6 +42,7 @@ async def build_source_study(ctx: dict, source_id: str) -> None:
         note = await ctx["generator"].generate(
             claim.captured_text,
             completed_sections=claim.completed_sections,
+            passage_policy=claim.passage_policy,
             on_plan=lambda total: store.plan(claim, total),
             on_section=lambda index, summary: store.save_section(claim, index, summary),
             **({"document": claim.document} if claim.document else {}),
