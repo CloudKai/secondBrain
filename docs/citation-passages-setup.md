@@ -1,6 +1,6 @@
 # Citation passage grouping
 
-## Implemented locally
+## Current verified behavior
 
 The Source reference module owns exact passage text, paragraph/sentence cuts,
 caption grouping and location verification. Browser notes and assistant answers
@@ -52,6 +52,9 @@ retain their meaning. Existing captures and completed notes need no data rewrite
 
 ## Verification
 
-Local model HTTP, assistant API, database worker/ownership and browser citation
-checks are recorded in the web progress tracker and ticket #17. Hosted migration
-activation and real model/browser acceptance are recorded separately.
+200 backend tests, 68 web tests and web build/typecheck/lint pass. Both independent
+reviews are clear. Migration 012 is applied in development. Hosted model/worker
+generation, saved exact text/time validation, browser note/assistant citation
+inspection and reload pass for a temporary six-cue video fixture. The fixture
+and dependent records were removed and verified. See the web progress tracker,
+ticket #17 and docs/reviews/ticket17.md. Production acceptance is not claimed.

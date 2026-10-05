@@ -755,3 +755,28 @@ Migration 012 is prepared and tested locally, not applied. Independent review an
 hosted activation/acceptance remain pending. No changes to native/iOS or its
 progress tracker. Scope/setup: docs/planning/citation-passages.md and
 docs/citation-passages-setup.md.
+
+
+### Citation passages complete — #17 (2026-10-05)
+
+Implementation `df49f05` and review fixes `074f157` pass 200 backend tests,
+68 web tests and web build/typecheck/lint. Final independent standards and
+specification reviews both report zero findings. Lowercase/Unicode speaker
+labels and embedded caption paragraphs are covered without changing legacy
+grouping. Migration 012 applied successfully to the AI Study Friends development
+project; the matching API, worker and frontend are running.
+
+A controlled six-cue VTT source generated three exact complete-thought references
+at 0:00–0:07, 0:06–0:12 and 0:14–0:18, with real overlapping times and original
+blank lines. Hosted storage verifies `thought_v1`, exact excerpts and locations.
+Browser note/assistant citation inspection and saved-note reload pass. The
+temporary source and six dependent record sets were removed and verified; browser
+reload restores the original empty acceptance workspace. Existing learner sources
+were not targeted. GitHub #17 complete; both web planning/progress records updated.
+
+New studies and changed source versions use the new grouping; existing notes and
+previous jobs retain their saved references/policy. This is bounded English
+punctuation-based grouping, not semantic topic detection or inferred word times.
+Production, OCR and private provider retrieval remain planned. Native/iOS and
+its progress tracker untouched. Setup/review: docs/citation-passages-setup.md
+and docs/reviews/ticket17.md.

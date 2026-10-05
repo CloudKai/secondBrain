@@ -37,6 +37,9 @@ policy persistence, and cross-user denial. No native/iOS changes.
 
 ## Verified implementation
 
-Local implementation passes 198 backend and 68 web tests plus web build/typecheck/lint.
-Migration 012 passes local ownership/retry checks; review and hosted activation
-are pending. Existing hosted jobs still use legacy grouping until activation.
+Implementation and review fixes through `074f157` pass 200 backend and 68 web
+tests plus web build/typecheck/lint. Both review axes are clear. Migration 012
+applied in development; the real model/worker/browser flow produced three exact
+references from six supplied cues, including overlapping times and blank lines.
+Note and assistant inspection and note reload passed. The temporary source and
+its dependent records were cleaned. Production acceptance is not claimed.

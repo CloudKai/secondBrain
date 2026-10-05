@@ -6,10 +6,10 @@ completed acceptance records in `context/web-progress-tracker.md` and `scope.md`
 ## Progress at a glance
 
 **Verified MVP:** planned tickets **01–15 are complete** (15 of 15 slices), including
-development acceptance. GitHub issues **#1–#16 are closed**; #4 is an extra
+development acceptance. GitHub issues **#1–#17 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
-**Last completed:** planned ticket **15**, live reliable-resource discovery and explicit saving — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16).
+**Last completed:** post-plan citation passage improvement — [GitHub #17](https://github.com/CloudKai/secondBrain/issues/17). Original planned ticket **15**, live discovery, remains complete.
 
 **Current unit:** none; the original 15-slice web plan is complete.
 
@@ -38,7 +38,7 @@ remains planned.
 | 14 | Grounded assistant with selectable scopes | Complete; local + hosted acceptance | [#15](https://github.com/CloudKai/secondBrain/issues/15), [setup](../assistant-setup.md), [review](../reviews/ticket15.md) |
 | 15 | Live reliable-resource discovery and explicit saving | Complete; local + hosted development acceptance | [#16](https://github.com/CloudKai/secondBrain/issues/16), [setup](../research-discovery-setup.md), [review](../reviews/ticket16.md) |
 
-Latest completed checks: **188 backend tests, 66 web tests, web build/typecheck
+Latest completed checks: **200 backend tests, 68 web tests, web build/typecheck
 and lint**. The provider replacement uses OpenAI search and direct public fetch;
 TinyFish is not used. Independent standards/spec reviews pass through `a5491c3`;
 the replacement review is recorded in the setup/review documents.
@@ -57,9 +57,12 @@ Update this overview and the relevant acceptance checkboxes when a slice closes.
 
 | Work | Status | Ticket and scope |
 | --- | --- | --- |
-| Complete-thought citation passages and caption grouping | Implemented locally; review and migration 012 activation pending | [#17](https://github.com/CloudKai/secondBrain/issues/17), [spec](citation-passages.md), [setup](../citation-passages-setup.md) |
+| Complete-thought citation passages and caption grouping | Complete; migration 012 applied, local + hosted development acceptance | [#17](https://github.com/CloudKai/secondBrain/issues/17), [spec](citation-passages.md), [setup](../citation-passages-setup.md) |
 
-Citation work passes 198 backend and 68 web tests plus web build/typecheck/lint.
+Citation work passes 200 backend and 68 web tests plus web build/typecheck/lint.
+Independent standards/spec reviews are clear through `074f157`. A six-cue live
+fixture produced three exact joined references, with note/assistant inspection
+and reload verified. The temporary source and dependent records were cleaned.
 The original 15 slices above remain development-complete.
 
 ## Supplied UI/UX and implementation baseline
