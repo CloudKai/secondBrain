@@ -1,3 +1,4 @@
+import {researchResultsSchema} from "./research";
 import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
 import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
 import { overviewSnapshotSchema } from "./topic-overview";
@@ -231,7 +232,7 @@ export function createSourceClient(
       );
     }
     if (!response.ok) {
-      if(path.endsWith('/ask')) {
+      if(path.endsWith('/ask') || path === '/research') {
         const body:unknown=await response.json().catch(()=>null);
         const detail=z.object({detail:boundedText(1,500)}).safeParse(body);
         throw new Error(detail.success?detail.data.detail:'The assistant is unavailable. Check the connection and retry.');
@@ -302,6 +303,11 @@ export function createSourceClient(
 
   return {
     ready,
+    async research(query: string) {
+      const results=await parse(await request('/research',{method:'POST',body:JSON.stringify({query})}),researchResultsSchema);
+      if(results.query!==query.trim())throw new Error('The research results do not match your question. Search again.');
+      return results;
+    },
     async ask(id:string,question:AssistantQuestion) {
       const answer=await parse(await request(`/sources/${encodeURIComponent(id)}/ask`,{method:'POST',body:JSON.stringify(question)}),assistantAnswerSchema);
       if(answer.source_ids[0]!==id || answer.references.some(r=>r.source_id===id&&r.source_version!==question.source_version) || (!question.library&&!question.topic_id&&answer.source_ids.length!==1))throw new Error('The library returned incomplete assistant evidence. Reload and ask again.');

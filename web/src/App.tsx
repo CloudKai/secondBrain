@@ -1,3 +1,4 @@
+import ResearchDiscovery from "./components/ResearchDiscovery";
 import SavedAssistant from "./components/SavedAssistant";
 import {citationMatchesSource, type AssistantReference} from "./lib/assistant-answer";
 import CaptureRangeFields from "./components/CaptureRangeFields";
@@ -114,6 +115,7 @@ export default function App() {
     [dialog, setDialog] = useState<Dialog>(null),
     [theme, setTheme] = useState("dark"),
     [toast, setToast] = useState("");
+  const [researchSeed,setResearchSeed]=useState('');
   const [captureRange,setCaptureRange]=useState<RangeFields>(wholeSourceFields);
   const [pdfMode, setPdfMode] = useState("upload");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -1499,7 +1501,7 @@ export default function App() {
                         topics={topicMaps.library.maps.find(m=>m.source_id===currentNote.id)?.analysis?.topics.filter(t=>!t.uncertain).map(t=>({id:t.id,title:t.title}))??[]}
                         client={sourceClient}
                         onCitation={inspectAssistantCitation}
-                        onDiscover={()=>go('discover')}
+                        onDiscover={(question)=>{setResearchSeed(Array.from(`${currentNote.title}: ${question}`).slice(0,500).join(''));go('discover');}}
                       />}
 
                     </>
@@ -1806,92 +1808,17 @@ export default function App() {
               </div>
             </div>
           )}
-          {route.page === "discover" && (
-            <div className="discover-page">
-              <div className="page-heading">
-                <span className="eyebrow">GO ONE IDEA DEEPER</span>
-                <h1>
-                  Follow the original thinking
-                  <span className="brand-period">.</span>
-                </h1>
-                <p>
-                  A small, curated reading list of original research and
-                  university teaching material.
-                </p>
-              </div>
-              <div className="research-notice">
-                <Sparkles size={19} />
-                <div>
-                  <strong>A starting point for your next question</strong>
-                  <p>
-                    These are curated examples. On-demand research discovery is
-                    planned. Inspect an original before choosing to add it.
-                  </p>
-                </div>
-                <span className="badge">Reading-list preview</span>
-              </div>
-              <div className="reading-grid">
-                {sampleNotes.map((n) => (
-                  <article
-                    className={`reading-card tone-${n.color}`}
-                    key={n.id}
-                  >
-                    <div className="reading-card-top">
-                      <span className="topic-icon">
-                        <FileText size={24} />
-                      </span>
-                      <span className="badge">
-                        {n.kind === "Paper"
-                          ? "Research paper"
-                          : "University teaching"}
-                      </span>
-                    </div>
-                    <h2>{n.title}</h2>
-                    <span className="reading-author">
-                      {n.author} · {n.year}
-                    </span>
-                    <p>{n.overview}</p>
-                    <div className="reading-relevance">
-                      <strong>Why read it</strong>
-                      <p>{n.subtitle}</p>
-                    </div>
-                    <div className="reading-actions">
-                      <a
-                        className="button secondary"
-                        href={n.url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open original <ExternalLink size={14} />
-                      </a>
-                      <button
-                        className="text-button"
-                        onClick={() => {
-                          const existing = notes.find(
-                            (x) => !!x.url && canonicalUrl(x.url) === canonicalUrl(n.url),
-                          );
-                          if (existing) openNote(existing);
-                          else showAdd(n.url);
-                        }}
-                      >
-                        {notes.some(
-                          (x) => !!x.url && canonicalUrl(x.url) === canonicalUrl(n.url),
-                        )
-                          ? "View saved note"
-                          : "Add to library"}{" "}
-                        <ArrowRight size={14} />
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <p className="note-disclosure">
-                Original papers are linked through arXiv. These papers were
-                accepted at NeurIPS; arXiv is the linked manuscript repository.
-                Nothing is added to your library automatically.
-              </p>
-            </div>
-          )}
+          {route.page === "discover" && <ResearchDiscovery
+            key={researchSeed} client={sourceClient} connected={storage==='ready'} initialQuery={researchSeed}
+            savedUrl={url=>notes.some(n=>!!n.savedSource&&!!n.url&&canonicalUrl(n.url)===canonicalUrl(url))}
+            onSave={resource=>{
+              const existing=notes.find(n=>!!n.savedSource&&!!n.url&&canonicalUrl(n.url)===canonicalUrl(resource.url));
+              if(existing){openNote(existing);return;}
+              showAdd(resource.url);setSourceTab(resource.capture_kind==='pdf'?'PDF':'Article');
+              setSourceTitle(resource.title);setRawText('');
+            }}
+          />}
+
         </main>
       </div>
       {toast && (
@@ -2179,12 +2106,12 @@ export default function App() {
                   notes and inspectable citations when the study worker is
                   configured. Confirmed topic placements, cited combined
                   overviews, separate source branches, topic renames and merges,
-                  source assignments, and connection decisions persist in your library.
+                  source assignments, and connection decisions persist in your library. On-demand research checks external resource links and lets you explicitly save articles or PDFs.
                 </p>
                 <strong>What is still planned</strong>
                 <p>
                   Automatic Teams/Zoom/Panopto transcript access,
-                  live research discovery, and linked accounts.
+                  linked accounts, and production deployment.
                 </p>
                 <strong>Your data</strong>
                 <p>

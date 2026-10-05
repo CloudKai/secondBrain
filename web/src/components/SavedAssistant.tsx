@@ -3,7 +3,7 @@ import {ArrowUp,BookOpen,Globe2,Network,Sparkles} from 'lucide-react';
 import type {SourceClient} from '../lib/source-client';
 import type {AssistantAnswer,AssistantReference} from '../lib/assistant-answer';
 interface Message {question:string;answer:AssistantAnswer;scope:string;}
-export default function SavedAssistant({sourceId,sourceVersion,topics,client,onCitation,onDiscover}:{sourceId:string;sourceVersion:number;topics:{id:string;title:string}[];client:SourceClient;onCitation:(ref:AssistantReference)=>Promise<void>;onDiscover:()=>void}){
+export default function SavedAssistant({sourceId,sourceVersion,topics,client,onCitation,onDiscover}:{sourceId:string;sourceVersion:number;topics:{id:string;title:string}[];client:SourceClient;onCitation:(ref:AssistantReference)=>Promise<void>;onDiscover:(query:string)=>void}){
  const [input,setInput]=useState(''),[topicScope,setTopicScope]=useState(false),[libraryScope,setLibraryScope]=useState(false),[topicId,setTopicId]=useState(topics[0]?.id??''),[messages,setMessages]=useState<Message[]>([]),[working,setWorking]=useState(false),[error,setError]=useState(''),[pending,setPending]=useState('');
  const mounted=useRef(true),busy=useRef(false);
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
@@ -28,7 +28,7 @@ export default function SavedAssistant({sourceId,sourceVersion,topics,client,onC
   <div className="conversation" role="log" aria-live="polite" aria-label="Study conversation" aria-busy={working}>
    {messages.map((m,i)=><div key={i}><div className="message user"><small>YOU · {m.scope}</small><p>{m.question}</p></div><div className="message assistant"><small>SECOND BRAIN · SAVED EVIDENCE</small>
     {m.answer.claims.map((c,j)=><p key={j}>{c.text}{' '}<span className="study-citations">{c.reference_ids.map(id=>{const index=m.answer.references.findIndex(r=>r.id===id);const ref=m.answer.references[index];return <button key={id} className="citation" aria-label={`Inspect citation ${index+1}: ${ref.title}, passage ${ref.passage.id}`} onClick={()=>void cite(ref)}>{index+1}</button>;})}</span></p>)}
-    {m.answer.gap&&<><p>{m.answer.gap}</p><button className="text-button" onClick={onDiscover}>Find reliable sources <Globe2 size={14} aria-hidden="true"/></button><p className="micro-copy">Opens a reading-list preview. Live research search is planned.</p></>}
+    {m.answer.gap&&<><p>{m.answer.gap}</p><button className="text-button" onClick={()=>onDiscover(m.question)}>Find reliable sources <Globe2 size={14} aria-hidden="true"/></button><p className="micro-copy">Opens external research with your question ready to search. Results enter your library only when you save them.</p></>}
     {m.answer.partial&&<p className="micro-copy">This answer uses selected passages from the retrieved notes. Some saved evidence was omitted to keep the context bounded.</p>}
    </div></div>)}
   </div>

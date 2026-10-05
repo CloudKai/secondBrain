@@ -23,12 +23,12 @@ a result does not save it. Explicit saving reuses current article/PDF capture
 and async study/topic paths. Preserve the current mint palette and layout.
 Native/iOS and its progress tracker remain untouched.
 
-### Proposed test boundaries — user confirmation pending
+### Agreed test boundaries — user approved
 
 Authenticated discovery API, external search/page HTTP responses, existing
 article/PDF save APIs and browser search/open/save flows. Include missing
 metadata, unverified/unsafe links, provider outages and no library changes
-before saving. No tests will be written at unconfirmed boundaries.
+before saving. The user approved these boundaries on 2026-10-05.
 
 
 ## Documentation checked
@@ -48,5 +48,17 @@ presence only; their values are not printed or committed.
 ## Progress
 
 GitHub #16 published with acceptance checks. API/UI/save boundaries inspected.
-User confirmation of proposed TDD boundaries is pending; no implementation or
-tests written yet. Native/iOS and its progress tracker remain untouched.
+The user approved the proposed TDD boundaries. Local implementation is in
+progress; hosted acceptance and review remain pending. Native/iOS and its progress tracker remain untouched.
+
+## Local implementation checkpoint
+
+Authenticated Search → Fetch discovery returns at most six verified public
+resources with honest metadata, preprint status and safe publisher redirects.
+Research never writes library data; explicit saves use the existing article/PDF
+form and study pipeline. Backend API tests demonstrated RED→GREEN for the missing
+route and publisher-redirect rejection; the web client demonstrated RED→GREEN
+for authenticated search. Eighteen API/capture checks and two client checks pass;
+full 179 backend/66 web tests and build/typecheck/lint pass. Live browser search returned three checked resources,
+with the library unchanged. Full checks, independent review, remaining hosted
+save/browser flows and controlled cleanup are pending.

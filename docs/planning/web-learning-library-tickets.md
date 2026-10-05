@@ -11,7 +11,7 @@ citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** planned ticket **14**, grounded assistant with selectable scopes — [GitHub #15](https://github.com/CloudKai/secondBrain/issues/15).
 
-**Current unit:** planned **15**, live reliable-resource discovery — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16). Selected and published; implementation and acceptance pending.
+**Current unit:** planned **15**, live reliable-resource discovery — [GitHub #16](https://github.com/CloudKai/secondBrain/issues/16). Local implementation and full checks pass; independent review and hosted acceptance pending.
 
 **Target behavior:** live discovery is selected planned **15**, published as #16; it is not implemented yet. Saved-note assistant
 answers are verified; curated reading-list examples remain a preview. YouTube
@@ -35,7 +35,7 @@ remains planned.
 | 12 | Reuse and versioned refresh | Complete; local + hosted acceptance | [#13](https://github.com/CloudKai/secondBrain/issues/13), [scope](../source-revisions-setup.md) |
 | 13 | Long sources and page/time range selection | Complete; local + hosted acceptance | [#14](https://github.com/CloudKai/secondBrain/issues/14), [scope](../long-source-setup.md) |
 | 14 | Grounded assistant with selectable scopes | Complete; local + hosted acceptance | [#15](https://github.com/CloudKai/secondBrain/issues/15), [setup](../assistant-setup.md), [review](../reviews/ticket15.md) |
-| 15 | Live reliable-resource discovery and explicit saving | Selected; implementation/acceptance pending | [#16](https://github.com/CloudKai/secondBrain/issues/16), [scope](../research-discovery-setup.md) |
+| 15 | Live reliable-resource discovery and explicit saving | Local implementation; review/acceptance pending | [#16](https://github.com/CloudKai/secondBrain/issues/16), [scope](../research-discovery-setup.md) |
 
 Latest completed checks: **161 backend tests, 64 web tests, web build/typecheck
 and lint**. Independent standards/spec re-reviews pass. Migration 011, hosted

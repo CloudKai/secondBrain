@@ -676,3 +676,17 @@ results stay external and local until saved. Proposed API/external HTTP/save/
 browser TDD boundaries await user confirmation. No implementation/tests/hosted
 acceptance yet. Native/iOS and its progress tracker untouched. Setup:
 docs/research-discovery-setup.md.
+
+
+### Live discovery local implementation — #16 (2026-10-05)
+
+The user approved discovery API, external Search/Fetch HTTP, article/PDF save
+and browser boundaries. Authenticated on-demand retrieval, bounded verified
+results, safe URLs/redirects, honest metadata and external-resource UI are
+implemented locally. Explicit saves reuse owned capture/study/topic flows;
+search never writes the library. RED→GREEN checks cover the new route, publisher
+redirect rejection and web client. Full 179 backend/66 web tests and web
+build/typecheck/lint pass. Browser live results left the library empty until
+explicit save; a discovered Python documentation article then produced a real
+note and four topics. Independent review, remaining hosted/browser checks and
+controlled cleanup pending. No migration; native/iOS and tracker untouched.
