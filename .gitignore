@@ -7,6 +7,10 @@ __pycache__/
 !.env.example
 .codex
 
+# Downloaded agent skills remain local; shared instructions and the lockfile are tracked.
+/.agents/skills/
+/.claude/skills/
+
 # Browser dependencies and generated bundles
 web/node_modules/
 web/dist/
