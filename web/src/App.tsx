@@ -185,10 +185,11 @@ export default function App() {
   const currentNote =
     notes.find((n) => n.id === route.noteId) ||
     (route.page === "note" ? undefined : notes[0]);
-  const evidenceNote=assistantEvidence && assistantEvidence.anchor===currentNote?.id && assistantEvidence.anchorVersion===(currentNote.savedSource?.source_version??1)?assistantEvidence.note:currentNote;
+  const activeAssistantEvidence=assistantEvidence && assistantEvidence.anchor===currentNote?.id && assistantEvidence.anchorVersion===(currentNote.savedSource?.source_version??1)?assistantEvidence:null;
+  const evidenceNote=activeAssistantEvidence?.note??currentNote;
   const passage =
     selectedPassage?.sourceId === evidenceNote?.id
-      ? (assistantEvidence && assistantEvidence.anchor===currentNote?.id && assistantEvidence.anchorVersion===(currentNote.savedSource?.source_version??1) ? [assistantEvidence.reference.passage] : currentNote?.study?.note?.references)?.find(
+      ? (activeAssistantEvidence ? [activeAssistantEvidence.reference.passage] : currentNote?.study?.note?.references)?.find(
           (r) => r.id === selectedPassage?.id,
         )
       : undefined;
