@@ -5,10 +5,12 @@ export default function Modal({
   title,
   onClose,
   children,
+  className = "",
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function Modal({
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
-      className="modal"
+      className={`modal ${className}`}
       aria-labelledby="modal-title"
     >
       <div className="modal-head">

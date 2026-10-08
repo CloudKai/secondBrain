@@ -1,0 +1,300 @@
+"""Learning journeys through authenticated API and provider HTTP boundaries."""
+import json
+
+import httpx
+import pytest
+from fastapi.testclient import TestClient
+
+from backend.main import app
+
+ALICE = "11111111-1111-4111-8111-111111111111"
+BOB = "22222222-2222-4222-8222-222222222222"
+SOURCE = "33333333-3333-4333-8333-333333333333"
+REQUEST = "44444444-4444-4444-8444-444444444444"
+PLAN = "55555555-5555-4555-8555-555555555555"
+PATH = "66666666-6666-4666-8666-666666666666"
+LEASE = "77777777-7777-4777-8777-777777777777"
+TEXT = "Retrieval finds relevant passages before a model generates an answer. Evidence must support the answer; finding similar wording alone does not establish that support."
+REFERENCE = {"id": "p0001", "start": 0, "end": len(TEXT), "excerpt": TEXT, "page": None, "start_ms": None, "end_ms": None}
+EXPLANATION = {"text": "Retrieval selects passages; generation uses them to answer. Check whether the passages actually support the answer.", "citation_ids": ["p0001"]}
+LESSON = {
+    "title": "Explain retrieval before generation", "outcome": "Distinguish finding relevant passages from verifying an answer.",
+    "explanation": EXPLANATION,
+    "example": {"text": "Imagine looking up a recipe before deciding what to cook. Finding a recipe and checking its ingredients are separate steps.", "provenance": "generated_example", "citation_ids": []},
+    "check": {"kind": "apply", "question": "A retrieved passage has similar words but does not support an answer. What should happen next?",
+              "criteria": ["Distinguishes relevance from support", "Does not accept unsupported answers"],
+              "hint": "What does similarity establish?", "worked_answer": EXPLANATION},
+}
+CONTENT = {"title": "Reason about evidence", "outcomes": [LESSON["outcome"]], "prerequisites": [], "coverage": "This source covers retrieval and support, not implementation.", "gaps": ["No retrieval implementation details"], "background": [], "lessons": [LESSON]}
+DRAFT = {"suggested_goal": "Explain how retrieval and evidence support differ.", "paths": [CONTENT]}
+SOURCE_ROW = {"id": SOURCE, "user_id": ALICE, "source_version": 1, "original_url": "https://example.com/rag", "canonical_url": "https://example.com/rag", "title": "RAG evidence", "source_kind": "article", "document": None, "transcript": None, "captured_text": TEXT, "captured_at": "2026-10-09T00:00:00Z", "capture_origin": "direct", "coverage": "complete", "coverage_detail": "Captured article text", "study_status": "pending"}
+NOTE = {"overview": EXPLANATION, "concepts": [{"title": "Retrieval", **EXPLANATION}], "examples": [], "equations": [], "recall": [{"question": "What is support?", "answer": TEXT, "citation_ids": ["p0001"]}], "references": [REFERENCE]}
+
+
+@pytest.fixture
+def learning_client(monkeypatch):
+    monkeypatch.setenv("SUPABASE_URL", "https://supabase.test")
+    monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", "public-test")
+    monkeypatch.setenv("OPENAI_API_KEY", "model-test-key")
+    monkeypatch.setenv("SUPABASE_SECRET_KEY", "server-test-key")
+    state = {"source_id": SOURCE, "user_id": ALICE, "plans": [], "attempts": [], "activities": []}
+    provider = {"draft": DRAFT, "models": [], "status": 200, "source_version": 1}
+
+    def external(request):
+        owner = request.headers.get("authorization") == "Bearer alice"
+        if request.url.path == "/auth/v1/user":
+            return httpx.Response(200, json={"id": ALICE if owner else BOB})
+        if request.url.path == "/rest/v1/rpc/get_learning_history":
+            return httpx.Response(200, json={"user_id": ALICE if owner else BOB, "collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True}] if owner else [], "next_offset": None})
+        if request.url.path == "/rest/v1/rpc/get_source_learning":
+            assert json.loads(request.content) == {"p_source_id": SOURCE}
+            return httpx.Response(200, json=state) if owner else httpx.Response(404, json={"code": "P0002"})
+        if request.url.path == "/rest/v1/rpc/request_learning_preview":
+            if provider.get("rpc_error"):
+                return httpx.Response(400, json={"code": provider["rpc_error"]})
+            if not owner:
+                return httpx.Response(404, json={"code": "P0002"})
+            body = json.loads(request.content)
+            if body["p_source_version"] != provider["source_version"]:
+                return httpx.Response(409, json={"code": "40001"})
+            return httpx.Response(200, json={"user_id": ALICE, "request_id": body["p_request_id"], "source": provider.get("source", SOURCE_ROW), "note": provider.get("note", NOTE), "path_direction": CONTENT if body["p_path_id"] else None, "lease_token": None if any(p["request_id"]==body["p_request_id"] for p in state["plans"]) else LEASE})
+        if request.url.path == "/v1/responses":
+            body = json.loads(request.content)
+            provider["models"].append(body["model"])
+            provider["last_input"] = json.loads(body["input"])
+            assert body["reasoning"] == {"effort": "medium"}
+            assert body["text"]["format"]["strict"] is True
+            assert request.headers["authorization"] == "Bearer model-test-key"
+            if provider["status"] != 200:
+                return httpx.Response(provider["status"], json={"error": {"message": "Unavailable"}})
+            return httpx.Response(200, json={"status": "completed", "output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps(provider["draft"])}]}]})
+        if request.url.path == "/rest/v1/rpc/finish_learning_preview":
+            assert request.headers["apikey"] == "server-test-key"
+            body = json.loads(request.content)
+            if body["p_draft"]:
+                state["plans"] = [{"id": PLAN, "path_id": PATH, "request_id": REQUEST, "source_id": SOURCE, "source_title": "RAG evidence", "source_version": 1, "goal": body["p_goal"], "difficulty": "foundation", "content": body["p_draft"]["paths"][0], "references": body["p_references"], "confirmed_at": None, "active": False, "needs_review": False, "model": body["p_model"], "policy_version": "learning_v1", "created_at": "2026-10-09T00:00:00Z"}]
+            return httpx.Response(200, json=True)
+        if request.url.path in ("/rest/v1/rpc/confirm_learning_plan", "/rest/v1/rpc/submit_learning_attempt", "/rest/v1/rpc/record_learning_activity"):
+            if not owner:
+                return httpx.Response(404, json={"code": "P0002"})
+            body = json.loads(request.content)
+            if provider["source_version"] != 1:
+                return httpx.Response(409, json={"code": "40001"})
+            plan = state["plans"][0]
+            if request.url.path.endswith("confirm_learning_plan"):
+                plan.update(confirmed_at="2026-10-09T00:00:00Z", active=True)
+            elif request.url.path.endswith("submit_learning_attempt"):
+                if not plan["confirmed_at"]:
+                    return httpx.Response(409, json={"code": "40001"})
+                if not state["attempts"]:
+                    state["attempts"].append({"id": body["p_request_id"], "plan_id": PLAN, "lesson_index": 0,
+                                              "response": body["p_response"], "difficulty": "foundation", "status": "pending",
+                                              "feedback": None, "created_at": "2026-10-09T00:00:00Z"})
+            else:
+                state["activities"] = [{"plan_id": PLAN, "lesson_index": body["p_lesson_index"], "kind": body["p_kind"]}]
+            return httpx.Response(200, json=state)
+        if request.url.path == "/rest/v1/rpc/claim_learning_feedback":
+            body = json.loads(request.content)
+            attempt = next(a for a in state["attempts"] if a["id"] == body["p_attempt_id"])
+            return httpx.Response(200, json={"user_id": ALICE, "source_id": SOURCE, "attempt_id": attempt["id"], "plan_id": PLAN,
+                                            "lesson_index": 0, "response": attempt["response"], "lease_token": LEASE if attempt["status"] != "needs_review" else None})
+        if request.url.path == "/rest/v1/rpc/finish_learning_feedback":
+            assert request.headers["apikey"] == "server-test-key"
+            body = json.loads(request.content)
+            attempt = state["attempts"][0]
+            attempt.update(feedback=body["p_feedback"], status="needs_review" if body["p_feedback"] else "failed")
+            return httpx.Response(200, json=True)
+        raise AssertionError(str(request.url))
+
+    original = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: original(**{**kw, "transport": httpx.MockTransport(external)}))
+    return TestClient(app), state, provider
+
+
+def test_learning_collection_is_owned_and_does_not_activate_without_confirmation(learning_client):
+    client, _, _ = learning_client
+    url = f"/api/v2/sources/{SOURCE}/learning"
+    response = client.get(url, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert response.json() == {"source_id": SOURCE, "plans": [], "attempts": [], "activities": []}
+    assert client.get(url, headers={"Authorization": "Bearer bob"}).status_code == 404
+    assert client.get(url).status_code == 401
+
+
+def test_learning_rejects_unowned_storage_response(learning_client):
+    client, state, _ = learning_client
+    state["user_id"] = BOB
+    assert client.get(f"/api/v2/sources/{SOURCE}/learning", headers={"Authorization": "Bearer alice"}).status_code == 503
+
+
+def test_one_source_teaching_preview_uses_request_model_and_retains_exact_evidence(learning_client):
+    client, _, provider = learning_client
+    url = f"/api/v2/sources/{SOURCE}/learning/preview"
+    payload = {"request_id": REQUEST, "source_version": 1, "goal": "Understand evidence", "difficulty": "foundation", "path_id": None}
+    response = client.post(url, json=payload, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    plan = response.json()["plans"][0]
+    assert plan["goal"] == "Understand evidence"
+    assert plan["references"] == [REFERENCE]
+    assert plan["content"]["lessons"][0]["check"]["criteria"] == LESSON["check"]["criteria"]
+    assert plan["confirmed_at"] is None and plan["active"] is False
+    assert provider["models"] == ["gpt-6-luna"]
+    assert client.post(url, json=payload, headers={"Authorization": "Bearer alice"}).json() == response.json()
+    assert provider["models"] == ["gpt-6-luna"]
+    assert client.post(url, json=payload, headers={"Authorization": "Bearer bob"}).status_code == 404
+
+
+def create_preview(client):
+    response = client.post(f"/api/v2/sources/{SOURCE}/learning/preview", json={"request_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+
+
+def test_confirmed_path_saves_attempt_before_feedback_and_reopening_restores_it(learning_client):
+    client, _, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    answer = {"request_id": LEASE, "lesson_index": 0, "response": "Find evidence that supports the answer, instead of relying only on similar words."}
+    assert client.post(base + "/attempts", json=answer, headers={"Authorization": "Bearer alice"}).status_code == 409
+    response = client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert response.json()["plans"][0]["active"] is True
+    response = client.post(base + "/attempts", json=answer, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 202, response.text
+    assert response.json()["attempts"][0]["response"] == answer["response"]
+    assert response.json()["attempts"][0]["status"] == "pending"
+    assert provider["models"] == ["gpt-6-luna"]
+    client.post(base + "/attempts", json=answer, headers={"Authorization": "Bearer alice"})
+    restored = client.get(f"/api/v2/sources/{SOURCE}/learning", headers={"Authorization": "Bearer alice"}).json()
+    assert len(restored["attempts"]) == 1
+    assert restored["attempts"][0]["difficulty"] == "foundation"
+    assert client.post(base + "/confirm", headers={"Authorization": "Bearer bob"}).status_code == 404
+
+
+def test_feedback_is_criteria_specific_and_inconclusive_without_calibrated_grading(learning_client):
+    client, _, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning"
+    client.post(base + f"/plans/{PLAN}/confirm", headers={"Authorization": "Bearer alice"})
+    client.post(base + f"/plans/{PLAN}/attempts", json={"request_id": LEASE, "lesson_index": 0, "response": "Similar is not the same as supported."}, headers={"Authorization": "Bearer alice"})
+    provider["draft"] = {"summary": "You distinguish similarity from support. Explain what you would do next.", "criteria": [
+        {"criterion_index": 0, "observation": "You identify the distinction.", "assessment": "addressed", "citation_ids": ["p0001"]},
+        {"criterion_index": 1, "observation": "Add how to handle the unsupported answer.", "assessment": "try_again", "citation_ids": ["p0001"]}],
+        "next_hint": "Would you accept, revise or find additional evidence?"}
+    response = client.post(base + f"/attempts/{LEASE}/feedback", headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    attempt = response.json()["attempts"][0]
+    assert attempt["status"] == "needs_review"
+    assert attempt["feedback"]["criteria"][1]["assessment"] == "try_again"
+    assert attempt["response"] == "Similar is not the same as supported."
+    assert provider["models"] == ["gpt-6-luna", "gpt-6-luna"]
+    client.post(base + f"/attempts/{LEASE}/feedback", headers={"Authorization": "Bearer alice"})
+    assert provider["models"] == ["gpt-6-luna", "gpt-6-luna"]
+
+
+def test_lesson_tutor_uses_current_owned_evidence_and_rejects_unknown_citations(learning_client):
+    client, _, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    provider["draft"] = {"text": "Similarity finds candidate passages. Support requires evidence for the answer.", "citation_ids": ["p0001"], "gap": None}
+    response = client.post(base + "/tutor", json={"lesson_index": 0, "question": "Explain the difference again.", "history": []}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert response.json()["citation_ids"] == ["p0001"]
+    assert provider["models"][-1] == "gpt-6-luna"
+    assert client.post(base + "/tutor", json={"lesson_index": 0, "question": "Explain", "history": []}, headers={"Authorization": "Bearer bob"}).status_code == 404
+
+
+def test_invalid_attribution_has_one_bounded_sol_repair_and_never_saves_unknown_citations(learning_client):
+    client, state, provider = learning_client
+    provider["draft"] = json.loads(json.dumps(DRAFT))
+    provider["draft"]["paths"][0]["lessons"][0]["explanation"]["citation_ids"] = ["missing"]
+    response = client.post(f"/api/v2/sources/{SOURCE}/learning/preview", json={"request_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 503
+    assert provider["models"] == ["gpt-6-luna", "gpt-6.1-sol"]
+    assert state["plans"] == []
+
+
+def test_provider_failure_keeps_the_saved_answer_and_does_not_escalate(learning_client):
+    client, _, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning"
+    client.post(base + f"/plans/{PLAN}/confirm", headers={"Authorization": "Bearer alice"})
+    client.post(base + f"/plans/{PLAN}/attempts", json={"request_id": LEASE, "lesson_index": 0, "response": "My saved explanation"}, headers={"Authorization": "Bearer alice"})
+    provider["status"] = 503
+    result = client.post(base + f"/attempts/{LEASE}/feedback", headers={"Authorization": "Bearer alice"})
+    assert result.status_code == 200, result.text
+    assert result.json()["attempts"][0]["status"] == "failed"
+    assert result.json()["attempts"][0]["response"] == "My saved explanation"
+    assert provider["models"] == ["gpt-6-luna", "gpt-6-luna"]
+
+
+def test_source_change_blocks_new_activity_and_tutor_before_provider_calls(learning_client):
+    client, state, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    state["plans"][0]["needs_review"] = True
+    provider["source_version"] = 2
+    assert client.post(base + "/activity", json={"lesson_index": 0, "kind": "read"}, headers={"Authorization": "Bearer alice"}).status_code == 409
+    assert client.post(base + "/tutor", json={"lesson_index": 0, "question": "Help", "history": []}, headers={"Authorization": "Bearer alice"}).status_code == 409
+    assert provider["models"] == ["gpt-6-luna"]
+
+
+@pytest.mark.parametrize("field,value", [("outcomes", ""), ("prerequisites", "x" * 501), ("gaps", "")])
+def test_invalid_path_strings_are_rejected_before_persistence(learning_client, field, value):
+    client, state, provider = learning_client
+    provider["draft"] = json.loads(json.dumps(DRAFT))
+    provider["draft"]["paths"][0][field] = [value]
+    response = client.post(f"/api/v2/sources/{SOURCE}/learning/preview", json={"request_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 503
+    assert state["plans"] == []
+
+
+@pytest.mark.parametrize("code,status,description", [("55P03", 409, "still running"), ("54000", 429, "limit")])
+def test_busy_and_exhausted_requests_have_actionable_recovery(learning_client, code, status, description):
+    client, _, provider = learning_client
+    provider["rpc_error"] = code
+    response = client.post(f"/api/v2/sources/{SOURCE}/learning/preview", json={"request_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == status
+    assert description in response.json()["detail"]
+
+
+def test_difficulty_generation_preserves_chosen_path_direction(learning_client):
+    client, state, provider = learning_client
+    url = f"/api/v2/sources/{SOURCE}/learning/preview"
+    client.post(url, json={"request_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    provider["draft"] = json.loads(json.dumps(DRAFT))
+    provider["draft"]["paths"][0]["title"] = "A different learning direction"
+    response = client.post(url, json={"request_id": "88888888-8888-4888-8888-888888888888", "source_version": 1, "path_id": PATH, "goal": DRAFT["suggested_goal"], "difficulty": "advanced"}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 503
+    assert provider["last_input"]["chosen_path_direction"] == CONTENT
+    assert state["plans"][0]["content"]["title"] == CONTENT["title"]
+    assert provider["models"] == ["gpt-6-luna", "gpt-6-luna", "gpt-6.1-sol"]
+
+
+@pytest.mark.parametrize("kind", ["pdf", "video"])
+def test_learning_preserves_original_page_and_caption_locations(learning_client, kind):
+    client, _, provider = learning_client
+    source = dict(SOURCE_ROW)
+    reference = dict(REFERENCE)
+    if kind == "pdf":
+        source.update(source_kind="pdf", document={"filename": None, "page_count": 1, "pages": [{"page": 1, "start": 0, "end": len(TEXT)}]})
+        reference["page"] = 1
+    else:
+        url = "https://www.youtube.com/watch?v=abcdefghijk"
+        source.update(source_kind="video", original_url=url, canonical_url=url, capture_origin="pasted", coverage="unknown", transcript={"provider": "youtube", "format": "vtt", "filename": None, "segments": [{"start": 0, "end": len(TEXT), "start_ms": 1000, "end_ms": 12000}]})
+        reference.update(start_ms=1000, end_ms=12000)
+    provider["source"] = source
+    provider["note"] = {**NOTE, "references": [reference]}
+    response = client.post(f"/api/v2/sources/{SOURCE}/learning/preview", json={"request_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert response.json()["plans"][0]["references"] == [reference]
+    assert provider["last_input"]["evidence"] == [reference]
+
+
+def test_learning_history_requires_a_session_and_retains_owner_boundary(learning_client):
+    client, _, _ = learning_client
+    assert client.get("/api/v2/learning/history").status_code == 401
+    assert client.get("/api/v2/learning/history?offset=-1", headers={"Authorization": "Bearer alice"}).status_code == 422
+    assert client.get("/api/v2/learning/history", headers={"Authorization": "Bearer alice"}).json() == {"collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True}], "next_offset": None}
+    assert client.get("/api/v2/learning/history", headers={"Authorization": "Bearer bob"}).json() == {"collections": [], "next_offset": None}

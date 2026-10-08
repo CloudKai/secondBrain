@@ -4,6 +4,24 @@ This file separates the verified implementation from the selected target. A
 target component is not available until its slice is marked verified in
 `scope.md` and `context/progress-tracker.md`.
 
+## Web one-source learning — implemented in development, 2026-10-09
+
+`backend/learning.py` exposes authenticated preview/confirmation, attempts,
+feedback, activities, tutor and paginated history APIs. Postgres migration 015
+adds owned learning paths, leased previews, immutable plans, attempts and activity.
+Learner reads/mutations use the learner JWT. Only generated finish RPCs use a
+server credential with expiring request leases; source/version locks fence late
+writes. Removed sources retain learner work and clear captured reference excerpts.
+
+`LearningJourney`, `LearningTutor` and `LearningHistory` render stored teaching,
+provisional feedback and prior difficulty work. Learning generation uses selected
+saved-note passages with exact original coordinates, independently of Qdrant.
+Source notes remain read-only. Per-request Responses routing is Luna medium first
+and at most one Sol 6.1 medium structural/attribution repair. Semantic confidence
+routing and verified grading remain gated on evaluation. Multi-source revisions,
+goal branches and graph learning states are targets, not implemented capabilities.
+See the [development acceptance](../docs/reviews/learning-journey-acceptance-2026-10-09.md).
+
 ## Repository topology
 
 ```text

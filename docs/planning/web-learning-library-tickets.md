@@ -75,6 +75,22 @@ text, capture, source version and four topic assignments are preserved. Topic
 evidence IDs were remapped atomically. Exact saved text/times and preserved
 source/job/map state were verified; no model regeneration or new migration.
 
+## Topic learning journey — development delivery, 2026-10-09
+
+**Learning journey implementation:** [topic learning journeys](topic-learning-journey-spec.md)
+is published as [#28](https://github.com/CloudKai/secondBrain/issues/28), labelled
+`ready-for-agent`. It covers the full phased learning vision, with complete
+one-source teaching selected for first delivery. Per-request Luna/Sol-medium
+routing includes proposed escalation checks and measured quality/cost gates.
+Testing boundaries were approved. The first one-source unit is implemented in
+development with migration 015 and live article confirmation/practice/history
+checks. Feedback remains provisional; semantic/cost acceptance and desktop/zoom
+checks remain. Multi-source revisions and branches/graph states are later phases. The [interview record](topic-learning-journey.md) preserves decisions.
+
+| Work | Status | Ticket and scope |
+| --- | --- | --- |
+| Source-backed topic learning journeys | First phase implemented in development; 284 backend / 85 web checks pass; remaining acceptance and later phases open | [#28](https://github.com/CloudKai/secondBrain/issues/28), [spec](topic-learning-journey-spec.md) |
+
 ## Supplied UI/UX and implementation baseline
 
 The product specification in `context/learning-library-design.md` is confirmed.

@@ -1,3 +1,4 @@
+import {learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
 import {researchResultsSchema} from "./research";
 import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
 import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
@@ -232,7 +233,7 @@ export function createSourceClient(
       );
     }
     if (!response.ok) {
-      if(path.endsWith('/ask') || path === '/research') {
+      if(path.endsWith('/ask') || path === '/research' || path.includes('/learning')) {
         const body:unknown=await response.json().catch(()=>null);
         const detail=z.object({detail:boundedText(1,500)}).safeParse(body);
         throw new Error(detail.success?detail.data.detail:'The assistant is unavailable. Check the connection and retry.');
@@ -302,6 +303,34 @@ export function createSourceClient(
   }
 
   return {
+    async learningHistory(offset=0) {
+      return parse(await request(`/learning/history?offset=${offset}`),learningHistorySchema);
+    },
+    async learning(sourceId:string) {
+      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning`),learningSnapshotSchema);
+      if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
+      return result;
+    },
+    async previewLearning(sourceId:string,input:LearningPreviewInput) {
+      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/preview`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
+      if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
+      return result;
+    },
+    async confirmLearning(sourceId:string,planId:string) {
+      return parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/confirm`,{method:'POST'}),learningSnapshotSchema);
+    },
+    async submitLearningAttempt(sourceId:string,planId:string,input:LearningAttemptInput) {
+      return parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/attempts`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
+    },
+    async learningFeedback(sourceId:string,attemptId:string) {
+      return parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/attempts/${encodeURIComponent(attemptId)}/feedback`,{method:'POST'}),learningSnapshotSchema);
+    },
+    async learningActivity(sourceId:string,planId:string,input:Omit<LearningActivity,'plan_id'>) {
+      return parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/activity`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
+    },
+    async learningTutor(sourceId:string,planId:string,input:LearningTutorQuestion) {
+      return parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/tutor`,{method:'POST',body:JSON.stringify(input)}),learningTutorSchema);
+    },
     ready,
     async research(query: string) {
       const results=await parse(await request('/research',{method:'POST',body:JSON.stringify({query})}),researchResultsSchema);

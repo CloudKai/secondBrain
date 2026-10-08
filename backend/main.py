@@ -11,6 +11,7 @@ from backend.topics import router as topics_router
 from backend.revisions import router as revisions_router
 from backend.assistant import router as assistant_router
 from backend.research import router as research_router
+from backend.learning import router as learning_router
 
 app = FastAPI(
     title="AI Second Brain API",
@@ -23,6 +24,7 @@ app.include_router(topics_router)
 app.include_router(revisions_router)
 app.include_router(assistant_router)
 app.include_router(research_router)
+app.include_router(learning_router)
 
 
 @app.get("/health", tags=["system"])

@@ -1,5 +1,7 @@
 import ResearchDiscovery from "./components/ResearchDiscovery";
 import SavedAssistant from "./components/SavedAssistant";
+import LearningJourney from './components/LearningJourney';
+import LearningHistory from './components/LearningHistory';
 import {citationMatchesSource, type AssistantReference} from "./lib/assistant-answer";
 import CaptureRangeFields from "./components/CaptureRangeFields";
 import {selectedRange,wholeSourceFields,type RangeFields,type CaptureRange} from "./lib/capture-range";
@@ -1057,6 +1059,7 @@ export default function App() {
           {route.page === "library" && (
             <div className="library-layout">
               <section className="library-main">
+                {sourceClient&&storage==='ready'&&<LearningHistory client={sourceClient} onOpen={id=>{const note=notes.find(item=>item.id===id);if(note)openNote(note);}}/>}
                 <div className="page-heading">
                   <span className="eyebrow">
                     YOUR PERSONAL LEARNING LIBRARY
@@ -1481,6 +1484,13 @@ export default function App() {
                   )}
                   {currentNote.study?.note ? (
                     <>
+                      {currentNote.savedSource&&sourceClient&&<LearningJourney
+                        key={`learning-${currentNote.id}-${currentNote.savedSource.source_version??1}`}
+                        source={currentNote.savedSource} client={sourceClient} enabled={storage==='ready'}
+                        topicTitle={topicMaps.library.maps.find(map=>map.source_id===currentNote.id)?.analysis?.topics.find(topic=>topic.role==='main'&&!topic.uncertain)?.title}
+                        onCitation={inspectAssistantCitation}
+                        onDiscover={query=>{setResearchSeed(Array.from(query).slice(0,500).join(''));go('discover');}}
+                      />}
                       <p className="note-disclosure">
                         {currentNote.savedSource?.coverage_detail} This note
                         uses the captured text; verify explanations against the

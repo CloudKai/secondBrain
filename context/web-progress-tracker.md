@@ -1,5 +1,27 @@
 # Web Progress Tracker
 
+## Topic learning journey — first phase implemented in development, 2026-10-09
+
+**Implemented:** the first one-source unit of [#28](https://github.com/CloudKai/secondBrain/issues/28)
+now offers editable goals, previewed paths, outcome-driven lessons/examples,
+written practice, provisional criterion feedback, hints/retry/worked answers,
+a lesson tutor, retained difficulty/history and library review. Postgres/RLS
+owns saved progress; source changes fence writes and removed sources retain
+answers while capture reference excerpts are cleared. Migration 015 is applied.
+
+Per-request Luna medium runs first; Sol 6.1 medium can repair invalid structure
+or attribution once. All feedback remains Needs review; no verified pass/mastery.
+The learner approved authenticated API, model HTTP and browser test boundaries.
+284 backend / 85 web tests pass, plus typecheck/lint/build and whitespace checks.
+The live public-article journey verified confirmation, practice/tutor, exact
+citation and difficulty/reload preservation in both themes at narrow width.
+
+**Remaining:** desktop/200% zoom controls were ineffective in IAB; live PDF/video
+journeys, full accessibility and held-out semantic/cost/latency acceptance remain.
+Multi-source revisions and goal branches/graph progress are later phases. #28
+stays open. See [acceptance](../docs/reviews/learning-journey-acceptance-2026-10-09.md).
+Mobile/iOS and its progress tracker are untouched.
+
 ## Current status — 2026-10-05
 
 **Verified MVP:** all planned tickets 01–15 are complete with development
