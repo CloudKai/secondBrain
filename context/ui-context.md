@@ -1,5 +1,11 @@
 # UI Context
 
+## Web development delta: draft recovery, 2026-10-10
+
+Collection practice answers and lesson tutor questions autosave separately per immutable plan/lesson. Status exposes restoration, saving, confirmed save, failure/retry and conflict. Conflicts preserve the local editor text, show saved wording and require Use saved version or Replace saved with my draft. Clear affects only this draft; submitted attempts remain unchanged. Download is a versioned JSON recovery action for one draft. Own writing remains accessible under Recover unfinished learning drafts when a collection's original capture is removed.
+
+Pending recovery covers same-tab reload/navigation; keep the tab open until Saved. If browser storage is unavailable, explain that unsaved work is memory-only. Sign-out/owner change blanks and disables existing draft editors and cancels queued writes. Tutor replies remain view-local until U2c2. Exact evidence dialogs and keyboard focus return are preserved. Live dark desktop and light narrow layouts pass; actual 200% zoom/screen reader/native download completion remain open gates under #33.
+
 This is a React Native and Expo Router application. The current visual direction is dark, compact, and native-feeling; do not introduce a second theme during the roadmap work.
 
 ## Web collection workspace — implemented in development, 2026-10-09

@@ -9,7 +9,10 @@ from backend.sources import SourceGateway, owned_sources
 from backend.study_store import StudyStorageError
 from backend.learning_errors import storage_failure
 
+from backend.learning_drafts import router as drafts_router
+
 router = APIRouter(tags=["learning collections"])
+router.include_router(drafts_router)
 
 
 @router.get("/learning/collections", response_model=CollectionList)

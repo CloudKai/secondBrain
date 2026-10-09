@@ -1,5 +1,13 @@
 # Scope: AI Second Brain
 
+## U2c1 unfinished learning drafts — implemented in development, 2026-10-10
+
+[GitHub #33](https://github.com/CloudKai/secondBrain/issues/33), part of #29, adds owned answer/question drafts per collection, immutable plan and lesson. Autosave shows Saved/Unsaved/Retry/conflict states; tab-private pending recovery survives same-tab reload/navigation. Revision checks and idempotent save IDs protect retries and multiple tabs, including opener clones. Changed/removed source evidence retains learner-authored writing. Clear is a checked empty save; Download exports this draft’s versioned JSON. Drafts never count as attempts/activity. Existing tutor replies remain view-local.
+
+**Migration 020 applied** successfully to AI Study Friends. Live lesson-two answer/question drafts survived reload and were then cleared; the collection remained at 0 studied, 2 attempts and 2 provisional checks. Exact timed video evidence and keyboard focus return still work. **118 workspace web / 311 backend tests pass**, plus web typecheck/lint/build. Backend uses its existing virtual environment because the exact uv runner selects system pytest missing a dependency. Spec and standards review findings are resolved. Isolated HEAD + this unit passes 105 web / 245 backend tests and web typecheck/lint/build. Measured 1440×900 dark and 390×844 light live layouts have no horizontal overflow.
+
+See [U2c1 acceptance](docs/reviews/learning-drafts-acceptance-2026-10-10.md). #33 remains open for actual 200% zoom, screen-reader acceptance and native download completion; the actual export payload is verified at the browser boundary. **Next target:** U2c2 completed tutor exchanges, with its own provenance/retention/redaction/send/recovery contract before implementation. U3–U5 remain target work. Earlier WIP is separate; no push or mobile/iOS changes.
+
 ## U2b collection workspace — implemented in development, 2026-10-09
 
 [GitHub #32](https://github.com/CloudKai/secondBrain/issues/32), part of #29, adds an owned `#collection/<id>` learning destination and collection home. Library resume, source entries and topic learning actions open the same saved path/lesson. Teaching, practice and review are primary; sources, plan coverage, map and dated version history are secondary. Removed anchors retain goals/answers without fabricated evidence. Metadata refreshes after confirmation without remounting the lesson; initial snapshots avoid duplicate reads.

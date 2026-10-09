@@ -3588,3 +3588,13 @@ main:focus-visible { outline: none; }
 .collection-card:hover { border-color: var(--accent); }.collection-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .source-learning-entry { margin-block: 24px; padding: 24px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }.source-learning-entry p { margin-block: 16px; }
 @media(max-width:760px) { .collection-workspace { padding: 20px 16px 48px; }.collection-workspace .learning-actions { flex-wrap: wrap; }.collection-workspace .learning-order { display: grid; grid-template-columns: 1fr; }.collection-workspace .segmented { flex-wrap: wrap; }.collection-workspace select { max-width: 100%; } }
+
+/* Unfinished learner work shares the collection reading tokens. */
+.learning-draft-status { margin: 12px 0 20px; font-size: 14px; }
+.learning-draft-status > p { margin: 8px 0; }
+.learning-draft-status .learning-actions { flex-wrap: wrap; }
+.learning-draft-status button { min-height: 44px; white-space: normal; }
+.draft-conflict { border: 1px solid var(--accent); border-radius: 12px; padding: 16px; margin: 12px 0; overflow-wrap: anywhere; }
+.draft-conflict h5, .draft-conflict h6 { font-size: 16px; margin: 8px 0; }
+.draft-history-editor { margin: 16px 0; }
+.draft-history-editor textarea { box-sizing: border-box; width: 100%; font: inherit; padding: 12px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }

@@ -1,5 +1,11 @@
 # Architecture
 
+## Web development delta: unfinished work, 2026-10-10
+
+Migration 020 adds owned `learning_drafts` with composite collection/plan owner FKs, select-only RLS and authenticated checked get/save RPCs. FastAPI GET/PUT `/api/v2/learning/collections/{collection}/plans/{plan}/lessons/{index}/drafts/{answer|question}` derives the owner from JWT and validates exact identity/metadata. Expected revisions and UUID saves fence stale writes and immediate retries. Source removal retains drafts through independent collection/plan identities; recovery revokes save RPC access while preserving reads/work.
+
+The shared draft workspace serializes reads/writes and keeps pending copies in tab-private sessionStorage, keyed by owner and exact slot. Auth changes expire controllers and clear old-owner recovery storage. Confirmed Saved is authoritative Postgres; same-tab reload recovery is not account recovery. Drafts do not enter evidence, attempts, activity, retrieval or model inputs until an explicit existing submission/ask. Hosted migration and live save/reload pass; zoom/screen-reader/native-download gates remain open. Completed conversation persistence remains U2c2 target work. See docs/planning/learning-drafts-contract.md.
+
 This file separates the verified implementation from the selected target. A
 target component is not available until its slice is marked verified in
 `scope.md` and `context/progress-tracker.md`.

@@ -1,5 +1,11 @@
 # Compact web learning handoff
 
+## U2c1 checkpoint — 2026-10-10
+
+Implemented #33 under #29: durable unfinished answer/question drafts; migration020 applied successfully. Owned GET/PUT and RPC/RLS/retry/version fences, tab-private pending reload recovery, explicit conflicts, download payload/checked clear, auth expiration and removed-source draft access are complete in development. Live goal-branch lesson two draft reload/clear passes; activity remains 0 studied/2 attempts/2 needs review. No model request or existing-source deletion. Standards/spec findings resolved. Isolated unit passes 105 web/245 backend tests and web lint/typecheck/build. 118 workspace web/311 backend tests and web lint/typecheck/build pass; exact uv runner still uses system pytest missing langchain_openai. See docs/reviews/learning-drafts-acceptance-2026-10-10.md.
+
+#33 remains open for actual 200% zoom, screen reader and native file completion (Blob payload verified). Next unit U2c2 completed tutor exchanges, after writing its provenance/redaction/context/send/recovery contract. Preserve agreed seams and recommended settings, compact/checkpoint before the new unit. User collection remains open in original dark theme; viewport reset. API restarted with backend/.env, exec session16474 on8000; approved development worker/Vite retained. Commit this unit only; older WIP remains separate, no push, mobile/iOS/TinyFish untouched.
+
 Updated: 2026-10-09, Asia/Singapore.
 
 ## Latest checkpoint — U2b workspace implemented in development

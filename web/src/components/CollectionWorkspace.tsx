@@ -1,3 +1,4 @@
+import RetainedLearningDrafts from './RetainedLearningDrafts';
 import {useEffect,useRef,useState} from 'react';
 import type {CollectionDetail} from '../lib/collections';
 import type {SavedSource,SourceClient} from '../lib/source-client';
@@ -21,11 +22,12 @@ export function CollectionOverview({data,onDiscover}:{data:CollectionDetail;onDi
   </details>
  </>;
 }
-export function RetainedCollectionHistory({data}:{data:CollectionDetail}){
+export function RetainedCollectionHistory({data,client}:{data:CollectionDetail;client?:SourceClient}){
  return <section className="learning-review" aria-label="Retained collection learning history"><h2>Your retained learning history</h2><p>The original capture is unavailable. These goals and answers remain saved; missing evidence is not presented as current teaching coverage.</p>
   {data.learning.plans.filter(p=>p.confirmed_at).map(plan=><article className="learning-feedback" key={plan.id}><h3>{plan.content.title}</h3><p>{learningPlanLabel(plan,data.learning.plans)}</p><p>{plan.goal}</p><p>{data.learning.activities.filter(a=>a.plan_id===plan.id&&a.kind==='read').length} lessons marked studied</p>
    {data.learning.attempts.filter(a=>a.plan_id===plan.id).map(a=><div key={a.id}><h4>{plan.content.lessons[a.lesson_index].check.question}</h4><p className="micro-copy">{new Date(a.created_at).toLocaleString()} · {a.difficulty} · {a.status.replaceAll('_',' ')}</p><ReadingText text={a.response}/>{a.feedback&&<><p>Provisional AI feedback · needs review</p><ReadingText text={a.feedback.summary}/></>}</div>)}
   </article>)}
+  {client&&<RetainedLearningDrafts data={data} client={client}/>}
   {!data.learning.plans.some(p=>p.confirmed_at)&&<p>No path was confirmed. Your collection identity is retained.</p>}
  </section>;
 }
@@ -49,7 +51,7 @@ export default function CollectionWorkspace({id,client,onDiscover}:{id:string;cl
  return <div className="collection-workspace">
   {error&&<div className="study-error" role="alert"><h1>Collection unavailable</h1><p>{error}</p><button className="button secondary" onClick={()=>setRetry(v=>v+1)}>Retry collection</button> <a href="#library">Return to my library</a></div>}
   {!loaded&&!error&&<p role="status">Restoring your collection and saved lesson…</p>}
-  {loaded&&<><CollectionOverview data={loaded.data} onDiscover={onDiscover}/>{loaded.source?<LearningJourney key={`${id}:${loaded.source.source_version??1}`} source={loaded.source} client={client} enabled={!error} initial={loaded.data.learning} collectionId={id} workspace onCitation={cite} onDiscover={onDiscover}/>:<RetainedCollectionHistory data={loaded.data}/>}</>}
+  {loaded&&<><CollectionOverview data={loaded.data} onDiscover={onDiscover}/>{loaded.source?<LearningJourney key={`${id}:${loaded.source.source_version??1}`} source={loaded.source} client={client} enabled={!error} initial={loaded.data.learning} collectionId={id} workspace onCitation={cite} onDiscover={onDiscover}/>:<RetainedCollectionHistory data={loaded.data} client={client}/>}</>}
   {evidence&&<EvidenceDialog origin={origin.current} onClose={()=>setEvidence(null)}><SourceEvidence note={noteFromSavedSource(evidence.source)} passage={evidence.full?undefined:evidence.reference.passage} onFullText={()=>setEvidence(v=>v?{...v,full:true}:null)}/></EvidenceDialog>}
  </div>;
 }

@@ -1,3 +1,4 @@
+import {lessonDraftSchema,DraftConflictError,draftPath,type DraftSave,type DraftKind} from './learning-draft';
 import {collectionDetailSchema,collectionListSchema} from './collections';
 import {learningSummarySchema,learningGraphSchema,learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
 import {researchResultsSchema} from "./research";
@@ -209,11 +210,12 @@ export function createSourceClient(
     await connecting;
   }
 
-  async function request(path: string, init?: RequestInit): Promise<Response> {
+  async function request(path: string, init?: RequestInit, expectedOwner?:string): Promise<Response> {
     await ready();
     const { data, error } = await supabase.auth.getSession();
     if (error || !data.session)
       throw new Error("Your library session is unavailable. Retry connecting.");
+    if(expectedOwner&&data.session.user.id!==expectedOwner)throw new Error("Your draft session changed. Reopen the collection.");
     let response: Response;
     try {
       response = await fetcher(`/api/v2${path}`, {
@@ -226,7 +228,7 @@ export function createSourceClient(
               : "application/json",
           Authorization: `Bearer ${data.session.access_token}`,
         },
-        signal: AbortSignal.timeout(120_000),
+        signal: init?.signal ?? AbortSignal.timeout(120_000),
       });
     } catch {
       throw new Error(
@@ -235,6 +237,7 @@ export function createSourceClient(
     }
     if (response.status===404 && path.endsWith("/learning/collection")) return response;
     if (!response.ok) {
+      if(response.status===409&&path.includes("/drafts/"))throw new DraftConflictError("This draft changed in another tab. Compare the saved version before replacing it.");
       if(path.endsWith('/ask') || path === '/research' || path.includes('/learning')) {
         const body:unknown=await response.json().catch(()=>null);
         const detail=z.object({detail:boundedText(1,500)}).safeParse(body);
@@ -305,6 +308,25 @@ export function createSourceClient(
   }
 
   return {
+    async draftOwner() {
+      await ready();const {data,error}=await supabase.auth.getSession();
+      if(error||!data.session)throw new Error('Your draft session is unavailable.');
+      return z.string().uuid().parse(data.session.user.id);
+    },
+    onDraftOwnerChange(listener:(owner:string|null)=>void) {
+      const {data}=supabase.auth.onAuthStateChange((_event,session)=>listener(session?.user.id??null));
+      return ()=>data.subscription.unsubscribe();
+    },
+    async getLearningDraft(collectionId:string,planId:string,lessonIndex:number,kind:DraftKind) {
+      const result=await parse(await request(draftPath({collectionId,planId,lessonIndex,kind}),{signal:AbortSignal.timeout(10000)}),lessonDraftSchema);
+      if(result.collection_id!==collectionId||result.plan_id!==planId||result.lesson_index!==lessonIndex||result.kind!==kind)throw new Error('Unexpected draft slot. Reload and retry.');
+      return result;
+    },
+    async saveLearningDraft(collectionId:string,planId:string,lessonIndex:number,kind:DraftKind,input:DraftSave,expectedOwner?:string) {
+      const result=await parse(await request(draftPath({collectionId,planId,lessonIndex,kind}),{method:'PUT',body:JSON.stringify(input),signal:AbortSignal.timeout(10000)},expectedOwner),lessonDraftSchema);
+      if(result.collection_id!==collectionId||result.plan_id!==planId||result.lesson_index!==lessonIndex||result.kind!==kind||result.text!==input.text||result.save_id!==input.save_id||result.revision!==input.expected_revision+1)throw new Error('Unexpected saved draft. Reload and retry.');
+      return result;
+    },
     async collections(offset=0) {
       const result=await parse(await request(`/learning/collections?offset=${offset}`),collectionListSchema);
       if(result.next_offset!==null&&result.next_offset!==offset+50)throw new Error('Invalid collection pagination. Retry.');
