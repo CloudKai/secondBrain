@@ -1,4 +1,4 @@
-import {learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
+import {learningGraphSchema,learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
 import {researchResultsSchema} from "./research";
 import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
 import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
@@ -316,6 +316,9 @@ export function createSourceClient(
       if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
       return result;
     },
+    async learningGraph() {
+      return parse(await request('/learning/graph'),learningGraphSchema);
+    },
     async learningCandidates(sourceId:string,planId:string) {
       const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/candidates`),learningCandidatesSchema);
       if(result.source_id!==sourceId||result.plan_id!==planId)throw new Error('The learning collection changed. Reload and retry.');
@@ -323,6 +326,11 @@ export function createSourceClient(
     },
     async reviseLearning(sourceId:string,planId:string,input:LearningRevisionInput) {
       const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/revision`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
+      if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
+      return result;
+    },
+    async selectLearningLesson(sourceId:string,planId:string,lessonIndex:number) {
+      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/place`,{method:'POST',body:JSON.stringify({lesson_index:lessonIndex})}),learningSnapshotSchema);
       if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
       return result;
     },

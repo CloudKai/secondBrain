@@ -153,10 +153,10 @@ class LearningGenerator:
     async def revision(self, context):
         # Fair bounded evidence selection across sources. Aliases are local to
         # this immutable plan; original source offsets and IDs remain untouched.
-        instructions = PLAN_INSTRUCTIONS + "\nRevise this selected path, keeping its goal and difficulty. Return exactly one path. Explain new concepts, examples, prerequisites or gaps in contributions; explicitly describe ordering changes. Expose disagreements with both source perspectives and citations; do not invent a conflict or reconcile unsupported claims. Related wording is not independent corroboration. Existing attempts never complete new checks. Evidence IDs are the outer alias id, not passage.id. This is a preview pending learner confirmation."
+        instructions = PLAN_INSTRUCTIONS + "\nRevise this selected path, keeping its goal unless an explicit goal_branch is requested; keep difficulty. A goal_branch opens a new direction with new application checks, retaining useful substantive concepts. Return exactly one path. Explain new concepts, examples, prerequisites or gaps in contributions; explicitly describe ordering changes. Expose disagreements with both source perspectives and citations; do not invent a conflict or reconcile unsupported claims. Related wording is not independent corroboration. Existing attempts never complete new checks. Evidence IDs are the outer alias id, not passage.id. This is a preview pending learner confirmation."
         current = context.base_plan.content
         data = {
-            "goal": context.base_plan.goal, "difficulty": context.difficulty, "revision_mode": context.mode,
+            "goal": context.goal or context.base_plan.goal, "difficulty": context.difficulty, "revision_mode": context.mode,
             "current_path": {"title": current.title, "outcomes": current.outcomes,
                              "prerequisites": current.prerequisites,
                              "lessons": [{"title": lesson.title, "outcome": lesson.outcome} for lesson in current.lessons]},
@@ -185,7 +185,7 @@ class LearningGenerator:
         ids = {item.id for item in evidence}
 
         def validate(value):
-            validate_teaching(LearningDraft(suggested_goal=context.base_plan.goal, paths=[value.path]), ids)
+            validate_teaching(LearningDraft(suggested_goal=context.goal or context.base_plan.goal, paths=[value.path]), ids)
             if any(not set(claim.citation_ids) <= ids for claim in value.contributions + value.disagreements):
                 raise ValueError("Unknown revision citation")
             for claim in value.disagreements:
@@ -194,6 +194,8 @@ class LearningGenerator:
             added = context.sources[-1].source.id
             if context.mode == "add_source" and not any(item.source_id == added and item.id in {id for claim in value.contributions for id in claim.citation_ids} for item in evidence):
                 raise ValueError("Contribution must cite the added source")
+            if context.mode == "goal_branch" and not any(lesson.check.kind == "apply" and lesson.check.question not in {old.check.question for old in context.base_plan.content.lessons} for lesson in value.path.lessons):
+                raise ValueError("Goal branch needs a new application check")
             if context.mode == "difficulty" and (value.path.title != context.base_plan.content.title or value.path.outcomes != context.base_plan.content.outcomes):
                 raise ValueError("Difficulty retains the path direction")
 

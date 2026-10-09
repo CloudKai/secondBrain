@@ -4,15 +4,15 @@ import type {LearningHistory as History,LearningSnapshot} from '../lib/learning'
 import ReadingText from './ReadingText';
 import Modal from './Modal';
 
-export default function LearningHistory({client,onOpen}:{client:SourceClient;onOpen:(sourceId:string)=>void}){
+export default function LearningHistory({client,onOpen,sourceId}:{client:SourceClient;onOpen:(sourceId:string)=>void;sourceId?:string}){
  const [open,setOpen]=useState(false),[index,setIndex]=useState<History|null>(null),[data,setData]=useState<LearningSnapshot|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  useEffect(()=>{
   if(!open)return;
   let current=true;
   setBusy(true);setError('');
-  client.learningHistory().then(value=>{if(current)setIndex(value);}).catch(e=>{if(current)setError(e instanceof Error?e.message:'Could not load history.');}).finally(()=>{if(current)setBusy(false);});
+  (sourceId?client.learning(sourceId).then(value=>{if(current)setData(value);}):client.learningHistory().then(value=>{if(current)setIndex(value);})).catch(e=>{if(current)setError(e instanceof Error?e.message:'Could not load history.');}).finally(()=>{if(current)setBusy(false);});
   return()=>{current=false;};
- },[client,open]);
+ },[client,open,sourceId]);
  async function select(sourceId:string){
   setBusy(true);setError('');
   try{setData(await client.learning(sourceId));}catch(e){setError(e instanceof Error?e.message:'Could not load history.');}finally{setBusy(false);}
@@ -23,7 +23,7 @@ export default function LearningHistory({client,onOpen}:{client:SourceClient;onO
   try{const page=await client.learningHistory(index.next_offset);setIndex(previous=>({collections:[...(previous?.collections??[]),...page.collections],next_offset:page.next_offset}));}catch(e){setError(e instanceof Error?e.message:'Could not load more history.');}finally{setBusy(false);}
  }
  return <>
-  <button className="text-button" onClick={()=>{setData(null);setOpen(true);}}>Review learning history</button>
+  <button className="text-button" onClick={()=>{setData(null);setOpen(true);}}>{sourceId?'Review retained learning history':'Review learning history'}</button>
   {open&&<Modal title="Learning history" className="learning-history" onClose={()=>setOpen(false)}>
    <p>Revisit your goals, difficulty levels and saved practice. Studying or attempting a question does not establish mastery.</p>
    {busy&&<p role="status">Loading saved learning…</p>}{error&&<p role="alert">{error}</p>}
@@ -32,7 +32,7 @@ export default function LearningHistory({client,onOpen}:{client:SourceClient;onO
     {index&&!index.collections.length&&<p>No saved learning paths yet. Open a source to start.</p>}
     {index?.next_offset!=null&&<button className="button secondary" disabled={busy} onClick={()=>void more()}>Load more history</button>}
    </div>:<>
-    <button className="text-button" disabled={busy} onClick={()=>setData(null)}>All collections</button>
+    {!sourceId&&<button className="text-button" disabled={busy} onClick={()=>setData(null)}>All collections</button>}
     {data.plans.some(plan=>plan.source_id!==null)&&<button className="button secondary" onClick={()=>{setOpen(false);onOpen(data.source_id);}}>Open source and learning path</button>}
     {data.plans.filter(plan=>plan.confirmed_at).map(plan=><article className="learning-feedback" key={plan.id}>
      <h3>{plan.content.title}</h3><p>{plan.difficulty} · {plan.goal}</p>

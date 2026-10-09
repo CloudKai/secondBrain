@@ -124,10 +124,14 @@ class RevisionRequest(StrictModel):
     source_id: UUID | None = Field(default=None, strict=False)
     source_version: int | None = Field(default=None, ge=1, le=20)
     difficulty: Difficulty | None = None
+    goal: str | None = Field(default=None, min_length=1, max_length=500)
 
     @model_validator(mode="after")
     def one_change(self):
-        if self.source_id is not None:
+        if self.goal is not None:
+            if not self.goal.strip() or self.goal != self.goal.strip() or self.source_id is not None or self.source_version is not None or self.difficulty is not None:
+                raise ValueError("Preview a goal branch separately")
+        elif self.source_id is not None:
             if self.source_version is None or self.difficulty is not None:
                 raise ValueError("Preview source contribution separately from difficulty")
         elif self.source_version is not None or self.difficulty is None:
@@ -150,6 +154,7 @@ class LearningPlan(StrictModel):
     source_members: list[LearningMember] = Field(default_factory=list, max_length=8)
     revision: RevisionSummary | None = None
     base_plan_id: UUID | None = None
+    branch_of_plan_id: UUID | None = None
     confirmed_at: datetime | None
     active: bool
     needs_review: bool
@@ -193,9 +198,10 @@ class RevisionContext(StrictModel):
     request_id: UUID
     lease_token: UUID | None
     base_plan: LearningPlan
-    mode: Literal["add_source", "difficulty"]
+    mode: Literal["add_source", "difficulty", "goal_branch"]
+    goal: str | None = Field(default=None, min_length=1, max_length=500)
     difficulty: Difficulty
-    sources: list[LearningSource] = Field(min_length=2, max_length=8)
+    sources: list[LearningSource] = Field(min_length=1, max_length=8)
 
 
 class PracticeAttempt(StrictModel):
@@ -234,6 +240,8 @@ class LearningActivity(StrictModel):
 class LearningSnapshot(StrictModel):
     source_id: UUID
     user_id: UUID = Field(exclude=True)
+    selected_plan_id: UUID | None = None
+    selected_lesson_index: int = Field(default=0, ge=0, le=3)
     plans: list[LearningPlan] = Field(max_length=60)
     attempts: list[PracticeAttempt] = Field(max_length=1000)
     activities: list[LearningActivity] = Field(max_length=1000)
@@ -304,3 +312,25 @@ class TutorReply(StrictModel):
         if not self.citation_ids and not self.gap:
             raise ValueError("A tutor reply needs evidence or an explicit gap")
         return self
+
+
+class LessonPlaceRequest(StrictModel):
+    lesson_index: int = Field(ge=0, le=3)
+
+
+class LearningGraphCollection(StrictModel):
+    source_id: UUID
+    source_available: bool
+    title: str = Field(min_length=1, max_length=200)
+    source_ids: list[UUID] = Field(min_length=1, max_length=321)
+    path_count: int = Field(ge=1, le=40)
+    studied_lessons: int = Field(ge=0, le=1000)
+    practice_attempts: int = Field(ge=0, le=1000)
+    provisional_checks: int = Field(ge=0, le=1000)
+    flagged_plans: int = Field(ge=0, le=60)
+
+
+class LearningGraph(StrictModel):
+    user_id: UUID = Field(exclude=True)
+    collections: list[LearningGraphCollection] = Field(max_length=200)
+    partial: bool

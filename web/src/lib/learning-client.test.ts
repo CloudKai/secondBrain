@@ -13,10 +13,10 @@ test('learning transport restores the session and reads only the selected owned 
       if(String(input).includes('/auth/v1/signup'))return Response.json({access_token:token,refresh_token:'refresh',token_type:'bearer',expires_in:3600,user:{id:owner,is_anonymous:true,app_metadata:{},user_metadata:{}}});
       assert.equal(String(input),`/api/v2/sources/${source}/learning`);
       assert.equal(new Headers(init?.headers).get('Authorization'),`Bearer ${token}`);
-      return Response.json({source_id:source,plans:[],attempts:[],activities:[]});
+      return Response.json({source_id:source,selected_plan_id:null,selected_lesson_index:0,plans:[],attempts:[],activities:[]});
     },
   });
-  assert.deepEqual(await client.learning(source),{source_id:source,plans:[],attempts:[],activities:[]});
+  assert.deepEqual(await client.learning(source),{source_id:source,selected_plan_id:null,selected_lesson_index:0,plans:[],attempts:[],activities:[]});
 });
 
 test('collection transport scopes candidates and posts explicit source revision requests',async()=>{

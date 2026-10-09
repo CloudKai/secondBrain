@@ -1,5 +1,31 @@
 # Web Progress Tracker
 
+## Goal branches and learning maps — implemented in development, 2026-10-09
+
+**Implemented:** the third development unit of #28. Explicitly changed goals
+preview a separate retained path with a new application question. Original goals,
+source notes, difficulty levels and answers stay saved. Owned selected-plan/lesson
+positions restore on reopening. Applicable prior learning is shown only for exact
+matching outcomes, level and original evidence; it provides context and never
+passes the branch's new check.
+
+A teaching map opens from the first source. Its suggested-order arrows and closed
+path previews are distinct from the existing topic graph's evidence relationships.
+Topic graph panels show collection paths, study activity, attempts and provisional
+checks separately. Deleted anchors open owned retained history. No mastery claim
+or inferred equivalent assessment result is added.
+
+**Checks:** migration 017 applied after approval; 294 backend / 95 web checks,
+typecheck, lint and build pass. Independent spec/standards reviews cleared after
+branch exercise, cursor restoration, locked source and deleted-anchor fixes.
+Live PDF/video branch confirmation, independent practice, exact timestamp citations,
+reload restoration and desktop/narrow dark/light presentation checked.
+Full semantic teaching/assessment evaluation, hosted cost/latency/capacity,
+screen-reader and actual 200% browser zoom remain rollout gates. Feedback remains
+Needs review. #28 remains open for full acceptance. See [branch acceptance](../docs/reviews/learning-branches-acceptance-2026-10-09.md).
+
+
+
 ## Learning collections — implemented in development, 2026-10-09
 
 **Implemented:** explicit related-source contribution previews and confirmed plan

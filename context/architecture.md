@@ -4,6 +4,27 @@ This file separates the verified implementation from the selected target. A
 target component is not available until its slice is marked verified in
 `scope.md` and `context/progress-tracker.md`.
 
+## Web goal branches and progress — implemented in development, 2026-10-09
+
+Migration 017 extends leased revisions with an explicit goal change and an
+immutable branch origin. Server finish creates a separate path using the existing
+owned source manifests. Both model and SQL boundaries require a new application
+question. Confirmation never transfers old attempts/results to the branch.
+Base support and expected membership are rechecked after owner/source locking;
+pending branch confirmation also fences changes to the parent active version.
+
+An owned private learning-place table records selected plan/lesson per original
+collection anchor; strict snapshots validate it before browser restoration.
+Read-only graph summaries return up to 200 owned collections with separate path,
+read/attempt/provisional-check counts and changed-support flags. Metadata for a
+removed anchor routes to retained history, not an unavailable capture. Teaching
+order is a separate browser projection of stored lessons, with no new factual
+relationships or relaxed two-source graph threshold. Prior learning reuse is a
+conservative display of exact matching conceptual outcomes/level/evidence, never
+verified grading or copied completion. Used branch history blocks destructive
+rollback until exported/migrated. See [acceptance](../docs/reviews/learning-branches-acceptance-2026-10-09.md).
+
+
 ## Web learning collections — implemented in development, 2026-10-09
 
 Migration 016 adds immutable collection member/evidence manifests and leased

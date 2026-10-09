@@ -46,23 +46,34 @@ def learning_client(monkeypatch):
             return httpx.Response(200, json={"id": ALICE if owner else BOB})
         if request.url.path == "/rest/v1/rpc/get_learning_history":
             return httpx.Response(200, json={"user_id": ALICE if owner else BOB, "collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True}] if owner else [], "next_offset": None})
+        if request.url.path == "/rest/v1/rpc/get_learning_graph":
+            return httpx.Response(200, json={"user_id": ALICE if owner else BOB, "partial": False, "collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True, "source_ids": [SOURCE], "path_count": 1, "studied_lessons": 1, "practice_attempts": 1, "provisional_checks": 1, "flagged_plans": 0}] if owner else []})
         if request.url.path == "/rest/v1/rpc/get_source_learning":
             assert json.loads(request.content) == {"p_source_id": SOURCE}
             return httpx.Response(200, json=state) if owner else httpx.Response(404, json={"code": "P0002"})
+        if request.url.path == "/rest/v1/rpc/select_learning_lesson":
+            body = json.loads(request.content)
+            if not owner or not any(plan["id"] == body["p_plan_id"] and plan["confirmed_at"] for plan in state["plans"]):
+                return httpx.Response(404, json={"code": "P0002"})
+            if body["p_lesson_index"] != 0:
+                return httpx.Response(400, json={"code": "22023"})
+            state.update(selected_plan_id=body["p_plan_id"], selected_lesson_index=body["p_lesson_index"])
+            return httpx.Response(200, json=state)
         if request.url.path == "/rest/v1/rpc/get_learning_candidates":
             return httpx.Response(200, json={"user_id": ALICE, "source_id": SOURCE, "plan_id": PLAN, "candidates": [{"source_id": REQUEST, "source_version": 1, "title": "Evaluating evidence", "shared_topics": ["Evidence"]}]}) if owner else httpx.Response(404, json={"code": "P0002"})
         if request.url.path == "/rest/v1/rpc/request_learning_revision":
             if not owner:
                 return httpx.Response(404, json={"code": "P0002"})
             body = json.loads(request.content)
+            provider["revision_goal"] = body.get("p_goal")
             other = {**SOURCE_ROW, "id": REQUEST, "title": "Evaluating evidence"}
-            return httpx.Response(200, json={"user_id": ALICE, "source_id": SOURCE, "request_id": body["p_request_id"], "lease_token": LEASE, "base_plan": state["plans"][0], "mode": "add_source" if body["p_source_id"] else "difficulty", "difficulty": body.get("p_difficulty") or "foundation", "sources": provider.get("revision_sources", [{"source": SOURCE_ROW, "note": NOTE}, {"source": other, "note": NOTE}])})
+            return httpx.Response(200, json={"user_id": ALICE, "source_id": SOURCE, "request_id": body["p_request_id"], "lease_token": LEASE, "base_plan": state["plans"][0], "mode": "goal_branch" if body.get("p_goal") else "add_source" if body["p_source_id"] else "difficulty", "goal": body.get("p_goal"), "difficulty": body.get("p_difficulty") or "foundation", "sources": provider.get("revision_sources", [{"source": SOURCE_ROW, "note": NOTE}, {"source": other, "note": NOTE}])})
         if request.url.path == "/rest/v1/rpc/finish_learning_revision":
             assert request.headers["apikey"] == "server-test-key"
             body = json.loads(request.content)
             provider["saved_revision"] = body
             if body["p_draft"]:
-                state["plans"].append({**state["plans"][0], "id": LEASE, "request_id": body["p_request_id"], "content": body["p_draft"]["path"], "revision": {key: value for key, value in body["p_draft"].items() if key != "path"}, "base_plan_id": PLAN, "evidence": body["p_evidence"], "references": [{**r["passage"], "id": r["id"]} for r in body["p_evidence"]], "confirmed_at": None, "active": False})
+                state["plans"].append({**state["plans"][0], "id": LEASE, "request_id": body["p_request_id"], "content": body["p_draft"]["path"], "revision": {key: value for key, value in body["p_draft"].items() if key != "path"}, "base_plan_id": PLAN, "branch_of_plan_id": PLAN if provider.get("revision_goal") else None, "goal": provider.get("revision_goal") or state["plans"][0]["goal"], "evidence": body["p_evidence"], "references": [{**r["passage"], "id": r["id"]} for r in body["p_evidence"]], "confirmed_at": None, "active": False})
             return httpx.Response(200, json=True)
         if request.url.path == "/rest/v1/rpc/request_learning_preview":
             if provider.get("rpc_error"):
@@ -132,7 +143,7 @@ def test_learning_collection_is_owned_and_does_not_activate_without_confirmation
     url = f"/api/v2/sources/{SOURCE}/learning"
     response = client.get(url, headers={"Authorization": "Bearer alice"})
     assert response.status_code == 200, response.text
-    assert response.json() == {"source_id": SOURCE, "plans": [], "attempts": [], "activities": []}
+    assert response.json() == {"source_id": SOURCE, "selected_plan_id": None, "selected_lesson_index": 0, "plans": [], "attempts": [], "activities": []}
     assert client.get(url, headers={"Authorization": "Bearer bob"}).status_code == 404
     assert client.get(url).status_code == 401
 
@@ -414,3 +425,51 @@ def test_added_source_citations_keep_exact_page_or_caption_location(learning_cli
     response = client.post(base + "/revision", json={"request_id": PATH, "source_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
     assert response.status_code == 200, response.text
     assert response.json()["plans"][1]["evidence"][1]["passage"] == ref
+
+
+def test_goal_branch_uses_the_explicit_new_goal_without_rewriting_original_learning(learning_client):
+    client, state, provider = learning_client
+    headers = {"Authorization": "Bearer alice"}
+    client.post(f"/api/v2/sources/{SOURCE}/learning/preview", headers=headers,
+                json={"request_id": REQUEST, "source_version": 1})
+    client.post(f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}/confirm", headers=headers)
+    original_goal = state["plans"][0]["goal"]
+    provider["revision_sources"] = [{"source": SOURCE_ROW, "note": NOTE}]
+    provider["draft"] = {"path": {**CONTENT, "title": "Apply support checking", "lessons": [{**LESSON, "check": {**LESSON["check"], "question": "Choose evidence for a new research claim and explain why."}}]}, "contributions": [EXPLANATION], "ordering_changes": "Apply the shared concept to a new decision.", "disagreements": []}
+    goal = "Use evidence checks when evaluating a research claim."
+    result = client.post(f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}/revision", headers=headers,
+                         json={"request_id": LEASE, "source_id": None, "source_version": None, "goal": goal})
+    assert result.status_code == 200, result.text
+    assert provider["last_input"]["goal"] == goal
+    assert provider["last_input"]["revision_mode"] == "goal_branch"
+    assert result.json()["plans"][0]["goal"] == original_goal
+    assert result.json()["plans"][-1]["goal"] == goal
+    assert result.json()["plans"][-1]["branch_of_plan_id"] == PLAN
+    assert result.json()["plans"][-1]["active"] is False
+    assert client.post(f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}/revision", headers=headers,
+                       json={"request_id": LEASE, "goal": " ", "difficulty": "advanced"}).status_code == 422
+
+
+def test_learning_place_is_owned_and_restored_without_awarding_activity(learning_client):
+    client, state, _ = learning_client
+    headers = {"Authorization": "Bearer alice"}
+    client.post(f"/api/v2/sources/{SOURCE}/learning/preview", headers=headers, json={"request_id": REQUEST, "source_version": 1})
+    client.post(f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}/confirm", headers=headers)
+    endpoint = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}/place"
+    result = client.post(endpoint, headers=headers, json={"lesson_index": 0})
+    assert result.status_code == 200, result.text
+    assert result.json()["selected_plan_id"] == PLAN
+    assert result.json()["activities"] == []
+    assert client.get(f"/api/v2/sources/{SOURCE}/learning", headers=headers).json()["selected_plan_id"] == PLAN
+    assert client.post(endpoint, headers={"Authorization": "Bearer bob"}, json={"lesson_index": 0}).status_code == 404
+    assert client.post(endpoint, headers=headers, json={"lesson_index": 4}).status_code == 422
+    assert client.post(endpoint, headers=headers, json={"lesson_index": 0, "user_id": BOB}).status_code == 422
+
+
+def test_learning_graph_is_authenticated_owned_and_distinguishes_activity_from_checks(learning_client):
+    client, _, _ = learning_client
+    result = client.get("/api/v2/learning/graph", headers={"Authorization": "Bearer alice"})
+    assert result.status_code == 200, result.text
+    assert result.json() == {"partial": False, "collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True, "source_ids": [SOURCE], "path_count": 1, "studied_lessons": 1, "practice_attempts": 1, "provisional_checks": 1, "flagged_plans": 0}]}
+    assert client.get("/api/v2/learning/graph").status_code == 401
+    assert client.get("/api/v2/learning/graph", headers={"Authorization": "Bearer bob"}).json()["collections"] == []

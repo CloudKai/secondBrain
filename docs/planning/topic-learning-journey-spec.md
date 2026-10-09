@@ -1,9 +1,11 @@
 # Source-backed topic learning journeys
 
-Status: **one-source delivery and multi-source revisions implemented in development on 2026-10-09**.
+Status: **all three delivery phases implemented in development on 2026-10-09**.
 Published as [GitHub #28](https://github.com/CloudKai/secondBrain/issues/28), which
 remains open for the full phased target. See the [development acceptance record](../reviews/learning-journey-acceptance-2026-10-09.md).
-Goal branches and graph learning states remain target behavior.
+Goal branches, teaching maps and separate graph activity indicators are implemented
+in development; full rollout acceptance remains open.
+See the [branch acceptance record](../reviews/learning-branches-acceptance-2026-10-09.md).
 See the [collection acceptance record](../reviews/learning-collections-acceptance-2026-10-09.md). Practice feedback is provisional; semantic confidence routing,
 verified assessment, public rollout and remaining acceptance checks are not complete.
 

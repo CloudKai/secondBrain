@@ -26,7 +26,7 @@ GitHub progress: https://github.com/CloudKai/secondBrain/issues/28#issuecomment-
 
 ## Verified second phase
 
-Collection revisions implemented, migration 016 applied in development. 291 backend
+Commit 39ea138 (not pushed). Collection revisions implemented, migration 016 applied in development. 291 backend
 and 89 web tests; typecheck/lint/build pass. Spec/standards reviews cleared after
 regression fixes. Live PDF + video revision/confirmation/reload, original PDF page
 and video timestamp inspection, retained answer vs fresh revised checks, nested
@@ -37,19 +37,27 @@ member/topic fingerprints and leases fence stale writes. Rollback refuses used
 collection history without export/migration. API running on 8000, Vite on 5173,
 Docker Redis restored; approved development worker running (session 61376).
 
-## Next unit
+## Verified third phase
 
-Phase 3: retained goal branches and conservative applicable prior learning context,
-one-source teaching maps and broader graph learning indicators. Preserve new
-application checks as separate attempts. Label teaching order separately from
-shared-topic evidence relationships and avoid mastery labels. Reuse approved seams.
+Goal branches, conservative prior-learning context, first-source teaching maps and
+topic activity panels are implemented. Migration 017 applied after approval.
+294 backend / 95 web checks, typecheck, lint and build passed. Both code-review
+axes cleared regression fixes. Live PDF/video changed-goal preview/confirmation,
+retained original answers, independent application feedback, selected second lesson
+restoration and original timed citation checked. Desktop 1280×720 and narrow
+390×844 dark/light layouts checked; viewport override reset. Topic graph source
+coverage and factual relationships stayed unchanged. Detailed record:
+docs/reviews/learning-branches-acceptance-2026-10-09.md.
+Phase 3 commit recorded in GitHub #28 progress (current main commits not pushed):
+https://github.com/CloudKai/secondBrain/issues/28#issuecomment-6081260469.
 
-## Later units and gates
+## Next acceptance unit and gates
 
-Phase 3: retained goal branches, applicable shared understanding, one-source
-teaching map and broader graph learning states with labelled edge meanings.
-Complete live PDF/video and accessible desktop/actual 200% zoom checks. IAB
-viewport/zoom controls did not alter its narrow page size. Held-out teaching and
-feedback evaluation/cost/latency gates remain before public rollout; never invent
-numeric thresholds or an achieved latency. Do not close #28 until full scope and
-required acceptance are complete. The development worker remains approved.
+All three development phases are implemented. Keep #28 open until independently
+reviewed held-out teaching/feedback cases, routing quality, hosted cost ceiling,
+complete-request latency, 200-source capacity, screen-reader and actual 200% browser
+zoom pass. No calibrated grade/mastery or production readiness is claimed.
+Start the next acceptance unit from this checkpoint after compaction. Use existing
+approved seams/defaults; do not invent numeric thresholds. Mobile and unrelated
+working changes remain outside learning commits. API session 39991 on port 8000,
+Vite 98395 on 5173, approved development worker 61376 and Docker Redis running.

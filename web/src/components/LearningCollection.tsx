@@ -11,7 +11,7 @@ export function LearningRevisionSummary({plan,onCitation}:{plan:LearningPlan;onC
   <h4>What this revision adds</h4>{revision.contributions.map((item,index)=><ReadingText key={index} text={item.text}><StudyCitations ids={item.citation_ids} onCitation={onCitation}/></ReadingText>)}
   <h4>Changes to teaching order</h4><ReadingText text={revision.ordering_changes}/>
   <h4>Different source perspectives</h4>{revision.disagreements.length?revision.disagreements.map((item,index)=><ReadingText key={index} text={item.text}><StudyCitations ids={item.citation_ids} onCitation={onCitation}/></ReadingText>):<p>No substantive disagreement was identified in the selected passages. This does not establish agreement across the whole topic.</p>}
-  <p className="micro-copy">Your goal stays the same. Earlier lessons and answers are retained; new checks begin without earlier completion.</p>
+  <p className="micro-copy">{plan.branch_of_plan_id?'Your earlier goal stays on its original path. This preview opens a separate goal branch.':'Your goal stays the same.'} Earlier lessons and answers are retained; new checks begin without earlier completion.</p>
  </section>;
 }
 

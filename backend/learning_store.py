@@ -3,7 +3,7 @@ import json
 import os
 from uuid import UUID
 
-from backend.learning_models import LearningSnapshot, PreviewContext, FeedbackContext, LearningHistory, LearningCandidates, RevisionContext
+from backend.learning_models import LearningSnapshot, PreviewContext, FeedbackContext, LearningHistory, LearningCandidates, RevisionContext, LearningGraph
 from backend.study_store import StudyStore, StudyStorageError
 
 
@@ -23,6 +23,8 @@ class LearningStore:
             if any(plan.source_id != source_id and not (plan.source_id is None and plan.needs_review) for plan in result.plans):
                 raise ValueError("Unexpected learning source")
             plans = {plan.id: plan for plan in result.plans}
+            if result.selected_plan_id is not None and (result.selected_plan_id not in plans or result.selected_lesson_index >= len(plans[result.selected_plan_id].content.lessons) or plans[result.selected_plan_id].confirmed_at is None):
+                raise ValueError("Unexpected learning place")
             if any(attempt.plan_id not in plans or attempt.difficulty != plans[attempt.plan_id].difficulty
                    or attempt.lesson_index >= len(plans[attempt.plan_id].content.lessons)
                    for attempt in result.attempts):
@@ -47,13 +49,14 @@ class LearningStore:
 
     async def revision_context(self, source_id, plan_id, payload):
         try:
-            result = RevisionContext.model_validate_json(json.dumps(await self.call("request_learning_revision", p_plan_id=str(plan_id), p_request_id=str(payload.request_id), p_source_id=str(payload.source_id) if payload.source_id else None, p_source_version=payload.source_version, p_difficulty=payload.difficulty)))
+            result = RevisionContext.model_validate_json(json.dumps(await self.call("request_learning_revision", p_plan_id=str(plan_id), p_request_id=str(payload.request_id), p_source_id=str(payload.source_id) if payload.source_id else None, p_source_version=payload.source_version, p_difficulty=payload.difficulty, p_goal=payload.goal)))
             members = {item.source.id: item.source for item in result.sources}
             if (result.user_id != self.user_id or result.source_id != source_id or result.request_id != payload.request_id
                     or result.base_plan.id != plan_id or result.base_plan.source_id != source_id
                     or len(members) != len(result.sources) or source_id not in members
                     or payload.source_id is not None and (payload.source_id not in members or members[payload.source_id].source_version != payload.source_version or result.sources[-1].source.id != payload.source_id)
-                    or result.mode != ("add_source" if payload.source_id else "difficulty")
+                    or result.mode != ("goal_branch" if payload.goal else "add_source" if payload.source_id else "difficulty")
+                    or result.goal != payload.goal
                     or result.difficulty != (payload.difficulty or result.base_plan.difficulty)
                     or any(item.user_id != self.user_id for item in members.values())):
                 raise ValueError("Unexpected learning revision")
@@ -66,6 +69,15 @@ class LearningStore:
                           p_draft=draft.model_dump(mode="json") if draft else None,
                           p_evidence=[item.model_dump(mode="json") for item in evidence] if evidence else None, p_model=model)
         return await self.read(source_id)
+
+    async def graph(self):
+        try:
+            result = LearningGraph.model_validate_json(json.dumps(await self.call("get_learning_graph")))
+            if result.user_id != self.user_id or len({item.source_id for item in result.collections}) != len(result.collections):
+                raise ValueError("Unexpected learning graph")
+            return result
+        except (ValueError, TypeError) as exc:
+            raise StudyStorageError() from exc
 
     async def history(self, offset: int):
         try:

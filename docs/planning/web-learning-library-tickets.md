@@ -85,11 +85,11 @@ routing includes proposed escalation checks and measured quality/cost gates.
 Testing boundaries were approved. The first one-source unit is implemented in
 development with migration 015 and live article confirmation/practice/history
 checks. Feedback remains provisional; semantic/cost acceptance and desktop/zoom
-checks remain. Multi-source revisions are implemented with migration 016; goal branches/graph states are next. The [interview record](topic-learning-journey.md) preserves decisions.
+checks remain. Multi-source revisions are implemented with migration 016; goal branches, teaching maps and graph activity are implemented with migration 017. The [interview record](topic-learning-journey.md) preserves decisions.
 
 | Work | Status | Ticket and scope |
 | --- | --- | --- |
-| Source-backed topic learning journeys | Phases 1–2 implemented in development; 291 backend / 89 web checks pass; branches/graph and rollout acceptance open | [#28](https://github.com/CloudKai/secondBrain/issues/28), [spec](topic-learning-journey-spec.md) |
+| Source-backed topic learning journeys | Phases 1–3 implemented in development; 294 backend / 95 web checks pass; full rollout acceptance open | [#28](https://github.com/CloudKai/secondBrain/issues/28), [spec](topic-learning-journey-spec.md) |
 
 ## Supplied UI/UX and implementation baseline
 

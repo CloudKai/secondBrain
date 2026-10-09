@@ -80,3 +80,17 @@ _Avoid_: Search filter
 External learning material suggested to help a learner explore a topic more
 deeply, available to inspect and optionally save as a source.
 _Avoid_: Source reference
+
+**Goal branch**:
+A new learning path for an explicitly changed goal, retaining its parent path,
+supporting sources and earlier learner work. Confirmation opens the branch;
+new application checks require separate attempts.
+
+**Teaching map**:
+A view of suggested lesson order and confirmable learning paths. Its arrows are
+study guidance, separate from evidence-supported relationships in the topic graph.
+
+**Applicable prior learning context**:
+Earlier reading or attempts with an exactly matching outcome, difficulty and
+original evidence, available to revisit within a goal branch. Provisional feedback
+is not a verified result and never completes a new application check.

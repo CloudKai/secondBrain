@@ -147,6 +147,7 @@ test('unused collection migration rolls back without changing one-source learnin
   await server(db);await db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[request,context.lease_token,JSON.stringify({path:content,contributions:[{text:'Another explanation.',citation_ids:['p0002']}],ordering_changes:'Keep order.',disagreements:[]}),JSON.stringify([{id:'p0001',source_id:source,source_version:1,title:'Evidence',passage:ref},{id:'p0002',source_id:other,source_version:1,title:'Unused source',passage:ref}]),'gpt-6-luna']);
   await learner(db);assert.equal((await snapshot(db)).plans.length,2);
   await db.exec('reset role');
+  await db.exec(await readFile(new URL('../../../supabase/rollbacks/202610090017_learning_branches.sql',import.meta.url),'utf8'));
   await db.exec(await readFile(new URL('../../../supabase/rollbacks/202610090016_learning_collections.sql',import.meta.url),'utf8'));
   await learner(db);
   assert.equal((await snapshot(db)).plans.length,1);
@@ -206,9 +207,58 @@ test('collection revision preserves original citation locations and fences every
   restored=await snapshot(db);plan=restored.plans.find(item=>item.id===plan.id)!;
   assert.equal(plan.needs_review,true);assert.equal(restored.plans.find(item=>item.id===first.id)!.needs_review,false);
   await assert.rejects(db.query("select public.record_learning_activity($1,0,'read')",[plan.id]),/evidence changed/);
+  await db.query('delete from public.sources where id=$1',[source]);
+  const graph=(await db.query<{v:{collections:{source_available:boolean;source_ids:string[]}[]}}>('select public.get_learning_graph() v')).rows[0].v;
+  assert.equal(graph.collections[0].source_available,false);assert.ok(graph.collections[0].source_ids.includes(other));
   await db.query('delete from public.sources where id=$1',[other]);
   restored=await snapshot(db);plan=restored.plans.find(item=>item.id===plan.id)!;
   assert.equal(plan.references.length,0);assert.equal(plan.evidence.length,0);assert.equal(plan.needs_review,true);
   assert.equal(restored.attempts[0].response,'Relevance alone does not establish support.');
+ }finally{await db.close();}
+});
+
+test('goal branches retain the original path and answers while new application checks stay separate',async()=>{
+ const db=await database();
+ try{
+  const original=await preview(db);await db.query('select public.confirm_learning_plan($1)',[original.id]);
+  const attempt=crypto.randomUUID();await db.query('select public.submit_learning_attempt($1,$2,0,$3)',[original.id,attempt,'My earlier explanation.']);
+  await db.query("select public.record_learning_activity($1,0,'read')",[original.id]);
+  const request=crypto.randomUUID(),goal='Apply evidence checking to a new research decision.';
+  const context=(await db.query<{v:{lease_token:string;mode:string;goal:string;sources:unknown[]}}>('select public.request_learning_revision($1,$2,null,null,null,$3) v',[original.id,request,goal])).rows[0].v;
+  assert.equal(context.mode,'goal_branch');assert.equal(context.goal,goal);assert.equal(context.sources.length,1);
+  await assert.rejects(db.query('select public.request_learning_revision($1,$2,null,null,null,$3)',[original.id,request,'Different goal']),/Request changed/);
+  const branchContent={...content,title:'Apply support checks',outcomes:['Apply evidence checking'],lessons:[{...content.lessons[0],check:{...content.lessons[0].check,kind:'apply',question:'Choose evidence for a new research decision.'}}]};
+  const draft={path:branchContent,contributions:[claim],ordering_changes:'Begin with the shared concept, then apply it.',disagreements:[]};
+  await server(db);await assert.rejects(db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[request,context.lease_token,JSON.stringify({...draft,path:content}),JSON.stringify([{id:'p0001',source_id:source,source_version:1,title:'Evidence',passage:ref}]),'gpt-6-luna']),/new application/);
+  await db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[request,context.lease_token,JSON.stringify(draft),JSON.stringify([{id:'p0001',source_id:source,source_version:1,title:'Evidence',passage:ref}]),'gpt-6-luna']);
+  await learner(db);let restored=await snapshot(db);const branch=restored.plans.find(plan=>plan.request_id===request)!;
+  assert.notEqual(branch.path_id,original.path_id);assert.equal(branch.branch_of_plan_id,original.id);assert.equal(branch.goal,goal);assert.equal(branch.active,false);
+  await assert.rejects(db.query('select public.submit_learning_attempt($1,$2,0,$3)',[branch.id,crypto.randomUUID(),'Unconfirmed work']),/not confirmed/);
+  await db.query('select public.confirm_learning_plan($1)',[branch.id]);restored=await snapshot(db);
+  assert.equal(restored.plans.filter(plan=>plan.active).length,2);
+  assert.equal(restored.selected_plan_id,branch.id);assert.equal(restored.selected_lesson_index,0);
+  await db.query('select public.select_learning_lesson($1,0)',[original.id]);
+  assert.equal((await snapshot(db)).selected_plan_id,original.id);
+  await assert.rejects(db.query('select public.select_learning_lesson($1,3)',[branch.id]),/lesson/);
+  assert.equal(restored.attempts[0].plan_id,original.id);assert.equal(restored.attempts[0].response,'My earlier explanation.');
+  assert.equal(restored.attempts.filter(item=>item.plan_id===branch.id).length,0);
+  assert.equal(restored.activities.filter(item=>item.plan_id===branch.id).length,0);
+  await learner(db,bob);await assert.rejects(db.query('select public.request_learning_revision($1,$2,null,null,null,$3)',[original.id,crypto.randomUUID(),goal]),/Plan not found/);
+ }finally{await db.close();}
+});
+
+test('graph learning indicators separate saved paths, study activity and provisional checks with owner filtering',async()=>{
+ const db=await database();
+ try{
+  const path=await preview(db);await db.query('select public.confirm_learning_plan($1)',[path.id]);
+  await db.query("select public.record_learning_activity($1,0,'read')",[path.id]);
+  const attempt=crypto.randomUUID();await db.query('select public.submit_learning_attempt($1,$2,0,$3)',[path.id,attempt,'My practice explanation.']);
+  const result=(await db.query<{v:{user_id:string;partial:boolean;collections:unknown[]}}>('select public.get_learning_graph() v')).rows[0].v;
+  assert.equal(result.user_id,alice);assert.equal(result.partial,false);
+  assert.deepEqual(result.collections,[{source_id:source,title:'Evidence',source_available:true,source_ids:[source],path_count:1,studied_lessons:1,practice_attempts:1,provisional_checks:0,flagged_plans:0}]);
+  await learner(db,bob);assert.deepEqual((await db.query<{v:{collections:unknown[]}}>('select public.get_learning_graph() v')).rows[0].v.collections,[]);
+  await db.exec('reset role');await db.query('update public.sources set source_version=2 where id=$1',[source]);await learner(db);
+  const changed=(await db.query<{v:{collections:{flagged_plans:number;practice_attempts:number}[]}}>('select public.get_learning_graph() v')).rows[0].v;
+  assert.equal(changed.collections[0].flagged_plans,1);assert.equal(changed.collections[0].practice_attempts,1);
  }finally{await db.close();}
 });

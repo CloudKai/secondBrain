@@ -2,6 +2,7 @@ import ResearchDiscovery from "./components/ResearchDiscovery";
 import SavedAssistant from "./components/SavedAssistant";
 import LearningJourney from './components/LearningJourney';
 import LearningHistory from './components/LearningHistory';
+import LearningTopicProgress from './components/LearningTopicProgress';
 import {citationMatchesSource, type AssistantReference} from "./lib/assistant-answer";
 import CaptureRangeFields from "./components/CaptureRangeFields";
 import {selectedRange,wholeSourceFields,type RangeFields,type CaptureRange} from "./lib/capture-range";
@@ -1770,6 +1771,7 @@ export default function App() {
                   )}
                 </aside>
               </div>
+              {topic?.saved&&sourceClient&&storage==='ready'&&<LearningTopicProgress client={sourceClient} sourceIds={topic.notes.map(note=>note.id)}/>}
               <div className="section-heading">
                 <div>
                   <h2>Why these ideas connect</h2>

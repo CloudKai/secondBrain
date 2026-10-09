@@ -3,7 +3,7 @@ from uuid import UUID
 import httpx
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from backend.learning_models import LearningHistory, LearningCandidates, RevisionRequest
+from backend.learning_models import LearningHistory, LearningCandidates, RevisionRequest, LessonPlaceRequest, LearningGraph
 
 from backend.learning_models import LearningSnapshot, PreviewRequest, AttemptRequest, ActivityRequest, TutorQuestion, TutorReply
 from backend.learning_generation import LearningGenerator
@@ -41,6 +41,14 @@ async def get_learning(source_id: UUID, gateway: SourceGateway = Depends(owned_s
 async def learning_history(offset: int = Query(default=0, ge=0), gateway: SourceGateway = Depends(owned_sources)):
     try:
         return await LearningStore(gateway).history(offset)
+    except StudyStorageError as exc:
+        raise storage_failure(exc) from exc
+
+
+@router.get("/learning/graph", response_model=LearningGraph)
+async def learning_graph(gateway: SourceGateway = Depends(owned_sources)):
+    try:
+        return await LearningStore(gateway).graph()
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
 
@@ -113,6 +121,18 @@ async def confirm_learning(source_id: UUID, plan_id: UUID, gateway: SourceGatewa
     try:
         await owned_plan(store, source_id, plan_id)
         return store.snapshot(await store.call("confirm_learning_plan", p_plan_id=str(plan_id)), source_id)
+    except StudyStorageError as exc:
+        raise storage_failure(exc) from exc
+
+
+@router.post("/sources/{source_id}/learning/plans/{plan_id}/place", response_model=LearningSnapshot)
+async def select_lesson(source_id: UUID, plan_id: UUID, payload: LessonPlaceRequest, gateway: SourceGateway = Depends(owned_sources)):
+    store = LearningStore(gateway)
+    try:
+        snapshot = await store.read(source_id)
+        if not any(plan.id == plan_id and plan.confirmed_at is not None for plan in snapshot.plans):
+            raise StudyStorageError("not_found")
+        return store.snapshot(await store.call("select_learning_lesson", p_plan_id=str(plan_id), p_lesson_index=payload.lesson_index), source_id)
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
 
