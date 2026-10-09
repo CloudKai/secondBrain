@@ -3,7 +3,7 @@ import json
 import os
 from uuid import UUID
 
-from backend.learning_models import LearningSnapshot, PreviewContext, FeedbackContext, LearningHistory
+from backend.learning_models import LearningSnapshot, PreviewContext, FeedbackContext, LearningHistory, LearningCandidates, RevisionContext
 from backend.study_store import StudyStore, StudyStorageError
 
 
@@ -35,6 +35,37 @@ class LearningStore:
 
     async def read(self, source_id: UUID) -> LearningSnapshot:
         return self.snapshot(await self.call("get_source_learning", p_source_id=str(source_id)), source_id)
+
+    async def candidates(self, source_id, plan_id):
+        try:
+            result = LearningCandidates.model_validate_json(json.dumps(await self.call("get_learning_candidates", p_plan_id=str(plan_id))))
+            if result.user_id != self.user_id or result.source_id != source_id or result.plan_id != plan_id:
+                raise ValueError("Unexpected collection candidates")
+            return result
+        except (ValueError, TypeError) as exc:
+            raise StudyStorageError() from exc
+
+    async def revision_context(self, source_id, plan_id, payload):
+        try:
+            result = RevisionContext.model_validate_json(json.dumps(await self.call("request_learning_revision", p_plan_id=str(plan_id), p_request_id=str(payload.request_id), p_source_id=str(payload.source_id) if payload.source_id else None, p_source_version=payload.source_version, p_difficulty=payload.difficulty)))
+            members = {item.source.id: item.source for item in result.sources}
+            if (result.user_id != self.user_id or result.source_id != source_id or result.request_id != payload.request_id
+                    or result.base_plan.id != plan_id or result.base_plan.source_id != source_id
+                    or len(members) != len(result.sources) or source_id not in members
+                    or payload.source_id is not None and (payload.source_id not in members or members[payload.source_id].source_version != payload.source_version or result.sources[-1].source.id != payload.source_id)
+                    or result.mode != ("add_source" if payload.source_id else "difficulty")
+                    or result.difficulty != (payload.difficulty or result.base_plan.difficulty)
+                    or any(item.user_id != self.user_id for item in members.values())):
+                raise ValueError("Unexpected learning revision")
+            return result
+        except (ValueError, TypeError) as exc:
+            raise StudyStorageError() from exc
+
+    async def finish_revision(self, source_id, context, draft=None, evidence=None, model=None):
+        await self.finish("finish_learning_revision", p_request_id=str(context.request_id), p_lease_token=str(context.lease_token),
+                          p_draft=draft.model_dump(mode="json") if draft else None,
+                          p_evidence=[item.model_dump(mode="json") for item in evidence] if evidence else None, p_model=model)
+        return await self.read(source_id)
 
     async def history(self, offset: int):
         try:

@@ -341,10 +341,12 @@ export default function App() {
       document.getElementById("source-passage")?.focus(),
     );
   }
-  async function inspectAssistantCitation(ref:AssistantReference) {
+  async function inspectAssistantCitation(ref:AssistantReference, allowArchived = false) {
     if(!sourceClient||!currentNote)return;
     const anchor=currentNote.id;
-    const source=await sourceClient.get(ref.source_id);
+    let source=await sourceClient.get(ref.source_id);
+    if(allowArchived && ref.source_version !== (source.source_version??1))
+      source=(await sourceClient.sourceVersion(ref.source_id,ref.source_version)).source;
     if(activeNote.current!==anchor)return;
     if(!citationMatchesSource(ref,source))throw new Error('This evidence changed. Reload the note and ask again.');
     setAssistantEvidence({anchor,anchorVersion:currentNote.savedSource?.source_version??1,note:noteFromSavedSource(source),reference:ref});
@@ -1488,7 +1490,7 @@ export default function App() {
                         key={`learning-${currentNote.id}-${currentNote.savedSource.source_version??1}`}
                         source={currentNote.savedSource} client={sourceClient} enabled={storage==='ready'}
                         topicTitle={topicMaps.library.maps.find(map=>map.source_id===currentNote.id)?.analysis?.topics.find(topic=>topic.role==='main'&&!topic.uncertain)?.title}
-                        onCitation={inspectAssistantCitation}
+                        onCitation={ref => inspectAssistantCitation(ref, true)}
                         onDiscover={query=>{setResearchSeed(Array.from(query).slice(0,500).join(''));go('discover');}}
                       />}
                       <p className="note-disclosure">

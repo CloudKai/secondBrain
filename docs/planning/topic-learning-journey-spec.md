@@ -1,13 +1,13 @@
 # Source-backed topic learning journeys
 
-Status: **first one-source delivery implemented in development on 2026-10-09**.
+Status: **one-source delivery and multi-source revisions implemented in development on 2026-10-09**.
 Published as [GitHub #28](https://github.com/CloudKai/secondBrain/issues/28), which
 remains open for the full phased target. See the [development acceptance record](../reviews/learning-journey-acceptance-2026-10-09.md).
-Later multi-source revisions, goal branches and graph learning states remain
-target behavior. Practice feedback is provisional; semantic confidence routing,
+Goal branches and graph learning states remain target behavior.
+See the [collection acceptance record](../reviews/learning-collections-acceptance-2026-10-09.md). Practice feedback is provisional; semantic confidence routing,
 verified assessment, public rollout and remaining acceptance checks are not complete.
 
-## Problem Statement
+## Problem Statement — baseline before this implementation
 
 Learners can collect useful articles, PDFs and videos, but reading a description
 of their contents does not provide a coherent way to learn them. The current web
@@ -206,7 +206,7 @@ requests are part of this specification-writing task.
 ## Further Notes
 
 - This is a phased specification. Begin with the complete one-source delivery; later collection-growth/branch features require separate implementation units. Do not close the full specification when only the first delivery passes.
-- Test boundaries are awaiting the focused skill-required check. Exact routing-quality signals, thresholds and hosted cost limits require measurement; they are implementation gates, not additional product interviews.
+- Test boundaries were approved on 2026-10-09. Exact routing-quality signals, thresholds and hosted cost limits require measurement; they are implementation gates, not additional product interviews.
 - Existing source-driven shared topics, retained source branches, web-first delivery, authoritative Postgres and derived Qdrant decisions still apply. The new one-source teaching map is a separate presentation of learning order.
 - The requested Codex conversation preference is Luna. The application's per-request routing does not switch the running Codex conversation; this session has no tool for that switch.
 - Track implementation and acceptance in GitHub Issues and web-specific progress records. Keep current capability claims separate from this target specification.

@@ -94,6 +94,47 @@ class PracticeFeedback(StrictModel):
     next_hint: str = Field(min_length=1, max_length=1000)
 
 
+class LearningEvidence(StrictModel):
+    id: str = Field(min_length=1, max_length=16)
+    source_id: UUID
+    source_version: int = Field(ge=1, le=20)
+    title: str = Field(min_length=1, max_length=200)
+    passage: SourceReference
+
+
+class LearningMember(StrictModel):
+    source_id: UUID
+    source_version: int = Field(ge=1, le=20)
+    title: str = Field(min_length=1, max_length=200)
+    topic_fingerprint: str = Field(min_length=32, max_length=32)
+
+
+class RevisionSummary(StrictModel):
+    contributions: list[Explanation] = Field(min_length=1, max_length=5)
+    ordering_changes: str = Field(min_length=1, max_length=1000)
+    disagreements: list[Explanation] = Field(max_length=5)
+
+
+class RevisionDraft(RevisionSummary):
+    path: PathDraft
+
+
+class RevisionRequest(StrictModel):
+    request_id: UUID = Field(strict=False)
+    source_id: UUID | None = Field(default=None, strict=False)
+    source_version: int | None = Field(default=None, ge=1, le=20)
+    difficulty: Difficulty | None = None
+
+    @model_validator(mode="after")
+    def one_change(self):
+        if self.source_id is not None:
+            if self.source_version is None or self.difficulty is not None:
+                raise ValueError("Preview source contribution separately from difficulty")
+        elif self.source_version is not None or self.difficulty is None:
+            raise ValueError("Choose a source or difficulty")
+        return self
+
+
 class LearningPlan(StrictModel):
     id: UUID
     path_id: UUID
@@ -105,6 +146,10 @@ class LearningPlan(StrictModel):
     difficulty: Difficulty
     content: PathDraft
     references: list[SourceReference] = Field(max_length=100)
+    evidence: list[LearningEvidence] = Field(default_factory=list, max_length=100)
+    source_members: list[LearningMember] = Field(default_factory=list, max_length=8)
+    revision: RevisionSummary | None = None
+    base_plan_id: UUID | None = None
     confirmed_at: datetime | None
     active: bool
     needs_review: bool
@@ -114,12 +159,18 @@ class LearningPlan(StrictModel):
 
     @model_validator(mode="after")
     def references_resolve(self):
-        historical = self.source_id is None and self.needs_review and not self.references
+        historical = self.needs_review and not self.references and (self.source_id is None or bool(self.source_members))
         if not self.references and not historical:
             raise ValueError("Current teaching requires evidence")
         ids = {reference.id for reference in self.references}
         if len(ids) != len(self.references):
             raise ValueError("Duplicate learning references")
+        if self.evidence:
+            aliases = [item.passage.model_copy(update={"id": item.id}) for item in self.evidence]
+            if aliases != self.references:
+                raise ValueError("Learning evidence aliases must preserve original passages")
+        if self.revision and not historical and any(not set(claim.citation_ids) <= ids for claim in self.revision.contributions + self.revision.disagreements):
+            raise ValueError("Unknown revision evidence")
         for lesson in self.content.lessons:
             claims = [lesson.explanation, lesson.check.worked_answer]
             if lesson.example is not None:
@@ -129,6 +180,22 @@ class LearningPlan(StrictModel):
         if self.active and self.confirmed_at is None:
             raise ValueError("Preview cannot be active")
         return self
+
+
+class LearningSource(StrictModel):
+    source: CapturedSource
+    note: StudyNote
+
+
+class RevisionContext(StrictModel):
+    user_id: UUID
+    source_id: UUID
+    request_id: UUID
+    lease_token: UUID | None
+    base_plan: LearningPlan
+    mode: Literal["add_source", "difficulty"]
+    difficulty: Difficulty
+    sources: list[LearningSource] = Field(min_length=2, max_length=8)
 
 
 class PracticeAttempt(StrictModel):
@@ -182,6 +249,20 @@ class LearningHistory(StrictModel):
     user_id: UUID = Field(exclude=True)
     collections: list[LearningHistoryItem] = Field(max_length=50)
     next_offset: int | None = Field(ge=0)
+
+
+class LearningCandidate(StrictModel):
+    source_id: UUID
+    source_version: int = Field(ge=1, le=20)
+    title: str = Field(min_length=1, max_length=200)
+    shared_topics: list[LearningText] = Field(min_length=1, max_length=10)
+
+
+class LearningCandidates(StrictModel):
+    user_id: UUID = Field(exclude=True)
+    source_id: UUID
+    plan_id: UUID
+    candidates: list[LearningCandidate] = Field(max_length=200)
 
 
 class AttemptRequest(StrictModel):

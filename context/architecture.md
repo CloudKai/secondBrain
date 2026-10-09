@@ -4,6 +4,24 @@ This file separates the verified implementation from the selected target. A
 target component is not available until its slice is marked verified in
 `scope.md` and `context/progress-tracker.md`.
 
+## Web learning collections — implemented in development, 2026-10-09
+
+Migration 016 adds immutable collection member/evidence manifests and leased
+revision jobs. Learner JWT RPCs list related owned sources and request previews;
+server finish functions validate every exact saved-note passage against its
+member's current version. Plan-local citation aliases retain each original source,
+version, passage identifier and coordinates. No Qdrant learning authority is added.
+Topic fingerprints include learner corrections. Owner advisory locks and ordered
+source locks fence version/topic changes, feedback and confirmation. A revision
+activates only after learner confirmation, preserving the prior plan and answers.
+Limits: 8 sources, 100 passages, 30,000 serialized model-input characters, 10
+revision requests/hour, 3 lease attempts and at most 40 plans per source anchor.
+Difficulty variants keep member evidence, goal and outcomes. Rollback locks before
+checking history; confirmed collections/attempts require export or a data migration,
+while unused previews can be removed without losing original learning history.
+See [acceptance](../docs/reviews/learning-collections-acceptance-2026-10-09.md).
+
+
 ## Web one-source learning — implemented in development, 2026-10-09
 
 `backend/learning.py` exposes authenticated preview/confirmation, attempts,

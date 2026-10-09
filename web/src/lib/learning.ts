@@ -11,11 +11,16 @@ const check=z.object({kind:z.enum(['explain','apply','quick_question']),question
 const lesson=z.object({title:text(160),outcome:text(500),explanation,example:example.nullable(),check}).strict();
 const content=z.object({title:text(160),outcomes:z.array(text(500)).min(1).max(5),prerequisites:z.array(text(500)).max(5),coverage:text(1000),gaps:z.array(text(500)).max(5),
   background:z.array(z.object({title:text(160),purpose:text(500),text:text(2000)}).strict()).max(3),lessons:z.array(lesson).min(1).max(4)}).strict();
+const evidence=z.object({id:text(16),source_id:z.string().uuid(),source_version:z.number().int().min(1).max(20),title:text(200),passage:referenceSchema}).strict();
+const member=z.object({source_id:z.string().uuid(),source_version:z.number().int().min(1).max(20),title:text(200),topic_fingerprint:z.string().length(32)}).strict();
+const revision=z.object({contributions:z.array(explanation).min(1).max(5),ordering_changes:text(1000),disagreements:z.array(explanation).max(5)}).strict();
 const plan=z.object({id:z.string().uuid(),path_id:z.string().uuid(),request_id:z.string().uuid(),source_id:z.string().uuid().nullable(),source_title:text(200),source_version:z.number().int().min(1).max(20),goal:text(500),difficulty,content,
-  references:z.array(referenceSchema).max(100),confirmed_at:z.string().datetime({offset:true}).nullable(),active:z.boolean(),needs_review:z.boolean(),model:z.enum(['gpt-6-luna','gpt-6.1-sol']),policy_version:z.literal('learning_v1'),created_at:z.string().datetime({offset:true})}).strict().superRefine((value,ctx)=>{
-  const historical=value.source_id===null&&value.needs_review&&!value.references.length;
+  references:z.array(referenceSchema).max(100),evidence:z.array(evidence).max(100).default([]),source_members:z.array(member).max(8).default([]),revision:revision.nullable().default(null),base_plan_id:z.string().uuid().nullable().default(null),confirmed_at:z.string().datetime({offset:true}).nullable(),active:z.boolean(),needs_review:z.boolean(),model:z.enum(['gpt-6-luna','gpt-6.1-sol']),policy_version:z.literal('learning_v1'),created_at:z.string().datetime({offset:true})}).strict().superRefine((value,ctx)=>{
+  const historical=value.needs_review&&!value.references.length&&(value.source_id===null||!!value.source_members.length);
   if(!value.references.length&&!historical)ctx.addIssue({code:'custom',message:'Current teaching requires evidence'});
+  if(value.evidence.length&&(value.evidence.length!==value.references.length||value.evidence.some((item,index)=>JSON.stringify({...item.passage,id:item.id})!==JSON.stringify(value.references[index]))))ctx.addIssue({code:'custom',message:'Invalid original passage mapping'});
   const refs=new Set(value.references.map(ref=>ref.id));
+  if(value.revision&&!historical&&[...value.revision.contributions,...value.revision.disagreements].some(claim=>claim.citation_ids.some(id=>!refs.has(id))))ctx.addIssue({code:'custom',message:'Unknown revision evidence'});
   if(refs.size!==value.references.length||value.active&&!value.confirmed_at||!historical&&value.content.lessons.some(item=>[item.explanation,item.check.worked_answer,...(item.example?[item.example]:[])].some(claim=>claim.citation_ids.some(id=>!refs.has(id)))))
     ctx.addIssue({code:'custom',message:'Invalid teaching attribution'});
 });
@@ -28,7 +33,7 @@ export const learningSnapshotSchema=z.object({source_id:z.string().uuid(),plans:
     ctx.addIssue({code:'custom',message:'Unexpected learning collection'});
   for(const item of value.attempts){
     const selected=plans.get(item.plan_id),lesson=selected?.content.lessons[item.lesson_index];
-    if(!selected||!lesson||item.difficulty!==selected.difficulty||item.feedback&&(item.feedback.criteria.length!==lesson.check.criteria.length||new Set(item.feedback.criteria.map(c=>c.criterion_index)).size!==lesson.check.criteria.length||item.feedback.criteria.some(c=>c.criterion_index>=lesson.check.criteria.length||!(selected.source_id===null&&selected.needs_review)&&c.citation_ids.some(id=>!selected.references.some(ref=>ref.id===id)))))
+    if(!selected||!lesson||item.difficulty!==selected.difficulty||item.feedback&&(item.feedback.criteria.length!==lesson.check.criteria.length||new Set(item.feedback.criteria.map(c=>c.criterion_index)).size!==lesson.check.criteria.length||item.feedback.criteria.some(c=>c.criterion_index>=lesson.check.criteria.length||!(selected.needs_review&&!selected.references.length)&&c.citation_ids.some(id=>!selected.references.some(ref=>ref.id===id)))))
       ctx.addIssue({code:'custom',message:'Unexpected practice feedback'});
   }
   for(const item of value.activities){
@@ -49,3 +54,7 @@ export interface LearningTutorQuestion {lesson_index:number;question:string;hist
 
 export const learningHistorySchema=z.object({collections:z.array(z.object({source_id:z.string().uuid(),title:text(200),source_available:z.boolean()}).strict()).max(50),next_offset:z.number().int().nonnegative().nullable()}).strict();
 export type LearningHistory=z.infer<typeof learningHistorySchema>;
+
+export const learningCandidatesSchema=z.object({source_id:z.string().uuid(),plan_id:z.string().uuid(),candidates:z.array(z.object({source_id:z.string().uuid(),source_version:z.number().int().min(1).max(20),title:text(200),shared_topics:z.array(text(500)).min(1).max(10)}).strict()).max(200)}).strict();
+export type LearningCandidates=z.infer<typeof learningCandidatesSchema>;
+export interface LearningRevisionInput {request_id:string;source_id:string|null;source_version:number|null;difficulty?:LearningDifficulty}

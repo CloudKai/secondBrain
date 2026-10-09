@@ -3,7 +3,7 @@ from uuid import UUID
 import httpx
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from backend.learning_models import LearningHistory
+from backend.learning_models import LearningHistory, LearningCandidates, RevisionRequest
 
 from backend.learning_models import LearningSnapshot, PreviewRequest, AttemptRequest, ActivityRequest, TutorQuestion, TutorReply
 from backend.learning_generation import LearningGenerator
@@ -74,6 +74,37 @@ async def owned_plan(store, source_id, plan_id, *, confirmed=False):
     if plan.needs_review or confirmed and plan.confirmed_at is None:
         raise StudyStorageError("stale")
     return plan
+
+
+@router.get("/sources/{source_id}/learning/plans/{plan_id}/candidates", response_model=LearningCandidates)
+async def learning_candidates(source_id: UUID, plan_id: UUID, gateway: SourceGateway = Depends(owned_sources)):
+    store = LearningStore(gateway)
+    try:
+        await owned_plan(store, source_id, plan_id, confirmed=True)
+        return await store.candidates(source_id, plan_id)
+    except StudyStorageError as exc:
+        raise storage_failure(exc) from exc
+
+
+@router.post("/sources/{source_id}/learning/plans/{plan_id}/revision", response_model=LearningSnapshot)
+async def learning_revision(source_id: UUID, plan_id: UUID, payload: RevisionRequest, gateway: SourceGateway = Depends(owned_sources)):
+    store = LearningStore(gateway)
+    try:
+        await owned_plan(store, source_id, plan_id, confirmed=True)
+        context = await store.revision_context(source_id, plan_id, payload)
+        if context.lease_token is None:
+            return await store.read(source_id)
+        try:
+            async with httpx.AsyncClient(trust_env=False) as client:
+                draft, model, evidence = await LearningGenerator(client).revision(context)
+        except GenerationFailure:
+            await store.finish_revision(source_id, context)
+            raise
+        return await store.finish_revision(source_id, context, draft, evidence, model)
+    except StudyStorageError as exc:
+        raise storage_failure(exc) from exc
+    except GenerationFailure as exc:
+        raise HTTPException(503, "The contribution preview is unavailable. Your current plan and progress are saved; retry.") from exc
 
 
 @router.post("/sources/{source_id}/learning/plans/{plan_id}/confirm", response_model=LearningSnapshot)

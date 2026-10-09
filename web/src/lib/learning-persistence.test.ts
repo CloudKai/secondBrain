@@ -111,3 +111,104 @@ test('feedback leases fence late writes and removed sources without losing earli
   assert.equal((await db.query<{source_id:string|null}>('select source_id from public.learning_paths')).rows[0].source_id,null);
  }finally{await db.close();}
 });
+
+test('related learning sources require owned current confirmed topic membership',async()=>{
+ const db=await database();
+ const other='88888888-8888-4888-8888-888888888888',topic='99999999-9999-4999-8999-999999999999';
+ try{
+  const plan=await preview(db);await db.query('select public.confirm_learning_plan($1)',[plan.id]);
+  await db.exec('reset role');
+  await db.query("insert into public.sources(id,user_id,original_url,canonical_url,title,captured_text,capture_origin,coverage,coverage_detail) values($1,$2,'https://example.com/other','https://example.com/other','Other evidence',$3,'direct','complete','Article')",[other,alice,capture]);
+  await db.query("insert into public.source_studies(source_id,user_id,source_version,status,note) values($1,$2,1,'succeeded',$3)",[other,alice,JSON.stringify(note)]);
+  const analysis={topics:[{id:topic,title:'Evidence',aliases:[],role:'main',context:'Evidence support',citation_ids:['p0001'],uncertain:false,suggested_topic_id:null,placement_reason:'Clear topic'}],relations:[]};
+  for(const sid of [source,other])await db.query("insert into public.source_topic_maps(source_id,user_id,status,analysis) values($1,$2,'succeeded',$3) on conflict(source_id) do update set status='succeeded',analysis=excluded.analysis",[sid,alice,JSON.stringify(analysis)]);
+  await learner(db);
+  const read=async()=> (await db.query<{v:{candidates:{source_id:string;shared_topics:string[]}[]}}>('select public.get_learning_candidates($1) v',[plan.id])).rows[0].v;
+  assert.deepEqual((await read()).candidates,[{source_id:other,source_version:1,title:'Other evidence',shared_topics:['Evidence']}]);
+  await learner(db,bob);await assert.rejects(read(),/Plan not found/);
+  await db.exec('reset role');await db.query("update public.source_topic_overrides set analysis=jsonb_set(analysis,'{topics,0,uncertain}','true') where source_id=$1",[other]);await db.query("update public.source_topic_maps set analysis=jsonb_set(analysis,'{topics,0,uncertain}','true') where source_id=$1",[other]);
+  await learner(db);assert.deepEqual((await read()).candidates,[]);
+ }finally{await db.close();}
+});
+
+test('unused collection migration rolls back without changing one-source learning',async()=>{
+ const db=await database();
+ try{
+  const plan=await preview(db);await db.query('select public.confirm_learning_plan($1)',[plan.id]);
+  const answer=crypto.randomUUID();await db.query('select public.submit_learning_attempt($1,$2,0,$3)',[plan.id,answer,'My saved learner answer.']);
+  await db.exec('reset role');
+  const other='88888888-8888-4888-8888-888888888888',topic='99999999-9999-4999-8999-999999999999';
+  await db.query("insert into public.sources(id,user_id,original_url,canonical_url,title,captured_text,capture_origin,coverage,coverage_detail) values($1,$2,'https://example.com/unused','https://example.com/unused','Unused source',$3,'direct','complete','Article')",[other,alice,capture]);
+  await db.query("insert into public.source_studies(source_id,user_id,source_version,status,note) values($1,$2,1,'succeeded',$3)",[other,alice,JSON.stringify(note)]);
+  const analysis={topics:[{id:topic,title:'Evidence',aliases:[],role:'main',context:'Evidence support',citation_ids:['p0001'],uncertain:false,suggested_topic_id:null,placement_reason:'Clear topic'}],relations:[]};
+  for(const sid of [source,other])await db.query("update public.source_topic_maps set status='succeeded',analysis=$2 where source_id=$1",[sid,JSON.stringify(analysis)]);
+  await learner(db);
+  const request=crypto.randomUUID(),context=(await db.query<{v:{lease_token:string}}>('select public.request_learning_revision($1,$2,$3,1) v',[plan.id,request,other])).rows[0].v;
+  await server(db);await db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[request,context.lease_token,JSON.stringify({path:content,contributions:[{text:'Another explanation.',citation_ids:['p0002']}],ordering_changes:'Keep order.',disagreements:[]}),JSON.stringify([{id:'p0001',source_id:source,source_version:1,title:'Evidence',passage:ref},{id:'p0002',source_id:other,source_version:1,title:'Unused source',passage:ref}]),'gpt-6-luna']);
+  await learner(db);assert.equal((await snapshot(db)).plans.length,2);
+  await db.exec('reset role');
+  await db.exec(await readFile(new URL('../../../supabase/rollbacks/202610090016_learning_collections.sql',import.meta.url),'utf8'));
+  await learner(db);
+  assert.equal((await snapshot(db)).plans.length,1);
+  assert.equal((await snapshot(db)).attempts[0].response,'My saved learner answer.');
+  assert.equal((await snapshot(db)).plans[0].active,true);
+ }finally{await db.close();}
+});
+
+test('collection revision preserves original citation locations and fences every supporting source',async()=>{
+ const db=await database(),other='88888888-8888-4888-8888-888888888888',topic='99999999-9999-4999-8999-999999999999',third='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',applicationTopic='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ try{
+  const first=await preview(db);await db.query('select public.confirm_learning_plan($1)',[first.id]);
+  const answer=crypto.randomUUID();await db.query('select public.submit_learning_attempt($1,$2,0,$3)',[first.id,answer,'Relevance alone does not establish support.']);
+  const earlyRequest=crypto.randomUUID();
+  const early=(await db.query<{v:{lease_token:string}}> ("select public.request_learning_preview($1,1,$2,$3,'advanced',$4) v",[source,earlyRequest,first.goal,first.path_id])).rows[0].v;
+  await db.exec('reset role');
+  await db.query("insert into public.sources(id,user_id,original_url,canonical_url,title,captured_text,capture_origin,coverage,coverage_detail) values($1,$2,'https://example.com/more','https://example.com/more','More evidence',$3,'direct','complete','Article')",[other,alice,capture]);
+  await db.query("insert into public.source_studies(source_id,user_id,source_version,status,note) values($1,$2,1,'succeeded',$3)",[other,alice,JSON.stringify(note)]);
+  const analysis={topics:[{id:topic,title:'Evidence',aliases:[],role:'main',context:'Evidence support',citation_ids:['p0001'],uncertain:false,suggested_topic_id:null,placement_reason:'Clear topic'}],relations:[]};
+  await db.query("insert into public.sources(id,user_id,original_url,canonical_url,title,captured_text,capture_origin,coverage,coverage_detail) values($1,$2,'https://example.com/application','https://example.com/application','Application evidence',$3,'direct','complete','Article')",[third,alice,capture]);
+  await db.query("insert into public.source_studies(source_id,user_id,source_version,status,note) values($1,$2,1,'succeeded',$3)",[third,alice,JSON.stringify(note)]);
+  const extra={...analysis.topics[0],id:applicationTopic,title:'Applications',role:'supporting'};
+  for(const sid of [source,other,third])await db.query("update public.source_topic_maps set status='succeeded',analysis=$2 where source_id=$1",[sid,JSON.stringify({...analysis,topics:sid===source?analysis.topics:sid===other?[...analysis.topics,extra]:[extra]})]);
+  await learner(db);
+  const request=crypto.randomUUID();
+  const context=(await db.query<{v:{lease_token:string;sources:{source:{id:string}}[]}}>('select public.request_learning_revision($1,$2,$3,1) v',[first.id,request,other])).rows[0].v;
+  assert.deepEqual(context.sources.map(item=>item.source.id),[source,other]);
+  await assert.rejects(db.query('select public.request_learning_revision($1,$2,$3,1)',[first.id,request,other]),/still generating/);
+  const revision={path:content,contributions:[{text:'Another explanation of evidence support.',citation_ids:['p0002']}],ordering_changes:'Keep the original order.',disagreements:[]};
+  const evidence=[{id:'p0001',source_id:source,source_version:1,title:'Evidence',passage:ref},{id:'p0002',source_id:other,source_version:1,title:'More evidence',passage:ref}];
+  await assert.rejects(db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[request,context.lease_token,JSON.stringify(revision),JSON.stringify(evidence),'gpt-6-luna']),/permission denied/);
+  await server(db);
+  await assert.rejects(db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[request,context.lease_token,JSON.stringify({...revision,disagreements:[{text:'The sources disagree.',citation_ids:['p0001']}]}),JSON.stringify(evidence),'gpt-6-luna']),/both source perspectives/);
+  await db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[request,context.lease_token,JSON.stringify(revision),JSON.stringify(evidence),'gpt-6-luna']);
+  await learner(db);
+  let restored=await snapshot(db),plan=restored.plans.find(item=>item.request_id===request)!;
+  assert.equal(plan.active,false);assert.equal(restored.plans.find(item=>item.id===first.id)!.active,true);
+  assert.equal(restored.attempts[0].response,'Relevance alone does not establish support.');
+  assert.deepEqual(plan.evidence,evidence);assert.equal(plan.references[1].id,'p0002');
+  await db.query('select public.confirm_learning_plan($1)',[plan.id]);
+  assert.equal((await snapshot(db)).plans.find(item=>item.id===plan.id)!.active,true);
+  await server(db);await assert.rejects(db.query('select public.finish_learning_preview($1,$2,$3,$4,$5,$6)',[earlyRequest,early.lease_token,JSON.stringify({suggested_goal:first.goal,paths:[content]}),first.goal,JSON.stringify([ref]),'gpt-6-luna']),/collection evidence changed/);await learner(db);
+  await db.exec('reset role');
+  await assert.rejects(db.exec(await readFile(new URL('../../../supabase/rollbacks/202610090016_learning_collections.sql',import.meta.url),'utf8')),/Export and migrate collection learner history/);
+  await db.exec('rollback');await learner(db);
+  const suggestions=(await db.query<{v:{candidates:{source_id:string;shared_topics:string[]}[]}}>('select public.get_learning_candidates($1) v',[plan.id])).rows[0].v;
+  assert.deepEqual(suggestions.candidates,[{source_id:third,source_version:1,title:'Application evidence',shared_topics:['Applications']}]);
+  assert.equal((await db.query<{v:{lease_token:null}}>('select public.request_learning_revision($1,$2,$3,1) v',[first.id,request,other])).rows[0].v.lease_token,null);
+  const variantRequest=crypto.randomUUID();
+  const variantContext=(await db.query<{v:{lease_token:string;sources:unknown[]}}>("select public.request_learning_revision($1,$2,null,null,'advanced') v",[plan.id,variantRequest])).rows[0].v;
+  assert.equal(variantContext.sources.length,2);
+  await server(db);await db.query('select public.finish_learning_revision($1,$2,$3,$4,$5)',[variantRequest,variantContext.lease_token,JSON.stringify(revision),JSON.stringify(evidence),'gpt-6-luna']);
+  await learner(db);const variant=(await snapshot(db)).plans.find(item=>item.request_id===variantRequest)!;
+  assert.equal(variant.difficulty,'advanced');assert.deepEqual(variant.source_members,plan.source_members);
+  await assert.rejects(db.query('select public.request_learning_preview($1,1,$2,$3,$4,$5)',[source,crypto.randomUUID(),plan.goal,'advanced',plan.path_id]),/collection difficulty/);
+  await db.exec('reset role');await db.query('update public.sources set source_version=2 where id=$1',[other]);await learner(db);
+  restored=await snapshot(db);plan=restored.plans.find(item=>item.id===plan.id)!;
+  assert.equal(plan.needs_review,true);assert.equal(restored.plans.find(item=>item.id===first.id)!.needs_review,false);
+  await assert.rejects(db.query("select public.record_learning_activity($1,0,'read')",[plan.id]),/evidence changed/);
+  await db.query('delete from public.sources where id=$1',[other]);
+  restored=await snapshot(db);plan=restored.plans.find(item=>item.id===plan.id)!;
+  assert.equal(plan.references.length,0);assert.equal(plan.evidence.length,0);assert.equal(plan.needs_review,true);
+  assert.equal(restored.attempts[0].response,'Relevance alone does not establish support.');
+ }finally{await db.close();}
+});

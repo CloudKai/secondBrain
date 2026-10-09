@@ -1,4 +1,4 @@
-import {learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
+import {learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
 import {researchResultsSchema} from "./research";
 import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
 import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
@@ -313,6 +313,16 @@ export function createSourceClient(
     },
     async previewLearning(sourceId:string,input:LearningPreviewInput) {
       const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/preview`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
+      if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
+      return result;
+    },
+    async learningCandidates(sourceId:string,planId:string) {
+      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/candidates`),learningCandidatesSchema);
+      if(result.source_id!==sourceId||result.plan_id!==planId)throw new Error('The learning collection changed. Reload and retry.');
+      return result;
+    },
+    async reviseLearning(sourceId:string,planId:string,input:LearningRevisionInput) {
+      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/revision`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
       if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
       return result;
     },

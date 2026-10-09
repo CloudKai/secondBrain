@@ -3443,3 +3443,10 @@ main:focus-visible { outline: none; }
 .reading-card h2,.reading-card .reading-author,.reading-card .micro-copy { overflow-wrap: anywhere; }
 .reading-card .reading-actions { flex-wrap: wrap; gap: 12px; }
 @media(max-width:760px) { .research-search > div { flex-direction: column; } }
+
+/* Learning collections keep original source notes distinct from teaching. */
+.learning-collection,.learning-revision{margin-block:1.25rem;padding:1.25rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.learning-collection a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}
+.learning-collection li{margin-block:.65rem}
+.learning-collection .learning-path{margin-block:.8rem}
+.learning-revision .reading-text{margin-block:.8rem}

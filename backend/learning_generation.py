@@ -6,7 +6,7 @@ import os
 import httpx
 from pydantic import BaseModel
 
-from backend.learning_models import LearningDraft, PracticeFeedback, PreviewContext, TutorReply
+from backend.learning_models import LearningDraft, PracticeFeedback, PreviewContext, TutorReply, RevisionDraft, LearningEvidence
 from backend.source_references import reference_matches_source
 from backend.study_generation import GenerationFailure
 
@@ -149,6 +149,56 @@ class LearningGenerator:
             "learner_answer": answer,
             "evidence": [r.model_dump(mode="json") for r in plan.references if r.id in ids],
         }, validate)
+
+    async def revision(self, context):
+        # Fair bounded evidence selection across sources. Aliases are local to
+        # this immutable plan; original source offsets and IDs remain untouched.
+        instructions = PLAN_INSTRUCTIONS + "\nRevise this selected path, keeping its goal and difficulty. Return exactly one path. Explain new concepts, examples, prerequisites or gaps in contributions; explicitly describe ordering changes. Expose disagreements with both source perspectives and citations; do not invent a conflict or reconcile unsupported claims. Related wording is not independent corroboration. Existing attempts never complete new checks. Evidence IDs are the outer alias id, not passage.id. This is a preview pending learner confirmation."
+        current = context.base_plan.content
+        data = {
+            "goal": context.base_plan.goal, "difficulty": context.difficulty, "revision_mode": context.mode,
+            "current_path": {"title": current.title, "outcomes": current.outcomes,
+                             "prerequisites": current.prerequisites,
+                             "lessons": [{"title": lesson.title, "outcome": lesson.outcome} for lesson in current.lessons]},
+            "added_source_id": str(context.sources[-1].source.id) if context.mode == "add_source" else None,
+            "evidence_selection": "Selected saved-note passages from each source, not complete topic coverage.",
+            "sources": [{"source_id": str(item.source.id), "coverage": item.source.coverage_detail} for item in context.sources],
+            "evidence": [],
+        }
+        evidence = []
+        for index in range(100):
+            for item in context.sources:
+                if index >= len(item.note.references) or len(evidence) >= 100:
+                    continue
+                ref = item.note.references[index]
+                if not reference_matches_source(item.source.captured_text, ref, item.source.document, item.source.transcript):
+                    raise GenerationFailure("invalid_output")
+                candidate = LearningEvidence(id=f"p{len(evidence)+1:04d}", source_id=item.source.id,
+                                             source_version=item.source.source_version, title=item.source.title, passage=ref)
+                data["evidence"].append(candidate.model_dump(mode="json"))
+                if len(json.dumps(data, ensure_ascii=False)) + len(instructions) > 30000:
+                    data["evidence"].pop()
+                    continue
+                evidence.append(candidate)
+        if {item.source_id for item in evidence} != {item.source.id for item in context.sources}:
+            raise GenerationFailure("invalid_output")
+        ids = {item.id for item in evidence}
+
+        def validate(value):
+            validate_teaching(LearningDraft(suggested_goal=context.base_plan.goal, paths=[value.path]), ids)
+            if any(not set(claim.citation_ids) <= ids for claim in value.contributions + value.disagreements):
+                raise ValueError("Unknown revision citation")
+            for claim in value.disagreements:
+                if len({item.source_id for item in evidence if item.id in claim.citation_ids}) < 2:
+                    raise ValueError("Disagreements require both source perspectives")
+            added = context.sources[-1].source.id
+            if context.mode == "add_source" and not any(item.source_id == added and item.id in {id for claim in value.contributions for id in claim.citation_ids} for item in evidence):
+                raise ValueError("Contribution must cite the added source")
+            if context.mode == "difficulty" and (value.path.title != context.base_plan.content.title or value.path.outcomes != context.base_plan.content.outcomes):
+                raise ValueError("Difficulty retains the path direction")
+
+        draft, model = await self.structured(RevisionDraft, instructions, data, validate)
+        return draft, model, evidence
 
     async def tutor(self, plan, question):
         lesson = plan.content.lessons[question.lesson_index]

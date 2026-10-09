@@ -49,6 +49,21 @@ def learning_client(monkeypatch):
         if request.url.path == "/rest/v1/rpc/get_source_learning":
             assert json.loads(request.content) == {"p_source_id": SOURCE}
             return httpx.Response(200, json=state) if owner else httpx.Response(404, json={"code": "P0002"})
+        if request.url.path == "/rest/v1/rpc/get_learning_candidates":
+            return httpx.Response(200, json={"user_id": ALICE, "source_id": SOURCE, "plan_id": PLAN, "candidates": [{"source_id": REQUEST, "source_version": 1, "title": "Evaluating evidence", "shared_topics": ["Evidence"]}]}) if owner else httpx.Response(404, json={"code": "P0002"})
+        if request.url.path == "/rest/v1/rpc/request_learning_revision":
+            if not owner:
+                return httpx.Response(404, json={"code": "P0002"})
+            body = json.loads(request.content)
+            other = {**SOURCE_ROW, "id": REQUEST, "title": "Evaluating evidence"}
+            return httpx.Response(200, json={"user_id": ALICE, "source_id": SOURCE, "request_id": body["p_request_id"], "lease_token": LEASE, "base_plan": state["plans"][0], "mode": "add_source" if body["p_source_id"] else "difficulty", "difficulty": body.get("p_difficulty") or "foundation", "sources": provider.get("revision_sources", [{"source": SOURCE_ROW, "note": NOTE}, {"source": other, "note": NOTE}])})
+        if request.url.path == "/rest/v1/rpc/finish_learning_revision":
+            assert request.headers["apikey"] == "server-test-key"
+            body = json.loads(request.content)
+            provider["saved_revision"] = body
+            if body["p_draft"]:
+                state["plans"].append({**state["plans"][0], "id": LEASE, "request_id": body["p_request_id"], "content": body["p_draft"]["path"], "revision": {key: value for key, value in body["p_draft"].items() if key != "path"}, "base_plan_id": PLAN, "evidence": body["p_evidence"], "references": [{**r["passage"], "id": r["id"]} for r in body["p_evidence"]], "confirmed_at": None, "active": False})
+            return httpx.Response(200, json=True)
         if request.url.path == "/rest/v1/rpc/request_learning_preview":
             if provider.get("rpc_error"):
                 return httpx.Response(400, json={"code": provider["rpc_error"]})
@@ -62,6 +77,7 @@ def learning_client(monkeypatch):
             body = json.loads(request.content)
             provider["models"].append(body["model"])
             provider["last_input"] = json.loads(body["input"])
+            provider["input_length"] = len(body["input"]) + len(body["instructions"])
             assert body["reasoning"] == {"effort": "medium"}
             assert body["text"]["format"]["strict"] is True
             assert request.headers["authorization"] == "Bearer model-test-key"
@@ -298,3 +314,103 @@ def test_learning_history_requires_a_session_and_retains_owner_boundary(learning
     assert client.get("/api/v2/learning/history?offset=-1", headers={"Authorization": "Bearer alice"}).status_code == 422
     assert client.get("/api/v2/learning/history", headers={"Authorization": "Bearer alice"}).json() == {"collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True}], "next_offset": None}
     assert client.get("/api/v2/learning/history", headers={"Authorization": "Bearer bob"}).json() == {"collections": [], "next_offset": None}
+
+
+def test_related_source_candidates_are_owned_and_do_not_change_saved_progress(learning_client):
+    client, state, provider = learning_client
+    create_preview(client)
+    client.post(f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}/confirm", headers={"Authorization": "Bearer alice"})
+    before = json.loads(json.dumps(state))
+    url = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}/candidates"
+    result = client.get(url, headers={"Authorization": "Bearer alice"})
+    assert result.status_code == 200, result.text
+    assert result.json()["candidates"][0]["shared_topics"] == ["Evidence"]
+    assert state == before
+    assert provider["models"] == ["gpt-6-luna"]
+    assert client.get(url, headers={"Authorization": "Bearer bob"}).status_code == 404
+
+
+def test_revision_preview_keeps_goal_and_original_passages_without_activating(learning_client):
+    client, state, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    revised = json.loads(json.dumps(CONTENT))
+    revised["lessons"][0]["explanation"]["citation_ids"] = ["p0001", "p0002"]
+    provider["draft"] = {"path": revised, "contributions": [{"text": "The second source explains the same distinction; it adds another explanation, not independent corroboration.", "citation_ids": ["p0002"]}], "ordering_changes": "Retain the current order.", "disagreements": []}
+    response = client.post(base + "/revision", json={"request_id": PATH, "source_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    plans = response.json()["plans"]
+    assert plans[0]["active"] is True and plans[1]["active"] is False
+    assert plans[1]["goal"] == DRAFT["suggested_goal"]
+    assert [r["id"] for r in plans[1]["evidence"]] == ["p0001", "p0002"]
+    assert [r["passage"]["id"] for r in plans[1]["evidence"]] == ["p0001", "p0001"]
+    assert plans[1]["evidence"][1]["source_id"] == REQUEST
+    assert provider["last_input"]["goal"] == DRAFT["suggested_goal"]
+    assert provider["last_input"]["evidence"][1]["passage"] == REFERENCE
+    assert client.post(base + "/revision", json={"request_id": PATH, "source_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer bob"}).status_code == 404
+
+
+def test_collection_difficulty_variant_retains_evidence_and_path_direction(learning_client):
+    client, _, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    provider["draft"] = {"path": CONTENT, "contributions": [EXPLANATION], "ordering_changes": "Retain the order; deepen practice.", "disagreements": []}
+    response = client.post(base + "/revision", json={"request_id": PATH, "source_id": None, "source_version": None, "difficulty": "advanced"}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert len(response.json()["plans"][1]["evidence"]) == 2
+    assert provider["last_input"]["difficulty"] == "advanced"
+    provider["draft"] = {**provider["draft"], "path": {**CONTENT, "title": "A changed direction"}}
+    assert client.post(base + "/revision", json={"request_id": PATH, "source_id": None, "source_version": None, "difficulty": "advanced"}, headers={"Authorization": "Bearer alice"}).status_code == 503
+
+
+def test_disagreement_requires_both_source_perspectives(learning_client):
+    client, state, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    provider["draft"] = {"path": CONTENT, "contributions": [{**EXPLANATION, "citation_ids": ["p0002"]}], "ordering_changes": "Keep order.", "disagreements": [{"text": "The sources disagree.", "citation_ids": ["p0001"]}]}
+    response = client.post(base + "/revision", json={"request_id": PATH, "source_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 503
+    assert len(state["plans"]) == 1
+    assert provider["models"] == ["gpt-6-luna", "gpt-6-luna", "gpt-6.1-sol"]
+
+
+def test_complete_revision_input_is_bounded_with_long_existing_teaching_and_unicode(learning_client):
+    client, state, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    lesson = json.loads(json.dumps(LESSON))
+    lesson["explanation"]["text"] = "α" * 2000
+    lesson["check"]["worked_answer"]["text"] = "β" * 2000
+    state["plans"][0]["content"]["lessons"] = [lesson] * 4
+    text = "α" * 45000
+    refs = [{**REFERENCE, "id": f"p{index+1:04d}", "start": index*900, "end": (index+1)*900, "excerpt": "α"*900} for index in range(50)]
+    provider["revision_sources"] = [{"source": {**SOURCE_ROW, "id": sid, "captured_text": text}, "note": {**NOTE, "references": refs}} for sid in [SOURCE, REQUEST]]
+    provider["draft"] = {"path": CONTENT, "contributions": [{**EXPLANATION, "citation_ids": ["p0002"]}], "ordering_changes": "Keep order.", "disagreements": []}
+    response = client.post(base + "/revision", json={"request_id": PATH, "source_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert provider["input_length"] <= 30000
+    assert {item["source_id"] for item in provider["last_input"]["evidence"]} == {SOURCE, REQUEST}
+
+
+@pytest.mark.parametrize("kind", ["pdf", "video"])
+def test_added_source_citations_keep_exact_page_or_caption_location(learning_client, kind):
+    client, _, provider = learning_client
+    create_preview(client)
+    base = f"/api/v2/sources/{SOURCE}/learning/plans/{PLAN}"
+    client.post(base + "/confirm", headers={"Authorization": "Bearer alice"})
+    other, ref = {**SOURCE_ROW, "id": REQUEST}, dict(REFERENCE)
+    if kind == "pdf":
+        other.update(source_kind="pdf", document={"filename": None, "page_count": 1, "pages": [{"page": 1, "start": 0, "end": len(TEXT)}]})
+        ref["page"] = 1
+    else:
+        other.update(source_kind="video", original_url="https://youtu.be/abcdefghijk", canonical_url="https://www.youtube.com/watch?v=abcdefghijk", capture_origin="pasted", coverage="unknown", transcript={"provider": "youtube", "format": "vtt", "filename": None, "segments": [{"start": 0, "end": len(TEXT), "start_ms": 1000, "end_ms": 12000}]})
+        ref.update(start_ms=1000, end_ms=12000)
+    provider["revision_sources"] = [{"source": SOURCE_ROW, "note": NOTE}, {"source": other, "note": {**NOTE, "references": [ref]}}]
+    provider["draft"] = {"path": CONTENT, "contributions": [{**EXPLANATION, "citation_ids": ["p0002"]}], "ordering_changes": "Keep order.", "disagreements": []}
+    response = client.post(base + "/revision", json={"request_id": PATH, "source_id": REQUEST, "source_version": 1}, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert response.json()["plans"][1]["evidence"][1]["passage"] == ref

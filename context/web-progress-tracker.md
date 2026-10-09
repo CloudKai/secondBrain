@@ -1,5 +1,25 @@
 # Web Progress Tracker
 
+## Learning collections — implemented in development, 2026-10-09
+
+**Implemented:** explicit related-source contribution previews and confirmed plan
+revisions for #28. A collection retains 2–8 owned sources, original notes, goals,
+prior plans and answers. Related candidates can share confirmed topics with any
+current member. Multi-source difficulty previews retain the collection. Exact
+citation aliases resolve to original source/version/passage/page/time coordinates.
+Changed source versions or topic assignments fence stale writes; source removal
+clears copied evidence while retaining learner answers.
+
+**Checks:** migration 016 applied to the development project; 291 backend and 89
+web tests pass, plus typecheck, lint and build. Public RPC checks cover ownership,
+leases, member changes, explicit confirmation, retained attempts and safe rollback.
+Live PDF/video contribution preview and exact citation inspection checked. Feedback
+remains provisional; no verified grades or mastery. Goal branches and graph states
+are the next unit. Full evaluation, desktop/200% zoom and public rollout remain
+open. See [collection acceptance](../docs/reviews/learning-collections-acceptance-2026-10-09.md).
+
+
+
 ## Topic learning journey — first phase implemented in development, 2026-10-09
 
 **Implemented:** the first one-source unit of [#28](https://github.com/CloudKai/secondBrain/issues/28)
