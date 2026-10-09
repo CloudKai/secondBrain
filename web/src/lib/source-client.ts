@@ -1,4 +1,5 @@
-import {learningGraphSchema,learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
+import {collectionDetailSchema,collectionListSchema} from './collections';
+import {learningSummarySchema,learningGraphSchema,learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
 import {researchResultsSchema} from "./research";
 import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
 import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
@@ -232,6 +233,7 @@ export function createSourceClient(
         "Could not reach the library service. Check the connection and retry.",
       );
     }
+    if (response.status===404 && path.endsWith("/learning/collection")) return response;
     if (!response.ok) {
       if(path.endsWith('/ask') || path === '/research' || path.includes('/learning')) {
         const body:unknown=await response.json().catch(()=>null);
@@ -303,6 +305,29 @@ export function createSourceClient(
   }
 
   return {
+    async collections(offset=0) {
+      const result=await parse(await request(`/learning/collections?offset=${offset}`),collectionListSchema);
+      if(result.next_offset!==null&&result.next_offset!==offset+50)throw new Error('Invalid collection pagination. Retry.');
+      return result;
+    },
+    async collection(id:string) {
+      const result=await parse(await request(`/learning/collections/${encodeURIComponent(id)}`),collectionDetailSchema);
+      if(result.collection.id!==id)throw new Error('The collection changed. Reload and retry.');
+      return result;
+    },
+    async sourceCollection(sourceId:string) {
+      const response=await request(`/sources/${encodeURIComponent(sourceId)}/learning/collection`);
+      // No learning root exists until the first path preview creates one.
+      if(response.status===404)return null;
+      const result=await parse(response,collectionDetailSchema);
+      if(result.collection.legacy_source_id!==sourceId)throw new Error('The collection changed. Reload and retry.');
+      return result;
+    },
+    async selectCollectionLesson(id:string,planId:string,index:number,revision:number) {
+      const result=await parse(await request(`/learning/collections/${encodeURIComponent(id)}/plans/${encodeURIComponent(planId)}/place`,{method:'POST',body:JSON.stringify({lesson_index:index,expected_revision:revision})}),collectionDetailSchema);
+      if(result.collection.id!==id||result.learning.selected_plan_id!==planId||result.learning.selected_lesson_index!==index||result.learning.selected_place_revision!==revision+1)throw new Error('The collection place changed. Reload and retry.');
+      return result.learning;
+    },
     async learningHistory(offset=0) {
       return parse(await request(`/learning/history?offset=${offset}`),learningHistorySchema);
     },
@@ -315,6 +340,9 @@ export function createSourceClient(
       const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/preview`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
       if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
       return result;
+    },
+    async learningSummary() {
+      return parse(await request('/learning/summary'),learningSummarySchema);
     },
     async learningGraph() {
       return parse(await request('/learning/graph'),learningGraphSchema);
@@ -329,8 +357,8 @@ export function createSourceClient(
       if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
       return result;
     },
-    async selectLearningLesson(sourceId:string,planId:string,lessonIndex:number) {
-      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/place`,{method:'POST',body:JSON.stringify({lesson_index:lessonIndex})}),learningSnapshotSchema);
+    async selectLearningLesson(sourceId:string,planId:string,lessonIndex:number,expectedRevision?:number) {
+      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/place`,{method:'POST',body:JSON.stringify({lesson_index:lessonIndex,...(expectedRevision===undefined?{}:{expected_revision:expectedRevision})})}),learningSnapshotSchema);
       if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
       return result;
     },

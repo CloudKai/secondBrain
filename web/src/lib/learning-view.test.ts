@@ -54,3 +54,18 @@ test('removed graph anchors link to retained history instead of an unavailable s
  assert.match(html,/href="#library"/);assert.match(html,/Review retained learning history/);
  assert.doesNotMatch(html,/href="#note\//);
 });
+
+test('teaching map shows current revisions and puts older work in dated version history',async()=>{
+ const {default:LearningMap}=await import('../components/LearningMap');
+ const current={...plan,id:'99999999-9999-4999-8999-999999999999',base_plan_id:plan.id,created_at:'2026-10-10T10:00:00Z'};
+ const html=renderToStaticMarkup(createElement(LearningMap,{data:{source_id:plan.source_id!,selected_plan_id:current.id,selected_lesson_index:0,plans:[{...plan,active:false},current],attempts:[],activities:[]},onChoose:()=>{}}));
+ assert.match(html,/Current paths/);assert.match(html,/Version 2/);
+ assert.doesNotMatch(html,/Previous version/);
+});
+
+test('library resume names the selected lesson and separates activity from understanding',async()=>{
+ const {LearningSummaryView}=await import('../components/LibraryLearning');
+ const html=renderToStaticMarkup(createElement(LearningSummaryView,{data:{resume:{source_id:plan.source_id!,source_available:true,source_title:'Original PDF',plan_id:plan.id,path_id:plan.path_id,plan_title:'Interpret car velocity',goal:'Explain instantaneous change',lesson_index:0,lesson_title:'Local rate',needs_review:false,selected_at:plan.created_at,place_revision:1},studied_lessons:3,practice_attempts:2,provisional_checks:1,pending_feedback:1,failed_feedback:0},onOpen:()=>{},client:null}));
+ assert.match(html,/Interpret car velocity/);assert.match(html,/Local rate/);assert.match(html,/3 lessons marked studied/);assert.match(html,/2 practice attempts/);
+ assert.doesNotMatch(html,/understood|mastered|Newest source/);
+});

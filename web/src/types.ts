@@ -1,7 +1,7 @@
 import type { SavedSource } from "./lib/source-client";
 import type { StudyRecord } from "./lib/study-note";
 
-export type Page = "library" | "note" | "topics" | "discover";
+export type Page = "library" | "note" | "topics" | "discover" | "collection";
 export type PanelTab = "Topic" | "Graph" | "Sources";
 export interface Concept {
   title: string;

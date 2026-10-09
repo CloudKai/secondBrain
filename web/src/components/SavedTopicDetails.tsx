@@ -9,7 +9,7 @@ interface Props {
   topic: Topic; maps: TopicRecord[]; client: SourceClient | null; enabled: boolean;
   topicError: string; placementBusy: boolean; names: Record<string, string>;
   onReloadTopics: () => void; onPlace: (source: string, topic: string, target: string | null) => unknown;
-  onOpen: (note: Note) => void; onEvidence: (source: string, passage: string) => void;
+  onOpen: (note: Note) => void; onLearn?: (note:Note)=>void; onEvidence: (source: string, passage: string) => void;
   onRename: () => void; onMerge: () => void; canMerge: boolean;
 }
 function CitedClaim({claim, overview, onEvidence}: {claim: OverviewClaim; overview: TopicOverview; onEvidence: Props["onEvidence"]}) {
@@ -19,7 +19,7 @@ function CitedClaim({claim, overview, onEvidence}: {claim: OverviewClaim; overvi
     return <button className="citation" key={id} title={ref.title} aria-label={`Inspect ${ref.title} passage ${ref.passage.id}`} onClick={() => onEvidence(ref.source_id, ref.passage.id)}>{index + 1}</button>;
   })}</p>;
 }
-export default function SavedTopicDetails({topic, maps, client, enabled, topicError, placementBusy, names, onReloadTopics, onPlace, onOpen, onEvidence, onRename, onMerge, canMerge}: Props) {
+export default function SavedTopicDetails({topic, maps, client, enabled, topicError, placementBusy, names, onReloadTopics, onPlace, onOpen, onLearn, onEvidence, onRename, onMerge, canMerge}: Props) {
   const revision = topic.notes.map(n => `${n.id}:${maps.find(m => m.source_id === n.id)?.updated_at}:${n.study?.updated_at}`).sort().join("|");
   const state = useTopicOverview(client, enabled, topic.id, revision);
   const separate = state.data?.view_mode === "separate";
@@ -44,7 +44,7 @@ export default function SavedTopicDetails({topic, maps, client, enabled, topicEr
     </div>
     {topicError && <div role="alert"><p>{topicError}</p><button className="text-button" onClick={onReloadTopics}>Reload topics</button></div>}
     <p className="micro-copy">{topic.context} · {(topic.groups ?? []).join(" · ")} · {topic.notes.length} supporting sources. Coverage is not mastery.</p>
-    {enabled&&topic.notes.some(note=>note.study?.note)&&<section className="learning-topic-entry"><h3>Learn this topic</h3><p>Choose a source to begin a teaching path. Each path keeps your goal, difficulty and practice history.</p>{topic.notes.filter(note=>note.study?.note).map(note=><button key={note.id} className="button secondary" onClick={()=>onOpen(note)}>Learn from {note.title}</button>)}<p className="micro-copy">Start with one source, then preview related sources to strengthen your learning path. Your topic overview and original notes remain available.</p></section>}
+    {enabled&&topic.notes.some(note=>note.study?.note)&&<section className="learning-topic-entry"><h3>Learn this topic</h3><p>Choose a source to begin a teaching path. Each path keeps your goal, difficulty and practice history.</p>{topic.notes.filter(note=>note.study?.note).map(note=><button key={note.id} className="button secondary" onClick={()=>onLearn?onLearn(note):onOpen(note)}>Learn from {note.title}</button>)}<p className="micro-copy">Start with one source, then preview related sources to strengthen your learning path. Your topic overview and original notes remain available.</p></section>}
     {uncertain && topic.notes.length >= 2 && <p className="micro-copy">Confirm the suggested source placements below before combining their evidence.</p>}
     {canCombine && <>
       <p className="overlap-copy">These sources share {topic.title}. Combine their evidence or keep each source as a branch under this topic.</p>

@@ -2,6 +2,12 @@
 
 Updated: 2026-10-09, Asia/Singapore.
 
+## Latest checkpoint — U2b workspace implemented in development
+
+Delivery #32 under #29. Collection destination/home, Library resume/alias navigation, source/topic learning entries, focused Learn/Practise/Review and secondary sources/map/version history are implemented. No migration, model or retrieval change. 113 workspace web / 299 backend checks, lint/typecheck/build pass. Two code-review P2 findings fixed: stale parent metadata and duplicate child reads. Live PDF/video saved lesson two, source bridge, Library resume/reload, retained practice, exact 7:38.700–8:00.760 citation and Enter/Escape focus return checked. Fixture HTTP branch confirmation refreshes goal/counts once, without live writes. Measured 1440×900 and 390×844 fit in both themes; viewport and original dark theme restored.
+
+Actual 200% zoom and screen-reader acceptance remain open; #32 stays open for them. Temporary fixture/harness removed. See docs/reviews/collection-workspace-acceptance-2026-10-09.md. Next implementation unit **U2c durable drafts/chat**, then U3–U5. Record this checkpoint before that unit; chat compaction has no callable control. Keep agreed seams and recommended settings. Mobile/iOS/TinyFish untouched. Commit only the unit and necessary U1 UI/reading dependencies; no blanket staging or push. Approved development worker remains authorized, API session34289 on8000 and Vite5173 unchanged.
+
 ## Latest checkpoint — U2a implemented in development
 
 Delivery [#31](https://github.com/CloudKai/secondBrain/issues/31) under #29. Independent owned identity, repeatable legacy backfill including removed anchors, distinct confirmed membership, compatibility triggers and authenticated read/checked-cursor APIs are implemented. Migration 019 applied to AI Study Friends (dashboard main Production) without a warning or approval rejection. Supabase returned 2 collections, 3 paths, 5 plans, 1 place and 3 attempts with zero unmapped records. Live authenticated list/detail/aliases match legacy snapshots, 401/404 fences pass, lesson two and activity remain unchanged by reads. Temporary read-only browser harness was removed. API restarted on 8000, exec session 34289; approved worker/Vite unchanged.

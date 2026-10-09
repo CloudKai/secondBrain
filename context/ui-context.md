@@ -2,6 +2,12 @@
 
 This is a React Native and Expo Router application. The current visual direction is dark, compact, and native-feeling; do not introduce a second theme during the roadmap work.
 
+## Web collection workspace — implemented in development, 2026-10-09
+
+`#collection` is the learning home; `#collection/<owned-id>` restores a selected collection/path/lesson. Library Continue, source-note learning entries and topic learning actions reach the collection. Learn/Practise/Review are primary; sources, broader topic context, coverage/gaps, map and dated versions are disclosures. Original notes retain `#note/<id>`. Removed captures retain goals/answers without current teaching evidence. Unknown IDs offer retry and Library return.
+
+Desktop 1440×900 and narrow 390×844, both themes, timed citations and Enter/Escape focus return checked. Actual 200% zoom and real screen-reader acceptance remain open. Durable unfinished work/conversation is U2c target behavior. See [acceptance](../docs/reviews/collection-workspace-acceptance-2026-10-09.md).
+
 ## Current design tokens
 
 Use the centralized values in `mobile/constants/theme.ts` rather than repeating colors or spacing in React Native components.

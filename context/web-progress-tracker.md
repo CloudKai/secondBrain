@@ -1,5 +1,13 @@
 # Web Progress Tracker
 
+## U2b collection workspace — implemented in development, 2026-10-09
+
+[GitHub #32](https://github.com/CloudKai/secondBrain/issues/32), part of #29, adds an owned `#collection/<id>` learning destination and collection home. Library resume, source entries and topic learning actions open the same saved path/lesson. Teaching, practice and review are primary; sources, plan coverage, map and dated version history are secondary. Removed anchors retain goals/answers without fabricated evidence. Metadata refreshes after confirmation without remounting the lesson; initial snapshots avoid duplicate reads.
+
+**113 workspace web / 299 backend tests pass**, web lint/typecheck/build pass. Isolated commit files also pass 100 web tests, typecheck/build and lint. Backend used its existing virtual environment; the exact uv command still selects system pytest missing `langchain_openai`. Spec/standards review findings are resolved. Live PDF/video collection resume/reload, retained practice, exact timed evidence and keyboard focus return pass. Measured 1440×900 and 390×844 dark/light layouts fit without horizontal overflow. Unknown IDs fail safely; navigation leaves persisted activity unchanged. Fixture HTTP confirmation verifies fresh goal/counts without live model or database writes.
+
+No new migration, model or retrieval policy. See [U2b acceptance](../docs/reviews/collection-workspace-acceptance-2026-10-09.md). #32 stays open for actual 200% zoom and screen-reader acceptance. **Next target:** U2c durable unfinished answers/tutor conversations; U3–U5 remain target work. Earlier unrelated WIP remains separate. Local changes only; no push and mobile/iOS untouched.
+
 ## U2a collection identity — implemented in development, 2026-10-09
 
 [GitHub #31](https://github.com/CloudKai/secondBrain/issues/31) delivers the identity/backfill subunit of #29. Owned collection IDs survive removal of the original capture. Repeatable backfill retains paths, plans, attempts, branches, exact citations and cursor metadata. Confirmed source membership is deduplicated; pending previews do not increase coverage. Authenticated collection reads, legacy aliases and checked selection are implemented.

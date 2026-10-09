@@ -4,6 +4,12 @@ This file separates the verified implementation from the selected target. A
 target component is not available until its slice is marked verified in
 `scope.md` and `context/progress-tracker.md`.
 
+## Web collection workspace — implemented in development, 2026-10-09
+
+U2b consumes migration 019's authenticated collection list/detail/legacy-alias and checked-selection APIs. Strict browser schemas preserve identity/count/version contracts. `CollectionWorkspace` restores the selected plan/lesson, refreshes collection metadata on learning updates and keeps the unchanged lesson mounted. Source entries start first previews inline, then link to the independent collection. Library resume resolves aliases; removed anchors expose retained goals and practice without synthesizing a source. Citation dialogs validate exact current or archived captured coordinates.
+
+No U2b backend or migration change. Recovery returns primary navigation to legacy source routes while retaining bookmarked collection reads/history and compatible writers. Durable drafts/chat remain U2c target work. See [acceptance](../docs/reviews/collection-workspace-acceptance-2026-10-09.md).
+
 ## Web U2a collection identity — implemented in development, 2026-10-09
 
 Collection ownership is separate from a removable capture. Migration 019 adds owned identity and unique membership, attaches existing paths/places without changing plan/attempt IDs or cursor timestamps, and validates complete ownership mapping before commit. Confirmed manifests add membership; pending previews do not. Compatibility triggers attach collections for legacy writers. New authenticated list/detail/alias RPCs and checked selection retain the source-route snapshot contract. Owner IDs are validated internally and excluded from HTTP output.

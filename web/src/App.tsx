@@ -1,6 +1,10 @@
 import ResearchDiscovery from "./components/ResearchDiscovery";
 import SavedAssistant from "./components/SavedAssistant";
-import LearningJourney from './components/LearningJourney';
+import LibraryLearning from './components/LibraryLearning';
+import {noteTopicContext} from './lib/learning-continuity';
+import SourceLearningEntry from './components/SourceLearningEntry';
+import CollectionWorkspace from './components/CollectionWorkspace';
+import CollectionLibrary from './components/CollectionLibrary';
 import LearningHistory from './components/LearningHistory';
 import LearningTopicProgress from './components/LearningTopicProgress';
 import {citationMatchesSource, type AssistantReference} from "./lib/assistant-answer";
@@ -90,10 +94,10 @@ const sourceClient = (() => {
 function readRoute(): { page: Page; noteId: string } {
   const [page, id] = window.location.hash.slice(1).split("/");
   return {
-    page: ["library", "note", "topics", "discover"].includes(page)
+    page: ["library", "note", "topics", "discover", "collection"].includes(page)
       ? (page as Page)
       : "library",
-    noteId: id || "attention",
+    noteId: id || (page === "collection" ? "" : "attention"),
   };
 }
 export default function App() {
@@ -110,6 +114,7 @@ export default function App() {
     [filter, setFilter] = useState("All sources"),
     [sort, setSort] = useState("recent");
   const [selectedTopic, setSelectedTopic] = useState("transformers");
+  const [topicExploration,setTopicExploration]=useState<{noteId:string;topicId:string}|null>(null);
   const [panelTab, setPanelTab] = useState<PanelTab>("Topic"),
     [panelOpen, setPanelOpen] = useState(true),
     [expanded, setExpanded] = useState(false),
@@ -189,7 +194,7 @@ export default function App() {
 
   const currentNote =
     notes.find((n) => n.id === route.noteId) ||
-    (route.page === "note" ? undefined : notes[0]);
+    (["note","collection"].includes(route.page) ? undefined : notes[0]);
   const activeAssistantEvidence=assistantEvidence && assistantEvidence.anchor===currentNote?.id && assistantEvidence.anchorVersion===(currentNote.savedSource?.source_version??1)?assistantEvidence:null;
   const evidenceNote=activeAssistantEvidence?.note??currentNote;
   const passage =
@@ -198,7 +203,8 @@ export default function App() {
           (r) => r.id === selectedPassage?.id,
         )
       : undefined;
-  const topic = topics.find((t) => t.id === selectedTopic) || topics[0];
+  const noteContext=noteTopicContext(topics,currentNote?.topics??[],selectedTopic,topicExploration?.noteId===currentNote?.id&&topicExploration?.topicId===selectedTopic);
+  const topic = route.page==='note'?noteContext.topic:topics.find((t) => t.id === selectedTopic) || topics[0];
   const assignmentTopics = [
     ...new Set([
       ...topics.map((t) => t.id),
@@ -302,10 +308,11 @@ export default function App() {
   }, [toast]);
   function go(page: Page, id?: string) {
     window.location.hash =
-      page === "note" ? `note/${id || currentNote?.id || ""}` : page;
+      page === "note" ? `note/${id || currentNote?.id || ""}` : page === "collection" ? `collection${id ? `/${id}` : ""}` : page;
     setMobileNav(false);
   }
   function openNote(n: Note) {
+    setTopicExploration(null);
     setSelectedPassage(null);
     setAssistantEvidence(null);
     setTopicMode(n.savedSource ? "saved" : "examples");
@@ -316,7 +323,17 @@ export default function App() {
     }
     go("note", n.id);
   }
+  async function openLearning(sourceId:string) {
+    if(!sourceClient)return;
+    const hash=window.location.hash;
+    try {const value=await sourceClient.sourceCollection(sourceId);
+      if(window.location.hash!==hash)return;
+      if(value)go('collection',value.collection.id);
+      else {const note=notes.find(n=>n.id===sourceId);if(note)openNote(note);else setToast('This source is unavailable. Your collection history stays in Learning collections.');}
+    } catch(e){setToast(e instanceof Error?e.message:'Could not open your collection. Retry.');}
+  }
   function openTopic(id: string) {
+    if(route.page==='note'&&currentNote)setTopicExploration({noteId:currentNote.id,topicId:id});
     setSelectedTopic(id);
     setPanelTab("Topic");
     setPanelOpen(true);
@@ -578,7 +595,7 @@ export default function App() {
     changeLibrary({ type: "toggle-recall", id });
   }
   function topicDetails(t: Topic) {
-    if (t.saved) return <SavedTopicDetails key={t.id} topic={t} maps={topicMaps.library.maps} client={sourceClient} enabled={storage === 'ready'} topicError={topicMaps.error} placementBusy={topicMaps.busy} names={names} onReloadTopics={topicMaps.reload} onPlace={topicMaps.place} onOpen={openNote} onEvidence={showEvidence} onRename={()=>{setSelectedTopic(t.id);setTopicName(t.title);setDialog("rename");}} onMerge={()=>{setSelectedTopic(t.id);setMergeTarget(topics.find(x=>x.id!==t.id)?.id??"");setDialog("merge");}} canMerge={topics.length>1}/>;
+    if (t.saved) return <SavedTopicDetails key={t.id} topic={t} maps={topicMaps.library.maps} client={sourceClient} enabled={storage === 'ready'} topicError={topicMaps.error} placementBusy={topicMaps.busy} names={names} onReloadTopics={topicMaps.reload} onPlace={topicMaps.place} onOpen={openNote} onLearn={note=>void openLearning(note.id)} onEvidence={showEvidence} onRename={()=>{setSelectedTopic(t.id);setTopicName(t.title);setDialog("rename");}} onMerge={()=>{setSelectedTopic(t.id);setMergeTarget(topics.find(x=>x.id!==t.id)?.id??"");setDialog("merge");}} canMerge={topics.length>1}/>;
     return (
       <>
         <div className="panel-topic-icon">
@@ -721,6 +738,7 @@ export default function App() {
           aria-labelledby={`tab-${panelTab}`}
           tabIndex={0}
         >
+          {panelTab === "Topic" && noteContext.exploring&&<p role="note">Exploring another topic. This is separate from the current source’s context.</p>}
           {panelTab === "Topic" &&
             (currentNote.savedSource && !currentNote.topics.length ? <p>Topics appear after this saved note is mapped. Its source passages remain available under Sources.</p> : topic ? (
               topicDetails(topic)
@@ -918,14 +936,14 @@ export default function App() {
             [
               { page: "library", title: "My library", icon: Library },
               { page: "topics", title: "Topic graph", icon: Network },
-              { page: "note", title: "Study space", icon: BookOpen },
+              { page: "collection", title: "Learning collections", icon: BookOpen },
               { page: "discover", title: "Reading list", icon: Sparkles },
             ] as const
           ).map(({ page, title, icon: Icon }) => (
             <a
               key={page}
               href={
-                page === "note" ? `#note/${currentNote?.id || ""}` : `#${page}`
+                page === "collection" && route.page === "collection" && route.noteId ? `#collection/${route.noteId}` : `#${page}`
               }
               className={`nav-item ${route.page === page ? "active" : ""}`}
               aria-current={route.page === page ? "page" : undefined}
@@ -1014,7 +1032,8 @@ export default function App() {
               {
                 {
                   library: "My library",
-                  note: "Study space",
+                  note: "Source note",
+                  collection: "Learning collections",
                   topics: "Topic graph",
                   discover: "Reading list",
                 }[route.page]
@@ -1059,10 +1078,14 @@ export default function App() {
               </button>
             )}
           </div>
+          {route.page === 'collection' && sourceClient && storage === 'ready' && (route.noteId
+            ? <CollectionWorkspace key={route.noteId} id={route.noteId} client={sourceClient} onDiscover={query=>{setResearchSeed(Array.from(query).slice(0,500).join(''));go('discover');}}/>
+            : <div className="collection-workspace"><header className="collection-heading"><span className="eyebrow">YOUR LEARNING HOME</span><h1>Pick up a path. Follow your curiosity.</h1></header><LibraryLearning client={sourceClient} onOpen={id=>void openLearning(id)}/><CollectionLibrary client={sourceClient}/></div>)}
+          {route.page === 'collection' && storage === 'unavailable' && <p role="status">Reconnect your library to restore collections. Your saved progress stays on the server.</p>}
           {route.page === "library" && (
             <div className="library-layout">
               <section className="library-main">
-                {sourceClient&&storage==='ready'&&<LearningHistory client={sourceClient} onOpen={id=>{const note=notes.find(item=>item.id===id);if(note)openNote(note);}}/>}
+                {sourceClient&&storage==='ready'&&<LearningHistory client={sourceClient} onOpen={id=>void openLearning(id)}/>}
                 <div className="page-heading">
                   <span className="eyebrow">
                     YOUR PERSONAL LEARNING LIBRARY
@@ -1091,16 +1114,15 @@ export default function App() {
                     <Network size={16} />
                     <strong>{topics.length}</strong> topics to explore
                   </span>
-                  <span>
-                    <Check size={16} />
-                    <strong>{mastered.length}</strong> recall cards understood
-                  </span>
+
                 </div>
+                {sourceClient&&storage==='ready'&&<LibraryLearning client={sourceClient} onOpen={id=>void openLearning(id)}/>}
+                {sourceClient&&storage==='ready'&&<CollectionLibrary client={sourceClient}/>}
                 {currentNote ? (
                   <section className="resume-card">
                     <div className="resume-content">
                       <span className="resume-label">
-                        <span className="dot mint" /> PICK UP AN IDEA
+                        <span className="dot mint" /> START FROM A SOURCE
                       </span>
                       <h2>{currentNote.title}</h2>
                       <p>{currentNote.subtitle}</p>
@@ -1116,7 +1138,7 @@ export default function App() {
                         className="button primary"
                         onClick={() => openNote(currentNote)}
                       >
-                        Continue learning <ArrowRight size={16} />
+                        Open source note <ArrowRight size={16} />
                       </button>
                     </div>
                     <AttentionArt />
@@ -1487,7 +1509,7 @@ export default function App() {
                   )}
                   {currentNote.study?.note ? (
                     <>
-                      {currentNote.savedSource&&sourceClient&&<LearningJourney
+                      {currentNote.savedSource&&sourceClient&&<SourceLearningEntry
                         key={`learning-${currentNote.id}-${currentNote.savedSource.source_version??1}`}
                         source={currentNote.savedSource} client={sourceClient} enabled={storage==='ready'}
                         topicTitle={topicMaps.library.maps.find(map=>map.source_id===currentNote.id)?.analysis?.topics.find(topic=>topic.role==='main'&&!topic.uncertain)?.title}

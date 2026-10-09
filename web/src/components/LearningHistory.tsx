@@ -2,6 +2,7 @@ import {useEffect,useState} from 'react';
 import type {SourceClient} from '../lib/source-client';
 import type {LearningHistory as History,LearningSnapshot} from '../lib/learning';
 import ReadingText from './ReadingText';
+import {learningPlanLabel} from '../lib/learning-continuity';
 import Modal from './Modal';
 
 export default function LearningHistory({client,onOpen,sourceId}:{client:SourceClient;onOpen:(sourceId:string)=>void;sourceId?:string}){
@@ -33,9 +34,9 @@ export default function LearningHistory({client,onOpen,sourceId}:{client:SourceC
     {index?.next_offset!=null&&<button className="button secondary" disabled={busy} onClick={()=>void more()}>Load more history</button>}
    </div>:<>
     {!sourceId&&<button className="text-button" disabled={busy} onClick={()=>setData(null)}>All collections</button>}
-    {data.plans.some(plan=>plan.source_id!==null)&&<button className="button secondary" onClick={()=>{setOpen(false);onOpen(data.source_id);}}>Open source and learning path</button>}
+    {<button className="button secondary" onClick={()=>{setOpen(false);onOpen(data.source_id);}}>Open learning collection</button>}
     {data.plans.filter(plan=>plan.confirmed_at).map(plan=><article className="learning-feedback" key={plan.id}>
-     <h3>{plan.content.title}</h3><p>{plan.difficulty} · {plan.goal}</p>
+     <h3>{plan.content.title}</h3><p>{learningPlanLabel(plan,data.plans)}</p><p>{plan.goal}</p>
      {plan.needs_review&&<p role="note">{plan.source_id===null?'Source removed: supporting passages are unavailable.':'Source changed: earlier learning needs review against current evidence.'}</p>}
      <p>{data.activities.filter(a=>a.plan_id===plan.id&&a.kind==='read').length} lessons marked studied</p>
      {data.attempts.filter(attempt=>attempt.plan_id===plan.id).map(attempt=><div key={attempt.id}>
