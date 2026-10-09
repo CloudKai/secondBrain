@@ -1,12 +1,12 @@
 # Scope: AI Second Brain
 
-## U2a collection identity — locally prepared, 2026-10-09
+## U2a collection identity — implemented in development, 2026-10-09
 
-[GitHub #31](https://github.com/CloudKai/secondBrain/issues/31) implements the identity/backfill subunit of #29. Owned collection IDs survive removal of the original capture. Repeatable backfill retains paths, plans, attempts, branches, exact citations and cursor metadata. Confirmed source membership is deduplicated; pending previews do not increase coverage. Authenticated collection reads, legacy aliases and checked selection are implemented.
+[GitHub #31](https://github.com/CloudKai/secondBrain/issues/31) delivers the identity/backfill subunit of #29. Owned collection IDs survive removal of the original capture. Repeatable backfill retains paths, plans, attempts, branches, exact citations and cursor metadata. Confirmed source membership is deduplicated; pending previews do not increase coverage. Authenticated collection reads, legacy aliases and checked selection are implemented.
 
-**Migration 019 is prepared, not applied.** Hosted backfill/live API acceptance requires approval for AI Study Friends, labelled main Production in Supabase. **299 backend / 106 web tests pass**, plus web typecheck/lint/build. The backend used the existing virtual environment because the exact uv runner selected a system pytest missing a project dependency. Spec and standards reviews have no remaining actionable findings. Recovery retains collection reads/history and legacy writers while disabling new collection selection.
+**Migration 019 applied** to AI Study Friends. Hosted backfill mapped 2 collections, 3 paths, 5 plans, 1 place and 3 attempts with zero unmapped records. Live authenticated list/detail/alias reads match legacy learning snapshots; no-auth reads return 401 and unknown IDs return 404. Saved lesson two, cursor revision and activity remain unchanged by reads. **299 backend / 106 web tests pass**, plus web typecheck/lint/build. Backend used its existing virtual environment because the exact uv runner selected system pytest without a project dependency. Spec/standards reviews have no remaining actionable findings. Recovery retains reads/history and legacy writers while disabling new selection.
 
-See [U2a acceptance](docs/reviews/collection-identity-acceptance-2026-10-09.md). **Next target:** U2b collection workspace/navigation, then U2c durable drafts/chat; U3–U5 remain target work. U1's exact viewport, actual 200% zoom and screen-reader gates remain open. Mobile/iOS untouched; no push in this unit.
+See [U2a acceptance](docs/reviews/collection-identity-acceptance-2026-10-09.md). Local implementation commit `ee2f0c4`; no push. **Next target:** U2b collection workspace/navigation, then U2c durable drafts/chat; U3–U5 remain target work. U1's exact viewport, actual 200% zoom and screen-reader gates remain open under #30. Mobile/iOS untouched.
 
 ## Goal branches and learning maps — implemented in development, 2026-10-09
 
