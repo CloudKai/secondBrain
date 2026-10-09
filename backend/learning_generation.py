@@ -202,7 +202,7 @@ class LearningGenerator:
         draft, model = await self.structured(RevisionDraft, instructions, data, validate)
         return draft, model, evidence
 
-    async def tutor(self, plan, question):
+    async def tutor_exchange(self, plan, question):
         lesson = plan.content.lessons[question.lesson_index]
         ids = set(lesson.explanation.citation_ids) | set(lesson.check.worked_answer.citation_ids)
 
@@ -210,10 +210,14 @@ class LearningGenerator:
             if not set(value.citation_ids) <= ids:
                 raise ValueError("Tutor uses unknown evidence")
 
-        value, _model = await self.structured(TutorReply, TUTOR_INSTRUCTIONS, {
+        value, model = await self.structured(TutorReply, TUTOR_INSTRUCTIONS, {
             "outcome": lesson.outcome, "difficulty": plan.difficulty,
             "practice_question": lesson.check.question, "learner_question": question.question,
             "conversation_context": [message.model_dump() for message in question.history],
             "evidence": [reference.model_dump(mode="json") for reference in plan.references if reference.id in ids],
         }, validate)
+        return value, model
+
+    async def tutor(self, plan, question):
+        value, _model = await self.tutor_exchange(plan, question)
         return value

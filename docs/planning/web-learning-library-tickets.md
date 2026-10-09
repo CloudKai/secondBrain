@@ -1,5 +1,14 @@
 # Web learning-library ticket breakdown
 
+## Ideal learning app U2c2 — development delivery, 2026-10-10
+
+[Delivery #34](https://github.com/CloudKai/secondBrain/issues/34), parent #29: completed lesson conversation retention implemented with migration021, checked/retry-safe sends, owned lesson scope, bounded context, model provenance, removal redaction and clear/export. Live saved Luna hint and exact citations survive reload. 124 workspace web/324 backend and isolated111 web/258 backend tests pass; typecheck/lint/build pass. Reviews resolved; [acceptance](../reviews/learning-conversations-acceptance-2026-10-10.md).
+
+#34 remains open for actual 200% zoom, screen-reader operation and native download completion. **Next planned delivery: U3 evidence-aware teaching and stable outcomes**, followed by U4 graph/discovery and U5 policy/operations. These are targets, not verified current capabilities. Old WIP retained separately; no push/mobile work.
+
+Last synchronized: **2026-10-10 (Asia/Singapore)** against GitHub Issues and
+completed acceptance records in `context/web-progress-tracker.md` and `scope.md`.
+
 Last synchronized: **2026-10-10 (Asia/Singapore)** against GitHub Issues and
 completed acceptance records in `context/web-progress-tracker.md` and `scope.md`.
 

@@ -1,5 +1,11 @@
 # Architecture
 
+## Web saved lesson conversations — implemented in development, 2026-10-10
+
+Migration021 adds owned conversation revisions and exchange/request records, separate from drafts and practice. Authenticated GET/POST/DELETE at `/api/v2/learning/collections/{collection}/plans/{plan}/lessons/{index}/conversation` validate actual confirmed relationship. Postgres leases/revisions/request tombstones fence retries, stale tabs, clear and source changes. Owner advisory locks serialize new-request quotas across collections before collection locks. Generated finish is service-only with current evidence/citation checks; source removal redacts replies. RLS selects only owner rows and rejects direct client writes.
+
+The server uses two completed, unredacted exchanges (four bounded messages) as context, never evidence. Existing learning_v1 Luna/Sol-medium policy remains; records include actual model/provenance. Browser controllers refresh on re-entry, retain tab-private pending send IDs, expire on auth change and clear all outgoing-owner pending slots. Fresh reads precede export. Recovery revokes generation while retaining reads/clear/redaction. Migration021/live exchange pass; final accessibility/download gates remain. [Contract](../docs/planning/learning-conversations-contract.md), [acceptance](../docs/reviews/learning-conversations-acceptance-2026-10-10.md). U3 full-capture evidence and U5 unified tutor policy are target work.
+
 ## Web development delta: unfinished work, 2026-10-10
 
 Migration 020 adds owned `learning_drafts` with composite collection/plan owner FKs, select-only RLS and authenticated checked get/save RPCs. FastAPI GET/PUT `/api/v2/learning/collections/{collection}/plans/{plan}/lessons/{index}/drafts/{answer|question}` derives the owner from JWT and validates exact identity/metadata. Expected revisions and UUID saves fence stale writes and immediate retries. Source removal retains drafts through independent collection/plan identities; recovery revokes save RPC access while preserving reads/work.

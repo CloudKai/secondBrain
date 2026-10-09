@@ -1,5 +1,11 @@
 # UI Context
 
+## Web saved tutor conversations — implemented in development, 2026-10-10
+
+Collection lesson tutors restore saved exchanges on re-entry/reload, with AI provenance, exact citations and historical/redacted evidence labels. Pending/failed sends keep the question, show Retry the same send, and block accidental duplicate questions. Reload recovers connection/session initialization failures. Question drafts stay separate. Download exports current lesson history; Clear has focused confirmation/cancel and retains drafts/attempts. Removed-anchor history exposes Recover drafts and lesson conversations, with redacted replies.
+
+Live saved hint, exact timed citation/focus return and both themes at 1440×900/390×844 pass. Actual 200% zoom, screen reader and native download completion remain open gates under #34. Earlier U2c1 view-local reply descriptions below record the prior checkpoint; collection replies are now durable. U3–U5 remain targets.
+
 ## Web development delta: draft recovery, 2026-10-10
 
 Collection practice answers and lesson tutor questions autosave separately per immutable plan/lesson. Status exposes restoration, saving, confirmed save, failure/retry and conflict. Conflicts preserve the local editor text, show saved wording and require Use saved version or Replace saved with my draft. Clear affects only this draft; submitted attempts remain unchanged. Download is a versioned JSON recovery action for one draft. Own writing remains accessible under Recover unfinished learning drafts when a collection's original capture is removed.

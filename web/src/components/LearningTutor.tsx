@@ -1,3 +1,4 @@
+import SavedLearningTutor from './SavedLearningTutor';
 import {useLearningDraft} from '../lib/draft-workspace';
 import LearningDraftStatus from './LearningDraftStatus';
 import {useEffect,useId,useRef,useState} from 'react';
@@ -6,7 +7,7 @@ import type {LearningPlan,LearningTutorReply} from '../lib/learning';
 import ReadingText from './ReadingText';
 import {StudyCitations} from './StructuredStudy';
 
-export default function LearningTutor({sourceId,collectionId,plan,lessonIndex,client,enabled,onCitation,onDiscover}:{sourceId:string;collectionId?:string;plan:LearningPlan;lessonIndex:number;client:SourceClient;enabled:boolean;onCitation:(id:string)=>void;onDiscover:()=>void}){
+function ViewLearningTutor({sourceId,collectionId,plan,lessonIndex,client,enabled,onCitation,onDiscover}:{sourceId:string;collectionId?:string;plan:LearningPlan;lessonIndex:number;client:SourceClient;enabled:boolean;onCitation:(id:string)=>void;onDiscover:()=>void}){
  const [input,setInput]=useState(''),[messages,setMessages]=useState<{question:string;reply:LearningTutorReply}[]>([]),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const draft=useLearningDraft(client,collectionId?{collectionId,planId:plan.id,lessonIndex,kind:'question'}:null);
  const questionText=collectionId?draft.state.text:input;
@@ -30,4 +31,8 @@ export default function LearningTutor({sourceId,collectionId,plan,lessonIndex,cl
   <div className="prompt-chips">{['Explain this differently','Give me a smaller hint','Help me apply this concept'].map(question=><button key={question} disabled={busy||!enabled||!!draft.state.conflict||(!!collectionId&&(draft.state.status==='loading'||draft.state.status==='signedout'))} onClick={()=>void ask(question)}>{question}</button>)}</div>
   <form onSubmit={event=>{event.preventDefault();void ask(questionText);}}><label htmlFor={`${id}-question`}>Ask about this lesson</label><textarea id={`${id}-question`} rows={2} maxLength={collectionId?4000:2000} value={questionText} disabled={busy||(collectionId?(draft.state.status==='loading'||draft.state.status==='signedout'):!enabled)} onChange={event=>editQuestion(event.target.value)}/><button className="button secondary" disabled={busy||!enabled||!questionText.trim()||!!draft.state.conflict}>Ask lesson tutor</button></form>{collectionId&&<LearningDraftStatus draft={draft}/>}
  </section>;
+}
+
+export default function LearningTutor(props:Parameters<typeof ViewLearningTutor>[0]){
+ return props.collectionId?<SavedLearningTutor {...props} collectionId={props.collectionId}/>:<ViewLearningTutor {...props}/>;
 }

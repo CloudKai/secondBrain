@@ -1,3 +1,4 @@
+import {lessonConversationSchema,conversationPath,type ConversationSend} from './learning-conversation';
 import {lessonDraftSchema,DraftConflictError,draftPath,type DraftSave,type DraftKind} from './learning-draft';
 import {collectionDetailSchema,collectionListSchema} from './collections';
 import {learningSummarySchema,learningGraphSchema,learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
@@ -316,6 +317,22 @@ export function createSourceClient(
     onDraftOwnerChange(listener:(owner:string|null)=>void) {
       const {data}=supabase.auth.onAuthStateChange((_event,session)=>listener(session?.user.id??null));
       return ()=>data.subscription.unsubscribe();
+    },
+    async getLearningConversation(collectionId:string,planId:string,lessonIndex:number) {
+      const result=await parse(await request(conversationPath({collectionId,planId,lessonIndex}),{signal:AbortSignal.timeout(10000)}),lessonConversationSchema);
+      if(result.collection_id!==collectionId||result.plan_id!==planId||result.lesson_index!==lessonIndex)throw new Error('Unexpected saved conversation. Reload and retry.');
+      return result;
+    },
+    async sendLearningConversation(collectionId:string,planId:string,lessonIndex:number,input:ConversationSend,expectedOwner?:string) {
+      const result=await parse(await request(conversationPath({collectionId,planId,lessonIndex}),{method:'POST',body:JSON.stringify(input)},expectedOwner),lessonConversationSchema);
+      const exchange=result.exchanges.find(item=>item.id===input.request_id);
+      if(result.collection_id!==collectionId||result.plan_id!==planId||result.lesson_index!==lessonIndex||exchange?.question!==input.question||exchange.status!=='completed')throw new Error('This reply was not confirmed saved. Reload or retry the same send.');
+      return result;
+    },
+    async clearLearningConversation(collectionId:string,planId:string,lessonIndex:number,revision:number,expectedOwner?:string) {
+      const result=await parse(await request(conversationPath({collectionId,planId,lessonIndex}),{method:'DELETE',body:JSON.stringify({expected_revision:revision}),signal:AbortSignal.timeout(10000)},expectedOwner),lessonConversationSchema);
+      if(result.collection_id!==collectionId||result.plan_id!==planId||result.lesson_index!==lessonIndex||result.exchanges.length||result.revision!==revision+1)throw new Error('Conversation clear was not confirmed. Reload to check it.');
+      return result;
     },
     async getLearningDraft(collectionId:string,planId:string,lessonIndex:number,kind:DraftKind) {
       const result=await parse(await request(draftPath({collectionId,planId,lessonIndex,kind}),{signal:AbortSignal.timeout(10000)}),lessonDraftSchema);

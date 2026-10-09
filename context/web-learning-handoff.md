@@ -1,5 +1,13 @@
 # Compact web learning handoff
 
+## U2c2 checkpoint — 2026-10-10
+
+#34 under #29 implemented in development: owned durable lesson exchanges, revision/lease/request retry fences, bounded stored context, actual model provenance, source-change finish rejection and removal redaction, current-read exports, checked clear, owner/tab pending recovery. Migration 021 applied successfully to rpcclvvcfsxlytosfhxt without warning/rejection; SQL 163af5ed-34e1-4e3b-829b-ec602538740f. Reviewed editor matches file. One live Luna hint saved in 79b63966-af12-42fb-9574-657c3b0a997b/c5102f68-6457-40f6-9e50-a84216159bf3/lesson1 and survives reload. Source p0011 8:17.740–8:30.140 opens/returns focus; activity 0 studied / 2 attempts / 2 needs review. Question draft retained intentionally. No sources deleted/regenerated or attempts added.
+
+124 workspace web / 324 backend;111 isolated web / 258 backend; typecheck/lint/build pass. Exact uv command selects system pytest missing langchain_openai; existing venv passes. Reviews resolved all findings. Actual 200% zoom/screen reader/native file completion remain open under #34. See docs/reviews/learning-conversations-acceptance-2026-10-10.md. Temporary fixture tabs removed, original dark/default viewport restored, collection user tab3 remains. API env file restart session32781 on 8000; approved worker/Vite retained.
+
+Next **U3 evidence-aware teaching/stable outcomes**, then U4/U5. Checkpoint/compact before a new unit; compaction has no callable control. Recommended defaults and approved API/provider HTTP/Postgres/browser seams persist. Preserve older WIP, commit only this unit, no push/mobile/iOS/TinyFish. Webtracker/ticketdoc updated; iOS tracker unchanged.
+
 ## U2c1 checkpoint — 2026-10-10
 
 Implemented #33 under #29: durable unfinished answer/question drafts; migration020 applied successfully. Owned GET/PUT and RPC/RLS/retry/version fences, tab-private pending reload recovery, explicit conflicts, download payload/checked clear, auth expiration and removed-source draft access are complete in development. Live goal-branch lesson two draft reload/clear passes; activity remains 0 studied/2 attempts/2 needs review. No model request or existing-source deletion. Standards/spec findings resolved. Isolated unit passes 105 web/245 backend tests and web lint/typecheck/build. 118 workspace web/311 backend tests and web lint/typecheck/build pass; exact uv runner still uses system pytest missing langchain_openai. See docs/reviews/learning-drafts-acceptance-2026-10-10.md.

@@ -3598,3 +3598,8 @@ main:focus-visible { outline: none; }
 .draft-conflict h5, .draft-conflict h6 { font-size: 16px; margin: 8px 0; }
 .draft-history-editor { margin: 16px 0; }
 .draft-history-editor textarea { box-sizing: border-box; width: 100%; font: inherit; padding: 12px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+
+.saved-tutor-exchange{padding:16px 0;border-bottom:1px solid var(--border);overflow-wrap:anywhere;}
+.conversation-actions,.conversation-retry,.conversation-clear{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.conversation-retry,.conversation-clear{padding:12px;border:1px solid var(--border);border-radius:12px;margin:12px 0;}
+.conversation-retry p,.conversation-clear p{flex-basis:100%;overflow-wrap:anywhere;}

@@ -1,5 +1,12 @@
 # Web Progress Tracker
 
+## U2c2 completed in development — 2026-10-10
+
+- #34 under #29: owned saved lesson exchanges, same-send retry and stale-tab fences, bounded server context, actual model/policy provenance, source-change rejection/removal redaction, clear/export and pending recovery implemented.
+- Migration 021 applied; live Luna hint/citations survive reload. Exact 8:17.740–8:30.140 video evidence and focus return pass. Activity stays0 studied / 2 attempts / 2 needs review. 124 web / 324 backend tests plus web typecheck/lint/build; isolated 111 web / 258 backend pass. Exact uv runner still has the system-pytest dependency issue.
+- Reviews clear; actual 200% zoom, screen reader and native download completion remain open in #34. See docs/reviews/learning-conversations-acceptance-2026-10-10.md.
+- Next U3 full-capture teaching/stable outcomes; U4/U5 targets. No push; mobile/iOS tracker unchanged. Compact/checkpoint before starting U3.
+
 ## U2c1 unfinished learning drafts — implemented in development, 2026-10-10
 
 [GitHub #33](https://github.com/CloudKai/secondBrain/issues/33), part of #29, adds owned answer/question drafts per collection, immutable plan and lesson. Autosave shows Saved/Unsaved/Retry/conflict states; tab-private pending recovery survives same-tab reload/navigation. Revision checks and idempotent save IDs protect retries and multiple tabs, including opener clones. Changed/removed source evidence retains learner-authored writing. Clear is a checked empty save; Download exports this draft’s versioned JSON. Drafts never count as attempts/activity. Existing tutor replies remain view-local.

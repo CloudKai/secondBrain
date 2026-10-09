@@ -1,5 +1,13 @@
 # Scope: AI Second Brain
 
+## U2c2 lesson conversations — implemented in development, 2026-10-10
+
+[GitHub #34](https://github.com/CloudKai/secondBrain/issues/34), part of #29, adds saved lesson conversations per owned collection and immutable plan/lesson. Checked idempotent sends preserve pending questions across reload; server-selected recent context never becomes evidence. Provenance, source-change completion fences, source-removal redaction, fresh reopen/export and revision-checked clear retain drafts/attempts separately. Model policy is unchanged.
+
+**Migration 021 applied** successfully. One live Luna hint survives full reload, and its exact timed video citation/focus return works. Collection remains 0 studied/2 attempts/2 checks need review. **124 workspace web /324 backend**, web typecheck/lint/build pass; isolated unit **111 web /258 backend** passes. Separate reviews have no remaining actionable findings. See [acceptance](docs/reviews/learning-conversations-acceptance-2026-10-10.md).
+
+#34 stays open for actual 200% zoom, screen-reader and native-download completion (export payload verified). **Next target: U3 teaching from full captured evidence with stable outcomes and improved practice.** U4 map/discovery and U5 shared AI policy/operations remain target work. Earlier WIP preserved; no push or mobile/iOS change.
+
 ## U2c1 unfinished learning drafts — implemented in development, 2026-10-10
 
 [GitHub #33](https://github.com/CloudKai/secondBrain/issues/33), part of #29, adds owned answer/question drafts per collection, immutable plan and lesson. Autosave shows Saved/Unsaved/Retry/conflict states; tab-private pending recovery survives same-tab reload/navigation. Revision checks and idempotent save IDs protect retries and multiple tabs, including opener clones. Changed/removed source evidence retains learner-authored writing. Clear is a checked empty save; Download exports this draft’s versioned JSON. Drafts never count as attempts/activity. Existing tutor replies remain view-local.
