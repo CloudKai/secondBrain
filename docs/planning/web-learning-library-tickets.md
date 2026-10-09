@@ -1,5 +1,12 @@
 # Web learning-library ticket breakdown
 
+## U3a1 — Teaching evidence preview accepted in development (2026-10-10)
+
+Delivery [#35](https://github.com/CloudKai/secondBrain/issues/35), part of #29. Owned confirmed-plan evidence preview searches full captured material using existing BM25+dense RRF, with exact version/page/time citations, explicit partial indexing, limits and freshness checks. Read-only foundation; lesson generation, stable outcomes and manifests remain targets. No new hosted migration or model change; required previously accepted retrieval prerequisites are included in the scoped commit.
+
+344 backend/126 web workspace; 278 backend/113 web isolated; typecheck/lint/build pass. Live PDF/video selection returned24 exact passages,14 omitted from notes, unchanged history; 401/404 fences. Separate standards/spec reviews clean. [Acceptance](../reviews/teaching-evidence-acceptance-2026-10-10.md). Next U3a2 reviewed teaching cases/manifest/integration, then U3b outcomes/checks. Earlier U2 accessibility/download gates remain open. No push or mobile/iOS changes.
+
+
 ## Ideal learning app U2c2 — development delivery, 2026-10-10
 
 [Delivery #34](https://github.com/CloudKai/secondBrain/issues/34), parent #29: completed lesson conversation retention implemented with migration021, checked/retry-safe sends, owned lesson scope, bounded context, model provenance, removal redaction and clear/export. Live saved Luna hint and exact citations survive reload. 124 workspace web/324 backend and isolated111 web/258 backend tests pass; typecheck/lint/build pass. Reviews resolved; [acceptance](../reviews/learning-conversations-acceptance-2026-10-10.md).

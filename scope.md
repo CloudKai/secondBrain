@@ -1,5 +1,12 @@
 # Scope: AI Second Brain
 
+## Web U3a1 development checkpoint — 2026-10-10
+
+Completed owned read-only teaching evidence preview (#35/#29), using full captured sources within confirmed plan membership, current BM25+dense RRF and original citation spans. Explicit partial-index consent and sampling limitations; exact owner/version/hash/index/membership fences; bounded selection. Existing lessons and history unchanged, no new migration/model/teaching generation policy. Acceptance: docs/reviews/teaching-evidence-acceptance-2026-10-10.md. 344 workspace backend/126 web;278 isolated backend/113 web; typecheck/lint/build pass and separate reviews clean.
+
+Target next: U3a2 independently reviewed teaching cases and concept/coverage/lesson integration, U3b stable outcomes/checks later. U3–U5 remain incomplete; old U2 accessibility/download gates open. Current native/mobile baseline is unchanged. No push; older WIP remains separate.
+
+
 ## U2c2 lesson conversations — implemented in development, 2026-10-10
 
 [GitHub #34](https://github.com/CloudKai/secondBrain/issues/34), part of #29, adds saved lesson conversations per owned collection and immutable plan/lesson. Checked idempotent sends preserve pending questions across reload; server-selected recent context never becomes evidence. Provenance, source-change completion fences, source-removal redaction, fresh reopen/export and revision-checked clear retain drafts/attempts separately. Model policy is unchanged.

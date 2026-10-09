@@ -11,10 +11,12 @@ from backend.learning_errors import storage_failure
 
 from backend.learning_drafts import router as drafts_router
 from backend.learning_conversations import router as conversations_router
+from backend.teaching_evidence import router as evidence_router
 
 router = APIRouter(tags=["learning collections"])
 router.include_router(drafts_router)
 router.include_router(conversations_router)
+router.include_router(evidence_router)
 
 
 @router.get("/learning/collections", response_model=CollectionList)

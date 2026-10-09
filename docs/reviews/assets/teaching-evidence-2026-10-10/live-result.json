@@ -1,0 +1,226 @@
+{
+  "status": 200,
+  "policy": "teaching_evidence_v1",
+  "elapsed_ms_single_sample": 3931,
+  "collection_source_count": 2,
+  "plan_source_count": 2,
+  "sources": [
+    {
+      "source_id": "6c1e35b3-12e3-4fe1-b9a1-dc238ccb4c73",
+      "source_version": 1,
+      "status": "ready",
+      "selected_passages": 3
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "source_version": 1,
+      "status": "ready",
+      "selected_passages": 21
+    }
+  ],
+  "references": 24,
+  "passages_absent_from_notes": 14,
+  "exact_spans": true,
+  "unchanged_learning": true,
+  "unauthenticated_status": 401,
+  "unrelated_plan_status": 404,
+  "limitations": [
+    "Retrieved passages are a bounded sample, not exhaustive coverage or verified claim support.",
+    "Images, diagrams, uncaptured pages and external material are not evidence."
+  ],
+  "gap": null,
+  "locations": [
+    {
+      "source_id": "6c1e35b3-12e3-4fe1-b9a1-dc238ccb4c73",
+      "page": 1,
+      "start_ms": null,
+      "end_ms": null,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 197180,
+      "end_ms": 205640,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "6c1e35b3-12e3-4fe1-b9a1-dc238ccb4c73",
+      "page": 1,
+      "start_ms": null,
+      "end_ms": null,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 206700,
+      "end_ms": 210720,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "6c1e35b3-12e3-4fe1-b9a1-dc238ccb4c73",
+      "page": 2,
+      "start_ms": null,
+      "end_ms": null,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 211360,
+      "end_ms": 218540,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 219620,
+      "end_ms": 222380,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 223180,
+      "end_ms": 228860,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 229560,
+      "end_ms": 229740,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 229820,
+      "end_ms": 234160,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 235620,
+      "end_ms": 242360,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 242900,
+      "end_ms": 244280,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 244280,
+      "end_ms": 252300,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 15260,
+      "end_ms": 18960,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 19160,
+      "end_ms": 24200,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 24780,
+      "end_ms": 30220,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 31220,
+      "end_ms": 39760,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 40240,
+      "end_ms": 48600,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 49500,
+      "end_ms": 65980,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 922600,
+      "end_ms": 923380,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 924260,
+      "end_ms": 926000,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 926540,
+      "end_ms": 930440,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 930860,
+      "end_ms": 932600,
+      "original_span": true,
+      "version": true
+    },
+    {
+      "source_id": "86a8255b-9650-41ee-848c-bfbdaaf01e51",
+      "page": null,
+      "start_ms": 933480,
+      "end_ms": 943320,
+      "original_span": true,
+      "version": true
+    }
+  ]
+}

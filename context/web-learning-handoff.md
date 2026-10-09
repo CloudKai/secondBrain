@@ -1,5 +1,14 @@
 # Compact web learning handoff
 
+## U3a1 checkpoint — 2026-10-10
+
+#35 under #29 implemented: POST collection/plan evidence-preview is authenticated/read-only, searches confirmed participating captures with existing BM25+dense RRF and exact original spans; explicit partial-index choice, 8 sources/24 references/16,000 chars/35s, source/hash/index/version/membership revalidation. 013/014 are existing hosted prerequisites, included with required helpers for clean checkout; no new migration applied. Existing generation unchanged. Contract docs/planning/teaching-evidence-preview-contract.md.
+
+344 workspace backend /126 web and 278 isolated backend /113 web; typecheck/lint/build pass. Exact uv runner selects system pytest missing langchain_openai; existing venv succeeds. Separate reviews clean. Live current calculus branch gets 24 original passages (14 omitted from notes), all PDF/time/version spans match; learning unchanged, unauth401/unrelated404. 3,931ms single retrieval response is not an answer/latency benchmark. Acceptance docs/reviews/teaching-evidence-acceptance-2026-10-10.md. Temporary harness/tab removed; user tab3 original dark/default viewport and lesson2/draft retained. API env-file session91730 on8000, approved worker/Vite unchanged.
+
+Next U3a2: independently reviewed teaching cases before generation changes, then concept/coverage manifest and outcome-specific lesson integration; U3b stable outcomes/checks later. Do not claim new preview feeds existing lessons. Existing U2 zoom/screen-reader/download gates stay open. Continue recommended settings/approved seams; checkpoint/compact before new unit. Commit only unit and needed dependencies, no push/mobile/iOS/TinyFish; preserve older WIP.
+
+
 ## U2c2 checkpoint — 2026-10-10
 
 #34 under #29 implemented in development: owned durable lesson exchanges, revision/lease/request retry fences, bounded stored context, actual model provenance, source-change finish rejection and removal redaction, current-read exports, checked clear, owner/tab pending recovery. Migration 021 applied successfully to rpcclvvcfsxlytosfhxt without warning/rejection; SQL 163af5ed-34e1-4e3b-829b-ec602538740f. Reviewed editor matches file. One live Luna hint saved in 79b63966-af12-42fb-9574-657c3b0a997b/c5102f68-6457-40f6-9e50-a84216159bf3/lesson1 and survives reload. Source p0011 8:17.740–8:30.140 opens/returns focus; activity 0 studied / 2 attempts / 2 needs review. Question draft retained intentionally. No sources deleted/regenerated or attempts added.

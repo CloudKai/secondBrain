@@ -1,5 +1,14 @@
 # Web Progress Tracker
 
+## U3a1 completed in development — 2026-10-10
+
+[#35](https://github.com/CloudKai/secondBrain/issues/35) under #29: read-only, goal-specific teaching evidence preview across confirmed path captures. Existing BM25+dense RRF, exact original page/time spans, owner/version/hash/generation fences, explicit partial-index choice, bounded 8-source/24-passage/16,000-character selection and post-search validation. Existing lessons still use note evidence; no generation or schema change. Retrieval 013/014/helper prerequisites included in the scoped commit, without reapplying migrations.
+
+344 workspace backend / 126 web; 278 isolated backend / 113 web; typecheck/lint/build pass. Two separate reviews have no actionable findings. Live PDF/video preview: 24 exact passages, 14 absent from notes, unchanged learning snapshot, 401 unauthenticated and 404 unrelated plan; single response 3,931 ms, not a latency benchmark. API session91730; approved worker/Vite retained. See [acceptance](../docs/reviews/teaching-evidence-acceptance-2026-10-10.md).
+
+Next target **U3a2 reviewed teaching baseline plus concept/coverage manifest and lesson integration**, then U3b stable outcomes/checks. U3 is not complete. Older U2 accessibility/download gates remain open. Preserve unrelated WIP; no push, mobile/iOS or TinyFish. Checkpoint before the next unit.
+
+
 ## U2c2 completed in development — 2026-10-10
 
 - #34 under #29: owned saved lesson exchanges, same-send retry and stale-tab fences, bounded server context, actual model/policy provenance, source-change rejection/removal redaction, clear/export and pending recovery implemented.
