@@ -1,5 +1,13 @@
 # Compact web learning handoff
 
+## Latest checkpoint — U2a locally prepared, approval pending
+
+Delivery [#31](https://github.com/CloudKai/secondBrain/issues/31) under #29. Independent owned identity, legacy backfill including removed anchors, distinct confirmed membership, compatibility triggers and authenticated read/checked-cursor APIs are implemented. Migration 019 is prepared in a separate Supabase snippet, **not applied**; AI Study Friends is labelled main Production. Obtain explicit approval for this exact reviewed migration before Run. Then verify backfill and live owned reads, restart only the API for new router code, and record hosted acceptance before closing #31.
+
+299 backend / 106 web tests and web typecheck/lint/build pass. Exact uv command still selects system pytest without langchain_openai; use the existing backend virtual environment for the recorded successful run. Seven SQL seams cover owner RLS, repeatability, immutable history/citations/cursor, removed anchors, branches, membership confirmation, recovery and abort. Separate spec/standards reviews resolved one finding each and have no remaining actionable findings. See docs/reviews/collection-identity-acceptance-2026-10-09.md.
+
+Recovery retains new collection reads/history, aliases, tables and legacy writers; revoke only new checked collection selection. U2b focused workspace/navigation is next after hosted identity acceptance, then U2c durable drafts/chat. Do not blend U3 teaching changes into U2. U1 viewport/actual zoom/screen-reader gates remain open. Keep recommended settings and approved seams. Mobile/iOS and TinyFish stay out; update web records/GitHub. Earlier substantial WIP remains separate; no blanket staging or push.
+
 Updated: 2026-10-09, Asia/Singapore.
 
 ## Authorization and defaults

@@ -46,11 +46,36 @@ def learning_client(monkeypatch):
             return httpx.Response(200, json={"id": ALICE if owner else BOB})
         if request.url.path == "/rest/v1/rpc/get_learning_history":
             return httpx.Response(200, json={"user_id": ALICE if owner else BOB, "collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True}] if owner else [], "next_offset": None})
+        if request.url.path == "/rest/v1/rpc/get_learning_summary":
+            return httpx.Response(200, json=provider.get("summary", {"user_id": ALICE if owner else BOB, "resume": None, "studied_lessons": 0, "practice_attempts": 0, "provisional_checks": 0, "pending_feedback": 0, "failed_feedback": 0}))
+        if request.url.path == "/rest/v1/rpc/get_learning_collection":
+            return httpx.Response(200, json=provider["collection"]) if owner else httpx.Response(404, json={"code": "P0002"})
+        if request.url.path == "/rest/v1/rpc/list_learning_collections":
+            return httpx.Response(200, json={"user_id": ALICE if owner else BOB, "collections": [provider["collection"]["collection"]] if owner else [], "next_offset": None})
+        if request.url.path == "/rest/v1/rpc/resolve_source_learning_collection":
+            assert json.loads(request.content) == {"p_source_id": SOURCE}
+            return httpx.Response(200, json=provider["collection"]) if owner else httpx.Response(404, json={"code": "P0002"})
+        if request.url.path == "/rest/v1/rpc/select_learning_collection_lesson":
+            body = json.loads(request.content)
+            if not owner or body["p_collection_id"] != provider["collection"]["collection"]["id"]:
+                return httpx.Response(404, json={"code": "P0002"})
+            if body["p_expected_revision"] != state.get("selected_place_revision", 0):
+                return httpx.Response(409, json={"code": "40001"})
+            state.update(selected_plan_id=body["p_plan_id"], selected_lesson_index=body["p_lesson_index"], selected_place_revision=state.get("selected_place_revision", 0)+1)
+            return httpx.Response(200, json=provider["collection"])
         if request.url.path == "/rest/v1/rpc/get_learning_graph":
             return httpx.Response(200, json={"user_id": ALICE if owner else BOB, "partial": False, "collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True, "source_ids": [SOURCE], "path_count": 1, "studied_lessons": 1, "practice_attempts": 1, "provisional_checks": 1, "flagged_plans": 0}] if owner else []})
         if request.url.path == "/rest/v1/rpc/get_source_learning":
             assert json.loads(request.content) == {"p_source_id": SOURCE}
             return httpx.Response(200, json=state) if owner else httpx.Response(404, json={"code": "P0002"})
+        if request.url.path == "/rest/v1/rpc/select_learning_lesson_checked":
+            body = json.loads(request.content)
+            if not owner:
+                return httpx.Response(404, json={"code": "P0002"})
+            if body["p_expected_revision"] != state.get("selected_place_revision", 0):
+                return httpx.Response(409, json={"code": "40001"})
+            state.update(selected_plan_id=body["p_plan_id"], selected_lesson_index=body["p_lesson_index"], selected_place_revision=state.get("selected_place_revision", 0)+1)
+            return httpx.Response(200, json=state)
         if request.url.path == "/rest/v1/rpc/select_learning_lesson":
             body = json.loads(request.content)
             if not owner or not any(plan["id"] == body["p_plan_id"] and plan["confirmed_at"] for plan in state["plans"]):
@@ -143,7 +168,7 @@ def test_learning_collection_is_owned_and_does_not_activate_without_confirmation
     url = f"/api/v2/sources/{SOURCE}/learning"
     response = client.get(url, headers={"Authorization": "Bearer alice"})
     assert response.status_code == 200, response.text
-    assert response.json() == {"source_id": SOURCE, "selected_plan_id": None, "selected_lesson_index": 0, "plans": [], "attempts": [], "activities": []}
+    assert response.json() == {"source_id": SOURCE, "selected_plan_id": None, "selected_lesson_index": 0, "selected_place_revision": 0, "plans": [], "attempts": [], "activities": []}
     assert client.get(url, headers={"Authorization": "Bearer bob"}).status_code == 404
     assert client.get(url).status_code == 401
 
@@ -473,3 +498,96 @@ def test_learning_graph_is_authenticated_owned_and_distinguishes_activity_from_c
     assert result.json() == {"partial": False, "collections": [{"source_id": SOURCE, "title": "RAG evidence", "source_available": True, "source_ids": [SOURCE], "path_count": 1, "studied_lessons": 1, "practice_attempts": 1, "provisional_checks": 1, "flagged_plans": 0}]}
     assert client.get("/api/v2/learning/graph").status_code == 401
     assert client.get("/api/v2/learning/graph", headers={"Authorization": "Bearer bob"}).json()["collections"] == []
+
+
+def test_library_summary_resumes_owned_selected_lesson_without_inventing_mastery(learning_client):
+    client, _, provider = learning_client
+    provider["summary"] = {"user_id": ALICE, "resume": {"source_id": SOURCE, "source_available": True,
+        "source_title": "Original PDF", "plan_id": PLAN, "path_id": PATH, "plan_title": "Interpret car velocity",
+        "goal": "Explain instantaneous change", "lesson_index": 0, "lesson_title": "Local rate", "needs_review": False,
+        "selected_at": "2026-10-09T12:00:00Z", "place_revision": 2},
+        "studied_lessons": 3, "practice_attempts": 2, "provisional_checks": 1, "pending_feedback": 1, "failed_feedback": 0}
+    response = client.get("/api/v2/learning/summary", headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200
+    assert response.json()["resume"]["plan_title"] == "Interpret car velocity"
+    assert response.json()["practice_attempts"] == 2
+    assert "user_id" not in response.json()
+    provider["summary"]["user_id"] = BOB
+    assert client.get("/api/v2/learning/summary", headers={"Authorization": "Bearer alice"}).status_code == 503
+    assert client.get("/api/v2/learning/summary").status_code == 401
+
+
+def test_learning_place_api_fences_an_older_browser_selection(learning_client):
+    client, _, _ = learning_client
+    headers = {"Authorization": "Bearer alice"}
+    root = f"/api/v2/sources/{SOURCE}/learning"
+    preview = client.post(root+"/preview", headers=headers, json={"request_id": REQUEST, "source_version": 1}).json()
+    plan = preview["plans"][0]["id"]
+    client.post(root+f"/plans/{plan}/confirm", headers=headers)
+    url = root+f"/plans/{plan}/place"
+    first = client.post(url, headers=headers, json={"lesson_index": 0, "expected_revision": 0})
+    assert first.status_code == 200
+    assert first.json()["selected_place_revision"] == 1
+    assert client.post(url, headers=headers, json={"lesson_index": 0, "expected_revision": 0}).status_code == 409
+
+
+def test_collection_detail_is_owned_and_keeps_legacy_learning_identity(learning_client):
+    client, state, provider = learning_client
+    provider["collection"] = {"user_id": ALICE, "collection": {
+        "id": REQUEST, "legacy_source_id": SOURCE, "title": "Evidence collection", "goal": "Explain evidence",
+        "revision": 1, "source_count": 1, "path_count": 0, "original_source_available": True,
+        "created_at": "2026-10-09T00:00:00Z", "updated_at": "2026-10-09T00:00:00Z"},
+        "sources": [{"id": SOURCE, "title": "RAG evidence", "source_kind": "article", "source_version": 1}],
+        "learning": state}
+    url = f"/api/v2/learning/collections/{REQUEST}"
+    response = client.get(url, headers={"Authorization": "Bearer alice"})
+    assert response.status_code == 200, response.text
+    assert response.json()["collection"]["id"] == REQUEST
+    assert response.json()["learning"]["source_id"] == SOURCE
+    assert "user_id" not in response.json() and "user_id" not in response.json()["learning"]
+    assert client.get(url).status_code == 401
+    assert client.get(url, headers={"Authorization": "Bearer bob"}).status_code == 404
+    provider["collection"]["user_id"] = BOB
+    assert client.get(url, headers={"Authorization": "Bearer alice"}).status_code == 503
+
+
+def test_collection_list_and_source_alias_are_authenticated_and_do_not_change_legacy_routes(learning_client):
+    client, state, provider = learning_client
+    provider["collection"] = {"user_id": ALICE, "collection": {
+        "id": REQUEST, "legacy_source_id": SOURCE, "title": "Evidence collection", "goal": "Explain evidence",
+        "revision": 1, "source_count": 0, "path_count": 0, "original_source_available": False,
+        "created_at": "2026-10-09T00:00:00Z", "updated_at": "2026-10-09T00:00:00Z"},
+        "sources": [], "learning": state}
+    headers = {"Authorization": "Bearer alice"}
+    listing = client.get("/api/v2/learning/collections", headers=headers)
+    assert listing.status_code == 200, listing.text
+    assert listing.json()["collections"][0]["id"] == REQUEST
+    alias = client.get(f"/api/v2/sources/{SOURCE}/learning/collection", headers=headers)
+    assert alias.status_code == 200 and alias.json()["collection"]["id"] == REQUEST
+    assert client.get(f"/api/v2/sources/{SOURCE}/learning", headers=headers).json()["source_id"] == SOURCE
+    assert client.get("/api/v2/learning/collections").status_code == 401
+    assert client.get("/api/v2/learning/collections", headers={"Authorization": "Bearer bob"}).json()["collections"] == []
+    assert client.get(f"/api/v2/sources/{SOURCE}/learning/collection", headers={"Authorization": "Bearer bob"}).status_code == 404
+    assert client.get("/api/v2/learning/collections?offset=-1", headers=headers).status_code == 422
+
+
+def test_collection_selection_requires_a_revision_and_preserves_the_source_route_cursor(learning_client):
+    client, state, provider = learning_client
+    headers = {"Authorization": "Bearer alice"}
+    root = f"/api/v2/sources/{SOURCE}/learning"
+    client.post(root+"/preview", headers=headers, json={"request_id": REQUEST, "source_version": 1})
+    client.post(root+f"/plans/{PLAN}/confirm", headers=headers)
+    provider["collection"] = {"user_id": ALICE, "collection": {
+        "id": REQUEST, "legacy_source_id": SOURCE, "title": "Evidence collection", "goal": "Explain evidence",
+        "revision": 1, "source_count": 0, "path_count": 1, "original_source_available": True,
+        "created_at": "2026-10-09T00:00:00Z", "updated_at": "2026-10-09T00:00:00Z"},
+        "sources": [], "learning": state}
+    url = f"/api/v2/learning/collections/{REQUEST}/plans/{PLAN}/place"
+    assert client.post(url, headers=headers, json={"lesson_index": 0}).status_code == 422
+    result = client.post(url, headers=headers, json={"lesson_index": 0, "expected_revision": 0})
+    assert result.status_code == 200, result.text
+    assert result.json()["learning"]["selected_place_revision"] == 1
+    assert client.get(root, headers=headers).json()["selected_plan_id"] == PLAN
+    assert client.post(url, headers=headers, json={"lesson_index": 0, "expected_revision": 0}).status_code == 409
+    assert client.post(url, headers={"Authorization": "Bearer bob"}, json={"lesson_index": 0, "expected_revision": 0}).status_code == 404
+    assert client.post(url, headers=headers, json={"lesson_index": 0, "expected_revision": 1, "user_id": BOB}).status_code == 422

@@ -1,5 +1,11 @@
 # Architecture
 
+## Web U2a collection identity — local, pending migration 019
+
+Collection ownership is separate from a removable capture. Migration 019 adds owned identity and unique membership, attaches existing paths/places without changing plan/attempt IDs or cursor timestamps, and validates complete ownership mapping before commit. Confirmed manifests add membership; pending previews do not. Compatibility triggers attach collections for legacy writers. New authenticated list/detail/alias RPCs and checked selection retain the source-route snapshot contract. Owner IDs are validated internally and excluded from HTTP output.
+
+Recovery keeps identity/history reads and legacy writers; it disables only new collection selection. Source deletion removes membership/evidence while retaining the independent identity and learning history. This is locally tested/reviewed, **not yet deployed**. U2b navigation/workspace and U2c drafts/chat remain target work. Details: [U2a acceptance](../docs/reviews/collection-identity-acceptance-2026-10-09.md).
+
 This file separates the verified implementation from the selected target. A
 target component is not available until its slice is marked verified in
 `scope.md` and `context/progress-tracker.md`.

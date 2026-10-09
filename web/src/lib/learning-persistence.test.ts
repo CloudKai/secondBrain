@@ -262,3 +262,38 @@ test('graph learning indicators separate saved paths, study activity and provisi
   assert.equal(changed.collections[0].flagged_plans,1);assert.equal(changed.collections[0].practice_attempts,1);
  }finally{await db.close();}
 });
+
+test('library summary preserves the latest owned selection and rejects a stale tab without awarding progress',async()=>{
+ const db=await database();
+ try{
+  const first=await preview(db);await db.query('select public.confirm_learning_plan($1)',[first.id]);
+  const revision=(await snapshot(db)).selected_place_revision??0;
+  await db.query('select public.select_learning_lesson_checked($1,0,$2)',[first.id,revision]);
+  const moved=await snapshot(db);
+  assert.equal(moved.selected_place_revision,revision+1);
+  await assert.rejects(db.query('select public.select_learning_lesson_checked($1,0,$2)',[first.id,revision]),/Learning place changed/);
+  const summary=()=>db.query<{v:{resume:null|{plan_id:string;source_available:boolean;place_revision:number};studied_lessons:number;practice_attempts:number;pending_feedback:number}}>('select public.get_learning_summary() v');
+  let value=(await summary()).rows[0].v;
+  assert.equal(value.resume?.plan_id,first.id);assert.equal(value.resume?.place_revision,revision+1);
+  assert.equal(value.studied_lessons,0);assert.equal(value.practice_attempts,0);
+  await db.query("select public.record_learning_activity($1,0,'read')",[first.id]);
+  await db.query('select public.submit_learning_attempt($1,$2,0,$3)',[first.id,crypto.randomUUID(),'My unfinished understanding made into an explicit attempt.']);
+  value=(await summary()).rows[0].v;assert.equal(value.studied_lessons,1);assert.equal(value.practice_attempts,1);assert.equal(value.pending_feedback,1);
+  await learner(db,bob);value=(await summary()).rows[0].v;assert.equal(value.resume,null);assert.equal(value.practice_attempts,0);
+  await assert.rejects(db.query('select public.select_learning_lesson_checked($1,0,0)',[first.id]),/Plan not found/);
+  await db.exec('reset role');await db.query('delete from public.sources where id=$1',[source]);await learner(db);
+  value=(await summary()).rows[0].v;assert.equal(value.resume?.source_available,false);assert.equal(value.practice_attempts,1);
+ }finally{await db.close();}
+});
+
+test('continuity rollback preserves saved answers and restores the previous read contract',async()=>{
+ const db=await database();
+ try{
+  const first=await preview(db);await db.query('select public.confirm_learning_plan($1)',[first.id]);
+  await db.query('select public.submit_learning_attempt($1,$2,0,$3)',[first.id,crypto.randomUUID(),'Keep this original answer through rollback.']);
+  await db.exec('reset role');await db.exec(await readFile(new URL('../../../supabase/rollbacks/202610090018_learning_continuity.sql',import.meta.url),'utf8'));await learner(db);
+  const saved=await snapshot(db);assert.equal(saved.attempts[0].response,'Keep this original answer through rollback.');assert.equal(saved.selected_plan_id,first.id);
+  await assert.rejects(db.query('select public.get_learning_summary()'),/permission denied/);
+  await db.query('select public.select_learning_lesson($1,0)',[first.id]);assert.equal((await snapshot(db)).attempts.length,1);
+ }finally{await db.close();}
+});

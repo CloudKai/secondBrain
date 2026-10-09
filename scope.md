@@ -1,5 +1,13 @@
 # Scope: AI Second Brain
 
+## U2a collection identity — locally prepared, 2026-10-09
+
+[GitHub #31](https://github.com/CloudKai/secondBrain/issues/31) implements the identity/backfill subunit of #29. Owned collection IDs survive removal of the original capture. Repeatable backfill retains paths, plans, attempts, branches, exact citations and cursor metadata. Confirmed source membership is deduplicated; pending previews do not increase coverage. Authenticated collection reads, legacy aliases and checked selection are implemented.
+
+**Migration 019 is prepared, not applied.** Hosted backfill/live API acceptance requires approval for AI Study Friends, labelled main Production in Supabase. **299 backend / 106 web tests pass**, plus web typecheck/lint/build. The backend used the existing virtual environment because the exact uv runner selected a system pytest missing a project dependency. Spec and standards reviews have no remaining actionable findings. Recovery retains collection reads/history and legacy writers while disabling new collection selection.
+
+See [U2a acceptance](docs/reviews/collection-identity-acceptance-2026-10-09.md). **Next target:** U2b collection workspace/navigation, then U2c durable drafts/chat; U3–U5 remain target work. U1's exact viewport, actual 200% zoom and screen-reader gates remain open. Mobile/iOS untouched; no push in this unit.
+
 ## Goal branches and learning maps — implemented in development, 2026-10-09
 
 **Implemented:** the third development unit of #28. Explicitly changed goals

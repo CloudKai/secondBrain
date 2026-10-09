@@ -3,7 +3,7 @@ import json
 import os
 from uuid import UUID
 
-from backend.learning_models import LearningSnapshot, PreviewContext, FeedbackContext, LearningHistory, LearningCandidates, RevisionContext, LearningGraph
+from backend.learning_models import LearningSnapshot, PreviewContext, FeedbackContext, LearningHistory, LearningCandidates, RevisionContext, LearningGraph, LearningSummary
 from backend.study_store import StudyStore, StudyStorageError
 
 
@@ -37,6 +37,15 @@ class LearningStore:
 
     async def read(self, source_id: UUID) -> LearningSnapshot:
         return self.snapshot(await self.call("get_source_learning", p_source_id=str(source_id)), source_id)
+
+    async def summary(self) -> LearningSummary:
+        try:
+            result = LearningSummary.model_validate_json(json.dumps(await self.call("get_learning_summary")))
+            if result.user_id != self.user_id:
+                raise ValueError("Unexpected learning owner")
+            return result
+        except (ValueError, TypeError) as exc:
+            raise StudyStorageError() from exc
 
     async def candidates(self, source_id, plan_id):
         try:

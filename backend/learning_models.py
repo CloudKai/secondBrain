@@ -242,9 +242,35 @@ class LearningSnapshot(StrictModel):
     user_id: UUID = Field(exclude=True)
     selected_plan_id: UUID | None = None
     selected_lesson_index: int = Field(default=0, ge=0, le=3)
+    selected_place_revision: int = Field(default=0, ge=0)
     plans: list[LearningPlan] = Field(max_length=60)
     attempts: list[PracticeAttempt] = Field(max_length=1000)
     activities: list[LearningActivity] = Field(max_length=1000)
+
+
+class LearningResume(StrictModel):
+    source_id: UUID
+    source_available: bool
+    source_title: str = Field(min_length=1, max_length=200)
+    plan_id: UUID
+    path_id: UUID
+    plan_title: str = Field(min_length=1, max_length=160)
+    goal: str = Field(min_length=1, max_length=500)
+    lesson_index: int = Field(ge=0, le=3)
+    lesson_title: str = Field(min_length=1, max_length=160)
+    needs_review: bool
+    selected_at: datetime
+    place_revision: int = Field(ge=1)
+
+
+class LearningSummary(StrictModel):
+    user_id: UUID = Field(exclude=True)
+    resume: LearningResume | None
+    studied_lessons: int = Field(ge=0)
+    practice_attempts: int = Field(ge=0)
+    provisional_checks: int = Field(ge=0)
+    pending_feedback: int = Field(ge=0)
+    failed_feedback: int = Field(ge=0)
 
 
 class LearningHistoryItem(StrictModel):
@@ -316,6 +342,7 @@ class TutorReply(StrictModel):
 
 class LessonPlaceRequest(StrictModel):
     lesson_index: int = Field(ge=0, le=3)
+    expected_revision: int | None = Field(default=None, ge=0)
 
 
 class LearningGraphCollection(StrictModel):

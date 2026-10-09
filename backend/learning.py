@@ -3,7 +3,7 @@ from uuid import UUID
 import httpx
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from backend.learning_models import LearningHistory, LearningCandidates, RevisionRequest, LessonPlaceRequest, LearningGraph
+from backend.learning_models import LearningHistory, LearningCandidates, RevisionRequest, LessonPlaceRequest, LearningGraph, LearningSummary
 
 from backend.learning_models import LearningSnapshot, PreviewRequest, AttemptRequest, ActivityRequest, TutorQuestion, TutorReply
 from backend.learning_generation import LearningGenerator
@@ -12,21 +12,11 @@ from backend.learning_store import LearningStore
 from backend.sources import SourceGateway, owned_sources
 from backend.study_store import StudyStorageError
 
+from backend.learning_errors import storage_failure
+from backend.learning_collections import router as collections_router
+
 router = APIRouter(prefix="/api/v2", tags=["learning journeys"])
-
-
-def storage_failure(error: StudyStorageError):
-    if error.code == "not_found":
-        return HTTPException(404, "This source or learning path is no longer available.")
-    if error.code == "stale":
-        return HTTPException(409, "The source or learning plan changed. Reload before continuing.")
-    if error.code == "session":
-        return HTTPException(401, "Your library session expired. Retry connecting.")
-    if error.code == "busy":
-        return HTTPException(409, "A learning request is still running. Wait a moment, then reload or retry.")
-    if error.code == "limit":
-        return HTTPException(429, "This learning request reached its retry or generation limit. Review saved progress; try a new request later.")
-    return HTTPException(503, "Learning storage is unavailable. Check the learning migration and retry.")
+router.include_router(collections_router)
 
 
 @router.get("/sources/{source_id}/learning", response_model=LearningSnapshot)
@@ -49,6 +39,14 @@ async def learning_history(offset: int = Query(default=0, ge=0), gateway: Source
 async def learning_graph(gateway: SourceGateway = Depends(owned_sources)):
     try:
         return await LearningStore(gateway).graph()
+    except StudyStorageError as exc:
+        raise storage_failure(exc) from exc
+
+
+@router.get("/learning/summary", response_model=LearningSummary)
+async def learning_summary(gateway: SourceGateway = Depends(owned_sources)):
+    try:
+        return await LearningStore(gateway).summary()
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
 
@@ -132,7 +130,12 @@ async def select_lesson(source_id: UUID, plan_id: UUID, payload: LessonPlaceRequ
         snapshot = await store.read(source_id)
         if not any(plan.id == plan_id and plan.confirmed_at is not None for plan in snapshot.plans):
             raise StudyStorageError("not_found")
-        return store.snapshot(await store.call("select_learning_lesson", p_plan_id=str(plan_id), p_lesson_index=payload.lesson_index), source_id)
+        body = {"p_plan_id": str(plan_id), "p_lesson_index": payload.lesson_index}
+        name = "select_learning_lesson"
+        if payload.expected_revision is not None:
+            name = "select_learning_lesson_checked"
+            body["p_expected_revision"] = payload.expected_revision
+        return store.snapshot(await store.call(name, **body), source_id)
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
 
