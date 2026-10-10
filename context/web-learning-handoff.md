@@ -1,5 +1,13 @@
 # Compact web learning handoff
 
+## U3a2 checkpoint — 2026-10-10
+
+#36 under #29 implemented in development. Migration022 applied after exact approval to rpcclvvcfsxlytosfhxt; dashboard query54f1c915-6955-4d2f-a8c1-4e2909269acf reports Success. Initial source preview offers capture/note modes, existing owned BM25+dense selection, exact original spans/hash/gen/version fences, sampled concept manifest and consistent display numbers retaining IDs. No existing generation is rewritten; multi-source/difficulty revisions stay note-based.
+
+361 workspace backend /134 web;295 isolated backend /121 web; typecheck/lint/build pass. Exact uv runner still selects system pytest missing langchain_openai; existing venv passes. Separate reviews clear. Live two unconfirmed Luna PDF previews persist original page1/2 spans; refined prompt separates generated examples/absence from cited manifest entries. Selection stays c5102f68-6457-40f6-9e50-a84216159bf3 lesson1 revision5; activity0 studied/2 attempts/2 needs review and tutor draft/exchange retained after reload. No source deletion/regeneration/new attempts/activation. Synthetic cases independently agent-reviewed, not educator calibration. Acceptance docs/reviews/capture-teaching-acceptance-2026-10-10.md; #36 stays open for actual200%zoom/screenreader.
+
+Next target U3a3 outcome-specific full-capture evidence for multi-source contribution/revision, then U3b stable outcomes/checks. U4/U5 remain targets. Checkpoint/compact before new unit; no callable compaction. Recommended settings/approved seams persist. No push/mobile/iOS/TinyFish. API env-file session6197 on8000; authorized worker/Vite retained. Temporary fixture files/tabs removed; user tab3 original dark/default viewport, collection remains. Stage only scoped unit/owned docs/assets; older WIP separate.
+
 ## U3a1 checkpoint — 2026-10-10
 
 #35 under #29 implemented: POST collection/plan evidence-preview is authenticated/read-only, searches confirmed participating captures with existing BM25+dense RRF and exact original spans; explicit partial-index choice, 8 sources/24 references/16,000 chars/35s, source/hash/index/version/membership revalidation. 013/014 are existing hosted prerequisites, included with required helpers for clean checkout; no new migration applied. Existing generation unchanged. Contract docs/planning/teaching-evidence-preview-contract.md.

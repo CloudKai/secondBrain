@@ -98,7 +98,8 @@ class LearningStore:
             raise StudyStorageError() from exc
 
     async def preview_context(self, source_id, payload):
-        value = await self.call("request_learning_preview", p_source_id=str(source_id),
+        name = "request_learning_capture_preview" if payload.evidence_mode == "capture" else "request_learning_preview"
+        value = await self.call(name, p_source_id=str(source_id),
                                 p_source_version=payload.source_version, p_request_id=str(payload.request_id),
                                 p_goal=payload.goal.strip(), p_difficulty=payload.difficulty,
                                 p_path_id=str(payload.path_id) if payload.path_id else None)
@@ -106,18 +107,23 @@ class LearningStore:
             result = PreviewContext.model_validate_json(json.dumps(value))
             if (result.user_id != self.user_id or result.source.user_id != self.user_id
                     or result.source.id != source_id or result.request_id != payload.request_id
-                    or result.source.source_version != payload.source_version):
+                    or result.source.source_version != payload.source_version or result.evidence_mode != payload.evidence_mode):
                 raise ValueError("Unexpected preview context")
             return result
         except (ValueError, TypeError) as exc:
             raise StudyStorageError() from exc
 
-    async def finish_preview(self, source_id, context, *, draft=None, goal=None, references=None, model=None):
-        await self.finish("finish_learning_preview", p_request_id=str(context.request_id),
+    async def finish_preview(self, source_id, context, *, draft=None, goal=None, references=None, model=None, manifest=None, snapshots=None):
+        extra = {}
+        name = "finish_learning_preview"
+        if context.evidence_mode == "capture":
+            name = "finish_learning_capture_preview"
+            extra = {"p_manifest": manifest.model_dump(mode="json") if manifest else None, "p_sources": snapshots}
+        await self.finish(name, p_request_id=str(context.request_id),
                                 p_lease_token=str(context.lease_token),
                                 p_draft=draft.model_dump(mode="json") if draft else None,
                                 p_goal=goal, p_references=[r.model_dump(mode="json") for r in references] if references else None,
-                                p_model=model)
+                                p_model=model, **extra)
         return await self.read(source_id)
 
     async def finish(self, name, **body):

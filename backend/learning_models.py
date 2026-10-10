@@ -10,6 +10,7 @@ from backend.schemas import StrictModel
 from backend.study_models import Explanation, SourceReference
 from backend.study_models import StudyNote
 from backend.source_models import CapturedSource
+from backend.teaching_manifest import TeachingManifest, TeachingMetadata
 
 Difficulty = Literal["foundation", "intermediate", "advanced"]
 LearningText = Annotated[str, Field(min_length=1, max_length=500)]
@@ -64,12 +65,24 @@ class LearningDraft(StrictModel):
     paths: list[PathDraft] = Field(min_length=1, max_length=3)
 
 
+class CaptureLearningDraft(StrictModel):
+    draft: LearningDraft
+    manifest: TeachingManifest
+
+
 class PreviewRequest(StrictModel):
     request_id: UUID = Field(strict=False)
     source_version: int = Field(ge=1, le=20)
     goal: str = Field(default="", max_length=500)
     difficulty: Difficulty = "foundation"
     path_id: UUID | None = Field(default=None, strict=False)
+    evidence_mode: Literal["note", "capture"] = "note"
+
+    @model_validator(mode="after")
+    def initial_capture_only(self):
+        if self.evidence_mode == "capture" and self.path_id is not None:
+            raise ValueError("Full captured evidence is for new paths only")
+        return self
 
 
 class PreviewContext(StrictModel):
@@ -79,6 +92,7 @@ class PreviewContext(StrictModel):
     note: StudyNote
     lease_token: UUID | None
     path_direction: PathDraft | None = None
+    evidence_mode: Literal["note", "capture"] = "note"
 
 
 class CriterionFeedback(StrictModel):
@@ -152,6 +166,7 @@ class LearningPlan(StrictModel):
     references: list[SourceReference] = Field(max_length=100)
     evidence: list[LearningEvidence] = Field(default_factory=list, max_length=100)
     source_members: list[LearningMember] = Field(default_factory=list, max_length=8)
+    teaching: TeachingMetadata | None = None
     revision: RevisionSummary | None = None
     base_plan_id: UUID | None = None
     branch_of_plan_id: UUID | None = None
@@ -170,6 +185,10 @@ class LearningPlan(StrictModel):
         ids = {reference.id for reference in self.references}
         if len(ids) != len(self.references):
             raise ValueError("Duplicate learning references")
+        if self.teaching:
+            if self.teaching.source_id != self.source_id or self.teaching.source_version != self.source_version:
+                raise ValueError("Manifest belongs to another capture")
+            self.teaching.manifest.validate_citations(ids)
         if self.evidence:
             aliases = [item.passage.model_copy(update={"id": item.id}) for item in self.evidence]
             if aliases != self.references:

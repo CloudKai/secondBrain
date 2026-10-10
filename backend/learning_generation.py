@@ -6,7 +6,7 @@ import os
 import httpx
 from pydantic import BaseModel
 
-from backend.learning_models import LearningDraft, PracticeFeedback, PreviewContext, TutorReply, RevisionDraft, LearningEvidence
+from backend.learning_models import CaptureLearningDraft, LearningDraft, PracticeFeedback, PreviewContext, TutorReply, RevisionDraft, LearningEvidence
 from backend.source_references import reference_matches_source
 from backend.study_generation import GenerationFailure
 
@@ -132,6 +132,24 @@ class LearningGenerator:
             "evidence": [r.model_dump(mode="json") for r in selected],
         }, validate)
         return draft, model, selected
+
+    async def capture_preview(self, context: PreviewContext, goal: str, difficulty: str, references):
+        instructions = PLAN_INSTRUCTIONS + "\nReturn draft and manifest. The manifest maps teachable concepts, prerequisites, source-provided examples and explicit source qualifications to supplied IDs. Each entry must describe information present in its cited passages. Generated examples belong only in draft lessons with generated_example provenance, never in manifest entries. Statements about absent material belong in manifest gaps, not cited entries. It describes only the retrieved sample. Record missing evidence and limitations, including diagrams or uncaptured material. Do not claim to have read the entire source."
+        data = {"goal": goal.strip() or "Suggest a goal from this source", "difficulty": difficulty,
+                "source_title": context.source.title, "coverage": context.source.coverage_detail,
+                "evidence_selection": "BM25 and semantic retrieval over this one captured source. A bounded sample; other collection sources are excluded. Missing evidence cannot be repaired by reasoning.",
+                "evidence": [r.model_dump(mode="json") for r in references]}
+        prompt_format = {"type": "json_schema", "name": CaptureLearningDraft.__name__, "strict": True, "schema": CaptureLearningDraft.model_json_schema()}
+        if not references or len(instructions) + len(json.dumps(data, ensure_ascii=False)) + len(json.dumps(prompt_format, ensure_ascii=False)) > 30000:
+            raise GenerationFailure("invalid_output")
+        ids = {reference.id for reference in references}
+
+        def validate(value):
+            validate_teaching(value.draft, ids)
+            value.manifest.validate_citations(ids)
+
+        value, model = await self.structured(CaptureLearningDraft, instructions, data, validate)
+        return value.draft, value.manifest, model
 
     async def feedback(self, plan, lesson_index: int, answer: str):
         lesson = plan.content.lessons[lesson_index]

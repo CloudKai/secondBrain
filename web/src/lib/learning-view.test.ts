@@ -5,7 +5,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import LearningLessonView from '../components/LearningLessonView';
 import type {LearningPlan} from './learning';
 
-export const plan:LearningPlan={id:'55555555-5555-4555-8555-555555555555',path_id:'66666666-6666-4666-8666-666666666666',request_id:'44444444-4444-4444-8444-444444444444',source_id:'33333333-3333-4333-8333-333333333333',source_title:'Evidence',source_version:1,evidence:[],source_members:[],revision:null,base_plan_id:null,branch_of_plan_id:null,goal:'Reason about support',difficulty:'foundation',confirmed_at:'2026-10-09T00:00:00Z',active:true,needs_review:false,model:'gpt-6-luna',policy_version:'learning_v1',created_at:'2026-10-09T00:00:00Z',references:[{id:'p0001',start:0,end:19,excerpt:'Evidence is needed.'}],content:{title:'Understand evidence',outcomes:['Explain relevance and support'],prerequisites:[],coverage:'One source, selected passages',gaps:['Implementation details'],background:[],lessons:[{title:'Relevance and support',outcome:'Explain why similarity is not support',explanation:{text:'Relevant passages still need to support the answer.',citation_ids:['p0001']},example:{text:'Imagine comparing two recipes before cooking.',provenance:'generated_example',citation_ids:[]},check:{kind:'apply',question:'Would you accept a similar but unsupported answer?',criteria:['Distinguishes relevance from support'],hint:'What does similarity establish?',worked_answer:{text:'Check the support first.',citation_ids:['p0001']}}}]} };
+import {plan} from './fixtures/learning-plan';
 
 test('lesson teaches an outcome and labels generated examples separately from source citations',()=>{
  const html=renderToStaticMarkup(createElement(LearningLessonView,{plan,lessonIndex:0,onCitation:()=>{}}));
@@ -68,4 +68,22 @@ test('library resume names the selected lesson and separates activity from under
  const html=renderToStaticMarkup(createElement(LearningSummaryView,{data:{resume:{source_id:plan.source_id!,source_available:true,source_title:'Original PDF',plan_id:plan.id,path_id:plan.path_id,plan_title:'Interpret car velocity',goal:'Explain instantaneous change',lesson_index:0,lesson_title:'Local rate',needs_review:false,selected_at:plan.created_at,place_revision:1},studied_lessons:3,practice_attempts:2,provisional_checks:1,pending_feedback:1,failed_feedback:0},onOpen:()=>{},client:null}));
  assert.match(html,/Interpret car velocity/);assert.match(html,/Local rate/);assert.match(html,/3 lessons marked studied/);assert.match(html,/2 practice attempts/);
  assert.doesNotMatch(html,/understood|mastered|Newest source/);
+});
+
+test('sampled teaching coverage labels generated concepts and links their exact original citations',async()=>{
+ const {default:TeachingCoverage}=await import('../components/TeachingCoverage');
+ const teaching={selector_policy:'teaching_evidence_v1' as const,source_id:plan.source_id!,source_version:1,capture_sha256:'a'.repeat(64),index_generation:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',manifest:{policy_version:'teaching_manifest_v1' as const,coverage:'Retrieved sample only.',gaps:['No Figure 2'],entries:[{kind:'qualification' as const,text:'Only committed operations are durable.',citation_ids:['p0001']}]}};
+ const html=renderToStaticMarkup(createElement(TeachingCoverage,{plan:{...plan,teaching},onCitation:()=>{}}));
+ assert.match(html,/AI-generated/);assert.match(html,/Retrieved sample only/);assert.match(html,/No Figure 2/);
+ assert.match(html,/Inspect source passage p0001/);assert.match(html,/not the entire source/);
+ const old=renderToStaticMarkup(createElement(TeachingCoverage,{plan,onCitation:()=>{}}));
+ assert.match(old,/Saved-note passages/);
+});
+
+
+test('new captured evidence displays a numbered citation while retaining the original passage identifier',async()=>{
+ const {default:TeachingCoverage}=await import('../components/TeachingCoverage');
+ const captured={...plan,references:[{...plan.references[0],id:'r-hidden'}],teaching:{selector_policy:'teaching_evidence_v1' as const,source_id:plan.source_id!,source_version:1,capture_sha256:'a'.repeat(64),index_generation:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',manifest:{policy_version:'teaching_manifest_v1' as const,coverage:'Sample.',gaps:[],entries:[{kind:'concept' as const,text:'Support',citation_ids:['r-hidden']}]}}};
+ const html=renderToStaticMarkup(createElement(TeachingCoverage,{plan:captured,onCitation:()=>{}}));
+ assert.match(html,/aria-label="Inspect source passage r-hidden"[^>]*>1<\/button>/);
 });

@@ -1,5 +1,13 @@
 # Web Progress Tracker
 
+## U3a2 implemented in development — 2026-10-10
+
+[#36](https://github.com/CloudKai/secondBrain/issues/36) under #29: initial source paths can use full captured material through existing BM25/semantic retrieval. New immutable plans have a cited, sampled concept/coverage manifest; explicit Saved note passages remains compatible. Original spans/pages/times, ownership, capture/index snapshots and failed-preview recovery are enforced. No existing learning is regenerated; multi-source revisions still use their existing saved-note policy.
+
+Migration **022 applied after exact approval**; live MIT PDF previews persist Luna-generated lessons and exact original page references without activation. The current lesson, draft, conversation and 0 studied / 2 attempts / 2 provisional checks remain intact. **361 workspace backend / 134 web; 295 isolated backend / 121 web tests**, web typecheck/lint/build pass. Exact uv runner still has the system-pytest dependency issue. Separate reviews clear. See [acceptance](../docs/reviews/capture-teaching-acceptance-2026-10-10.md).
+
+#36 stays open for actual 200% zoom/screen-reader checks. Independently reviewed synthetic cases and one live PDF do not calibrate teaching or grading. **Next target U3a3**: outcome-specific full-capture evidence for multi-source contribution previews, then U3b stable outcomes/practice. U4/U5 remain target work. No push/mobile/iOS/TinyFish; older WIP stays separate. Checkpoint before the next unit.
+
 ## U3a1 completed in development — 2026-10-10
 
 [#35](https://github.com/CloudKai/secondBrain/issues/35) under #29: read-only, goal-specific teaching evidence preview across confirmed path captures. Existing BM25+dense RRF, exact original page/time spans, owner/version/hash/generation fences, explicit partial-index choice, bounded 8-source/24-passage/16,000-character selection and post-search validation. Existing lessons still use note evidence; no generation or schema change. Retrieval 013/014/helper prerequisites included in the scoped commit, without reapplying migrations.

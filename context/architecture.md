@@ -1,5 +1,11 @@
 # Architecture
 
+## Web full-capture initial teaching previews — implemented in development, 2026-10-10
+
+Migration022 adds evidence_mode on preview requests and optional teaching metadata on immutable plans. The authenticated existing preview API accepts note (compatible default) or capture for initial paths only. Capture selection uses the existing owned BM25/dense index, one ready source, 24 references/16,000 excerpt characters/35 seconds; the generator receives exact original passages within its complete 30,000-character input cap. Luna-medium/one Sol-medium structural repair remains unchanged. Missing evidence never triggers escalation.
+
+Owned request and service-only finish RPCs check source version/hash/index generation, strict numeric Unicode/page/time coordinates, manifest/lesson citation IDs, lease/request mode and source-removal redaction. Reads expose nullable teaching metadata for old/history plans. Recovery disables capture writes without dropping history or old note writers. Source/index checks run after generation and in the transaction. UI uses display numbers while callbacks retain stored IDs. Multi-source revisions/outcome-specific selection, stable outcomes and calibrated semantic checks remain targets. [Contract](../docs/planning/full-capture-learning-preview-contract.md), [development acceptance](../docs/reviews/capture-teaching-acceptance-2026-10-10.md).
+
 ## Web saved lesson conversations — implemented in development, 2026-10-10
 
 Migration021 adds owned conversation revisions and exchange/request records, separate from drafts and practice. Authenticated GET/POST/DELETE at `/api/v2/learning/collections/{collection}/plans/{plan}/lessons/{index}/conversation` validate actual confirmed relationship. Postgres leases/revisions/request tombstones fence retries, stale tabs, clear and source changes. Owner advisory locks serialize new-request quotas across collections before collection locks. Generated finish is service-only with current evidence/citation checks; source removal redacts replies. RLS selects only owner rows and rejects direct client writes.

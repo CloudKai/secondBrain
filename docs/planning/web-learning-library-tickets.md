@@ -1,5 +1,13 @@
 # Web learning-library ticket breakdown
 
+## U3a2 implemented in development — 2026-10-10
+
+[#36](https://github.com/CloudKai/secondBrain/issues/36) under #29: initial source paths can use full captured material through existing BM25/semantic retrieval. New immutable plans have a cited, sampled concept/coverage manifest; explicit Saved note passages remains compatible. Original spans/pages/times, ownership, capture/index snapshots and failed-preview recovery are enforced. No existing learning is regenerated; multi-source revisions still use their existing saved-note policy.
+
+Migration **022 applied after exact approval**; live MIT PDF previews persist Luna-generated lessons and exact original page references without activation. The current lesson, draft, conversation and 0 studied / 2 attempts / 2 provisional checks remain intact. **361 workspace backend / 134 web; 295 isolated backend / 121 web tests**, web typecheck/lint/build pass. Exact uv runner still has the system-pytest dependency issue. Separate reviews clear. See [acceptance](../reviews/capture-teaching-acceptance-2026-10-10.md).
+
+#36 stays open for actual 200% zoom/screen-reader checks. Independently reviewed synthetic cases and one live PDF do not calibrate teaching or grading. **Next target U3a3**: outcome-specific full-capture evidence for multi-source contribution previews, then U3b stable outcomes/practice. U4/U5 remain target work. No push/mobile/iOS/TinyFish; older WIP stays separate. Checkpoint before the next unit.
+
 ## U3a1 — Teaching evidence preview accepted in development (2026-10-10)
 
 Delivery [#35](https://github.com/CloudKai/secondBrain/issues/35), part of #29. Owned confirmed-plan evidence preview searches full captured material using existing BM25+dense RRF, with exact version/page/time citations, explicit partial indexing, limits and freshness checks. Read-only foundation; lesson generation, stable outcomes and manifests remain targets. No new hosted migration or model change; required previously accepted retrieval prerequisites are included in the scoped commit.

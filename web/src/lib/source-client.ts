@@ -376,7 +376,7 @@ export function createSourceClient(
       return result;
     },
     async previewLearning(sourceId:string,input:LearningPreviewInput) {
-      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/preview`,{method:'POST',body:JSON.stringify(input)}),learningSnapshotSchema);
+      const result=await parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/preview`,{method:'POST',body:JSON.stringify(input),signal:AbortSignal.timeout(input.evidence_mode==='capture'?150000:120000)}),learningSnapshotSchema);
       if(result.source_id!==sourceId)throw new Error('The learning collection changed. Reload and retry.');
       return result;
     },

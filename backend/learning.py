@@ -7,6 +7,7 @@ from backend.learning_models import LearningHistory, LearningCandidates, Revisio
 
 from backend.learning_models import LearningSnapshot, PreviewRequest, AttemptRequest, ActivityRequest, TutorQuestion, TutorReply
 from backend.learning_generation import LearningGenerator
+from backend.capture_learning import select_capture_teaching, revalidate_capture_teaching
 from backend.study_generation import GenerationFailure
 from backend.learning_store import LearningStore
 from backend.sources import SourceGateway, owned_sources
@@ -58,17 +59,29 @@ async def preview_learning(source_id: UUID, payload: PreviewRequest, gateway: So
         context = await store.preview_context(source_id, payload)
         if context.lease_token is None:
             return await store.read(source_id)
+        manifest, snapshots = None, None
         try:
-            async with httpx.AsyncClient(trust_env=False) as client:
-                draft, model, references = await LearningGenerator(client).preview(context, payload.goal, payload.difficulty, payload.path_id is not None)
-        except GenerationFailure:
-            await store.finish_preview(source_id, context)
+            if payload.evidence_mode == "capture":
+                selected = await select_capture_teaching(gateway, context, payload.goal)
+                async with httpx.AsyncClient(trust_env=False) as client:
+                    draft, manifest, model = await LearningGenerator(client).capture_preview(context, payload.goal, payload.difficulty, selected.references)
+                await revalidate_capture_teaching(gateway, context, selected)
+                references, snapshots = selected.references, selected.snapshots
+            else:
+                async with httpx.AsyncClient(trust_env=False) as client:
+                    draft, model, references = await LearningGenerator(client).preview(context, payload.goal, payload.difficulty, payload.path_id is not None)
+        except (GenerationFailure, StudyStorageError, HTTPException, TimeoutError):
+            # Release a failed preview without replacing the original failure.
+            try:
+                await store.finish_preview(source_id, context)
+            except StudyStorageError:
+                pass
             raise
         return await store.finish_preview(source_id, context, draft=draft, model=model,
-                                          goal=payload.goal.strip() or draft.suggested_goal, references=references)
+            goal=payload.goal.strip() or draft.suggested_goal, references=references, manifest=manifest, snapshots=snapshots)
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
-    except GenerationFailure as exc:
+    except (GenerationFailure, TimeoutError) as exc:
         raise HTTPException(503, "The learning preview could not be generated. Your source and previous progress are safe; retry.") from exc
 
 

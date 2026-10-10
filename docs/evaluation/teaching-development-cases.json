@@ -1,0 +1,259 @@
+{
+  "version": "teaching_development_v1",
+  "provenance": "Author-written synthetic source fragments; no external source or learner answer.",
+  "review_status": "independent_agent_reviewed",
+  "cases": [
+    {
+      "id": "article-qualified-checkpoint",
+      "kind": "article",
+      "note_excerpt": "Checkpoints record progress so a job can resume after an interruption.",
+      "support_excerpt": "After an outage, the checkpoint retains sixteen committed segments. Uncommitted segments must be replayed; a checkpoint does not make every in-flight operation durable.",
+      "goal": "Explain which work survives an outage and which work needs replay.",
+      "expected_concepts": [
+        "Committed segments survive",
+        "Uncommitted work needs replay"
+      ],
+      "forbidden_claims": [
+        "All in-flight operations survive",
+        "No replay is necessary"
+      ],
+      "question": "A job loses power with committed and uncommitted work. What can it recover?",
+      "criteria": [
+        "Distinguishes committed from uncommitted work",
+        "Explains replay without claiming universal durability"
+      ],
+      "answers": [
+        {
+          "text": "Keep the sixteen saved segments and redo work that was not committed.",
+          "assessments": [
+            "addressed",
+            "addressed"
+          ],
+          "reason": "Equivalent wording covers both recovery conditions."
+        },
+        {
+          "text": "The checkpoint saves sixteen segments.",
+          "assessments": [
+            "try_again",
+            "try_again"
+          ],
+          "reason": "Names saved work but does not distinguish unsaved work or replay."
+        },
+        {
+          "text": "Everything in flight survives, so nothing is replayed.",
+          "assessments": [
+            "try_again",
+            "try_again"
+          ],
+          "reason": "Contradicts the explicit qualification."
+        },
+        {
+          "text": "It depends on what got saved.",
+          "assessments": [
+            "uncertain",
+            "uncertain"
+          ],
+          "reason": "Too ambiguous to establish either criterion; request elaboration."
+        }
+      ]
+    },
+    {
+      "id": "pdf-limit-not-zero-interval",
+      "kind": "pdf",
+      "location": {
+        "physical_page": 6
+      },
+      "note_excerpt": "The derivative describes a local rate of change and a tangent slope.",
+      "support_excerpt": "For f(x) = x², the average rate over h ≠ 0 is ((x+h)² − x²)/h = 2x+h. Taking h toward zero gives 2x. This limit does not require dividing by an interval of exactly zero.",
+      "goal": "Explain the difference between a limiting rate and division by zero.",
+      "expected_concepts": [
+        "Nonzero finite difference",
+        "Limit of 2x+h is 2x",
+        "No division by zero"
+      ],
+      "forbidden_claims": [
+        "Set h=0 in the quotient",
+        "A measurable change occurs across zero duration"
+      ],
+      "question": "Why can a derivative be finite even though the interval shrinks?",
+      "criteria": [
+        "Keeps h nonzero in finite quotients",
+        "Uses a limit rather than substituting zero"
+      ],
+      "answers": [
+        {
+          "text": "For each nonzero h the quotient is 2x+h; these values approach 2x as h approaches zero.",
+          "assessments": [
+            "addressed",
+            "addressed"
+          ],
+          "reason": "Valid limiting reasoning, without requiring verbatim text."
+        },
+        {
+          "text": "It approaches 2x.",
+          "assessments": [
+            "try_again",
+            "uncertain"
+          ],
+          "reason": "Omits the nonzero quotient; 'it' does not specify what approaches the limit."
+        },
+        {
+          "text": "Put zero into the denominator and cancel it.",
+          "assessments": [
+            "try_again",
+            "try_again"
+          ],
+          "reason": "Invalid division by zero."
+        }
+      ]
+    },
+    {
+      "id": "transcript-cancellation-cleanup",
+      "kind": "video",
+      "location": {
+        "start_ms": 13000,
+        "end_ms": 18000
+      },
+      "note_excerpt": "A task can be cancelled while it awaits an operation.",
+      "support_excerpt": "In this example, cleanup releases the resource in a finally block. If CancelledError is caught, re-raise it after cleanup so the caller can observe cancellation. The snippet illustrates this task; it is not a complete concurrency library.",
+      "goal": "Explain why resource cleanup and cancellation propagation are separate responsibilities.",
+      "expected_concepts": [
+        "Release resources",
+        "Propagate cancellation",
+        "Example scope is limited"
+      ],
+      "forbidden_claims": [
+        "Swallow cancellation after cleanup",
+        "This snippet guarantees all concurrency behavior"
+      ],
+      "question": "How should this example handle both its resource and cancellation?",
+      "criteria": [
+        "Describes resource release",
+        "Preserves cancellation for the caller"
+      ],
+      "answers": [
+        {
+          "text": "Release the resource, then raise CancelledError again rather than return success.",
+          "assessments": [
+            "addressed",
+            "addressed"
+          ],
+          "reason": "Covers both responsibilities."
+        },
+        {
+          "text": "Re-raise CancelledError so the caller observes cancellation.",
+          "assessments": [
+            "try_again",
+            "addressed"
+          ],
+          "reason": "Preserves cancellation but does not describe the separately requested resource handling."
+        },
+        {
+          "text": "Free the resource and suppress the error.",
+          "assessments": [
+            "addressed",
+            "try_again"
+          ],
+          "reason": "Correct cleanup, incorrect cancellation propagation."
+        }
+      ]
+    },
+    {
+      "id": "sparse-missing-figure",
+      "kind": "pdf",
+      "location": {
+        "physical_page": 2
+      },
+      "note_excerpt": "A diagram is referenced in the document.",
+      "support_excerpt": "Figure 2 illustrates the layout. The captured text does not include the figure, its axis labels, or any numerical measurements.",
+      "goal": "Estimate the slope shown in Figure 2.",
+      "expected_concepts": [],
+      "expected_gap": "The figure and measurements are unavailable; do not estimate a numeric slope.",
+      "forbidden_claims": [
+        "The slope is 4",
+        "The axes show metres and seconds"
+      ],
+      "question": null,
+      "criteria": [],
+      "answers": []
+    },
+    {
+      "id": "conflicting-measurement-conditions",
+      "kind": "article",
+      "note_excerpt": "Two measurements report different runtimes.",
+      "support_excerpt": "Report A measured 12 seconds with a warm cache. Report B measured 20 seconds with a cold cache. The reports use different conditions and do not establish which implementation is faster under identical conditions.",
+      "goal": "Compare the two reports without claiming an unsupported winner.",
+      "expected_concepts": [
+        "Separate reported measurements",
+        "Different cache conditions",
+        "No controlled comparison"
+      ],
+      "forbidden_claims": [
+        "Implementation A is universally faster",
+        "The reports independently corroborate identical performance"
+      ],
+      "question": "Does 12 seconds versus 20 seconds establish which implementation is better?",
+      "criteria": [
+        "Identifies different cache conditions",
+        "Avoids an unsupported universal ranking"
+      ],
+      "answers": [
+        {
+          "text": "No: warm and cold caches differ, so we need comparable conditions before choosing a winner.",
+          "assessments": [
+            "addressed",
+            "addressed"
+          ],
+          "reason": "Preserves the qualification."
+        },
+        {
+          "text": "A is always faster because 12 is less than 20.",
+          "assessments": [
+            "try_again",
+            "try_again"
+          ],
+          "reason": "Ignores conditions and overgeneralizes."
+        }
+      ]
+    },
+    {
+      "id": "code-and-qualified-complexity",
+      "kind": "article",
+      "note_excerpt": "Dictionary lookup can be useful for finding a value.",
+      "support_excerpt": "The example uses value = cache.get(key). Assume bounded hash and equality cost, bounded load factor, and well-distributed hash values. Under these hash-table assumptions, expected lookup cost is O(1); that expected bound is not a worst-case guarantee for every input or implementation.",
+      "goal": "Explain the example and distinguish an expected bound from a worst-case guarantee.",
+      "expected_concepts": [
+        "cache.get(key)",
+        "Expected O(1) under stated assumptions",
+        "No universal worst-case guarantee"
+      ],
+      "forbidden_claims": [
+        "Every lookup has guaranteed constant time",
+        "The example proves all dictionary implementations share this bound"
+      ],
+      "question": "What does the expected O(1) statement let you conclude?",
+      "criteria": [
+        "Retains the conditional scope of the stated bound",
+        "Distinguishes expectation from worst-case guarantee"
+      ],
+      "answers": [
+        {
+          "text": "Under those hash-table assumptions the expected lookup cost is constant, but an individual worst case need not be.",
+          "assessments": [
+            "addressed",
+            "addressed"
+          ],
+          "reason": "Equivalent valid explanation retains both limits."
+        },
+        {
+          "text": "It is constant time.",
+          "assessments": [
+            "uncertain",
+            "try_again"
+          ],
+          "reason": "Assumptions are unclear and the expected/worst-case distinction is absent."
+        }
+      ]
+    }
+  ]
+}

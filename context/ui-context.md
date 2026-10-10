@@ -1,5 +1,9 @@
 # UI Context
 
+## Full-capture learning preview — implemented in development, 2026-10-10
+
+New source-based path forms default to Full captured source, with explicit Saved note passages as an alternative. Ready-index/no-hit failures preserve the goal and chosen mode. The preview and Path evidence panel show an AI-generated sampled concept map, qualifications, gaps and exact source links. New capture-plan citations use ordinal display numbers consistently across lessons/practice/tutor/map while original IDs drive evidence dialogs; old plans keep existing labels. The interface states that only the selected source participates and that generation uses a sample. Difficulty and multi-source revisions retain the saved-note policy. Existing plans, attempts and drafts remain unchanged. Actual 200% zoom and screen-reader acceptance remain open; see docs/reviews/capture-teaching-acceptance-2026-10-10.md.
+
 ## Web saved tutor conversations — implemented in development, 2026-10-10
 
 Collection lesson tutors restore saved exchanges on re-entry/reload, with AI provenance, exact citations and historical/redacted evidence labels. Pending/failed sends keep the question, show Retry the same send, and block accidental duplicate questions. Reload recovers connection/session initialization failures. Question drafts stay separate. Download exports current lesson history; Clear has focused confirmation/cancel and retains drafts/attempts. Removed-anchor history exposes Recover drafts and lesson conversations, with redacted replies.

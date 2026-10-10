@@ -1,5 +1,13 @@
 # Scope: AI Second Brain
 
+## U3a2 implemented in development — 2026-10-10
+
+[#36](https://github.com/CloudKai/secondBrain/issues/36) under #29: initial source paths can use full captured material through existing BM25/semantic retrieval. New immutable plans have a cited, sampled concept/coverage manifest; explicit Saved note passages remains compatible. Original spans/pages/times, ownership, capture/index snapshots and failed-preview recovery are enforced. No existing learning is regenerated; multi-source revisions still use their existing saved-note policy.
+
+Migration **022 applied after exact approval**; live MIT PDF previews persist Luna-generated lessons and exact original page references without activation. The current lesson, draft, conversation and 0 studied / 2 attempts / 2 provisional checks remain intact. **361 workspace backend / 134 web; 295 isolated backend / 121 web tests**, web typecheck/lint/build pass. Exact uv runner still has the system-pytest dependency issue. Separate reviews clear. See [acceptance](docs/reviews/capture-teaching-acceptance-2026-10-10.md).
+
+#36 stays open for actual 200% zoom/screen-reader checks. Independently reviewed synthetic cases and one live PDF do not calibrate teaching or grading. **Next target U3a3**: outcome-specific full-capture evidence for multi-source contribution previews, then U3b stable outcomes/practice. U4/U5 remain target work. No push/mobile/iOS/TinyFish; older WIP stays separate. Checkpoint before the next unit.
+
 ## Web U3a1 development checkpoint — 2026-10-10
 
 Completed owned read-only teaching evidence preview (#35/#29), using full captured sources within confirmed plan membership, current BM25+dense RRF and original citation spans. Explicit partial-index consent and sampling limitations; exact owner/version/hash/index/membership fences; bounded selection. Existing lessons and history unchanged, no new migration/model/teaching generation policy. Acceptance: docs/reviews/teaching-evidence-acceptance-2026-10-10.md. 344 workspace backend/126 web;278 isolated backend/113 web; typecheck/lint/build pass and separate reviews clean.

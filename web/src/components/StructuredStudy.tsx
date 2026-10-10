@@ -3,8 +3,10 @@ import type { StudyNote } from "../lib/study-note";
 export function StudyCitations({
   ids,
   onCitation,
+  references,
 }: {
   ids: string[];
+  references?: {id:string}[];
   onCitation: (id: string) => void;
 }) {
   return (
@@ -16,7 +18,7 @@ export function StudyCitations({
           aria-label={`Inspect source passage ${id}`}
           onClick={() => onCitation(id)}
         >
-          {Number(id.slice(1)) || id}
+          {references?.some(reference=>reference.id===id)?references.findIndex(reference=>reference.id===id)+1:Number(id.slice(1)) || id}
         </button>
       ))}
     </span>

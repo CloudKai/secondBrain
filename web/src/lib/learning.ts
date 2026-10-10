@@ -14,12 +14,14 @@ const content=z.object({title:text(160),outcomes:z.array(text(500)).min(1).max(5
 const evidence=z.object({id:text(16),source_id:z.string().uuid(),source_version:z.number().int().min(1).max(20),title:text(200),passage:referenceSchema}).strict();
 const member=z.object({source_id:z.string().uuid(),source_version:z.number().int().min(1).max(20),title:text(200),topic_fingerprint:z.string().length(32)}).strict();
 const revision=z.object({contributions:z.array(explanation).min(1).max(5),ordering_changes:text(1000),disagreements:z.array(explanation).max(5)}).strict();
+const teaching=z.object({selector_policy:z.literal('teaching_evidence_v1'),source_id:z.string().uuid(),source_version:z.number().int().min(1).max(20),capture_sha256:z.string().regex(/^[a-f0-9]{64}$/),index_generation:z.string().uuid(),manifest:z.object({policy_version:z.literal('teaching_manifest_v1'),coverage:text(1000),gaps:z.array(text(500)).max(5),entries:z.array(z.object({kind:z.enum(['concept','prerequisite','example','qualification']),text:text(500),citation_ids:ids}).strict()).min(1).max(24)}).strict()}).strict();
 const plan=z.object({id:z.string().uuid(),path_id:z.string().uuid(),request_id:z.string().uuid(),source_id:z.string().uuid().nullable(),source_title:text(200),source_version:z.number().int().min(1).max(20),goal:text(500),difficulty,content,
-  references:z.array(referenceSchema).max(100),evidence:z.array(evidence).max(100).default([]),source_members:z.array(member).max(8).default([]),revision:revision.nullable().default(null),base_plan_id:z.string().uuid().nullable().default(null),branch_of_plan_id:z.string().uuid().nullable().default(null),confirmed_at:z.string().datetime({offset:true}).nullable(),active:z.boolean(),needs_review:z.boolean(),model:z.enum(['gpt-6-luna','gpt-6.1-sol']),policy_version:z.literal('learning_v1'),created_at:z.string().datetime({offset:true})}).strict().superRefine((value,ctx)=>{
+  references:z.array(referenceSchema).max(100),teaching:teaching.nullable().optional(),evidence:z.array(evidence).max(100).default([]),source_members:z.array(member).max(8).default([]),revision:revision.nullable().default(null),base_plan_id:z.string().uuid().nullable().default(null),branch_of_plan_id:z.string().uuid().nullable().default(null),confirmed_at:z.string().datetime({offset:true}).nullable(),active:z.boolean(),needs_review:z.boolean(),model:z.enum(['gpt-6-luna','gpt-6.1-sol']),policy_version:z.literal('learning_v1'),created_at:z.string().datetime({offset:true})}).strict().superRefine((value,ctx)=>{
   const historical=value.needs_review&&!value.references.length&&(value.source_id===null||!!value.source_members.length);
   if(!value.references.length&&!historical)ctx.addIssue({code:'custom',message:'Current teaching requires evidence'});
   if(value.evidence.length&&(value.evidence.length!==value.references.length||value.evidence.some((item,index)=>JSON.stringify({...item.passage,id:item.id})!==JSON.stringify(value.references[index]))))ctx.addIssue({code:'custom',message:'Invalid original passage mapping'});
   const refs=new Set(value.references.map(ref=>ref.id));
+  if(value.teaching&&(value.teaching.source_id!==value.source_id||value.teaching.source_version!==value.source_version||value.teaching.manifest.entries.some(entry=>entry.citation_ids.some(id=>!refs.has(id)))))ctx.addIssue({code:'custom',message:'Invalid teaching manifest'});
   if(value.revision&&!historical&&[...value.revision.contributions,...value.revision.disagreements].some(claim=>claim.citation_ids.some(id=>!refs.has(id))))ctx.addIssue({code:'custom',message:'Unknown revision evidence'});
   if(refs.size!==value.references.length||value.active&&!value.confirmed_at||!historical&&value.content.lessons.some(item=>[item.explanation,item.check.worked_answer,...(item.example?[item.example]:[])].some(claim=>claim.citation_ids.some(id=>!refs.has(id)))))
     ctx.addIssue({code:'custom',message:'Invalid teaching attribution'});
@@ -47,7 +49,7 @@ export type LearningSnapshot=z.infer<typeof learningSnapshotSchema>;
 export type LearningPlan=z.infer<typeof plan>;
 export type LearningDifficulty=z.infer<typeof difficulty>;
 export type LearningActivity=z.infer<typeof activity>;
-export interface LearningPreviewInput {request_id:string;source_version:number;goal:string;difficulty:LearningDifficulty;path_id:string|null}
+export interface LearningPreviewInput {request_id:string;source_version:number;goal:string;difficulty:LearningDifficulty;path_id:string|null;evidence_mode?:'note'|'capture'}
 export interface LearningAttemptInput {request_id:string;lesson_index:number;response:string}
 export const learningTutorSchema=z.object({text:text(2000),citation_ids:z.array(text(16)).max(10),gap:text(500).nullable()}).strict().refine(value=>!!value.citation_ids.length||!!value.gap);
 export type LearningTutorReply=z.infer<typeof learningTutorSchema>;
