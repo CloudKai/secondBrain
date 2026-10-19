@@ -1,5 +1,26 @@
 # Scope: AI Second Brain
 
+## Vercel services configuration prepared — 2026-10-20
+
+Root configuration defines `backend` (FastAPI) and `web` (Vite), with public
+`/api/*` and catch-all web routing. The deployment entrypoint preserves existing
+Python package imports and PDF subprocess execution; `/api/health` provides a
+routed health check. Browser
+calls already use same-origin `/api/v2`, so no runtime service bindings apply.
+External ARQ worker hosting and provider configuration are documented in
+[Vercel deployment](docs/vercel-deployment.md).
+
+**Verified locally:** isolated flattened-service import and health/auth/404
+checks; 361 backend tests via the existing virtual environment; 134 web tests;
+web build/typecheck/lint. The exact uv test command selects system pytest and
+fails collection on missing `langchain_openai`. Vercel CLI 64.5.0 accepts both
+services and starts Vite; backend startup requires uv >=0.9.25 (installed 0.7.12).
+CLI login refresh also appeared; validation was stopped. Combined `vercel dev -L`
+acceptance is not verified. **Pending:** user confirmation of service names,
+public paths, no bindings, and separate worker hosting; updated local uv/CLI
+authentication, combined routing checks and hosted deployment acceptance.
+No deployment or native change.
+
 ## U3a2 implemented in development — 2026-10-10
 
 [#36](https://github.com/CloudKai/secondBrain/issues/36) under #29: initial source paths can use full captured material through existing BM25/semantic retrieval. New immutable plans have a cited, sampled concept/coverage manifest; explicit Saved note passages remains compatible. Original spans/pages/times, ownership, capture/index snapshots and failed-preview recovery are enforced. No existing learning is regenerated; multi-source revisions still use their existing saved-note policy.

@@ -1,5 +1,24 @@
 # Web Progress Tracker
 
+## Vercel services configuration prepared — 2026-10-20
+
+- Added root `vercel.json`: FastAPI `backend` at `/api/*`, static Vite `web` for
+  remaining paths. No server-to-server calls exist between these services;
+  browser requests already use the public same-origin API, so no bindings apply.
+- Added a service-root Python entrypoint, independent PDF subprocess path and
+  `/api/health`; documented project
+  root/environment setup and separate ARQ worker hosting in
+  [Vercel deployment](../docs/vercel-deployment.md).
+- Verified isolated flattened-bundle imports, health/auth/API 404 checks,
+  361 backend tests through `backend/.venv/bin/python`, 134 web tests, and web
+  build/typecheck/lint. Exact uv test command fails on the previously recorded
+  system-pytest dependency problem (`langchain_openai`).
+- Vercel CLI 64.5.0 accepts both services and starts Vite; backend startup needs
+  uv >=0.9.25 (installed 0.7.12). CLI also attempts saved-login refresh; validation
+  stopped. Combined local and hosted acceptance remain unverified; service names, public routing,
+  absence of bindings and external worker hosting await user confirmation.
+  No deployment, push, database change or native work.
+
 ## U3a2 implemented in development — 2026-10-10
 
 [#36](https://github.com/CloudKai/secondBrain/issues/36) under #29: initial source paths can use full captured material through existing BM25/semantic retrieval. New immutable plans have a cited, sampled concept/coverage manifest; explicit Saved note passages remains compatible. Original spans/pages/times, ownership, capture/index snapshots and failed-preview recovery are enforced. No existing learning is regenerated; multi-source revisions still use their existing saved-note policy.

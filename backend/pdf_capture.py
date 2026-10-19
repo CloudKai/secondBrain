@@ -4,6 +4,7 @@ import asyncio
 import json
 import sys
 import logging
+from pathlib import Path
 
 import httpx
 
@@ -70,8 +71,7 @@ async def capture_pdf(data: bytes, filename: str | None = None, *, pages: PageRa
         raise ValueError("PDFs must be 10 MB or smaller. Export a smaller document.")
     process = await asyncio.create_subprocess_exec(
         sys.executable,
-        "-m",
-        "backend.pdf_extraction",
+        str(Path(__file__).with_name("pdf_extraction.py")),
         *([str(pages.start), str(pages.end)] if pages else []),
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,

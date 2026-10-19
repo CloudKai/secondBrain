@@ -6,6 +6,7 @@ __pycache__/
 .env.*
 !.env.example
 .codex
+.vercel/
 
 # Downloaded agent skills remain local; shared instructions and the lockfile are tracked.
 /.agents/skills/

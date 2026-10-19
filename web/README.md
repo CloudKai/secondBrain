@@ -23,6 +23,10 @@ current capability status.
 
 ## Run
 
+For the prepared single-project Vercel services configuration, environment setup,
+separate worker hosting and verification steps, see
+[Vercel deployment](../docs/vercel-deployment.md). Hosted acceptance is pending.
+
 From the repository root:
 
 ```sh

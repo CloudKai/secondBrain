@@ -4,7 +4,11 @@ from io import BytesIO
 import json
 import resource
 import sys
-from backend.capture_limits import MAX_CAPTURE_CHARS
+if __package__:
+    from backend.capture_limits import MAX_CAPTURE_CHARS
+else:
+    # Direct execution also works when backend/ is flattened into a service root.
+    from capture_limits import MAX_CAPTURE_CHARS
 
 
 def extract(data: bytes, page_start: int | None = None, page_end: int | None = None) -> dict:

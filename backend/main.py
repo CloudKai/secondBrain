@@ -27,6 +27,7 @@ app.include_router(research_router)
 app.include_router(learning_router)
 
 
+@app.get("/api/health", tags=["system"])
 @app.get("/health", tags=["system"])
 async def health() -> dict[str, str]:
     return {"status": "ok"}

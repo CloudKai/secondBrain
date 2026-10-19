@@ -5,6 +5,10 @@
 **Scope:** iOS/native progress. Web work is recorded separately in
 [web-progress-tracker.md](web-progress-tracker.md).
 
+**2026-10-20 deployment configuration:** API/web Vercel services preparation is
+recorded in the web tracker and `docs/vercel-deployment.md`. It does not deploy
+or change the mobile app; hosted acceptance and user confirmation remain pending.
+
 **Verified baseline:** native Phase 1–2 share-to-knowledge flow, interactive graph
 and simulator checks are recorded below. Web implementation does not change this
 native acceptance status.
