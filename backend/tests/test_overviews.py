@@ -150,7 +150,8 @@ async def synthesis_conflicts():
         body = json.loads(request.content)
         assert "RAG reduced errors" in json.dumps(body)
         payload = json.loads(body["messages"][1]["content"])
-        assert [e["id"] for source in payload for e in source["evidence"]] == refs
+        sources = payload["input"] if isinstance(payload, dict) else payload
+        assert [e["id"] for source in sources for e in source["evidence"]] == refs
         assert SOURCE not in json.dumps(payload) and second not in json.dumps(payload)
         return httpx.Response(
             200,

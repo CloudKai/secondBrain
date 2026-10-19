@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {ArrowUp,BookOpen,Globe2,Network,Sparkles} from 'lucide-react';
 import type {SourceClient} from '../lib/source-client';
+import AssistantExcerptCards from './AssistantExcerptCards';
 import type {AssistantAnswer,AssistantReference} from '../lib/assistant-answer';
 interface Message {question:string;answer:AssistantAnswer;scope:string;}
 export default function SavedAssistant({sourceId,sourceVersion,topics,client,onCitation,onDiscover}:{sourceId:string;sourceVersion:number;topics:{id:string;title:string}[];client:SourceClient;onCitation:(ref:AssistantReference)=>Promise<void>;onDiscover:(query:string)=>void}){
@@ -24,10 +25,10 @@ export default function SavedAssistant({sourceId,sourceVersion,topics,client,onC
  }
  return <section className="assistant" aria-labelledby="saved-assistant-title">
   <div className="assistant-heading"><span className="assistant-icon"><Sparkles size={19} aria-hidden="true"/></span><div><h3 id="saved-assistant-title">A little help connecting the dots</h3><p>Ask questions grounded in your saved material.</p></div><span className="badge">Saved evidence</span></div>
-  <p className="micro-copy">Current note is always included. Topic and library context can be selected together. Answers use saved passages; verify the citations.</p>
+  <p className="micro-copy">Current note is always included. Topic and library context can be selected together. Answers show source excerpts in reading cards. Wording is preserved; spacing may be simplified. Open a numbered citation to read it in context.</p>
   <div className="conversation" role="log" aria-live="polite" aria-label="Study conversation" aria-busy={working}>
-   {messages.map((m,i)=><div key={i}><div className="message user"><small>YOU · {m.scope}</small><p>{m.question}</p></div><div className="message assistant"><small>SECOND BRAIN · SAVED EVIDENCE</small>
-    {m.answer.claims.map((c,j)=><p key={j}>{c.text}{' '}<span className="study-citations">{c.reference_ids.map(id=>{const index=m.answer.references.findIndex(r=>r.id===id);const ref=m.answer.references[index];return <button key={id} className="citation" aria-label={`Inspect citation ${index+1}: ${ref.title}, passage ${ref.passage.id}`} onClick={()=>void cite(ref)}>{index+1}</button>;})}</span></p>)}
+   {messages.map((m,i)=><div key={i}><div className="message user"><small>YOU · {m.scope}</small><p>{m.question}</p></div><div className="message assistant"><small>SECOND BRAIN · SOURCE EXCERPTS</small>
+    <AssistantExcerptCards references={m.answer.references} onCitation={ref=>void cite(ref)}/>
     {m.answer.gap&&<><p>{m.answer.gap}</p><button className="text-button" onClick={()=>onDiscover(m.question)}>Find reliable sources <Globe2 size={14} aria-hidden="true"/></button><p className="micro-copy">Opens external research with your question ready to search. Results enter your library only when you save them.</p></>}
     {m.answer.partial&&<p className="micro-copy">This answer uses selected passages from the retrieved notes. Some saved evidence was omitted to keep the context bounded.</p>}
    </div></div>)}

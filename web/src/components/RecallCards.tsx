@@ -1,3 +1,4 @@
+import ReadingText from './ReadingText';
 import { useState } from "react";
 import { ArrowRight, Check, RotateCcw, Sparkles } from "lucide-react";
 import type { Note } from "../types";
@@ -30,15 +31,14 @@ export default function RecallCards({
       </div>
       <h3>{card.question}</h3>
       {revealed && (
-        <p className="recall-answer">
-          {card.answer}
+        <div className="recall-answer"><ReadingText text={card.answer}>
           {onCitation && note.study?.note && (
             <StudyCitations
               ids={note.study.note.recall[index].citation_ids}
               onCitation={onCitation}
             />
           )}
-        </p>
+        </ReadingText></div>
       )}
       <div className="recall-actions">
         {!revealed ? (

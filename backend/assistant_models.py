@@ -1,6 +1,6 @@
 """Bounded questions and saved passage attribution for the study assistant."""
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import UUID
 from pydantic import Field, model_validator
 from backend.schemas import StrictModel
@@ -48,9 +48,30 @@ class AssistantClaim(StrictModel):
     reference_ids: list[str] = Field(min_length=1, max_length=10)
 
 
+class DraftAssistantClaim(AssistantClaim):
+    text: str = Field(min_length=1, max_length=600, description=
+        'One concise, self-contained, independently checkable statement with its necessary qualification. '
+        'Preserve the source uncertainty and scope; do not bundle independent facts into a paragraph.')
+    reference_ids: list[str] = Field(min_length=1, max_length=10, description=
+        'Only evidence IDs supporting this particular statement and its qualifiers. '
+        'A comparison needs evidence from every compared source.')
+    comparison_source_keys: (Annotated[list[str], Field(max_length=0)] |
+                             Annotated[list[str], Field(min_length=2, max_length=9)]) = Field(description=
+        'Only for a statement comparing TWO OR MORE DISTINCT SAVED SOURCES: list every compared '
+        'source_key, each with its own supporting reference_ids. For every other statement return []. '
+        'Comparing methods, settings or results described WITHIN ONE source also returns [], never [source1]. '
+        'These keys are private metadata, never answer prose.')
+
+    @model_validator(mode='after')
+    def comparison_identity(self):
+        if len(self.comparison_source_keys) == 1 or len(set(self.comparison_source_keys)) != len(self.comparison_source_keys):
+            raise ValueError('A source comparison needs distinct source keys')
+        return self
+
+
 class DraftAssistantAnswer(StrictModel):
     status: Literal['supported', 'unsupported']
-    claims: list[AssistantClaim] = Field(max_length=8)
+    claims: list[DraftAssistantClaim] = Field(max_length=8)
     gap: str | None = Field(max_length=1000)
 
     @model_validator(mode='after')
@@ -71,6 +92,8 @@ class AssistantReference(StrictModel):
 
 
 class AssistantAnswer(DraftAssistantAnswer):
+    # The stricter provider draft does not narrow historical/public answers.
+    claims: list[AssistantClaim] = Field(max_length=8)
     references: list[AssistantReference] = Field(max_length=80)
     partial: bool
     source_ids: list[UUID] = Field(min_length=1, max_length=9)

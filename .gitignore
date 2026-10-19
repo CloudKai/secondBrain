@@ -19,3 +19,7 @@ web/dist/
 # Local browser verification artifacts
 .playwright-cli/
 output/playwright/
+
+# Local evaluation reports contain captured passages and model outputs.
+output/evaluation/
+.deepeval/

@@ -128,17 +128,24 @@ class TopicClaim(StrictModel):
 class DraftTopic(StrictModel):
     key: str = Field(min_length=1, max_length=100, pattern=r"^[a-z0-9-]+$")
     title: str = Field(min_length=1, max_length=100)
-    context: str = Field(min_length=1, max_length=100)
+    context: str | None = Field(min_length=1, max_length=100,
+        description="Return null when existing_topic_id is selected: the server copies its owned catalog context. For a new topic, including an uncertain suggested placement, provide its short domain or setting.")
     aliases: list[ShortText] = Field(max_length=6)
     groups: list[ShortText] = Field(max_length=4)
     description: str = Field(min_length=1, max_length=500)
     role: Literal["main", "supporting"]
     coverage: Literal["substantive", "mention"]
     citation_ids: list[str] = Field(min_length=1, max_length=10)
-    existing_topic_id: str | None
+    existing_topic_id: str | None = Field(description="An existing catalog UUID only for a clear semantic and contextual match. When present, return context:null; the server retains that catalog topic's context.")
     uncertain: bool
     suggested_topic_id: str | None
     placement_reason: str = Field(min_length=1, max_length=500)
+
+    @model_validator(mode='after')
+    def context_origin(self):
+        if not self.existing_topic_id and self.context is None:
+            raise ValueError('A new or suggested topic needs its own context')
+        return self
 
 
 class DraftRelation(StrictModel):

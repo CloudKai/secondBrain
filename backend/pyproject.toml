@@ -20,6 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3,<9"]
+eval = ["deepeval==4.2.8"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

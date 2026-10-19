@@ -18,6 +18,7 @@ from backend.topic_library import build_topic_library
 from backend.topic_models import TopicDescription
 from backend.overview_store import OverviewStore
 from backend.overview_generation import OverviewGenerator
+from backend.retrieval_indexing import index_source
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +129,33 @@ async def build_topic_overview(ctx: dict, job_id: str) -> None:
         await store.finish(claim, overview=overview)
 
 
+async def dispatch_pending_indexes(ctx: dict) -> None:
+    if not ctx.get("retrieval_enabled", False):
+        return
+    config = ctx["retrieval_config"]
+    values = await StudyStore(ctx["storage_client"], config["SUPABASE_URL"],
+                              {"apikey": config["SUPABASE_SECRET_KEY"]}).request(
+        "/rpc/due_retrieval_indexes", body={"p_limit": 25})
+    if not isinstance(values, list) or len(values) > 25:
+        raise StudyStorageError()
+    try:
+        ids = [UUID(value) for value in values]
+    except (ValueError, TypeError, AttributeError) as exc:
+        raise StudyStorageError() from exc
+    for source_id in ids:
+        await ctx["redis"].enqueue_job("build_source_index", str(source_id), _job_id=f"index:{source_id}")
+
+
+async def build_source_index(ctx: dict, source_id: str) -> None:
+    config = ctx["retrieval_config"]
+    required = ("QDRANT_URL", "QDRANT_API_KEY", "OPENAI_API_KEY")
+    if any(not config.get(k) or config[k] == "replace-me" for k in required):
+        raise RuntimeError("Configure server retrieval settings before indexing")
+    await index_source(ctx["storage_client"], config["SUPABASE_URL"],
+        config["SUPABASE_SECRET_KEY"], config["QDRANT_URL"], config["QDRANT_API_KEY"],
+        config["OPENAI_API_KEY"], source_id)
+
+
 async def startup(ctx: dict) -> None:
     values = {
         name: os.getenv(name, "")
@@ -141,6 +169,8 @@ async def startup(ctx: dict) -> None:
     storage_client = httpx.AsyncClient(timeout=10, trust_env=False)
     model_client = httpx.AsyncClient(timeout=60, trust_env=False)
     ctx.update(
+        retrieval_enabled=os.getenv("ENABLE_RETRIEVAL_INDEXING", "false").lower() == "true",
+        retrieval_config={**values, **{name: os.getenv(name, "") for name in ("QDRANT_URL", "QDRANT_API_KEY")}},
         storage_client=storage_client,
         model_client=model_client,
         store=StudyStore(
@@ -173,7 +203,7 @@ async def shutdown(ctx: dict) -> None:
 
 
 class WorkerSettings:
-    functions = [build_source_study, build_source_topics, build_topic_overview]
+    functions = [build_source_study, build_source_topics, build_topic_overview, build_source_index]
     cron_jobs = [
         cron(
             dispatch_pending_studies,
@@ -198,6 +228,8 @@ class WorkerSettings:
             timeout=60,
         )
     )
+    cron_jobs.append(cron(dispatch_pending_indexes, second={9, 19, 29, 39, 49, 59},
+                          run_at_startup=True, timeout=60))
     on_startup = startup
     on_shutdown = shutdown
     max_jobs = 4

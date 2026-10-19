@@ -1,0 +1,446 @@
+{
+  "schema_version": 1,
+  "purpose": "Manually reviewed development regressions; not held-out or independently labeled. Expected labels apply only to the supplied excerpt.",
+  "cases": [
+    {
+      "id": "reported-heads-support",
+      "group": "reported-heads",
+      "split": "development",
+      "claim": "The paper uses eight parallel attention heads.",
+      "expected_label": "supported",
+      "rationale": "Eight is stated for this work.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 3022,
+          "end": 3087,
+          "excerpt": "In this work we employ h = 8 parallel attention layers, or heads.",
+          "page": 5,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "reported-heads-contradict",
+      "group": "reported-heads",
+      "split": "development",
+      "claim": "The paper uses four parallel attention heads.",
+      "expected_label": "contradicted",
+      "rationale": "Four conflicts with the stated eight.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 3022,
+          "end": 3087,
+          "excerpt": "In this work we employ h = 8 parallel attention layers, or heads.",
+          "page": 5,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "reported-heads-missing",
+      "group": "reported-heads",
+      "split": "development",
+      "claim": "Every Transformer model must use eight attention heads.",
+      "expected_label": "not_addressed",
+      "rationale": "A configuration of this work does not establish a universal requirement.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 3022,
+          "end": 3087,
+          "excerpt": "In this work we employ h = 8 parallel attention layers, or heads.",
+          "page": 5,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "position-rationale-support",
+      "group": "position-rationale",
+      "split": "development",
+      "claim": "This model has neither recurrence nor convolution and needs injected token-position information.",
+      "expected_label": "supported",
+      "rationale": "Both absence and the rationale are explicit.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 6204,
+          "end": 6430,
+          "excerpt": "Since our model contains no recurrence and no convolution, in order for the model to make use of the\norder of the sequence, we must inject some information about the relative or absolute position of the\ntokens in the sequence.",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "position-rationale-contradict",
+      "group": "position-rationale",
+      "split": "development",
+      "claim": "This model contains recurrent layers to represent token order.",
+      "expected_label": "contradicted",
+      "rationale": "The excerpt explicitly says no recurrence.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 6204,
+          "end": 6430,
+          "excerpt": "Since our model contains no recurrence and no convolution, in order for the model to make use of the\norder of the sequence, we must inject some information about the relative or absolute position of the\ntokens in the sequence.",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "position-rationale-missing",
+      "group": "position-rationale",
+      "split": "development",
+      "claim": "Sinusoidal positional encodings are always better than learned positional embeddings.",
+      "expected_label": "not_addressed",
+      "rationale": "This excerpt does not compare positional-encoding alternatives.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 6204,
+          "end": 6430,
+          "excerpt": "Since our model contains no recurrence and no convolution, in order for the model to make use of the\norder of the sequence, we must inject some information about the relative or absolute position of the\ntokens in the sequence.",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "gqa-equations-support",
+      "group": "gqa-equations",
+      "split": "development",
+      "claim": "Query head count must be divisible by key/value head count, and key and value head counts must be equal.",
+      "expected_label": "supported",
+      "rationale": "The two equations express those constraints.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5069,
+          "end": 5194,
+          "excerpt": "Constraints for GQA:\nnumber_of_heads_query % number_of_heads_key_value == 0 and,\nnumber_of_heads_key == number_of_heads_value",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "gqa-equations-contradict",
+      "group": "gqa-equations",
+      "split": "development",
+      "claim": "GQA requires the number of query heads not to be divisible by the key/value head count.",
+      "expected_label": "contradicted",
+      "rationale": "The modulo constraint requires divisibility.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5069,
+          "end": 5194,
+          "excerpt": "Constraints for GQA:\nnumber_of_heads_query % number_of_heads_key_value == 0 and,\nnumber_of_heads_key == number_of_heads_value",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "gqa-equations-missing",
+      "group": "gqa-equations",
+      "split": "development",
+      "claim": "Enabling GQA guarantees faster inference on all hardware.",
+      "expected_label": "not_addressed",
+      "rationale": "Head-count constraints do not establish performance guarantees.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5069,
+          "end": 5194,
+          "excerpt": "Constraints for GQA:\nnumber_of_heads_query % number_of_heads_key_value == 0 and,\nnumber_of_heads_key == number_of_heads_value",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "boolean-mask-support",
+      "group": "boolean-mask",
+      "split": "development",
+      "claim": "True participates in attention for scaled_dot_product_attention, but marks padding to be masked out in MultiheadAttention.",
+      "expected_label": "supported",
+      "rationale": "Both APIs and the opposite boolean meanings are explicit.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 2623,
+          "end": 2783,
+          "excerpt": "In\nscaled_dot_product_attention()\n,\nTrue\nindicates values\nto\nparticipate\nin attention.\nIn\nMultiheadAttention\n,\nTrue\nindicates values\nto be\nmasked out\n(padding).",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "boolean-mask-contradict",
+      "group": "boolean-mask",
+      "split": "development",
+      "claim": "True marks values to be masked out in scaled_dot_product_attention.",
+      "expected_label": "contradicted",
+      "rationale": "That API uses True for participation.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 2623,
+          "end": 2783,
+          "excerpt": "In\nscaled_dot_product_attention()\n,\nTrue\nindicates values\nto\nparticipate\nin attention.\nIn\nMultiheadAttention\n,\nTrue\nindicates values\nto be\nmasked out\n(padding).",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "boolean-mask-missing",
+      "group": "boolean-mask",
+      "split": "development",
+      "claim": "The two APIs produce identical numerical outputs for every input tensor.",
+      "expected_label": "not_addressed",
+      "rationale": "Boolean mask meaning does not establish numerical equivalence.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 2623,
+          "end": 2783,
+          "excerpt": "In\nscaled_dot_product_attention()\n,\nTrue\nindicates values\nto\nparticipate\nin attention.\nIn\nMultiheadAttention\n,\nTrue\nindicates values\nto be\nmasked out\n(padding).",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "video-parallel-support",
+      "group": "video-parallel",
+      "split": "development",
+      "claim": "The video describes multiple attention heads running in parallel.",
+      "expected_label": "supported",
+      "rationale": "Parallel execution is explicitly stated.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://youtu.be/eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 5200,
+          "end": 5295,
+          "excerpt": "and later we will see how the attention block consists of many different heads run in\nparallel.",
+          "page": null,
+          "start_ms": 290769,
+          "end_ms": 295420
+        }
+      ]
+    },
+    {
+      "id": "video-parallel-contradict",
+      "group": "video-parallel",
+      "split": "development",
+      "claim": "The video says these attention heads run sequentially.",
+      "expected_label": "contradicted",
+      "rationale": "Sequential execution contradicts parallel.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://youtu.be/eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 5200,
+          "end": 5295,
+          "excerpt": "and later we will see how the attention block consists of many different heads run in\nparallel.",
+          "page": null,
+          "start_ms": 290769,
+          "end_ms": 295420
+        }
+      ]
+    },
+    {
+      "id": "video-parallel-missing",
+      "group": "video-parallel",
+      "split": "development",
+      "claim": "The attention block in this video contains exactly 32 heads.",
+      "expected_label": "not_addressed",
+      "rationale": "Many heads gives no exact count.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://youtu.be/eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 5200,
+          "end": 5295,
+          "excerpt": "and later we will see how the attention block consists of many different heads run in\nparallel.",
+          "page": null,
+          "start_ms": 290769,
+          "end_ms": 295420
+        }
+      ]
+    },
+    {
+      "id": "video-masking-support",
+      "group": "video-masking",
+      "split": "development",
+      "claim": "This masking prevents later tokens from influencing earlier tokens.",
+      "expected_label": "supported",
+      "rationale": "This is the explicit stated direction.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://youtu.be/eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13537,
+          "end": 13624,
+          "excerpt": "you do always apply this masking to prevent later tokens from influencing earlier ones.",
+          "page": null,
+          "start_ms": 757423,
+          "end_ms": 761460
+        }
+      ]
+    },
+    {
+      "id": "video-masking-contradict",
+      "group": "video-masking",
+      "split": "development",
+      "claim": "This masking allows later tokens to influence earlier tokens.",
+      "expected_label": "contradicted",
+      "rationale": "Allows is the opposite of prevents for the same direction.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://youtu.be/eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13537,
+          "end": 13624,
+          "excerpt": "you do always apply this masking to prevent later tokens from influencing earlier ones.",
+          "page": null,
+          "start_ms": 757423,
+          "end_ms": 761460
+        }
+      ]
+    },
+    {
+      "id": "video-masking-missing",
+      "group": "video-masking",
+      "split": "development",
+      "claim": "Masking reduces attention memory use to linear growth.",
+      "expected_label": "not_addressed",
+      "rationale": "Influence direction does not establish computational scaling.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://youtu.be/eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13537,
+          "end": 13624,
+          "excerpt": "you do always apply this masking to prevent later tokens from influencing earlier ones.",
+          "page": null,
+          "start_ms": 757423,
+          "end_ms": 761460
+        }
+      ]
+    },
+    {
+      "id": "extrapolation-uncertainty-support",
+      "group": "extrapolation-uncertainty",
+      "split": "development",
+      "claim": "The authors chose sinusoidal encodings because they may allow extrapolation beyond training sequence lengths.",
+      "expected_label": "supported",
+      "rationale": "The claim retains may and the authors’ motivation.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 7439,
+          "end": 7586,
+          "excerpt": "We chose the sinusoidal version\nbecause it may allow the model to extrapolate to sequence lengths longer than the ones encountered\nduring training.",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "extrapolation-uncertainty-overclaim",
+      "group": "extrapolation-uncertainty",
+      "split": "development",
+      "claim": "Sinusoidal encodings guarantee that the model generalizes to every sequence length longer than training examples.",
+      "expected_label": "not_addressed",
+      "rationale": "May is a motivation, not a universal guarantee.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 7439,
+          "end": 7586,
+          "excerpt": "We chose the sinusoidal version\nbecause it may allow the model to extrapolate to sequence lengths longer than the ones encountered\nduring training.",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    }
+  ]
+}

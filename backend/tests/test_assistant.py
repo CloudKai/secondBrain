@@ -24,6 +24,11 @@ def assistant_client(monkeypatch):
         elif path.endswith('/validate_assistant_context'): value=state['valid']
         elif path=='/v1/chat/completions':
             body=json.loads(request.content)
+            for claim in state['draft']['claims']:
+                claim.setdefault('comparison_source_keys', [])
+            if state.get('cite_each_source'):
+                context=json.loads(body['messages'][1]['content'])
+                state['draft']['claims'][0]['reference_ids']=[entry['evidence'][0]['id'] for entry in context['sources']]
             value={'id':'test','model':'gpt-4o-mini','object':'chat.completion','choices':[{'index':0,'finish_reason':'tool_calls','message':{'role':'assistant','content':None,'tool_calls':[{'id':'test','type':'function','function':{'name':body['tools'][0]['function']['name'],'arguments':json.dumps(state['draft'])}}]}}]}
         else: raise AssertionError(str(request.url))
         return httpx.Response(200,json=value,request=request)
@@ -85,7 +90,7 @@ def test_topic_and_library_together_keep_source_identity_and_locations(assistant
     third['transcript']={'provider':'youtube','format':'srt','filename':None,'segments':[{'start':0,'end':len(third['captured_text']),'start_ms':24000,'end_ms':42000}],'selected_time':None}
     third['note']['references'][0].update(start_ms=24000,end_ms=42000)
     state['rows'].append(third)
-    state['draft']['claims'][0]['reference_ids']=['ref1','ref2','ref3']
+    state['cite_each_source']=True
     response=ask(client,topic_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',library=True)
     assert response.status_code==200,response.text
     refs=response.json()['references']
@@ -142,7 +147,7 @@ def test_redundant_known_citation_metadata_becomes_badges_without_losing_attribu
     state['draft']['claims'][0]['text']='It retrieves saved evidence (ref1).'
     response=ask(client)
     assert response.status_code==200,response.text
-    assert response.json()['claims'][0]['text']=='It retrieves saved evidence.'
+    assert response.json()['claims'][0]['text']=='RAG: “'+TEXT+'”'
     assert response.json()['claims'][0]['reference_ids']==[SOURCE+':p0001']
 
 def test_prior_assistant_claims_do_not_become_followup_model_evidence(assistant_client):
@@ -175,3 +180,206 @@ def test_assistant_uses_exact_joined_caption_evidence_and_rejects_fabricated_tim
         assert response.json()['references'][0]['passage']==passage
     else:
         assert not any(r.url.path=='/v1/chat/completions' for r in state['calls'])
+
+
+def test_uncited_pdf_passage_can_answer_with_its_exact_physical_page(assistant_client):
+    client, state = assistant_client
+    intro = 'Feed-forward networks transform each position independently. ' * 3
+    answer = 'Positional encodings give the Transformer sequence order because the architecture has no recurrence or convolution. ' * 2
+    row = state['rows'][0]
+    row['captured_text'] = intro + '\n' + answer
+    row['document'] = {'filename': 'transformer.pdf', 'page_count': 6,
+                      'pages': [{'page': 5, 'start': 0, 'end': len(intro)},
+                                {'page': 6, 'start': len(intro) + 1, 'end': len(row['captured_text'])}],
+                      'selected_pages': {'start': 5, 'end': 6}}
+    row['note'] = json.loads(json.dumps(NOTE))
+    row['note']['references'][0].update(start=0, end=len(intro), excerpt=intro, page=5)
+    state['draft']['claims'][0]['text'] = 'Positional encodings supply sequence order.'
+    response = ask(client, question='Why does the Transformer use positional encodings?')
+    assert response.status_code == 200, response.text
+    reference = response.json()['references'][0]
+    assert reference['passage']['excerpt'] == answer
+    assert reference['passage']['page'] == 6
+    assert reference['passage']['start'] == len(intro) + 1
+    assert reference['id'] != SOURCE + ':p0001'
+
+
+def test_layout_reading_keeps_original_equation_citations(assistant_client, monkeypatch):
+    client,state=assistant_client
+    raw='Constraints for GQA:\nnumber_of_heads_query % number_of_heads_key_value == 0 and,\nnumber_of_heads_key == number_of_heads_value'
+    row=state['rows'][0]
+    row['captured_text']=raw
+    row['note']=json.loads(json.dumps(NOTE))
+    row['note']['references'][0].update(start=0,end=len(raw),excerpt=raw)
+    state['draft']['claims'][0]['text']='Query heads are divisible by key/value heads; key and value head counts are equal.'
+    original=httpx.AsyncClient.send
+    async def external(c,request,**kwargs):
+        if request.url.path=='/v1/chat/completions':
+            content=json.loads(json.loads(request.content)['messages'][1]['content'])
+            evidence=content['sources'][0]['evidence'][0]
+            assert evidence['reading_text']=='Constraints for GQA: number_of_heads_query % number_of_heads_key_value == 0 and, number_of_heads_key == number_of_heads_value'
+            assert evidence['excerpt']==raw
+        return await original(c,request,**kwargs)
+    monkeypatch.setattr(httpx.AsyncClient,'send',external)
+    result=ask(client,question='What are the GQA head-count constraints?')
+    assert result.status_code==200,result.text
+    assert result.json()['references'][0]['passage']['excerpt']==raw
+
+
+def test_oversized_model_claim_returns_a_safe_generation_error(assistant_client):
+    client, state = assistant_client
+    state['draft']['claims'][0]['text'] = 'x' * 601
+    result = ask(client)
+    assert result.status_code == 503
+    assert result.json()['detail'] == 'The assistant could not produce a grounded answer. Check provider setup or retry.'
+
+
+@pytest.mark.parametrize('cite_both', [True, False])
+def test_declared_source_comparison_requires_evidence_from_both_sources(assistant_client, cite_both):
+    client, state = assistant_client
+    other = json.loads(json.dumps(state['rows'][0]))
+    other.update(source_id='44444444-4444-4444-8444-444444444444', scope='library', title='Second source')
+    state['rows'].append(other)
+    state['draft']['claims'][0].update(comparison_source_keys=['source1', 'source2'])
+    state['cite_each_source'] = cite_both
+    result = ask(client, question='Compare the two sources.', library=True)
+    assert result.status_code == (200 if cite_both else 503)
+    if cite_both:
+        assert {r['source_id'] for r in result.json()['references']} == {SOURCE, '44444444-4444-4444-8444-444444444444'}
+        assert set(result.json()['claims'][0]) == {'text', 'reference_ids'}
+
+
+def test_model_receives_claim_level_uncertainty_and_comparison_requirements(assistant_client, monkeypatch):
+    client, state = assistant_client
+    original = httpx.AsyncClient.send
+    observed = []
+    async def external(c, request, **kwargs):
+        if request.url.path == '/v1/chat/completions':
+            body = json.loads(request.content)
+            observed.append(body)
+        return await original(c, request, **kwargs)
+    monkeypatch.setattr(httpx.AsyncClient, 'send', external)
+    result = ask(client)
+    assert result.status_code == 200
+    instruction = observed[0]['messages'][0]['content']
+    assert 'one independently checkable statement' in instruction
+    assert 'authors suspect' in instruction
+    assert 'comparison_source_keys' in instruction
+    assert 'Do not fill the eight-claim limit' in instruction
+    assert 'The authors suspect X causes Y' in instruction
+    final_instruction = observed[0]['messages'][-1]
+    assert final_instruction['role'] == 'system'
+    assert 'Keep may/could/suspect/hypothesize' in final_instruction['content']
+    context = json.loads(observed[0]['messages'][1]['content'])
+    assert context['sources'][0]['source_key'] == 'source1'
+    assert context['sources'][0]['source_kind'] == 'article'
+
+
+def test_private_source_labels_cannot_leak_into_answer_prose(assistant_client):
+    client, state = assistant_client
+    state['draft']['claims'][0]['text'] = 'source1 suggests an improvement.'
+    assert ask(client).status_code == 503
+
+
+def test_provider_request_requires_every_claim_field_in_strict_schema(assistant_client):
+    client, state = assistant_client
+    assert ask(client).status_code == 200
+    request = next(r for r in state['calls'] if r.url.path == '/v1/chat/completions')
+    function = json.loads(request.content)['tools'][0]['function']
+    assert function['strict'] is True
+    claim = function['parameters']['properties']['claims']['items']
+    assert set(claim['required']) == set(claim['properties'])
+    assert 'comparison_source_keys' in claim['required']
+    alternatives = claim['properties']['comparison_source_keys']['anyOf']
+    assert alternatives[0]['maxItems'] == 0
+    assert alternatives[1]['minItems'] == 2
+
+
+def test_private_source_labels_cannot_leak_into_unsupported_gap(assistant_client):
+    client, state = assistant_client
+    state['draft'] = {'status': 'unsupported', 'claims': [], 'gap': 'source1 does not give a numerical benchmark.'}
+    assert ask(client).status_code == 503
+
+
+def test_redundant_cited_source_marker_becomes_badges_without_changing_the_claim(assistant_client):
+    client, state = assistant_client
+    state['draft']['claims'][0]['text'] = 'It retrieves saved evidence (source1: ref1).'
+    result = ask(client)
+    assert result.status_code == 200
+    assert result.json()['claims'][0]['text'] == 'RAG: “'+TEXT+'”'
+    assert result.json()['claims'][0]['reference_ids'] == [SOURCE + ':p0001']
+
+
+def test_model_receives_literal_uncertainty_markers_from_captured_evidence(assistant_client):
+    client, state = assistant_client
+    state['rows'][0]['captured_text'] = TEXT + '\nWe suspect saved evidence may improve answer support, but this is a hypothesis.'
+    assert ask(client).status_code == 200
+    request = next(r for r in state['calls'] if r.url.path == '/v1/chat/completions')
+    context = json.loads(json.loads(request.content)['messages'][1]['content'])
+    tentative = next(p for p in context['sources'][0]['evidence'] if 'We suspect' in p['excerpt'])
+    assert tentative['uncertainty_terms'] == ['We suspect', 'may']
+
+
+def test_comma_separated_cited_source_marker_becomes_a_badge(assistant_client):
+    client, state = assistant_client
+    state['draft']['claims'][0]['text'] = 'It retrieves saved evidence (source1, ref1).'
+    result = ask(client)
+    assert result.status_code == 200
+    assert result.json()['claims'][0]['text'] == 'RAG: “'+TEXT+'”'
+
+
+def test_unverified_paraphrase_returns_the_complete_cited_wording_with_its_qualifier(assistant_client):
+    client, state = assistant_client
+    original = 'The authors suspect that larger inputs may reduce the observed gradients. This is a proposed explanation, not a demonstrated training benefit.'
+    row = state['rows'][0]
+    row['captured_text'] = original
+    row['note'] = json.loads(json.dumps(NOTE))
+    row['note']['references'][0].update(end=len(original), excerpt=original)
+    state['draft']['claims'][0]['text'] = 'Larger inputs ensure effective training and stable performance.'
+    result = ask(client, question='Why do the gradients change?')
+    assert result.status_code == 200
+    answer = result.json()
+    assert answer['claims'][0]['text'] == 'RAG: “' + original + '”'
+    assert 'ensure effective training' not in answer['claims'][0]['text']
+    assert answer['references'][0]['passage']['excerpt'] == original
+    assert answer['claims'][0]['reference_ids'] == [SOURCE + ':p0001']
+
+
+def test_nine_short_source_quotes_fit_the_answer_without_losing_a_compared_source(assistant_client):
+    client, state = assistant_client
+    for i in range(8):
+        row = json.loads(json.dumps(state['rows'][0]))
+        row.update(source_id=f'{i+4:08d}-4444-4444-8444-444444444444', scope='topic' if i<4 else 'library', title=f'Library source {i+1}')
+        state['rows'].append(row)
+    state['cite_each_source'] = True
+    state['draft']['claims'][0]['comparison_source_keys'] = [f'source{i}' for i in range(1,10)]
+    result = ask(client, question='Compare the nine source explanations.', topic_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', library=True)
+    assert result.status_code == 200
+    answer = result.json()
+    assert len(answer['claims']) <= 8
+    assert len(answer['references']) == 9
+    assert {r['source_id'] for r in answer['references']} == {r['source_id'] for r in state['rows']}
+    assert all(len(c['text']) <= 2000 for c in answer['claims'])
+
+
+def test_bounded_quotes_explain_when_a_comparison_cannot_include_every_source(assistant_client):
+    client, state = assistant_client
+    original = ('A detailed explanation with its necessary conditions. ' * 20)[:1000]
+    first = state['rows'][0]
+    first.update(title='Source title ' * 15, captured_text=original)
+    first['note'] = json.loads(json.dumps(NOTE))
+    first['note']['references'][0].update(end=len(original), excerpt=original)
+    for i in range(8):
+        row = json.loads(json.dumps(first))
+        row.update(source_id=f'{i+4:08d}-4444-4444-8444-444444444444', scope='topic' if i<4 else 'library')
+        state['rows'].append(row)
+    state['cite_each_source'] = True
+    state['draft']['claims'][0]['comparison_source_keys'] = [f'source{i}' for i in range(1,10)]
+    result = ask(client, question='Compare the nine source explanations.', topic_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', library=True)
+    assert result.status_code == 200
+    answer = result.json()
+    assert answer['status'] == 'unsupported'
+    assert answer['claims'] == []
+    assert answer['references'] == []
+    assert 'fewer sources' in answer['gap']
+    assert answer['partial'] is True

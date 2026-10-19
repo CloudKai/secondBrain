@@ -1,0 +1,25 @@
+[
+  {
+    "id": "reviewed-public-source-question",
+    "source_id": "00000000-0000-4000-8000-000000000001",
+    "question": {
+      "question": "Replace with a reviewed question about the fresh source.",
+      "source_version": 1,
+      "topic_id": null,
+      "library": false,
+      "history": []
+    },
+    "expected_output": "Replace with independently reviewed answer expectations.",
+    "expected_status": "supported",
+    "expected_evidence": [],
+    "capture_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "reviewed": false,
+    "evidence_sources": [
+      {
+        "source_id": "00000000-0000-4000-8000-000000000001",
+        "source_version": 1,
+        "capture_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  }
+]

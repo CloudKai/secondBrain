@@ -35,6 +35,7 @@ export default function VideoTranscriptInput({
           Upload transcript
         </button>
       </div>
+      <p className="micro-copy" id="transcript-format">Use VTT or SRT to keep timestamps. TXT and plain pasted text are untimed.</p>
       {mode === "paste" ? (
         <>
           <label className="form-label" htmlFor="transcript-text">
@@ -43,13 +44,13 @@ export default function VideoTranscriptInput({
           <textarea
             id="transcript-text"
             key="transcript-paste"
-            rows={6}
+            rows={4}
             required
             maxLength={100000}
             value={text}
             onChange={(e) => onText(e.target.value)}
             disabled={busy}
-            aria-describedby="source-support"
+            aria-describedby="source-support transcript-format"
             placeholder="Paste the transcript or its VTT/SRT captions. Times are retained only when supplied in VTT/SRT format."
           />
         </>
@@ -65,7 +66,7 @@ export default function VideoTranscriptInput({
             accept=".txt,.vtt,.srt,text/plain,text/vtt,application/x-subrip"
             required
             disabled={busy}
-            aria-describedby="source-support"
+            aria-describedby="source-support transcript-format"
             onChange={(e) => onFile(e.target.files?.[0] ?? null)}
           />
         </>

@@ -5,7 +5,7 @@ specification in `context/learning-library-design.md`. Dark mode is the default;
 the sidebar appearance control switches to a paired light theme. Mobile and
 native projects are untouched.
 
-## Current development status — 2026-10-05
+## Current development status — 2026-10-08
 
 All 15 planned web slices are complete. Owned article/PDF/transcript captures,
 structured cited notes, topics/graph, overviews, corrections, source refresh,
@@ -16,6 +16,13 @@ current checks and limits. Research setup is in
 [research-discovery-setup.md](../docs/research-discovery-setup.md); it uses the
 existing server-only OpenAI key and direct public downloads. TinyFish is not
 used. Production deployment is not verified.
+
+The current assistant displays attributed captured-source excerpts with numbered
+citations. Fresh article, PDF and supplied-caption video imports, ready indexes,
+shared topics, a combined overview and reload have been checked locally. The
+approved development worker is running. See
+[working-product acceptance](../docs/reviews/working-product-acceptance-2026-10-08.md)
+for evidence and remaining hosted, streaming and semantic quality gates.
 
 The implementation snapshots below describe earlier slices. Their preview,
 session-only and future-work statements are historical; use the tracker for
@@ -32,6 +39,16 @@ From the repository root:
 ```sh
 npm --prefix web install
 npm --prefix web run dev
+```
+
+For imports to finish generating notes/topics/indexes, also run the configured
+backend, Redis and worker in separate terminals. Environment setup is described
+in the linked setup documents; populated environment files stay ignored.
+
+```sh
+docker compose up -d redis
+uv run --project backend uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file backend/.env --reload
+uv run --project backend python -m backend.study_worker
 ```
 
 Open http://127.0.0.1:5173. Routes use the URL fragment: `#library`,

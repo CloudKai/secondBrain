@@ -1,3 +1,4 @@
+import ReadingText from './ReadingText';
 import { ArrowUpRight, FileText, Network } from "lucide-react";
 import type { Note, Topic } from "../types";
 import type { SourceClient } from "../lib/source-client";
@@ -13,11 +14,11 @@ interface Props {
   onRename: () => void; onMerge: () => void; canMerge: boolean;
 }
 function CitedClaim({claim, overview, onEvidence}: {claim: OverviewClaim; overview: TopicOverview; onEvidence: Props["onEvidence"]}) {
-  return <p>{claim.text} {claim.reference_ids.map(id => {
+  return <ReadingText text={claim.text}>{claim.reference_ids.map(id => {
     const index = overview.references.findIndex(r => r.id === id);
     const ref = overview.references[index];
     return <button className="citation" key={id} title={ref.title} aria-label={`Inspect ${ref.title} passage ${ref.passage.id}`} onClick={() => onEvidence(ref.source_id, ref.passage.id)}>{index + 1}</button>;
-  })}</p>;
+  })}</ReadingText>;
 }
 export default function SavedTopicDetails({topic, maps, client, enabled, topicError, placementBusy, names, onReloadTopics, onPlace, onOpen, onLearn, onEvidence, onRename, onMerge, canMerge}: Props) {
   const revision = topic.notes.map(n => `${n.id}:${maps.find(m => m.source_id === n.id)?.updated_at}:${n.study?.updated_at}`).sort().join("|");
@@ -37,7 +38,7 @@ export default function SavedTopicDetails({topic, maps, client, enabled, topicEr
   return <>
     <div className="panel-topic-icon"><Network size={24} aria-hidden="true" /></div>
     <span className="eyebrow">{uncertain ? "SUGGESTED TOPIC" : "SHARED TOPIC"}</span>
-    <h2>{topic.title}</h2><p className="panel-description">{topic.description}</p>
+    <h2>{topic.title}</h2>{topic.description && <ReadingText text={topic.description}/>}
     <div className="panel-actions">
       <button className="text-button" disabled={placementBusy} onClick={onRename}>Rename topic</button>
       <button className="text-button" disabled={placementBusy || !canMerge} onClick={onMerge}>Merge with a topic</button>
@@ -78,7 +79,7 @@ export default function SavedTopicDetails({topic, maps, client, enabled, topicEr
         <span className="eyebrow">SOURCE BRANCH</span>
         <button className="source-title" onClick={() => onOpen(n)}><FileText size={15} aria-hidden="true"/>{n.title}<ArrowUpRight size={14} aria-hidden="true"/></button>
         <p className="micro-copy">{assignment?.role} topic · {assignment?.placement_reason}</p>
-        {separate && claims.map((c, i) => <p key={i}><strong>{c.title}</strong> — {c.text}</p>)}
+        {separate && claims.map((c, i) => <section key={i}><h4>{c.title}</h4><ReadingText text={c.text}/></section>)}
         {assignment?.citation_ids.map(id => <button key={id} className="text-button" onClick={() => onEvidence(n.id, id)}>Inspect passage {id}</button>)}
         {assignment?.uncertain && <div className="topic-placement"><p>Suggested placement: {assignment.suggested_topic_id ? names[assignment.suggested_topic_id] ?? "A related saved topic" : "Keep a distinct topic until its scope is clear"}</p>
           {assignment.suggested_topic_id && <button className="text-button" disabled={placementBusy} onClick={() => void onPlace(n.id, topic.id, assignment.suggested_topic_id)}>Use suggested topic</button>}

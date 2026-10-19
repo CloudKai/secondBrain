@@ -92,6 +92,10 @@ def test_long_source_uses_bounded_sections_then_coherent_grounded_synthesis():
             section_ids.extend(ids)
         else:
             assert len(payload["sections"]) == 2
+            for section in payload["sections"]:
+                assert section["evidence"][0]["text"].startswith("Calculus studies change and accumulation.")
+                assert section["evidence"][0]["id"] in section["citation_ids"]
+            assert len(json.dumps(payload, ensure_ascii=False)) <= 60_000
             ids = section_ids
         return model_response(request, {"text": "Calculus studies change and accumulated quantities.", "citation_ids": ids} if "passages" in payload else draft_for(ids))
 

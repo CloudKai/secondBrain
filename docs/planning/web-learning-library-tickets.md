@@ -24,9 +24,6 @@ Delivery [#35](https://github.com/CloudKai/secondBrain/issues/35), part of #29. 
 Last synchronized: **2026-10-10 (Asia/Singapore)** against GitHub Issues and
 completed acceptance records in `context/web-progress-tracker.md` and `scope.md`.
 
-Last synchronized: **2026-10-10 (Asia/Singapore)** against GitHub Issues and
-completed acceptance records in `context/web-progress-tracker.md` and `scope.md`.
-
 ## U2c1 unfinished learning drafts — implemented in development, 2026-10-10
 
 [GitHub #33](https://github.com/CloudKai/secondBrain/issues/33), part of #29, adds owned answer/question drafts per collection, immutable plan and lesson. Autosave shows Saved/Unsaved/Retry/conflict states; tab-private pending recovery survives same-tab reload/navigation. Revision checks and idempotent save IDs protect retries and multiple tabs, including opener clones. Changed/removed source evidence retains learner-authored writing. Clear is a checked empty save; Download exports this draft’s versioned JSON. Drafts never count as attempts/activity. Existing tutor replies remain view-local.
@@ -53,13 +50,60 @@ See [U2a acceptance](../reviews/collection-identity-acceptance-2026-10-09.md). L
 
 ## Progress at a glance
 
+**Latest implementation — 2026-10-09:** U1 continuity is implemented in development
+under [#30](https://github.com/CloudKai/secondBrain/issues/30), part of #29. Relevant
+note context, saved path/lesson resume, consistent activity and labelled plan
+history are in place. Migration 018 applied after approval. **296 backend / 99 web
+tests**, web typecheck/build and lint pass; rollback preserves saved answers.
+Live resume/reload, history, unchanged counters and exact timed evidence/focus
+return checked. Compact dark/light checked; exact viewport matrix, actual 200%
+zoom and screen-reader acceptance remain pending. #30 stays open. See
+[acceptance](../reviews/learning-continuity-acceptance-2026-10-09.md).
+**Next target:** U2 independent collection workspace; U2–U5 are not implemented.
+This unit is local, unpushed and leaves mobile/iOS unchanged.
+
+**Latest specification — 2026-10-09:** [GitHub #29](https://github.com/CloudKai/secondBrain/issues/29)
+is published with `ready-for-agent`; the [local specification](ideal-learning-app-spec.md)
+contains 68 user stories and five ordered implementation units. U1 repairs
+continuity first. This is specified target work, not completed application work.
+Existing #28 and earlier acceptance statuses remain distinct. Use the specification
+and roadmap when breaking these units into delivery tickets.
+
+**Latest review — 2026-10-09:** the [ideal learning app audit](../reviews/ideal-learning-app-audit-2026-10-09.md)
+is complete, with fresh browser screenshots and code/configuration evidence.
+The [next implementation roadmap](ideal-learning-app-roadmap-2026-10-09.md) is
+**proposed, awaiting acceptance**: U1 continuity; U2 independent collection
+workspace; U3 teaching evidence and practice; U4 map/discovery; U5 AI policy and
+operations. No application changes are part of this audit unit. [#28](https://github.com/CloudKai/secondBrain/issues/28)
+remains open; its existing development work is not equivalent to passing all
+educational-quality or public-release gates. New delivery issues can follow
+roadmap acceptance without changing the historical 01–15 completion record.
+
 **Verified MVP:** planned tickets **01–15 are complete** (15 of 15 slices), including
 development acceptance. GitHub issues **#1–#17 are closed**; #4 is an extra
 citation/title-polish task, so planning numbers and GitHub numbers differ.
 
 **Last completed:** post-plan citation passage improvement — [GitHub #17](https://github.com/CloudKai/secondBrain/issues/17). Original planned ticket **15**, live discovery, remains complete.
 
-**Current unit:** none; the original 15-slice web plan is complete.
+**Current reading format implemented locally:** assistant source cards, shared reading styles and page/time-labelled evidence apply to existing material. **81 web tests pass**, plus typecheck/build, lint and whitespace checks. Real saved article/PDF/video, assistant, recall and topic views are checked; original coordinates remain intact. Native zoom, live archives and full screen-reader acceptance remain broader checks under #21/#23. See [reading-format acceptance](../reviews/reading-format-acceptance-2026-10-09.md).
+
+**Previous local-product acceptance:** fresh article/PDF/video-caption imports, exact citations, reload, shared graph and combined overview are checked. The assistant returns attributed captured-source wording rather than an unverified draft paraphrase. **266 backend tests and 69 web tests pass**, plus web build/typecheck and lint. Twenty final development requests matched expected statuses with valid citation locations; one comparison used an alternate caption rather than both annotated exact spans. The approved worker is running. Hosted rollout, calibrated semantic verification, streaming, capacity and cost gates remain open under #25/#27. See [working-product acceptance and limits](../reviews/working-product-acceptance-2026-10-08.md).
+
+**Earlier units:** post-plan UX audit review and AI retrieval design. The original
+15-slice web plan remains complete. The [proposed UX plan](web-design-improvements.md)
+prioritizes visible citation evidence, shorter import forms, readability/example
+clarity and a real-source journey audit. Citation presentation is implemented
+locally under [#21](https://github.com/CloudKai/secondBrain/issues/21), with
+typecheck/lint and narrow example inspection passing; broader acceptance remains
+pending. Import simplification is also implemented locally under
+[#22](https://github.com/CloudKai/secondBrain/issues/22), with the same static
+checks and narrow form inspection; live submission acceptance remains pending.
+Readability/example/empty-state slice is implemented locally under
+[#23](https://github.com/CloudKai/secondBrain/issues/23), with static checks,
+contrast calculations and narrow-state inspection; broader acceptance is pending.
+Qdrant indexing and scoped hybrid answers are enabled locally; broader quality acceptance is pending. AI design is recorded in the
+[RAG discussion](assistant-rag-improvements.md); the remembered skill set is
+`rag-implementation`, DeepEval and `typesafe-ai`.
 
 **Repository organization — #19:** `mobile/` is now a regular folder alongside
 `web/` in `CloudKai/secondBrain`, with its Git history preserved. This changes
@@ -90,7 +134,7 @@ remains planned.
 | 14 | Grounded assistant with selectable scopes | Complete; local + hosted acceptance | [#15](https://github.com/CloudKai/secondBrain/issues/15), [setup](../assistant-setup.md), [review](../reviews/ticket15.md) |
 | 15 | Live reliable-resource discovery and explicit saving | Complete; local + hosted development acceptance | [#16](https://github.com/CloudKai/secondBrain/issues/16), [setup](../research-discovery-setup.md), [review](../reviews/ticket16.md) |
 
-Latest completed checks: **200 backend tests, 68 web tests, web build/typecheck
+Original 15-slice completion checks: **200 backend tests, 68 web tests, web build/typecheck
 and lint**. The provider replacement uses OpenAI search and direct public fetch;
 TinyFish is not used. Independent standards/spec reviews pass through `a5491c3`;
 the replacement review is recorded in the setup/review documents.
@@ -107,25 +151,7 @@ Update this overview and the relevant acceptance checkboxes when a slice closes.
 
 ## Post-plan improvements
 
-| Work | Status | Ticket and scope |
-| --- | --- | --- |
-| Complete-thought citation passages and caption grouping | Complete; migration 012 applied, existing saved note updated, local + hosted acceptance | [#17](https://github.com/CloudKai/secondBrain/issues/17), [spec](citation-passages.md), [setup](../citation-passages-setup.md) |
-
-Citation work passes 200 backend and 68 web tests plus web build/typecheck/lint.
-Independent standards/spec reviews are clear through `074f157`. A six-cue live
-fixture produced three exact joined references, with note/assistant inspection
-and reload verified. The temporary source and dependent records were cleaned.
-The original 15 slices above remain development-complete.
-
-Existing-note follow-up: the sole saved **Neural networks** note now has 12
-complete-thought citation passages (previously 13 cue references). Its original
-text, capture, source version and four topic assignments are preserved. Topic
-evidence IDs were remapped atomically. Exact saved text/times and preserved
-source/job/map state were verified; no model regeneration or new migration.
-
-## Topic learning journey — development delivery, 2026-10-09
-
-**Learning journey implementation:** [topic learning journeys](topic-learning-journey-spec.md)
+**New target specification:** [topic learning journeys](topic-learning-journey-spec.md)
 is published as [#28](https://github.com/CloudKai/secondBrain/issues/28), labelled
 `ready-for-agent`. It covers the full phased learning vision, with complete
 one-source teaching selected for first delivery. Per-request Luna/Sol-medium
@@ -138,6 +164,22 @@ checks remain. Multi-source revisions are implemented with migration 016; goal b
 | Work | Status | Ticket and scope |
 | --- | --- | --- |
 | Source-backed topic learning journeys | Phases 1–3 implemented in development; 294 backend / 95 web checks pass; full rollout acceptance open | [#28](https://github.com/CloudKai/secondBrain/issues/28), [spec](topic-learning-journey-spec.md) |
+| Complete-thought citation passages and caption grouping | Complete; migration 012 applied, existing saved note updated, local + hosted acceptance | [#17](https://github.com/CloudKai/secondBrain/issues/17), [spec](citation-passages.md), [setup](../citation-passages-setup.md) |
+| Immediately visible citation evidence | Implemented locally; typecheck/lint and narrow example open/close inspected; real-source and wider acceptance pending | [#21](https://github.com/CloudKai/secondBrain/issues/21), [plan](web-design-improvements.md) |
+| Shorter import forms and reachable actions | Implemented locally; typecheck/lint and narrow form inspection pass; live and wider acceptance pending | [#22](https://github.com/CloudKai/secondBrain/issues/22), [plan](web-design-improvements.md) |
+| Readability, examples and focused empty states | Implemented locally; typecheck/lint, token contrast and narrow state inspection pass; broader acceptance pending | [#23](https://github.com/CloudKai/secondBrain/issues/23), [plan](web-design-improvements.md) |
+
+Citation work passes 200 backend and 68 web tests plus web build/typecheck/lint.
+Independent standards/spec reviews are clear through `074f157`. A six-cue live
+fixture produced three exact joined references, with note/assistant inspection
+and reload verified. The temporary source and dependent records were cleaned.
+The original 15 slices above remain development-complete.
+
+Existing-note follow-up: the sole saved **Neural networks** note now has 12
+complete-thought citation passages (previously 13 cue references). Its original
+text, capture, source version and four topic assignments are preserved. Topic
+evidence IDs were remapped atomically. Exact saved text/times and preserved
+source/job/map state were verified; no model regeneration or new migration.
 
 ## Supplied UI/UX and implementation baseline
 
@@ -665,3 +707,428 @@ to 2 MB per source; the separate PDF capture form retains its 10 MB limit.
 GitHub #16 and web setup/review/planning records updated for the current provider.
 All original web slices remain development-complete. No migration. Production
 acceptance remains unverified; native/iOS and its tracker untouched.
+
+
+## Proposed assistant AI follow-up — design interview, 2026-10-05
+
+The learner selected better answers across saved sources for up to 200 sources,
+with accuracy first. The current interview covers full-source BM25 + semantic
+retrieval, structure-first recursive chunking, Jev/grounding-classifier comparison,
+and streamed checked answers targeting first verified text in 10–15 seconds.
+
+Confirmed choices and unresolved decisions are in
+[assistant retrieval and evidence quality](assistant-rag-improvements.md).
+This is proposed follow-up work, not a completed ticket or implemented capability.
+New GitHub tickets and acceptance criteria follow confirmation of the design.
+
+
+## Real-source UX acceptance audit — #24 (2026-10-06)
+
+[GitHub #24](https://github.com/CloudKai/secondBrain/issues/24) records completed
+slice 4 audit with incomplete acceptance. [Report](../reviews/web-saved-source-audit-2026-10-06.md)
+includes current-run screenshots. Three real public PDF/article/video-caption notes
+saved and generated; sampled citations/locators/focus, scoped assistant, stale retry,
+evidence gap, reload, rename, validation, light and constrained layouts checked.
+
+- [x] Run and record the real-source journey audit; stop approved worker afterward.
+- [x] Retain audit sources for reproducible follow-up; preserve learner data.
+- [x] Diagnose video topic mapping and combined-overview generation failures: canonical-context mismatch and claims with only one independent source.
+- [ ] Fix citation-support mismatch and baseline missed positional-encoding retrieval.
+- [ ] Improve narrow long graph-label wrapping.
+- [ ] Finish successful overview/archive/edge, actual zoom and full accessibility acceptance.
+
+#21–#23 remain open; the original development-complete baseline remains historical.
+No code changes or automated tests in this audit. AI retrieval slice 5 is still planned.
+
+### #24 fixes implemented locally — acceptance pending
+
+Original excerpts now accompany long-note summaries; assistant retrieval can
+select uncited captured passages; graph labels wrap at word boundaries. Mapping
+and overview generation allow one correction using validation feedback within
+the same deadline. Validation contracts and ownership/version fences remain.
+Python syntax, web typecheck and lint pass. Focused regression and browser checks
+await test-scope approval. Existing saved notes/jobs have not been repaired or
+retried; keep fix/acceptance checkboxes and #24 open. No worker restart or native
+tracker changes.
+
+## Fresh-source baseline — #25 (2026-10-06)
+
+The learner superseded old-note repair with deletion and fresh-source work. The
+three named #24 audit sources were deleted with exact-ID and owner filtering;
+follow-up read returned zero. Other sources were not targeted. #24 remains open
+for fresh-source acceptance.
+
+[GitHub #25](https://github.com/CloudKai/secondBrain/issues/25) starts the next AI
+unit: [DeepEval baseline](assistant-evaluation-baseline.md). Twelve authored seed
+cases are prepared; no fresh captures or scored results yet.
+
+- [x] Prepare explicit baseline execution/measurement contract and seed cases.
+- [ ] Confirm requested test boundaries and annotate fresh captured evidence.
+- [ ] Capture actual retrieval context; check ownership/scope/version and locators.
+- [ ] Record judge configuration/cost and run bounded DeepEval metrics.
+- [ ] Publish reproducible results, failure breakdown and remaining coverage.
+
+Q13 shared-engine choice is separately pending. No model/classifier winner,
+200-source capacity, verified streaming or production acceptance is claimed.
+Native/iOS tracker unchanged; no worker restarted.
+
+## Baseline implementation / approved hosted engine — 2026-10-07
+
+#25: implemented authenticated collection, actual-context snapshots, reviewed
+capture fingerprints, revision/exact-citation checks and bounded local DeepEval
+scoring. Optional 4.2.8 extra is locked; raw reports are ignored. One fresh public
+PDF case measured 5.62-second non-streaming completion, exact span/recall/precision
+1.0 and faithfulness 0.8571 with a suspected judge error. Eight calls, SDK estimated
+judge cost $0.0017205. [Report](../reviews/assistant-baseline-2026-10-07.md).
+Broader 12-case baseline remains pending, so #25 stays open.
+
+#24: focused/full regressions pass (206 backend/68 web). New uncited-PDF regression
+was verified red against HEAD and green with the fix. Web typecheck/lint/build
+pass. Browser connection retry succeeded; fresh PDF capture failed twice, ending
+with source-host resolution failure. Keep real browser/video/overview/graph
+acceptance open. Only one named public study job ran; no dispatcher started.
+
+#26: Qdrant credentials, 1.19.2 connectivity and the dedicated BM25/dense collection
+are verified. Local indexing code and migration 013 are prepared; hosted approval
+and acceptance remain pending. No captured source is indexed,
+model winner, capacity or production release claim. Native tracker untouched.
+
+
+## Qdrant indexing implementation checkpoint — #26 (2026-10-07)
+
+- [x] Verify configured server credentials and cluster connection without exposing keys.
+- [x] Create dedicated dense/BM25 collection and owner/source/generation/version indexes.
+- [x] Prepare durable manifests, capture/change/delete work and resumable worker batches.
+- [x] Preserve exact PDF/cue offsets and immutable saved citation identities.
+- [x] Add authenticated owned indexing-status API and opt-in dispatch.
+- [x] Pass seven external HTTP checks and full 213 backend regressions.
+- [x] Apply all migrations and pass ownership/retry/version/deletion checks in disposable Postgres; roll back fixtures.
+- [ ] Apply migration 013 to hosted Supabase: automatic review rejected the action against the branch labeled `main PRODUCTION`; exact approval requested.
+- [ ] Verify one named real-source index, provider retry, hosted owner/version/delete fences.
+- [ ] Add learner-visible readiness, then enable background backfill deliberately.
+
+No source text was sent to Qdrant; no dispatcher started. Assistant hybrid query
+integration, ID revalidation, model comparison and broader baseline remain target
+work. #26 stays open. [Setup/checks](../qdrant-indexing-setup.md). Native tracker unchanged.
+
+
+## Migration applied / named-source check — #26 (2026-10-07)
+
+The learner explicitly approved applying migration 013; Supabase reported success.
+This supersedes the approval-pending checkpoint above.
+
+- [x] Apply migration 013 to the approved Supabase project.
+- [x] Index the named public baseline PDF: ready, version 1, 2/2 chunks.
+- [x] Verify exact source offsets/fingerprint, physical page 6, correct owner and dense/BM25 vectors.
+- [x] Run a source/owner-filtered BM25 infrastructure smoke query: two owned hits.
+- [ ] Complete hosted authenticated status, cross-owner, retry, refresh and deletion acceptance.
+- [ ] Add learner-visible readiness and deliberately enable background backfill.
+
+Background dispatch remains disabled; only the named source ran. Existing assistant
+retrieval still uses Postgres. #26 stays open. Native tracker untouched; no push.
+
+
+## Hosted indexing lifecycle checks — #26 (2026-10-07)
+
+- [x] Owned/private/worker and cross-owner access checks against hosted services.
+- [x] Simulated second-batch embedding outage: preserve 16 chunks, resume after retry delay, complete index.
+- [x] Authenticated refresh to version 2 and cleanup of old-version vectors.
+- [x] Authenticated deletion and complete fixture-vector cleanup.
+- [x] Actual FastAPI hosted-auth status checks: owned 200, unauthenticated 401, cross-owner/deleted 404.
+- [x] Remove all synthetic source fixtures from this acceptance run.
+- [ ] Add indexing progress display and browser/client tests: requested TDD seam approval pending.
+- [ ] Deliberately enable background indexing after UI acceptance.
+
+[Detailed evidence](../reviews/qdrant-indexing-acceptance-2026-10-07.md). Only named
+jobs ran; background indexing stays disabled. #26 remains open; native unchanged.
+
+
+## Web progress display — #26 (2026-10-07)
+
+- [x] Implement learner-visible source indexing states and section progress.
+- [x] Validate authenticated status identity/version and reject incomplete readiness.
+- [x] Verify waiting → ready and ready after reload in the actual browser.
+- [x] Pass 69 web tests, typecheck/lint/build and 213 backend tests.
+- [x] Prepare dedicated indexing-only worker using the separate `arq:retrieval` queue.
+- [x] Remove the disposable browser source and its derived points.
+- [ ] Activate persistent background indexing: auto-review rejected all-source egress; explicit activation approval required.
+
+The activation attempt was rejected before execution; server flag remains false.
+#26 stays open. Assistant hybrid queries are later work. Native files unchanged.
+
+
+### #26 background activation accepted — 2026-10-07
+
+The user explicitly approved background indexing. Local development now has
+`ENABLE_RETRIEVAL_INDEXING=true`, Redis running and the dedicated
+`backend.retrieval_worker` process on `arq:retrieval`. It automatically sends
+queued and future captured text to the configured OpenAI embedding service and
+Qdrant. This worker handles indexing and cleanup; it does not dispatch study or
+topic generation. A hosted worker deployment remains future work.
+
+A fresh disposable source reached ready automatically (1/1 chunk), then source
+deletion automatically removed its Qdrant points. An earlier queued fixture also
+recovered to ready and was deleted and cleaned automatically. Both fixtures have
+zero remaining points. ARQ reads settings from the class's own dictionary;
+explicit lifecycle and safety settings fixed inherited settings being skipped.
+The added regression failed before the fix. All 214 backend tests pass; the
+previous 69 web tests, typecheck, lint and build passed.
+
+Ticket #26 indexing acceptance is complete. Assistant BM25/semantic query fusion,
+Postgres scope/version revalidation and retrieval-quality comparisons are the
+next unit. Earlier activation-pending checkpoints below are superseded.
+Native/iOS and its tracker remain unchanged. No commit or push.
+
+- [x] Explicit approval for persistent queued/future-source indexing.
+- [x] Start Redis and the dedicated local indexing worker.
+- [x] Verify automatic capture-to-ready and deletion-to-zero-points.
+- [x] Recover and clean the earlier queued disposable fixture.
+- [x] Fix ARQ lifecycle configuration with a failing-then-passing regression.
+- [x] Pass 214 backend tests; previous web checks remain green.
+
+## Hybrid assistant retrieval started — 2026-10-07
+
+Planned unit [#27](https://github.com/CloudKai/secondBrain/issues/27) connects the
+accepted Qdrant index to assistant questions. It will search the selected
+note/topic/library inventory, combine BM25 and semantic candidates with RRF,
+load bounded ranked sources and map chunks to exact citation passages. Postgres
+ownership, scope, current version and index generation must be revalidated
+before model input and after generation. Per-learner BM25 IDF prevents other
+learners' corpora from affecting sparse scoring.
+
+Inspection confirmed the existing `get_assistant_context` selects at most nine
+sources using note-text search. Hybrid retrieval needs a bounded metadata
+inventory before ranking, then exact source loads; querying only those nine
+legacy candidates would retain the same source-discovery limitation.
+
+The TDD skill requires agreement before new tests. The focused question covering
+Qdrant/OpenAI HTTP, authenticated assistant questions and Postgres ownership/
+scope/current-version seams is pending. No #27 implementation or tests have been
+written or run. Hybrid answers remain target behavior; background indexing from
+#26 continues locally. Native/iOS and its tracker remain untouched.
+
+## Hybrid assistant retrieval implemented locally — 2026-10-07
+
+The user approved the new HTTP/API/Postgres test boundaries. [#27](https://github.com/CloudKai/secondBrain/issues/27)
+now has a bounded authenticated inventory, BM25+dense RRF retrieval, per-learner
+IDF, exact passage attribution and pre/post-generation ownership/scope/version/
+generation fences. Eighteen new checks and the full 232-test backend suite pass;
+69 web tests pass. Disposable Postgres acceptance covers readiness, changes and
+cross-owner denial. A hosted query against the retained public PDF returned two
+current page-6 hits. This does not establish better answer quality.
+
+Migration 014 and rollback are concrete and locally verified. Hosted application,
+authenticated end-to-end acceptance and held-out comparisons remain pending.
+`ENABLE_HYBRID_RETRIEVAL` defaults to false; live assistant retrieval is unchanged.
+Background indexing remains enabled locally. This supersedes the test-boundary
+question checkpoint. Native/iOS and its tracker are untouched; no commit/push.
+See [acceptance evidence](../reviews/hybrid-retrieval-acceptance-2026-10-07.md).
+
+## Hybrid assistant retrieval activated locally — 2026-10-07
+
+The user explicitly approved migration 014. Supabase reported success; hosted
+learner inventory, current capture loading, snapshot validation, unauthenticated
+401 and cross-owner 404 checks pass. A disposable copy of the public page-6 PDF
+baseline indexed automatically and produced exact citations through the real
+model and hosted storage services. Source removal invalidated its snapshot and
+background cleanup left zero derived points.
+
+Three bounded old/hybrid question replays returned expected supported/supported/
+unsupported statuses. Hybrid complete-response times were 7.94s, 5.77s and 4.36s.
+These are single samples on one PDF page, not latency percentiles, streamed-text
+measurements or evidence of improved answer quality. A restarted localhost API
+also returned a supported exact-page answer in 5.57s; that second fixture was
+removed and cleaned automatically. Reports stay in ignored output/evaluation/.
+
+`ENABLE_HYBRID_RETRIEVAL=true` is set in ignored backend/.env and the localhost
+API was restarted. Both background indexing and hybrid answers now run locally
+using hosted services. Templates retain false defaults. The previous 232 backend
+and 69 web tests pass; git diff --check passes. Broader multi-source/held-out
+retrieval comparisons under #25/#27 and semantic claim verification remain
+unfinished. Native/iOS and its tracker remain untouched; no commit or push.
+
+
+## Fresh multi-source retrieval evaluation — 2026-10-08
+
+Implemented shared HTTP/evaluation answer execution and independent owned-scope
+expected-source annotations. Full backend suite: **234 passed** (two existing
+warnings); uv cache access blocked, existing virtual environment used.
+
+Three fresh public PDF/article/video sources generated notes and indexed in a
+dedicated acceptance library. Nine questions replayed in each retrieval mode.
+All 18 exact citation locations and expected answer statuses passed, but manual
+review found one hybrid video retrieval regression and an incomplete comparison
+in both modes. The rank-1 video chunk contains the evidence; passage-prefix caps
+remove it before model input. DeepEval scored the incomplete comparison highly,
+so those scores are not release gates.
+
+[Results and next unit](../reviews/assistant-multisource-evaluation-2026-10-08.md): fix question-aware passage selection under #27
+before classifier comparison. #25/#27 remain open for broader acceptance. Fresh
+acceptance sources retained for reproducible replay. Native/iOS and its tracker
+untouched; no commit or push.
+
+## Question-aware passage selection — 2026-10-08
+
+Implemented bounded semantic passage ordering with original chunk relevance and
+short caption continuations. Existing exact citation identities/coordinates,
+owned scope/version fences and 30,000-character context bound are preserved.
+The two measured transcript failures now retrieve their independently annotated
+evidence. Final unchanged nine-question replay: all expected spans/statuses and
+citation locations pass; individual complete responses 3.36–6.22 seconds.
+
+Full backend suite: **237 passed**, two existing warnings. No frontend changes;
+native/iOS and its tracker untouched. [Acceptance and limits](../reviews/passage-selection-acceptance-2026-10-08.md).
+#25/#27 remain open for broader held-out/topic/follow-up/capacity checks and
+ranking calibration. Semantic claim checking and verified streaming remain
+planned. No migration, commit or push.
+
+## Broader retrieval evaluation — 2026-10-08
+
+Eleven new questions ran after freezing the passage fix on the same acceptance
+library. All ten annotated supporting spans reached the model; 10/11 answer
+statuses matched expectations and emitted citation locations were valid. One
+shared-topic GQA answer falsely abstained despite available evidence, and did so
+again on one unchanged repeat. Two clear follow-ups passed; explicit reference
+resolution remains unimplemented. Narrow-topic isolation plus actual API
+401/404 ownership/version/topic denial checks pass.
+
+PDF/article topic maps succeeded. Video mapping returned invalid output twice,
+including one bounded named retry, and remains queued at two attempts. No broad
+worker dispatcher started. [Results and remaining gates](../reviews/assistant-broader-evaluation-2026-10-08.md).
+
+#25/#27 stay open. Next unit: false-abstention diagnosis, then video mapping.
+Grounding comparison, ambiguity handling and capacity/cost/streaming remain
+planned. No application/test code changed; prior 237 backend tests remain the
+historical baseline. Native/iOS and its tracker untouched; no commit/push.
+
+
+## Generation reliability fixes — 2026-10-08
+
+Implemented a whitespace-normalized reading rendering for multiline evidence while
+preserving exact citation text/coordinates. Topic schema instructions and owned
+canonical-context repair requirements fix the rejected video mapping without
+weakening validation or adding retry attempts.
+
+**Verified locally:** 238 backend tests pass; all 11 broader and all nine prior
+question statuses, annotated spans and citation locations pass. Actual API GQA
+answer returned supported with an exact article citation. The named video map
+saved successfully at attempt 3; all three acceptance source maps now succeed.
+No unrestricted study/topic dispatcher ran.
+
+[Acceptance and limits](../reviews/generation-reliability-acceptance-2026-10-08.md). #25/#27 remain open. Next planned unit: compare
+Jev with a specialist grounding classifier using claim-level support/uncertainty
+annotations. Explicit ambiguous follow-up handling, independent-source coverage,
+200-source capacity, cost calibration and verified streaming remain planned.
+Native/iOS and its tracker untouched; no migration, commit or push.
+
+
+## Grounding classifier comparison — 2026-10-08
+
+Implemented a development-only direct Jev adapter, optional pinned MiniCheck FT5
+runner and 20 manually reviewed public claim/evidence cases. **240 backend tests
+pass**; dry-run validation covers all cases. Production answers are unchanged.
+
+MiniCheck scored all 20 on this Mac's MPS device: zero false support among 13
+unsupported claims, but **two false rejections among seven supported claims**.
+Original/compacted-whitespace probes retain both failures: GQA equations and
+opposite boolean-mask semantics. Failed initial tokenizer setup is retained as
+unscored runtime evidence. These are development regressions, not held-out
+accuracy or calibrated thresholds.
+
+**Needs input:** add server-only `TYPESAFE_API_KEY` to ignored backend/.env; the
+focused question is pending. Jev has made zero requests. No winner or live checker
+is selected. [Results, reproduction and limits](../reviews/grounding-classifier-development-2026-10-08.md).
+#25/#27 remain open; follow-up/routing, broader labels, hosted cost/latency and
+verified streaming remain planned. Native/iOS and its tracker untouched; no
+migration, commit or push.
+
+
+## Laya replaces Jev — 2026-10-08
+
+The learner selected open-source Laya. Replaced the active development Jev adapter
+with pinned local Laya English HTTP classification; removed its provider option
+and TypeSafe placeholder requirement. No API key is needed. Production answers
+are unchanged; the temporary model server was stopped after measurement.
+
+**Measured:** unchanged 20 cases in original/compact layouts. Laya matches 17/20,
+with three false acceptances and no false rejections; MiniCheck matches 18/20,
+with no false acceptances and two false rejections. Scope generalization, GQA
+negation and reversed mask semantics fail in Laya. No threshold was tuned or
+winner/live checker selected. **240 backend tests pass**.
+
+[Results and next gates](../reviews/laya-classifier-development-2026-10-08.md). #25/#27 remain open. Routing and broader grounding
+calibration, hosted latency/cost and verified streaming remain planned. The earlier
+TypeSafe-key request is superseded. Native/iOS tracker untouched; no migration,
+commit or push.
+
+## Claim generation — implementation verified; semantic acceptance pending, 2026-10-08
+
+Implemented 600-character private draft claims, concise per-claim instructions,
+literal source-qualifier hints, private source identity and declared-comparison
+citation guards. Public answers remain compatible; citation marker cleanup keeps
+exact attribution. **258 backend tests pass**. Seven of eight final regression
+requests completed with expected statuses and exact citations; a comma-marker
+failure was then fixed, and an actual API comparison returned 200 with exact PDF
+and video locations. Earlier failed rounds remain recorded.
+
+Qualifier attachment and unsupported extensions still fail conservative developer
+review in scaling/comparison answers. **Semantic acceptance remains open**; shorter
+claims and valid locations are not proof of support. No classifier, training,
+routing or streaming is enabled. Independent review and unseen-source groups are
+next. [Implementation, failures and next gates](../reviews/claim-generation-review-2026-10-08.md). #25/#27 stay open.
+Native/iOS tracker untouched; no migration, worker, commit or push.
+
+## Working first web version — local acceptance, 2026-10-08
+
+**Verified:** fresh article/PDF/video-caption imports generate saved notes and ready
+search indexes. Browser checks cover page/timestamp citations, reload, a shared
+two-source topic, two graph connections and a completed combined overview. The
+approved development worker is running. Mobile/iOS and its tracker are untouched.
+
+The assistant now returns attributed captured-source wording with whitespace
+simplified. This avoids displaying unverified draft paraphrases; evidence relevance
+and completeness are still model judgments. A lexical passage reservation fixes
+the fresh cleanup retrieval miss. Existing topic context is copied from the owned
+catalog by the server, fixing the video mapping retry without changing public
+records or database schema.
+
+**Checks:** 266 backend tests, 69 web tests, web build/typecheck and lint pass.
+Twenty final live regression requests matched expected statuses and had valid
+citation locations, taking 3.13–6.55 seconds per complete response in single local
+runs. One comparison selected an equivalent alternate caption and hit only one of
+two annotated exact spans; this is not independently measured semantic accuracy.
+
+**Target:** hosted rollout, calibrated verified paraphrases, streaming, 200-source
+capacity and a measured cost ceiling remain open under #25/#27. Study notes and
+combined overviews remain AI-generated and should be inspected through citations.
+See [acceptance, failures and limits](../reviews/working-product-acceptance-2026-10-08.md).
+
+GitHub progress synchronized:
+[#25 update](https://github.com/CloudKai/secondBrain/issues/25#issuecomment-6063522492) ·
+[#27 update](https://github.com/CloudKai/secondBrain/issues/27#issuecomment-6063522961).
+Both issues remain open for the broader target gates above.
+
+## Shared learning reading format — local acceptance, 2026-10-09
+
+**Implemented:** original source wording now uses assistant source cards, readable
+paragraphs, prominent page/time labels and expandable original text. Full sources
+retain PDF pages and bounded caption groups with original cues. Saved notes,
+recall, combined overviews, separate source branches and archived notes use shared
+16px/1.75/70ch reading styles. Existing material needs no regeneration.
+
+**Checks:** 81 web tests, typecheck/build, lint and whitespace checks pass. Public
+article/PDF/video evidence, live assistant cards, recall and topic views were
+checked at desktop and narrow widths in dark/light appearances. Keyboard citation
+opening/closing, focus return, long-text scrolling and 200% magnified reflow pass.
+Native browser zoom did not respond; magnification used a temporary same-origin
+fixture, now removed. Archives are covered by retained-capture rendering/client
+tests, not a new live archive journey; complete screen-reader acceptance remains.
+
+**Preserved:** original wording/coordinates, public APIs, backend/model/retrieval
+behavior and existing generated note prose. Ambiguous extracted layouts stay literal.
+Mobile/iOS and its tracker are untouched. #21/#23 remain open for the broader checks;
+#25/#27 retain their AI quality/hosted targets. See [acceptance and limits](../reviews/reading-format-acceptance-2026-10-09.md).
+
+GitHub progress published:
+[#21 update](https://github.com/CloudKai/secondBrain/issues/21#issuecomment-6064090399) ·
+[#23 update](https://github.com/CloudKai/secondBrain/issues/23#issuecomment-6064090981).

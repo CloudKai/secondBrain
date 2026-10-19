@@ -1,9 +1,12 @@
+import CapturedSourceText from './CapturedSourceText';
 import {useEffect,useRef,useState} from 'react';
 import type {Note} from '../types';
 import type {SourceClient,RevisionComparison,SavedSource,SavedVersion,VersionHistory} from '../lib/source-client';
 import type {SourceReference} from '../lib/study-note';
 import {noteFromSavedSource} from '../lib/api';
-import {formatVideoTime,videoMomentUrl} from '../lib/transcript';
+import {formatVideoTime} from '../lib/transcript';
+import EvidenceDialog from './EvidenceDialog';
+import SourceEvidence from './SourceEvidence';
 import CaptureRangeFields from './CaptureRangeFields';
 import {selectedRange,type RangeFields} from '../lib/capture-range';
 import StructuredStudy from './StructuredStudy';
@@ -11,6 +14,7 @@ import StructuredStudy from './StructuredStudy';
 interface Props {note:Note;client:SourceClient;initial:RevisionComparison|null;onApplied:(source:SavedSource,active:boolean)=>void;onReviewed:()=>void;onClose:()=>void}
 export default function SourceVersions({note,client,initial,onApplied,onReviewed,onClose}:Props){
  const [history,setHistory]=useState<VersionHistory|null>(null),[comparison,setComparison]=useState(initial),[archive,setArchive]=useState<SavedVersion|null>(null),[passage,setPassage]=useState<SourceReference|null>(null);
+ const [archiveFullText,setArchiveFullText]=useState(false);
  const [file,setFile]=useState<File|null>(null),[text,setText]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[reviewTopics,setReviewTopics]=useState<string[]>([]),[evidence,setEvidence]=useState<string[]>([]);
  const [range,setRange]=useState<RangeFields>(()=>{const source=initial?.replacement??note.savedSource!;const pages=source.document?.selected_pages,times=source.transcript?.selected_time;return pages?{enabled:true,start:String(pages.start),end:String(pages.end)}:times?{enabled:true,start:formatVideoTime(times.start_ms),end:formatVideoTime(times.end_ms)}:{enabled:false,start:'',end:''};});
  const pending=useRef(false),mounted=useRef(false);
@@ -58,9 +62,12 @@ export default function SourceVersions({note,client,initial,onApplied,onReviewed
    <button className="text-button" disabled={busy} onClick={()=>void reload()}>Reload version history</button>
   </section>
   {archive&&<section aria-label={`Saved version ${archive.source.source_version??1}`} className="archived-note"><h3>Saved version {archive.source.source_version??1} · {archive.source.title}</h3><p className="micro-copy">Read-only archive · captured {new Date(archive.source.captured_at).toLocaleString('en')}</p>
-   {archive.study?.note?<StructuredStudy note={archive.study.note} onCitation={id=>setPassage(archive.study!.note!.references.find(ref=>ref.id===id)??null)}/>:<p>No completed study note was saved for this version.</p>}
-   {passage&&<aside aria-live="polite" className="version-evidence"><h4>Version {archive.source.source_version??1} · {passage.page?`PDF page ${passage.page}`:passage.start_ms!=null?`${formatVideoTime(passage.start_ms)}–${formatVideoTime(passage.end_ms!)}`:'Source passage'} · {passage.id}</h4><p>{passage.excerpt}</p>{archive.source.original_url&&<a href={passage.start_ms!=null?videoMomentUrl(archive.source.original_url,passage.start_ms):archive.source.original_url} target="_blank" rel="noreferrer">Open original</a>}</aside>}
-   <details><summary>Captured source text for this version</summary><pre>{archive.source.captured_text}</pre></details>
+   {archive.study?.note?<StructuredStudy note={archive.study.note} onCitation={id=>{setArchiveFullText(false);setPassage(archive.study!.note!.references.find(ref=>ref.id===id)??null);}}/>:<p>No completed study note was saved for this version.</p>}
+   {passage&&<EvidenceDialog onClose={()=>setPassage(null)}>
+    <p className="micro-copy">Saved version {archive.source.source_version??1} · read-only archive</p>
+    <SourceEvidence note={noteFromSavedSource(archive.source,archive.study??undefined)} passage={archiveFullText?undefined:passage} onFullText={()=>setArchiveFullText(true)}/>
+   </EvidenceDialog>}
+   <details><summary>Captured source text for this version</summary><CapturedSourceText note={noteFromSavedSource(archive.source,archive.study??undefined)}/></details>
   </section>}
  </div>;
 }

@@ -222,7 +222,7 @@ def test_model_topics_use_evidence_merge_clear_aliases_and_keep_uncertainty_dist
     topic = dict(
         key="calculus",
         title="Calculus basics",
-        context="Mathematics",
+        context=None,
         aliases=[],
         groups=["Math"],
         description="Changes and accumulated quantities.",
@@ -285,6 +285,7 @@ def test_model_topics_use_evidence_merge_clear_aliases_and_keep_uncertainty_dist
             assert str(result.topics[0].id) == T1
             topic.update(
                 existing_topic_id=None,
+                context="Mathematics",
                 uncertain=True,
                 suggested_topic_id=T1,
                 placement_reason="Scope may be narrower; learner confirmation needed.",
@@ -316,9 +317,9 @@ def test_model_topics_use_evidence_merge_clear_aliases_and_keep_uncertainty_dist
             )
             from backend.study_generation import GenerationFailure
 
-            with pytest.raises(GenerationFailure, match="invalid_output"):
-                await generator.generate(note, [candidate], UUID(ALICE), UUID(SOURCE))
-            topic["context"] = "Mathematics"
+            result = await generator.generate(note, [candidate], UUID(ALICE), UUID(SOURCE))
+            assert result.topics[0].context == candidate.context
+            topic["context"] = None
             topic["citation_ids"] = ["p9999"]
             from backend.study_generation import GenerationFailure
 

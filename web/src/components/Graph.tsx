@@ -7,6 +7,7 @@ interface Props {
   onSelect: (id: string) => void;
   compact?: boolean;
   cardsOnly?: boolean;
+  onAdd?: () => void;
 }
 export function Graph({
   topics,
@@ -15,13 +16,15 @@ export function Graph({
   onSelect,
   compact = false,
   cardsOnly = false,
+  onAdd,
 }: Props) {
   if (!topics.length)
     return (
       <div className="graph-empty">
         <Network size={32} />
         <h3>Your map starts with a source</h3>
-        <p>Save something interesting. Its topics will appear here.</p>
+        <p>Add an article, selectable-text PDF or video transcript. Its topics will appear here.</p>
+        {onAdd && <button className="button primary" onClick={onAdd}>Add your first source</button>}
       </div>
     );
   const connectedIds = new Set(
@@ -96,7 +99,7 @@ export function Graph({
           className={`graph-node tone-${["mint", "purple", "peach", "blue"][i % 4]} ${selected === topic.id ? "selected" : ""} ${connectedIds.has(topic.id) ? "" : "unconnected"}`}
           style={{ left: `${x}%`, top: `${y}%` }}
           onClick={() => onSelect(topic.id)}
-          aria-label={`Explore ${topic.title}, ${topic.notes.length} sources`}
+          aria-label={`Explore ${topic.title}, ${topic.notes.length} ${topic.notes.length === 1 ? "source" : "sources"}`}
         >
           <span className="node-orbit">
             <Network size={compact ? 17 : 23} />
@@ -104,7 +107,7 @@ export function Graph({
           <span>{topic.title}</span>
           {!compact && (
             <small>
-              {topic.notes.length} sources <ArrowUpRight size={12} />
+              {topic.notes.length} {topic.notes.length === 1 ? "source" : "sources"} <ArrowUpRight size={12} />
             </small>
           )}
         </button>

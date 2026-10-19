@@ -1,6 +1,7 @@
 import {lessonConversationSchema,conversationPath,type ConversationSend} from './learning-conversation';
 import {lessonDraftSchema,DraftConflictError,draftPath,type DraftSave,type DraftKind} from './learning-draft';
 import {collectionDetailSchema,collectionListSchema} from './collections';
+import {indexStatusSchema} from "./index-status";
 import {learningSummarySchema,learningGraphSchema,learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
 import {researchResultsSchema} from "./research";
 import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
@@ -417,6 +418,13 @@ export function createSourceClient(
       return parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/tutor`,{method:'POST',body:JSON.stringify(input)}),learningTutorSchema);
     },
     ready,
+    async indexStatus(id: string, version: number) {
+      const result = await parse(await request(`/sources/${encodeURIComponent(id)}/index-status`,
+        {signal: AbortSignal.timeout(10_000)}), indexStatusSchema);
+      if (result.source_id !== id || result.source_version !== version)
+        throw new Error('This source changed. Reload it to check search preparation.');
+      return result;
+    },
     async research(query: string) {
       const results=await parse(await request('/research',{method:'POST',body:JSON.stringify({query})}),researchResultsSchema);
       if(results.query!==query.trim())throw new Error('The research results do not match your question. Search again.');

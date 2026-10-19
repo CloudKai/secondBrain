@@ -308,3 +308,18 @@ coverage labels. Saved section counts and combining stage survive reload. Retry
 resumes completed section work; no unfinished note is shown as complete. Range
 refresh stays under one source and old citation readers remain version-specific.
 Existing mint controls/citation styling retained. Native/iOS unchanged.
+
+## Shared web learning reading format — 2026-10-09
+
+Verified locally: source cards, evidence dialogs and full article/page/caption
+readers use the shared `ReadingText` projection. Notes, recall, topic overviews,
+branches and archived content retain their wording/citations with 16px primary
+reading text, 1.75 line height and up to 70ch width. Existing dark/light tokens are
+used. Original source whitespace remains inspectable when simplified; ambiguous
+code/equations/layout is literal. Captions group at most 45 seconds/900 code points
+with gaps at most 1.5 seconds, preserving original cue inspection. Dialog scrolling
+belongs to one content container; the existing focus return behavior is retained.
+
+Browser desktop/narrow/light checks pass. 200% magnified reflow was checked with a
+temporary iframe fixture; native zoom and full screen-reader acceptance remain
+unverified. See the [acceptance record](../docs/reviews/reading-format-acceptance-2026-10-09.md).

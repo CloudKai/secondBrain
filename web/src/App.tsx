@@ -1,14 +1,16 @@
+import IndexingStatus from "./components/IndexingStatus";
 import ResearchDiscovery from "./components/ResearchDiscovery";
 import SavedAssistant from "./components/SavedAssistant";
-import LibraryLearning from './components/LibraryLearning';
-import {noteTopicContext} from './lib/learning-continuity';
 import SourceLearningEntry from './components/SourceLearningEntry';
 import CollectionWorkspace from './components/CollectionWorkspace';
 import CollectionLibrary from './components/CollectionLibrary';
+import LibraryLearning from './components/LibraryLearning';
+import {noteTopicContext} from './lib/learning-continuity';
 import LearningHistory from './components/LearningHistory';
 import LearningTopicProgress from './components/LearningTopicProgress';
 import {citationMatchesSource, type AssistantReference} from "./lib/assistant-answer";
 import CaptureRangeFields from "./components/CaptureRangeFields";
+import ImportSupport from "./components/ImportSupport";
 import {selectedRange,wholeSourceFields,type RangeFields,type CaptureRange} from "./lib/capture-range";
 import SavedSourceAssignments from "./components/SavedSourceAssignments";
 import { useTopicLibrary } from "./lib/use-topic-library";
@@ -45,14 +47,14 @@ import {
 } from "lucide-react";
 import { sampleNotes, topicTitles } from "./data";
 import CapturedSourceText from "./components/CapturedSourceText";
+import SourceEvidence from "./components/SourceEvidence";
+import EvidenceDialog from "./components/EvidenceDialog";
 import TeamsTranscriptHelp from "./components/TeamsTranscriptHelp";
 import ZoomTranscriptHelp from "./components/ZoomTranscriptHelp";
 import PanoptoTranscriptHelp from "./components/PanoptoTranscriptHelp";
 import VideoTranscriptInput from "./components/VideoTranscriptInput";
 import {
-  formatVideoTime,
   videoIdentity,
-  videoMomentUrl,
 } from "./lib/transcript";
 
 import type { Note, Page, PanelTab, Topic } from "./types";
@@ -196,10 +198,14 @@ export default function App() {
     notes.find((n) => n.id === route.noteId) ||
     (["note","collection"].includes(route.page) ? undefined : notes[0]);
   const activeAssistantEvidence=assistantEvidence && assistantEvidence.anchor===currentNote?.id && assistantEvidence.anchorVersion===(currentNote.savedSource?.source_version??1)?assistantEvidence:null;
-  const evidenceNote=activeAssistantEvidence?.note??currentNote;
+  const [evidenceSourceId, setEvidenceSourceId] = useState<string | null>(null);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
+  const evidenceOrigin = useRef<HTMLElement | null>(null);
+  const citationRequest = useRef(0);
+  const evidenceNote=activeAssistantEvidence?.note??(evidenceSourceId ? notes.find(n => n.id === evidenceSourceId) : currentNote);
   const passage =
     selectedPassage?.sourceId === evidenceNote?.id
-      ? (activeAssistantEvidence ? [activeAssistantEvidence.reference.passage] : currentNote?.study?.note?.references)?.find(
+      ? (activeAssistantEvidence ? [activeAssistantEvidence.reference.passage] : evidenceNote?.study?.note?.references)?.find(
           (r) => r.id === selectedPassage?.id,
         )
       : undefined;
@@ -295,7 +301,7 @@ export default function App() {
       event.preventDefault();
       window.location.hash = "library";
       requestAnimationFrame(() =>
-        document.getElementById("library-search")?.focus(),
+        (document.getElementById("library-search") ?? document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
       );
     };
     window.addEventListener("keydown", search);
@@ -338,39 +344,45 @@ export default function App() {
     setPanelTab("Topic");
     setPanelOpen(true);
   }
-  function showEvidence(id: string, passageId?: string) {
+  function rememberCitationOrigin() {
+    evidenceOrigin.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement : null;
+    citationRequest.current += 1;
+    return citationRequest.current;
+  }
+  function closeEvidence() {
+    citationRequest.current += 1;
+    setEvidenceOpen(false);
+    setEvidenceSourceId(null);
     setAssistantEvidence(null);
-    setSelectedPassage(passageId ? {sourceId:id,id:passageId} : null);
-    const n = notes.find((n) => n.id === id);
-    if (n) {
-      setTopicMode(n.savedSource ? "saved" : "examples");
-      go("note", id);
-      setPanelTab("Sources");
-      setPanelOpen(true);
-    }
+    setSelectedPassage(null);
+  }
+  function showEvidence(id: string, passageId?: string) {
+    if (!notes.some(n => n.id === id)) return;
+    rememberCitationOrigin();
+    setAssistantEvidence(null);
+    setEvidenceSourceId(id);
+    setSelectedPassage(passageId ? { sourceId: id, id: passageId } : null);
+    setEvidenceOpen(true);
   }
   function inspectPassage(id: string) {
-    setAssistantEvidence(null);
     if (!currentNote) return;
-    setSelectedPassage({ sourceId: currentNote.id, id });
-    setPanelTab("Sources");
-    setPanelOpen(true);
-    requestAnimationFrame(() =>
-      document.getElementById("source-passage")?.focus(),
-    );
+    showEvidence(currentNote.id, id);
   }
-  async function inspectAssistantCitation(ref:AssistantReference, allowArchived = false) {
-    if(!sourceClient||!currentNote)return;
-    const anchor=currentNote.id;
-    let source=await sourceClient.get(ref.source_id);
-    if(allowArchived && ref.source_version !== (source.source_version??1))
-      source=(await sourceClient.sourceVersion(ref.source_id,ref.source_version)).source;
-    if(activeNote.current!==anchor)return;
-    if(!citationMatchesSource(ref,source))throw new Error('This evidence changed. Reload the note and ask again.');
-    setAssistantEvidence({anchor,anchorVersion:currentNote.savedSource?.source_version??1,note:noteFromSavedSource(source),reference:ref});
-    setSelectedPassage({sourceId:source.id,id:ref.passage.id});
-    setPanelTab('Sources');setPanelOpen(true);
-    requestAnimationFrame(()=>document.getElementById('source-passage')?.focus());
+  async function inspectAssistantCitation(ref: AssistantReference, allowArchived = false) {
+    if (!sourceClient || !currentNote) return;
+    const request = rememberCitationOrigin();
+    const anchor = currentNote.id;
+    const anchorVersion = currentNote.savedSource?.source_version ?? 1;
+    let source = await sourceClient.get(ref.source_id);
+    if (allowArchived && ref.source_version !== (source.source_version ?? 1))
+      source = (await sourceClient.sourceVersion(ref.source_id, ref.source_version)).source;
+    if (activeNote.current !== anchor || citationRequest.current !== request) return;
+    if (!citationMatchesSource(ref, source)) throw new Error('This evidence changed. Reload the note and ask again.');
+    setAssistantEvidence({anchor, anchorVersion, note: noteFromSavedSource(source), reference: ref});
+    setEvidenceSourceId(source.id);
+    setSelectedPassage({sourceId: source.id, id: ref.passage.id});
+    setEvidenceOpen(true);
   }
   function findSavedResource(url:string) {
     return notes.find(n=>!!n.savedSource&&!!n.url&&canonicalUrl(n.url)===canonicalUrl(url));
@@ -601,16 +613,16 @@ export default function App() {
         <div className="panel-topic-icon">
           <Network size={24} />
         </div>
-        <span className="eyebrow">SHARED TOPIC</span>
+        <span className="eyebrow">EXAMPLE TOPIC</span>
         <h2>{t.title}</h2>
         <p className="panel-description">
           {t.notes.length > 1
-            ? `An idea explored across ${t.notes.length} independent sources in your library.`
-            : "An idea from one saved source. Add related material to build its connections."}
+            ? `An idea explored across ${t.notes.length} curated example sources. These are not saved to your private library.`
+            : "An idea from one curated example source. Save related material to build your own connections."}
         </p>
         <div className="topic-meta">
           <span className="dot mint" />
-          {t.notes.length} supporting{" "}
+          {t.notes.length} example{" "}
           {t.notes.length === 1 ? "source" : "sources"}
         </div>
         {t.notes.length > 1 && (
@@ -772,91 +784,12 @@ export default function App() {
               </button>
             </>
           )}
-          {panelTab === "Sources" && (
-            <>
-              <span className="eyebrow">TRACE IT TO THE SOURCE</span>
-              <h2>Source evidence</h2>
-              <div className="evidence-source">
-                <FileText size={20} />
-                <div>
-                  <strong>{evidenceNote!.title}</strong>
-                  <small>
-                    {evidenceNote!.author} · {evidenceNote!.year}
-                  </small>
-                </div>
-              </div>
-              <span className="evidence-label">
-                {passage
-                  ? passage.page
-                    ? `PDF page ${passage.page} · passage ${passage.id}`
-                    : passage.start_ms != null && passage.end_ms != null
-                      ? `${formatVideoTime(passage.start_ms)}–${formatVideoTime(passage.end_ms)} · passage ${passage.id} · ${evidenceNote!.savedSource?.capture_origin === "direct" ? "retrieved captions" : "supplied transcript"}`
-                      : `Passage ${passage.id} · captured-text characters ${passage.start + 1}–${passage.end}`
-                  : evidenceNote!.evidenceLabel}
-              </span>
-              {passage ? (
-                <p className="evidence-text" id="source-passage" tabIndex={-1}>
-                  {passage.excerpt}
-                </p>
-              ) : (
-                <CapturedSourceText note={evidenceNote!} />
-              )}
-              {passage && (
-                <button
-                  className="text-button"
-                  onClick={() => setSelectedPassage(null)}
-                >
-                  Show full captured text
-                </button>
-              )}
-              {evidenceNote!.demo && (
-                <p className="micro-copy">
-                  This example note includes paraphrased evidence, not a
-                  verbatim excerpt or a full-source extraction.
-                </p>
-              )}
-              {evidenceNote!.url ? (
-                <a
-                  className="button secondary full"
-                  href={
-                    passage?.page
-                      ? `${evidenceNote!.url.split("#")[0]}#page=${passage.page}`
-                      : evidenceNote!.kind === "Video"
-                        ? videoMomentUrl(evidenceNote!.url, passage?.start_ms)
-                        : evidenceNote!.url
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {evidenceNote!.kind === "Video" &&
-                  passage?.start_ms != null &&
-                  evidenceNote!.savedSource?.transcript?.provider === "youtube"
-                    ? `Open video at ${formatVideoTime(Math.floor(passage.start_ms / 1000) * 1000)}`
-                    : "Open original"}{" "}
-                  <ExternalLink size={15} />
-                </a>
-              ) : (
-                <p className="micro-copy">
-                  Uploaded PDF · saved page text. The original file is not
-                  stored; refer to your local copy for images and layout.
-                </p>
-              )}
-              {evidenceNote!.kind === "Video" && (
-                <p className="micro-copy">
-                  {evidenceNote!.savedSource?.capture_origin === "direct"
-                    ? evidenceNote!.savedSource.coverage_detail
-                    : `User-supplied transcript · ${evidenceNote!.savedSource?.transcript?.filename ?? "pasted text"}. No video was fetched or watched.`}
-                  {passage?.start_ms != null &&
-                    evidenceNote!.savedSource?.transcript?.provider !==
-                      "youtube" &&
-                    " Times are retained from your transcript; this link opens the recording without seeking to a time."}
-                </p>
-              )}
-            </>
+          {panelTab === "Sources" && evidenceNote && (
+            <SourceEvidence note={evidenceNote} passage={passage} onFullText={() => setSelectedPassage(null)} />
           )}
         </div>
         <div className="panel-foot">
-          <Link2 size={13} /> Grounded in your saved material
+          <Link2 size={13} /> {currentNote.demo ? "Curated example material" : "Grounded in your saved material"}
         </div>
       </aside>
     );
@@ -924,7 +857,7 @@ export default function App() {
           onClick={() => {
             go("library");
             requestAnimationFrame(() =>
-              document.getElementById("library-search")?.focus(),
+              (document.getElementById("library-search") ?? document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
             );
           }}
         >
@@ -1100,7 +1033,7 @@ export default function App() {
                     from it.
                   </p>
                 </div>
-                <div className="stat-strip">
+                {notes.length > 0 && <div className="stat-strip">
                   <span>
                     <FileText size={16} />
                     <strong>
@@ -1116,6 +1049,7 @@ export default function App() {
                   </span>
 
                 </div>
+                }
                 {sourceClient&&storage==='ready'&&<LibraryLearning client={sourceClient} onOpen={id=>void openLearning(id)}/>}
                 {sourceClient&&storage==='ready'&&<CollectionLibrary client={sourceClient}/>}
                 {currentNote ? (
@@ -1150,8 +1084,8 @@ export default function App() {
                     </span>
                     <h2>Give your curiosity a home.</h2>
                     <p>
-                      Add your first article to create a note and discover its
-                      topics.
+                      Add an article, selectable-text PDF or video transcript
+                      to create a note and discover its topics.
                     </p>
                     <button
                       className="button primary"
@@ -1161,10 +1095,11 @@ export default function App() {
                     </button>
                   </section>
                 )}
+                {notes.length > 0 && <>
                 <div className="section-heading">
                   <div>
                     <h2>
-                      Your sources <span>{notes.length}</span>
+                      {demo ? "Sources and examples" : "Your sources"} <span>{notes.length}</span>
                     </h2>
                     <p>Good ideas, ready to become understanding.</p>
                   </div>
@@ -1321,6 +1256,7 @@ export default function App() {
                   </span>
                   <ArrowRight size={18} />
                 </button>
+                </>}
                 <div className="library-footnote">
                   <span>
                     <Link2 size={13} />
@@ -1334,7 +1270,7 @@ export default function App() {
                   </button>
                 </div>
               </section>
-              <aside className="library-aside">
+              {notes.length > 0 && (              <aside className="library-aside">
                 <div className="aside-heading">
                   <span className="eyebrow">THE BIGGER PICTURE</span>
                   <h2>
@@ -1407,7 +1343,7 @@ export default function App() {
                   </p>
                   <span>A SMALL REMINDER FROM SECOND BRAIN</span>
                 </div>
-              </aside>
+              </aside>)}
             </div>
           )}
           {route.page === "note" &&
@@ -1499,6 +1435,10 @@ export default function App() {
                       ))}
                     </div>
                   </div>
+                  {currentNote.savedSource && sourceClient && storage === 'ready' && <IndexingStatus
+                    key={`${currentNote.id}:${currentNote.savedSource.source_version ?? 1}`}
+                    client={sourceClient} sourceId={currentNote.id} version={currentNote.savedSource.source_version ?? 1}
+                  />}
                   {currentNote.savedSource && studies.error && (
                     <div className="study-error" role="alert">
                       <p>{studies.error}</p>
@@ -1735,15 +1675,15 @@ export default function App() {
                 </p>
               </div>
               <div className="segmented" aria-label="Topic graph material">
-                <button className={showingSavedGraph?'active':''} onClick={()=>setTopicMode('saved')}>Saved topics</button>
-                <button className={!showingSavedGraph?'active':''} onClick={()=>{changeLibrary({type:'show-examples',notes:sampleNotes});setTopicMode('examples');}}>Example topics</button>
+                <button aria-pressed={showingSavedGraph} className={showingSavedGraph?'active':''} onClick={()=>setTopicMode('saved')}>Saved topics</button>
+                <button aria-pressed={!showingSavedGraph} className={!showingSavedGraph?'active':''} onClick={()=>{changeLibrary({type:'show-examples',notes:sampleNotes});setTopicMode('examples');}}>Example topics</button>
               </div>
               {showingSavedGraph&&<div className="topic-progress" aria-live="polite">
                 {topicMaps.error&&<p>{topicMaps.error} <button className="text-button" onClick={topicMaps.reload}>Reload topics</button></p>}
                 {topicMaps.library.partial&&<p>Partial topic mapping: some material was outside the current processing limits.</p>}
                 {topicMaps.library.maps.filter(m=>m.status!=='succeeded').map(m=><p key={m.source_id}>{notes.find(n=>n.id===m.source_id)?.title??'Saved source'}: {m.status==='failed'?'Topic mapping failed; your note is safe.':'Mapping its main and supporting topics…'} {m.status==='failed'&&<button className="text-button" disabled={topicMaps.busy} onClick={()=>void topicMaps.retry(m.source_id)}>Retry topic mapping</button>}</p>)}
               </div>}
-              <div className="graph-workspace">
+              <div className={`graph-workspace ${!topics.length ? "graph-workspace-empty" : ""}`}>
                 <section className="large-graph">
                   <div className="graph-toolbar">
                     <span>
@@ -1769,29 +1709,14 @@ export default function App() {
                     connections={connections}
                     selected={topic?.id}
                     onSelect={openTopic}
+                    onAdd={() => showAdd()}
                   />
-                  <div className="graph-caption">
+                  {topics.length > 0 && <div className="graph-caption">
                     <span className="dot mint" />
                     Select any topic to see what supports it.
-                  </div>
+                  </div>}
                 </section>
-                <aside className="graph-detail">
-                  {topic ? (
-                    topicDetails(topic)
-                  ) : (
-                    <>
-                      <Network size={28} />
-                      <h2>A blank canvas for your ideas</h2>
-                      <p>Add your first source to discover its topics.</p>
-                      <button
-                        className="button primary"
-                        onClick={() => showAdd()}
-                      >
-                        Add source
-                      </button>
-                    </>
-                  )}
-                </aside>
+                {topic && <aside className="graph-detail">{topicDetails(topic)}</aside>}
               </div>
               {topic?.saved&&sourceClient&&storage==='ready'&&<LearningTopicProgress client={sourceClient} sourceIds={topic.notes.map(note=>note.id)}/>}
               <div className="section-heading">
@@ -1866,8 +1791,16 @@ export default function App() {
           {toast}
         </div>
       )}
+      {evidenceOpen && (
+        <EvidenceDialog origin={evidenceOrigin.current} onClose={closeEvidence}>
+          {evidenceNote && (!assistantEvidence || activeAssistantEvidence) && (!selectedPassage || passage) ? (
+            <SourceEvidence note={evidenceNote} passage={passage} onFullText={() => setSelectedPassage(null)} />
+          ) : <p role="alert">This evidence is no longer available. Reload the source and inspect its current citations.</p>}
+        </EvidenceDialog>
+      )}
       {dialog && (
         <Modal
+          className={dialog === "add" ? "import-modal" : ""}
           title={
             {
               add: "Add a little curiosity",
@@ -1907,13 +1840,21 @@ export default function App() {
                   </button>
                 ))}
               </div>
-              <form onSubmit={submitSource}>
-                <p className="modal-intro">
+              <form onSubmit={submitSource} className="import-form" onInvalidCapture={event => {
+                if (event.target instanceof HTMLElement) {
+                  const disclosure = event.target.closest('details');
+                  if (disclosure) disclosure.open = true;
+                }
+              }}>
+                <div className="import-fields">
+                <p className="modal-intro" id="source-support">
                   {sourceTab === "Video"
-                    ? "Import accessible English YouTube captions, or upload/paste a transcript for YouTube, Teams/SharePoint, Zoom or Panopto. Real caption times are retained."
+                    ? videoInputMode === "auto"
+                      ? "Import accessible English YouTube captions. If captions are unavailable, upload or paste a transcript."
+                      : "Add a transcript for YouTube, Teams/SharePoint, Zoom or Panopto. The recording link alone is not enough."
                     : sourceTab === "PDF"
-                      ? "Upload a selectable-text PDF or save a direct public PDF link. Notes cite the original PDF page numbers."
-                      : "Save a public web article to your private library and reopen its captured text and generated study note after reload. Saved notes include citations you can inspect."}
+                      ? "Upload a selectable-text PDF or use a direct public PDF link. Scanned-only and encrypted files are unsupported."
+                      : "Add a public web article to create a study note with source citations."}
                 </p>
                 {sourceTab === "Video" && (
                   <div
@@ -2053,7 +1994,10 @@ export default function App() {
                     busy={busy}
                   />
                 )}
-                {(sourceTab==='PDF'||sourceTab==='Video')&&<CaptureRangeFields kind={sourceTab} value={captureRange} onChange={setCaptureRange} disabled={busy}/>}
+                {(sourceTab === 'PDF' || sourceTab === 'Video') && <details className="import-help import-range">
+                  <summary>{sourceTab === 'PDF' ? 'Choose PDF pages' : 'Choose a time range'} <span>{captureRange.enabled ? `${captureRange.start || '…'}–${captureRange.end || '…'}` : 'optional'}</span></summary>
+                  <CaptureRangeFields kind={sourceTab} value={captureRange} onChange={setCaptureRange} disabled={busy}/>
+                </details>}
                 {sourceTab === "Article" && (
                   <details className="paste-details">
                     <summary>
@@ -2072,16 +2016,9 @@ export default function App() {
                     />
                   </details>
                 )}
-                <p className="support-copy" id="source-support">
-                  <CircleHelp size={15} />
-                  {sourceTab === "Video"
-                    ? videoInputMode === "auto"
-                      ? "English YouTube captions only, when anonymously accessible. Missing, restricted or blocked captions need upload/paste. No audio/video is downloaded or watched and no provider account is connected. Up to 2,000 cues and 120,000 captured characters; video completeness is unverified."
-                      : "Supply UTF-8 TXT, VTT or SRT up to 1 MB and 2,000 timed cues, or paste 120–100,000 characters. Up to 120,000 readable characters are captured; omitted text is labelled. TXT is untimed; paste VTT/SRT to retain times. For DOCX or other exports, paste the readable text. Transcripts are user-supplied; the app does not retrieve or watch the video or connect provider accounts."
-                    : sourceTab === "PDF"
-                      ? "Selectable-text PDFs: up to 10 MB, 100 pages and 120,000 captured characters. Missing or omitted text is labelled. Scanned-only and encrypted files are unsupported. Images and layout are not extracted. Uploads retain page text and filename; the original file is not stored."
-                      : "Public HTTP(S) articles: up to 2 MB per download and 120,000 captured characters. Incomplete coverage is labelled. Use the PDF tab for selectable-text PDFs or the Video tab with an uploaded/pasted transcript."}
-                </p>
+                <ImportSupport kind={sourceTab} suppliedTranscript={videoInputMode === "supplied"}/>
+                </div>
+                <div className="import-actions">
                 {error && (
                   <p className="form-error" role="alert">
                     {error}
@@ -2127,6 +2064,7 @@ export default function App() {
                     )}
                   </button>
                 </div>
+                </div>
               </form>
             </>
           )}
@@ -2168,6 +2106,7 @@ export default function App() {
                   onClick={() => {
                     if (demo) {
                       changeLibrary({ type: "hide-examples" });
+                      setTopicMode("saved");
                       go("library");
                     } else
                       changeLibrary({

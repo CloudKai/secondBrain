@@ -27,9 +27,9 @@ Next **U3 evidence-aware teaching/stable outcomes**, then U4/U5. Checkpoint/comp
 
 ## U2c1 checkpoint — 2026-10-10
 
-Implemented #33 under #29: durable unfinished answer/question drafts; migration020 applied successfully. Owned GET/PUT and RPC/RLS/retry/version fences, tab-private pending reload recovery, explicit conflicts, download payload/checked clear, auth expiration and removed-source draft access are complete in development. Live goal-branch lesson two draft reload/clear passes; activity remains 0 studied/2 attempts/2 needs review. No model request or existing-source deletion. Standards/spec findings resolved. Isolated unit passes 105 web/245 backend tests and web lint/typecheck/build. 118 workspace web/311 backend tests and web lint/typecheck/build pass; exact uv runner still uses system pytest missing langchain_openai. See docs/reviews/learning-drafts-acceptance-2026-10-10.md.
+Implemented #33 under #29: durable unfinished answer/question drafts; migration020 applied successfully. Owned GET/PUT and RPC/RLS/retry/version fences, tab-private pending reload recovery, explicit conflicts, download payload/checked clear, auth expiration and removed-source draft access are complete in development. Live goal-branch lesson two draft reload/clear passes; activity remains 0 studied / 2 attempts / 2 needs review. No model request or existing-source deletion. Standards/spec findings resolved. Isolated unit passes 105 web/245 backend tests and web lint/typecheck/build. 118 workspace web/311 backend tests and web lint/typecheck/build pass; exact uv runner still uses system pytest missing langchain_openai. See docs/reviews/learning-drafts-acceptance-2026-10-10.md.
 
-#33 remains open for actual 200% zoom, screen reader and native file completion (Blob payload verified). Next unit U2c2 completed tutor exchanges, after writing its provenance/redaction/context/send/recovery contract. Preserve agreed seams and recommended settings, compact/checkpoint before the new unit. User collection remains open in original dark theme; viewport reset. API restarted with backend/.env, exec session16474 on8000; approved development worker/Vite retained. Commit this unit only; older WIP remains separate, no push, mobile/iOS/TinyFish untouched.
+#33 remains open for actual 200% zoom, screen reader and native file completion (Blob payload verified). Next unit U2c2 completed tutor exchanges, after writing its provenance/redaction/context/send/recovery contract. Preserve agreed seams and recommended settings, compact/checkpoint before the new unit. User collection remains open in original dark theme; viewport reset. API restarted with backend/.env, exec session16474 on 8000; approved development worker/Vite retained. Commit this unit only; older WIP remains separate, no push, mobile/iOS/TinyFish untouched.
 
 Updated: 2026-10-09, Asia/Singapore.
 
@@ -37,7 +37,7 @@ Updated: 2026-10-09, Asia/Singapore.
 
 Delivery #32 under #29. Collection destination/home, Library resume/alias navigation, source/topic learning entries, focused Learn/Practise/Review and secondary sources/map/version history are implemented. No migration, model or retrieval change. 113 workspace web / 299 backend checks, lint/typecheck/build pass. Two code-review P2 findings fixed: stale parent metadata and duplicate child reads. Live PDF/video saved lesson two, source bridge, Library resume/reload, retained practice, exact 7:38.700–8:00.760 citation and Enter/Escape focus return checked. Fixture HTTP branch confirmation refreshes goal/counts once, without live writes. Measured 1440×900 and 390×844 fit in both themes; viewport and original dark theme restored.
 
-Actual 200% zoom and screen-reader acceptance remain open; #32 stays open for them. Temporary fixture/harness removed. See docs/reviews/collection-workspace-acceptance-2026-10-09.md. Next implementation unit **U2c durable drafts/chat**, then U3–U5. Record this checkpoint before that unit; chat compaction has no callable control. Keep agreed seams and recommended settings. Mobile/iOS/TinyFish untouched. Commit only the unit and necessary U1 UI/reading dependencies; no blanket staging or push. Approved development worker remains authorized, API session34289 on8000 and Vite5173 unchanged.
+Actual 200% zoom and screen-reader acceptance remain open; #32 stays open for them. Temporary fixture/harness removed. See docs/reviews/collection-workspace-acceptance-2026-10-09.md. Next implementation unit **U2c durable drafts/chat**, then U3–U5. Record this checkpoint before that unit; chat compaction has no callable control. Keep agreed seams and recommended settings. Mobile/iOS/TinyFish untouched. Commit only the unit and necessary U1 UI/reading dependencies; no blanket staging or push. Approved development worker remains authorized, API session34289 on 8000 and Vite5173 unchanged.
 
 ## Latest checkpoint — U2a implemented in development
 
@@ -46,6 +46,55 @@ Delivery [#31](https://github.com/CloudKai/secondBrain/issues/31) under #29. Ind
 299 backend / 106 web tests and web typecheck/lint/build pass. Exact uv command still selects system pytest without langchain_openai; use the existing backend virtual environment for the recorded successful run. Seven SQL seams cover owner RLS, repeatability, immutable history/citations/cursor, removed anchors, branches, membership confirmation, recovery and abort. Separate spec/standards reviews resolved one finding each and have no remaining actionable findings. See docs/reviews/collection-identity-acceptance-2026-10-09.md. Local implementation commit ee2f0c4 includes necessary U1 persistence prerequisites; no push and earlier substantial WIP remains separate.
 
 Recovery retains new collection reads/history, aliases, tables and legacy writers; revoke only new checked collection selection. U2b focused workspace/navigation is next, then U2c durable drafts/chat. Do not blend U3 teaching changes into U2. U1 viewport/actual zoom/screen-reader gates remain open. Keep recommended settings and approved seams. Mobile/iOS and TinyFish stay out; update web records/GitHub. No blanket staging or push. Record this checkpoint before the next unit; no callable chat compaction exists.
+
+## Latest checkpoint — U1 implemented in development
+
+GitHub #30 is the U1 delivery issue under #29. Migration 018 applied to project
+rpcclvvcfsxlytosfhxt after explicit user approval; Supabase returned success.
+Relevant note context, timestamped owned Library resume/activity, expected-revision
+selection and current/previous labels/history are implemented. Late selection saves
+refresh Library. Legacy timestamps are not fabricated; old writer stays compatible.
+
+296 backend / 99 web tests and web lint/typecheck/build pass. Backend used
+backend/.venv/bin/python because the exact uv command resolved system pytest without
+langchain_openai. Owned summary/stale writer/removal/rollback seams pass. Live PDF
+branch lesson two restoration, history without activation, unchanged metrics, exact
+7:38.700–8:00.760 citation and Enter/Escape focus return checked. Compact dark/light
+screenshots saved; viewport override accepted commands but measured 590×846 remained.
+Exact desktop/narrow matrix, actual 200% zoom and screen-reader acceptance stay open.
+See docs/reviews/learning-continuity-acceptance-2026-10-09.md. Keep #30 open for gates.
+
+Next implementation unit is **U2**, split into collection identity/backfill and
+compatibility, focused workspace/navigation, then durable drafts/chat. Do not blend
+U3 full-capture retrieval/outcome changes into U2. Source notes, plan/attempt IDs,
+branches, citations and retained history must survive. Reuse approved boundaries and
+recommended settings; update web tracking, never the iOS tracker. API restarted to
+load U1 on 8000 (exec session 28475); Vite and approved worker were left running.
+Original dark theme and car-velocity branch second lesson restored. Current changes
+remain local and unpushed among substantial pre-existing WIP; no blanket staging.
+Record the next checkpoint before a new unit. No callable chat compaction exists.
+
+## Previous checkpoint — specification published
+
+The user invoked `to-spec`. Published the synthesized specification as GitHub #29:
+https://github.com/CloudKai/secondBrain/issues/29 (`ready-for-agent`). Local mirror:
+`docs/planning/ideal-learning-app-spec.md`. It contains 68 user stories and five
+ordered units; application implementation has not started. Reuse the previously
+approved API/provider HTTP/Postgres/browser seams. On an implementation request,
+begin U1 continuity before collection migration or teaching expansion. Cost ceilings,
+educational thresholds and recovery/export contracts remain explicit staged gates.
+
+## Latest checkpoint — audit and roadmap
+
+The user requested the audit and resulting implementation plan as this unit's
+deliverables, with application changes after plan acceptance. Both are saved:
+`docs/reviews/ideal-learning-app-audit-2026-10-09.md` and
+`docs/planning/ideal-learning-app-roadmap-2026-10-09.md`. Six screenshots accompany
+the report. Reviewed HEAD is `1835298305d50f6a9042a1ef9b7c4a56c8ca242e` plus existing
+uncommitted work. No app implementation or migration happened in the audit unit.
+Next, after acceptance, begin roadmap U1; do not interpret older continuation
+authorization below as permission to skip acceptance of this new roadmap.
+GitHub update: https://github.com/CloudKai/secondBrain/issues/28#issuecomment-6081844590.
 
 ## Authorization and defaults
 

@@ -34,6 +34,28 @@ Collection ownership is separate from a removable capture. Migration 019 adds ow
 
 Recovery keeps identity/history reads and legacy writers; it disables only new collection selection. Source deletion removes membership/evidence while retaining the independent identity and learning history. Migration 019 applied with zero unmapped records; hosted authenticated reads and legacy aliases pass. U2b navigation/workspace and U2c drafts/chat remain target work. Details: [U2a acceptance](../docs/reviews/collection-identity-acceptance-2026-10-09.md).
 
+## Web learning continuity — implemented in development, 2026-10-09
+
+Migration 018 adds timestamp/revision metadata to owned learning places. Legacy
+timestamps stay null: confirmation or selection records an actual event rather
+than assigning a fabricated historical order. The previous selection writer remains
+available; the current browser sends an expected revision to the checked writer,
+which takes the owner lock and rejects stale selections before mutation.
+
+`GET /api/v2/learning/summary` returns the newest timestamped owned root/path/plan/
+lesson and aggregate read/attempt/feedback activity across confirmed versions.
+Postgres remains authoritative; no model or vector call is involved. Source removal
+preserves a resume entry into retained history. Owner identifiers are checked
+internally and excluded from the HTTP response. Browser save completion refreshes
+Library even after leaving the source view. Summary failure leaves sources usable.
+
+Source context resolves through valid source-topic assignments; explicit unrelated
+exploration is labelled separately. Current plans and previous version history have
+distinct navigation. Viewing historical work saves a cursor but does not confirm it.
+Rollback restores the old read/UI contract while retaining metadata and answers.
+Independent collection identity and durable drafts/chat remain **U2 target work**.
+Web status is tracked in `context/web-progress-tracker.md`; the iOS tracker is separate.
+
 ## Web goal branches and progress — implemented in development, 2026-10-09
 
 Migration 017 extends leased revisions with an explicit goal change and an
@@ -54,7 +76,6 @@ conservative display of exact matching conceptual outcomes/level/evidence, never
 verified grading or copied completion. Used branch history blocks destructive
 rollback until exported/migrated. See [acceptance](../docs/reviews/learning-branches-acceptance-2026-10-09.md).
 
-
 ## Web learning collections — implemented in development, 2026-10-09
 
 Migration 016 adds immutable collection member/evidence manifests and leased
@@ -71,7 +92,6 @@ Difficulty variants keep member evidence, goal and outcomes. Rollback locks befo
 checking history; confirmed collections/attempts require export or a data migration,
 while unused previews can be removed without losing original learning history.
 See [acceptance](../docs/reviews/learning-collections-acceptance-2026-10-09.md).
-
 
 ## Web one-source learning — implemented in development, 2026-10-09
 
@@ -587,3 +607,192 @@ single-call retries regenerate from full original passages. Final synthesis
 requires all sections. Refresh/removal cascades old section work; stable source
 identity and graph source counts remain unchanged. Explicit reimport ranges
 are validated before existing source reuse. Native/v1 remains unchanged.
+
+### Web assistant evaluation / approved retrieval target — 2026-10-07
+
+Development-only `backend/evaluation/` collects through verified learner auth,
+`AssistantStore.context`, the real generator, and final context revision validation.
+An optional generator callback receives an immutable serialized copy of the actual
+model context; production routes supply no callback and expose no retrieval trace.
+Raw reports are constrained to ignored `output/evaluation/`. Optional pinned
+DeepEval tooling runs outside the application route/import graph with explicit
+judge model, bounded calls/output/cost and no hosted telemetry. Judge scores and
+exact coordinate validation establish different properties; semantic thresholds
+and live classifier winners remain undecided.
+
+The learner approved Qdrant as the shared hosted web BM25+dense derived index.
+Supabase stays authoritative. The cluster connection and dedicated vector/payload schema are now verified.
+Migration 013 is applied after explicit approval. One named public PDF
+is indexed with exact page spans and both vector types. Hosted ownership/retry/
+refresh/deletion checks and frontend readiness acceptance pass. Background
+indexing is explicitly approved and running in local development on a dedicated
+ARQ queue; automatic capture indexing and deletion cleanup pass. Hosted worker
+deployment and assistant query integration remain future work. See docs/qdrant-indexing-setup.md for the prepared contracts. See
+[the target decision](../docs/architecture/decisions/web-qdrant-hybrid-retrieval.md).
+This web decision does not implement the separate native related-knowledge roadmap.
+
+## Hybrid assistant retrieval implemented locally — 2026-10-07
+
+The user approved the new HTTP/API/Postgres test boundaries. [#27](https://github.com/CloudKai/secondBrain/issues/27)
+now has a bounded authenticated inventory, BM25+dense RRF retrieval, per-learner
+IDF, exact passage attribution and pre/post-generation ownership/scope/version/
+generation fences. Eighteen new checks and the full 232-test backend suite pass;
+69 web tests pass. Disposable Postgres acceptance covers readiness, changes and
+cross-owner denial. A hosted query against the retained public PDF returned two
+current page-6 hits. This does not establish better answer quality.
+
+Migration 014 and rollback are concrete and locally verified. Hosted application,
+authenticated end-to-end acceptance and held-out comparisons remain pending.
+`ENABLE_HYBRID_RETRIEVAL` defaults to false; live assistant retrieval is unchanged.
+Background indexing remains enabled locally. This supersedes the test-boundary
+question checkpoint. Native/iOS and its tracker are untouched; no commit/push.
+See [acceptance evidence](../docs/reviews/hybrid-retrieval-acceptance-2026-10-07.md).
+
+## Hybrid assistant retrieval activated locally — 2026-10-07
+
+The user explicitly approved migration 014. Supabase reported success; hosted
+learner inventory, current capture loading, snapshot validation, unauthenticated
+401 and cross-owner 404 checks pass. A disposable copy of the public page-6 PDF
+baseline indexed automatically and produced exact citations through the real
+model and hosted storage services. Source removal invalidated its snapshot and
+background cleanup left zero derived points.
+
+Three bounded old/hybrid question replays returned expected supported/supported/
+unsupported statuses. Hybrid complete-response times were 7.94s, 5.77s and 4.36s.
+These are single samples on one PDF page, not latency percentiles, streamed-text
+measurements or evidence of improved answer quality. A restarted localhost API
+also returned a supported exact-page answer in 5.57s; that second fixture was
+removed and cleaned automatically. Reports stay in ignored output/evaluation/.
+
+`ENABLE_HYBRID_RETRIEVAL=true` is set in ignored backend/.env and the localhost
+API was restarted. Both background indexing and hybrid answers now run locally
+using hosted services. Templates retain false defaults. The previous 232 backend
+and 69 web tests pass; git diff --check passes. Broader multi-source/held-out
+retrieval comparisons under #25/#27 and semantic claim verification remain
+unfinished. Native/iOS and its tracker remain untouched; no commit or push.
+
+
+## Shared assistant evaluation path — 2026-10-08
+
+`backend/saved_answers.py` now coordinates owned note/topic/library retrieval,
+generation and final snapshot validation for both the HTTP route and development
+collector. Retrieval overrides exist only in the collector; the browser request
+contract is unchanged. Expected-source annotations are checked against complete
+owned selected-scope inventory independently of retrieved context. Citation
+coordinates validate correctly; passage-prefix limits can still discard relevant
+sentences from rank-1 chunks. Question-aware passage selection is planned under
+#27; it is not implemented. See the [multi-source evaluation](../docs/reviews/assistant-multisource-evaluation-2026-10-08.md).
+
+
+## Passage selection implemented locally — 2026-10-08
+
+`backend/passage_selection.py` orders expanded exact passages with bounded
+embedding similarity and original fused chunk ranks. Candidates are interleaved
+across owned selected sources (maximum 128 passages plus question, 10-second
+embedding timeout). Caption neighbors provide ranking and bounded continuation
+context, while each original sentence retains its own citation. The generator
+uses eight current-note / three other-source anchor windows and per-source
+excerpt budgets plus the unchanged 30,000 serialized-character overall bound.
+The shared answer path passes internal chunk provenance to the generator;
+Postgres ownership/version/scope validation still runs after generation. No new
+public API, migration, saved-note rewrite or vector-index format change.
+[Measured acceptance and limits](../docs/reviews/passage-selection-acceptance-2026-10-08.md).
+
+
+## Generation reliability implemented locally — 2026-10-08
+
+Assistant model evidence includes a mechanical `reading_text` rendering for
+multiline excerpts. Original excerpts and citation coordinates remain unchanged;
+both fields count toward the existing serialized context bound. Prompt guidance
+explains layout handling and all eligible source scopes. No extra assistant model
+call or semantic checker is introduced.
+
+Topic structured-output field descriptions require exact owned canonical context
+for reused IDs. The existing bounded repair call receives explicit requirements
+copied from the selected owned catalog, rather than the rejected draft. Strict
+identity/context/evidence validation and retry/deadline limits remain unchanged.
+No public API, persisted model or migration change.
+[Acceptance and limits](../docs/reviews/generation-reliability-acceptance-2026-10-08.md).
+
+
+## Classifier comparison tooling — 2026-10-08
+
+`backend/evaluation/grounding.py` adapts the pinned Jev classification HTTP API;
+`grounding_compare.py` validates reviewed public claim/evidence datasets and runs
+an explicitly selected development provider. The optional MiniCheck FT5 path
+checks installed code and loaded checkpoint revision and rejects input truncation.
+Heavy model dependencies remain in an isolated local runtime, not backend locks.
+Provider verdicts, unscored errors, source provenance, usage and warm/setup timing
+are recorded under ignored output/evaluation/. No production route imports these
+adapters; deterministic citation/ownership/version checks remain authoritative.
+[Measurements and limits](../docs/reviews/grounding-classifier-development-2026-10-08.md).
+
+
+## Laya comparison adapter — 2026-10-08
+
+Laya supersedes Jev in `backend/evaluation/grounding.py` and its CLI provider list.
+The development adapter talks only to a local loopback Laya HTTP server, checks
+its pinned English checkpoint, and refuses truncated/collapsed-option results.
+The server/model live in an isolated temporary runtime and are stopped after
+comparison. No TypeSafe key or production provider import remains. Historical
+Jev research/setup evidence is retained. Confidence is separate from support
+probability; no app threshold is calibrated. [Measured failure breakdown](../docs/reviews/laya-classifier-development-2026-10-08.md).
+
+
+## Development claim/evidence preparation — 2026-10-08
+
+Evaluation collection uses `claim_evidence.pair_claims` to associate each original
+answer claim only with its cited references, verifying source versions and exact
+article/PDF/caption locations. `prepare_grounding` exports historical reports as
+unreviewed drafts against supplied captures; origin hashes do not authenticate
+files. This remains private tooling, outside production routes and contracts.
+
+`grounding_compare` optionally checks exact conservative sentence groups; every
+group must pass and any missing verdict leaves the block unscored. Parent labels
+are not assigned to children and no aggregate support probability is inferred.
+All planned group calls count toward the 20-call preflight bound. The Laya adapter
+keeps 512 tokens by default, with an explicitly recorded bounded 1024-token
+coverage probe; the checkpoint's declared default setting and longer-input quality
+are distinct. No live checking, model training or hosted deployment is established.
+[Development acceptance and limits](../docs/reviews/claim-evidence-preparation-2026-10-08.md).
+
+## Private assistant claim generation — 2026-10-08
+
+The provider draft uses `DraftAssistantClaim` with a 600-character cap and required
+empty-or-two-plus `comparison_source_keys`. Public `AssistantClaim` retains its
+2,000-character historical cap and excludes private metadata. Source labels and
+kinds identify the supplied entries; literal uncertainty matches aid reading and
+count toward the existing serialized context bound. They are not semantic labels.
+
+The generator validates each declared source against that claim's citations and
+removes only verified redundant source/reference parentheses. Known labels in
+literal source text remain intact; unknown/mismatched/private prose fails safely.
+Citation coordinates and ownership/version fences remain unchanged. Semantic
+independence, correct qualifier attachment and undeclared comparisons are not
+established by these checks. No extra model call/checker/route is introduced.
+[Development review and remaining gates](../docs/reviews/claim-generation-review-2026-10-08.md).
+
+## Source-wording assistant and owned topic context — local acceptance, 2026-10-08
+
+Supported assistant answers are server-constructed, attributed quotations of the
+selected captured passages, with whitespace normalized. Private model paraphrases
+are validated for their evidence selection then replaced; there is no live
+calibrated semantic checker. Exact reference coordinates and the public response
+shape are preserved. Quote packing keeps eight answer blocks, and a declared
+comparison that cannot retain every side returns an evidence gap. Passage
+selection reserves bounded lexical anchors alongside semantic anchors without
+increasing context limits.
+
+The earlier canonical-context echo requirement is superseded: a private topic
+draft selects an owned existing ID and the server copies its canonical context,
+title and description. The provider is asked for null context on reuse; redundant
+context echoes are ignored. New/suggested topics require a context; unknown IDs,
+uncertain reuse and invented evidence are still invalid. Schema repair feedback
+includes field paths, bounded to eight errors and excluding input dumps. Public
+records, ownership fences, retries and migrations are unchanged. Semantic topic
+matching remains a model decision with learner corrections.
+
+Fresh browser imports, retry, shared graph, combined overview, reload and citation
+locations passed. This does not establish semantic support for generated notes or
+overviews, hosted performance or verified streaming. See the
+[acceptance record](../docs/reviews/working-product-acceptance-2026-10-08.md).

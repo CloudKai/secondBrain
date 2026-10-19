@@ -1,3 +1,4 @@
+import ReadingText from './ReadingText';
 import type { StudyNote } from "../lib/study-note";
 
 export function StudyCitations({
@@ -37,13 +38,12 @@ export default function StructuredStudy({
       <section className="overview-block">
         <div>
           <h2>The big picture</h2>
-          <p>
-            {note.overview.text}{" "}
+          <ReadingText text={note.overview.text}>
             <StudyCitations
               ids={note.overview.citation_ids}
               onCitation={onCitation}
             />
-          </p>
+          </ReadingText>
         </div>
       </section>
       <section className="concept-section">
@@ -56,13 +56,12 @@ export default function StructuredStudy({
             </span>
             <div>
               <h3>{concept.title}</h3>
-              <p>
-                {concept.text}{" "}
+              <ReadingText text={concept.text}>
                 <StudyCitations
                   ids={concept.citation_ids}
                   onCitation={onCitation}
                 />
-              </p>
+              </ReadingText>
             </div>
           </div>
         ))}
@@ -73,13 +72,12 @@ export default function StructuredStudy({
           {note.examples.map((example, i) => (
             <div key={i}>
               <h3>{example.title}</h3>
-              <p>
-                {example.text}{" "}
+              <ReadingText text={example.text}>
                 <StudyCitations
                   ids={example.citation_ids}
                   onCitation={onCitation}
                 />
-              </p>
+              </ReadingText>
             </div>
           ))}
         </section>
@@ -90,13 +88,12 @@ export default function StructuredStudy({
           {note.equations.map((equation, i) => (
             <div className="equation" key={i}>
               <code>{equation.expression}</code>
-              <p>
-                {equation.text}{" "}
+              <ReadingText text={equation.text}>
                 <StudyCitations
                   ids={equation.citation_ids}
                   onCitation={onCitation}
                 />
-              </p>
+              </ReadingText>
             </div>
           ))}
         </section>

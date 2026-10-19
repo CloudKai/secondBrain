@@ -91,7 +91,7 @@ export default function Assistant({
         ];
       } else {
         text =
-          "These saved notes do not provide enough evidence to answer that question. You can inspect the original sources or explore the reading list for more context.";
+          "These sample notes do not provide enough evidence to answer that question. You can inspect the original sources or explore the reading list for more context.";
         references = [];
         gap = true;
       }
@@ -116,14 +116,14 @@ export default function Assistant({
         <span className="badge">Preview</span>
       </div>
       <p className="preview-explainer">
-        Saved-note lookup, using your existing notes. Open-ended AI chat is
-        planned.
+        Example preview: looks up the sample notes shown here. Open a saved
+        source note to use the grounded AI assistant.
       </p>
       <div className="conversation" role="log" aria-live="polite">
         {messages.map((m, i) => (
           <div className={`message ${m.role}`} key={i}>
             <small>
-              {m.role === "user" ? "YOU" : "SECOND BRAIN · SAVED NOTES"}
+              {m.role === "user" ? "YOU" : "SECOND BRAIN · EXAMPLE LOOKUP"}
             </small>
             <p>{m.text}</p>
             {m.references.map((n, j) => (

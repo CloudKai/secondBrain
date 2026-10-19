@@ -35,7 +35,10 @@ the original material and highlight disagreements between sources.
 
 ### Ask questions about your learning material
 
-The study assistant answers from your saved material and includes citations.
+The study assistant finds relevant excerpts from your saved material and includes
+citations. Source cards show readable excerpts with page or timestamp labels.
+Wording is preserved, with spacing simplified where appropriate; expand the original
+captured text to inspect its line breaks.
 It starts with the current note. Select **Ask this topic**, **Ask my library**,
 or both to broaden the material it uses. When the saved evidence does not answer
 your question, the assistant tells you.

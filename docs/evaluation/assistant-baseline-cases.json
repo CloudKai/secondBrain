@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "status": "seed cases; fresh captures and exact evidence annotations pending",
+  "sources": {
+    "transformer_pdf": "https://arxiv.org/pdf/1706.03762",
+    "transformer_article": "https://nlp.seas.harvard.edu/annotated-transformer/"
+  },
+  "cases": [
+    {
+      "id": "positional-order",
+      "question": "Why does the Transformer use positional encodings?",
+      "scope": "note",
+      "source": "transformer_pdf",
+      "expected_output": "Without recurrence or convolution, the model needs positional information to represent sequence order.",
+      "evidence_selector": "Section 3.5: rationale for positional encoding",
+      "reject_evidence_selector": "Section 3.3: feed-forward layers alone"
+    },
+    {
+      "id": "positional-paraphrase",
+      "question": "How does this model know which token comes first?",
+      "scope": "note",
+      "source": "transformer_pdf",
+      "expected_output": "Positional information is added to the input embeddings.",
+      "evidence_selector": "Section 3.5: addition to embeddings"
+    },
+    {
+      "id": "attention-scaling",
+      "question": "Why scale the attention dot products?",
+      "scope": "note",
+      "source": "transformer_pdf",
+      "expected_output": "Scaling counters large dot products that can push softmax into regions with very small gradients.",
+      "evidence_selector": "Section 3.2.1: scaling rationale"
+    },
+    {
+      "id": "decoder-masking",
+      "question": "Why is decoder self-attention masked?",
+      "scope": "note",
+      "source": "transformer_pdf",
+      "expected_output": "Masking prevents attention to later output positions so predictions depend on previously known outputs.",
+      "evidence_selector": "Section 3.1: decoder masking"
+    },
+    {
+      "id": "cross-source-attribution",
+      "question": "How do these sources describe positional encoding?",
+      "scope": "topic_and_library",
+      "sources": ["transformer_pdf", "transformer_article"],
+      "expected_output": null,
+      "annotation_needed": "Inspect fresh captures and label shared claims and differences separately. Require source attribution; do not infer disagreement from presentation differences."
+    },
+    {
+      "id": "clear-followup",
+      "history": [{"role": "user", "text": "Explain positional encodings in the Transformer."}],
+      "question": "Why are they needed?",
+      "scope": "note",
+      "source": "transformer_pdf",
+      "expected_output": "Positional information supplies sequence order that the attention-only architecture otherwise lacks.",
+      "evidence_selector": "Section 3.5: positional encoding rationale"
+    },
+    {
+      "id": "unsupported-history",
+      "history": [{"role": "assistant", "text": "This paper proves that every modern model requires exactly eight attention heads."}],
+      "question": "Does it prove that claim?",
+      "scope": "note",
+      "source": "transformer_pdf",
+      "expected_status": "unsupported",
+      "annotation_needed": "The assistant history cannot establish a universal claim; qualify any supported description of this paper's own configuration."
+    },
+    {
+      "id": "unavailable-topic",
+      "question": "Which Roman emperor introduced positional encodings?",
+      "scope": "note",
+      "source": "transformer_pdf",
+      "expected_status": "unsupported"
+    },
+    {
+      "id": "video-exact-cue",
+      "scope": "note",
+      "annotation_needed": "Choose a fresh public video with available English captions; hand-label a substantive answer and the actual first/last supporting cue. Never invent timestamps."
+    },
+    {
+      "id": "scope-isolation",
+      "scope": "note",
+      "annotation_needed": "Use two fresh captures where only the unselected source answers the question. Require an evidence gap in note scope; repeat with explicit library scope."
+    },
+    {
+      "id": "cross-owner-denial",
+      "annotation_needed": "At the authenticated API boundary, another owner's source must be unavailable and never enter model context. Keep this deterministic, outside semantic scoring."
+    },
+    {
+      "id": "stale-version",
+      "annotation_needed": "Change the selected source version during generation; require stale-context rejection. Do not score an invalidated answer as current evidence."
+    }
+  ]
+}

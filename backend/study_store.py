@@ -50,12 +50,12 @@ class StudyStore:
                 code = response.json().get("code")
                 if code == "40001":
                     raise StudyStorageError("stale")
+                if code == "P0002":
+                    raise StudyStorageError("not_found")
                 if code == "55P03":
                     raise StudyStorageError("busy")
                 if code == "54000":
                     raise StudyStorageError("limit")
-                if code == "P0002":
-                    raise StudyStorageError("not_found")
                 if response.status_code in (401, 403):
                     raise StudyStorageError("session")
                 raise StudyStorageError()

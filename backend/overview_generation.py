@@ -10,6 +10,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from backend.study_generation import GenerationFailure
 from backend.citation_grounding import citation_prose
+from backend.generation_repair import repair_payload
 from backend.overview_models import (
     OverviewInput,
     DraftTopicOverview,
@@ -97,33 +98,39 @@ class OverviewGenerator:
         if len(selected) < 2 or len(set(selected_source_ids)) != len(selected):
             raise GenerationFailure("invalid_output")
         try:
+            original_payload = json.dumps(selected, ensure_ascii=False)
+            attempt_payload = original_payload
             async with asyncio.timeout(65):
-                result = await self.graph.ainvoke(
-                    {"payload": json.dumps(selected, ensure_ascii=False)}
-                )
-            draft = result["draft"]
-            used = {
-                r
-                for c in [draft.overview, *draft.agreements, *draft.differences]
-                for r in c.reference_ids
-            }
-            if not used <= available.keys():
-                raise ValueError("Unknown overview evidence")
-            # Remove only redundant parenthesized metadata already cited by this
-            # claim. Literal source names and unknown/stray labels are preserved
-            # for validation, so no evidence or source wording is silently lost.
-            literal_labels = {label for ref in available.values()
-                              for label in re.findall(r"\bref\d+\b", ref.passage.excerpt)}
-            grounded = draft.model_dump()
-            for claim in [grounded["overview"], *grounded["agreements"], *grounded["differences"]]:
-                claim["text"] = citation_prose(claim["text"], set(claim["reference_ids"]), literal_labels)
-                claim["reference_ids"] = [available[k].id for k in claim["reference_ids"]]
-            return TopicOverview(
-                **grounded,
-                references=[r for k, r in available.items() if k in used],
-                source_ids=selected_source_ids,
-                partial=len(selected) < source_count,
-            )
+                for attempt in range(2):
+                    try:
+                        result = await self.graph.ainvoke({"payload": attempt_payload})
+                        draft = result["draft"]
+                        used = {
+                            r
+                            for c in [draft.overview, *draft.agreements, *draft.differences]
+                            for r in c.reference_ids
+                        }
+                        if not used <= available.keys():
+                            raise ValueError("Unknown overview evidence")
+                        # Remove only redundant parenthesized metadata already cited by this
+                        # claim. Literal source names and unknown/stray labels are preserved
+                        # for validation, so no evidence or source wording is silently lost.
+                        literal_labels = {label for ref in available.values()
+                                          for label in re.findall(r"\bref\d+\b", ref.passage.excerpt)}
+                        grounded = draft.model_dump()
+                        for claim in [grounded["overview"], *grounded["agreements"], *grounded["differences"]]:
+                            claim["text"] = citation_prose(claim["text"], set(claim["reference_ids"]), literal_labels)
+                            claim["reference_ids"] = [available[k].id for k in claim["reference_ids"]]
+                        return TopicOverview(
+                            **grounded,
+                            references=[r for k, r in available.items() if k in used],
+                            source_ids=selected_source_ids,
+                            partial=len(selected) < source_count,
+                        )
+                    except (ValueError, TypeError, KeyError) as error:
+                        if attempt:
+                            raise
+                        attempt_payload = repair_payload(original_payload, error)
         except (TimeoutError, APITimeoutError) as exc:
             raise GenerationFailure("timeout") from exc
         except (ValueError, TypeError, KeyError) as exc:

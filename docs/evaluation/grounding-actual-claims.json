@@ -1,0 +1,792 @@
+{
+  "schema_version": 1,
+  "purpose": "Actual app answers; developer review required before scoring. Same development captures, not held-out quality or training data.",
+  "cases": [
+    {
+      "id": "actual-fresh-multihead-benefit-1",
+      "group": "fresh-multihead-benefit",
+      "split": "development",
+      "claim": "Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions, which a single attention head inhibits due to averaging effects.",
+      "expected_label": "supported",
+      "rationale": "The cited paper explicitly contrasts multi-head access to different subspaces/positions with single-head averaging.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 2492,
+          "end": 3278,
+          "excerpt": "output values. These are concatenated and once again projected, resulting in the final values, as\ndepicted in Figure 2.\nMulti-head attention allows the model to jointly attend to information from different representation\nsubspaces at different positions. With a single attention head, averaging inhibits this.\nMultiHead(Q,K,V ) = Concat(head 1,..., headh)W O\nwhere headi = Attention(QW Q\ni ,KW K\ni ,VW V\ni )\nWhere the projections are parameter matricesW Q\ni ∈ Rdmodel×dk,W K\ni ∈ Rdmodel×dk,W V\ni ∈ Rdmodel×dv\nandW O∈ Rhdv×dmodel.\nIn this work we employ h = 8 parallel attention layers, or heads. For each of these we use\ndk =dv =dmodel/h = 64. Due to the reduced dimension of each head, the total computational cost\nis similar to that of single-head attention with full dimensionality.\n",
+          "page": 5,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "fresh-multihead-benefit",
+        "claim_index": 0,
+        "reference_ids": [
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0004"
+        ]
+      }
+    },
+    {
+      "id": "actual-fresh-reported-headcount-1",
+      "group": "fresh-reported-headcount",
+      "split": "development",
+      "claim": "In this work, we employ h = 8 parallel attention layers, or heads.",
+      "expected_label": "supported",
+      "rationale": "The paper says in this work h = 8 parallel heads; the answer retains that scope.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 2492,
+          "end": 3278,
+          "excerpt": "output values. These are concatenated and once again projected, resulting in the final values, as\ndepicted in Figure 2.\nMulti-head attention allows the model to jointly attend to information from different representation\nsubspaces at different positions. With a single attention head, averaging inhibits this.\nMultiHead(Q,K,V ) = Concat(head 1,..., headh)W O\nwhere headi = Attention(QW Q\ni ,KW K\ni ,VW V\ni )\nWhere the projections are parameter matricesW Q\ni ∈ Rdmodel×dk,W K\ni ∈ Rdmodel×dk,W V\ni ∈ Rdmodel×dv\nandW O∈ Rhdv×dmodel.\nIn this work we employ h = 8 parallel attention layers, or heads. For each of these we use\ndk =dv =dmodel/h = 64. Due to the reduced dimension of each head, the total computational cost\nis similar to that of single-head attention with full dimensionality.\n",
+          "page": 5,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "fresh-reported-headcount",
+        "claim_index": 0,
+        "reference_ids": [
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0004"
+        ]
+      }
+    },
+    {
+      "id": "actual-fresh-position-rationale-1",
+      "group": "fresh-position-rationale",
+      "split": "development",
+      "claim": "In this architecture, tokens are given an order through the use of \"positional encodings\" that are added to the input embeddings. This is necessary because the model does not contain recurrent or convolutional layers, which typically handle sequence order. The positional encodings provide information about the relative or absolute position of the tokens in the sequence, allowing the model to utilize the order of the sequence effectively.",
+      "expected_label": "supported",
+      "rationale": "The paper motivates positional information by the absence of recurrence/convolution and adds encodings to embeddings. Treat the sequence-order explanation as a paraphrase of that stated motivation, not a measured comparison.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 5674,
+          "end": 6548,
+          "excerpt": "Table 1: Maximum path lengths, per-layer complexity and minimum number of sequential operations\nfor different layer types.n is the sequence length,d is the representation dimension,k is the kernel\nsize of convolutions andr the size of the neighborhood in restricted self-attention.\nLayer Type Complexity per Layer Sequential Maximum Path Length\nOperations\nSelf-Attention O(n2·d) O(1) O(1)\nRecurrent O(n·d2) O(n) O(n)\nConvolutional O(k·n·d2) O(1) O(logk(n))\nSelf-Attention (restricted) O(r·n·d) O(1) O(n/r)\n3.5 Positional Encoding\nSince our model contains no recurrence and no convolution, in order for the model to make use of the\norder of the sequence, we must inject some information about the relative or absolute position of the\ntokens in the sequence. To this end, we add \"positional encodings\" to the input embeddings at the\nbottoms of the encoder and decoder stacks. ",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 6548,
+          "end": 7439,
+          "excerpt": "The positional encodings have the same dimensiondmodel\nas the embeddings, so that the two can be summed. There are many choices of positional encodings,\nlearned and fixed [9].\nIn this work, we use sine and cosine functions of different frequencies:\nPE (pos,2i) =sin(pos/100002i/dmodel)\nPE (pos,2i+1) =cos(pos/100002i/dmodel)\nwherepos is the position andi is the dimension. That is, each dimension of the positional encoding\ncorresponds to a sinusoid. The wavelengths form a geometric progression from 2π to 10000· 2π. We\nchose this function because we hypothesized it would allow the model to easily learn to attend by\nrelative positions, since for any fixed offsetk,PE pos+k can be represented as a linear function of\nPE pos.\nWe also experimented with using learned positional embeddings [9] instead, and found that the two\nversions produced nearly identical results (see Table 3 row (E)). ",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "fresh-position-rationale",
+        "claim_index": 0,
+        "reference_ids": [
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:r162a-1994",
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0009"
+        ]
+      }
+    },
+    {
+      "id": "actual-clear-positional-followup-1",
+      "group": "clear-positional-followup",
+      "split": "development",
+      "claim": "Positional encodings are necessary in the Transformer model because it contains no recurrence and no convolution, which means it lacks inherent information about the order of the sequence. To enable the model to utilize the order of the tokens in the sequence, positional encodings are added to the input embeddings at the bottoms of the encoder and decoder stacks. This allows the model to make use of the relative or absolute positions of the tokens, which is crucial for understanding the sequence structure.",
+      "expected_label": "supported",
+      "rationale": "The cited section states the lack of recurrence/convolution, the positional information requirement and its addition at both encoder/decoder inputs.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 5674,
+          "end": 6548,
+          "excerpt": "Table 1: Maximum path lengths, per-layer complexity and minimum number of sequential operations\nfor different layer types.n is the sequence length,d is the representation dimension,k is the kernel\nsize of convolutions andr the size of the neighborhood in restricted self-attention.\nLayer Type Complexity per Layer Sequential Maximum Path Length\nOperations\nSelf-Attention O(n2·d) O(1) O(1)\nRecurrent O(n·d2) O(n) O(n)\nConvolutional O(k·n·d2) O(1) O(logk(n))\nSelf-Attention (restricted) O(r·n·d) O(1) O(n/r)\n3.5 Positional Encoding\nSince our model contains no recurrence and no convolution, in order for the model to make use of the\norder of the sequence, we must inject some information about the relative or absolute position of the\ntokens in the sequence. To this end, we add \"positional encodings\" to the input embeddings at the\nbottoms of the encoder and decoder stacks. ",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "clear-positional-followup",
+        "claim_index": 0,
+        "reference_ids": [
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:r162a-1994"
+        ]
+      }
+    },
+    {
+      "id": "actual-clear-positional-followup-2",
+      "group": "clear-positional-followup",
+      "split": "development",
+      "claim": "The specific choice of sinusoidal positional encodings is motivated by the hypothesis that they would allow the model to easily learn to attend by relative positions. The sinusoidal functions are designed such that for any fixed offset, the positional encoding can be represented as a linear function of the positional encoding at another position, facilitating the model's ability to generalize to longer sequences than those seen during training.",
+      "expected_label": "not_addressed",
+      "rationale": "The linear-offset property and relative-position hypothesis are supported. The final wording asserts that this facilitates longer-sequence generalization; the cited paper offers only a may-allow extrapolation motivation, not an established capability. All factual parts must retain that uncertainty.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 6548,
+          "end": 7439,
+          "excerpt": "The positional encodings have the same dimensiondmodel\nas the embeddings, so that the two can be summed. There are many choices of positional encodings,\nlearned and fixed [9].\nIn this work, we use sine and cosine functions of different frequencies:\nPE (pos,2i) =sin(pos/100002i/dmodel)\nPE (pos,2i+1) =cos(pos/100002i/dmodel)\nwherepos is the position andi is the dimension. That is, each dimension of the positional encoding\ncorresponds to a sinusoid. The wavelengths form a geometric progression from 2π to 10000· 2π. We\nchose this function because we hypothesized it would allow the model to easily learn to attend by\nrelative positions, since for any fixed offsetk,PE pos+k can be represented as a linear function of\nPE pos.\nWe also experimented with using learned positional embeddings [9] instead, and found that the two\nversions produced nearly identical results (see Table 3 row (E)). ",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 7439,
+          "end": 8288,
+          "excerpt": "We chose the sinusoidal version\nbecause it may allow the model to extrapolate to sequence lengths longer than the ones encountered\nduring training.\n4 Why Self-Attention\nIn this section we compare various aspects of self-attention layers to the recurrent and convolu-\ntional layers commonly used for mapping one variable-length sequence of symbol representations\n(x1,...,x n) to another sequence of equal length (z1,...,z n), with xi,z i∈ Rd, such as a hidden\nlayer in a typical sequence transduction encoder or decoder. Motivating our use of self-attention we\nconsider three desiderata.\nOne is the total computational complexity per layer. Another is the amount of computation that can\nbe parallelized, as measured by the minimum number of sequential operations required.\nThe third is the path length between long-range dependencies in the network. ",
+          "page": 6,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "clear-positional-followup",
+        "claim_index": 1,
+        "reference_ids": [
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0009",
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0010"
+        ]
+      }
+    },
+    {
+      "id": "actual-fresh-gqa-constraints-1",
+      "group": "fresh-gqa-constraints",
+      "split": "development",
+      "claim": "The stated head-count constraints for GQA are: the number of heads for the query must be a multiple of the number of heads for the key and value, and the number of heads for the key must equal the number of heads for the value. Specifically, this is expressed as: number_of_heads_query % number_of_heads_key_value == 0 and number_of_heads_key == number_of_heads_value.",
+      "expected_label": "supported",
+      "rationale": "The prose and repeated equations preserve divisibility of query heads by key/value heads and equality of key and value head counts.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5069,
+          "end": 5905,
+          "excerpt": "Constraints for GQA:\nnumber_of_heads_query % number_of_heads_key_value == 0 and,\nnumber_of_heads_key == number_of_heads_value\nNote\nIn some circumstances when given tensors on a CUDA device and using CuDNN, this operator may select a nondeterministic algorithm to increase performance. If this is undesirable, you can try to make the operation deterministic (potentially at a performance cost) by setting\ntorch.backends.cudnn.deterministic\n=\nTrue\n. See\nReproducibility\nfor more information.\nParameters\n:\nquery\n(\nTensor\n) – Query tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\nq\n,\nL\n,\nE\n)\n(N, ..., Hq, L, E)\n(\nN\n,\n...\n,\nH\nq\n,\nL\n,\nE\n)\n.\nkey\n(\nTensor\n) – Key tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\n,\nS\n,\nE\n)\n(N, ..., H, S, E)\n(\nN\n,\n...\n,\nH\n,\nS\n,\nE\n)\n.\nvalue\n(\nTensor\n) – Value tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\n,\nS\n,\nE\nv\n)\n(N, ..., H, S, Ev)\n(\nN\n,\n...\n,\nH\n,\nS\n,\nE\nv\n)\n.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "fresh-gqa-constraints",
+        "claim_index": 0,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0007"
+        ]
+      }
+    },
+    {
+      "id": "actual-shared-topic-gqa-1",
+      "group": "shared-topic-gqa",
+      "split": "development",
+      "claim": "Grouped Query Attention (GQA) has specific constraints: the number of heads for queries must be a multiple of the number of heads for key-value pairs, and the number of heads for keys must equal the number of heads for values.",
+      "expected_label": "supported",
+      "rationale": "Both head-count constraints are explicitly stated in the cited equations.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5069,
+          "end": 5905,
+          "excerpt": "Constraints for GQA:\nnumber_of_heads_query % number_of_heads_key_value == 0 and,\nnumber_of_heads_key == number_of_heads_value\nNote\nIn some circumstances when given tensors on a CUDA device and using CuDNN, this operator may select a nondeterministic algorithm to increase performance. If this is undesirable, you can try to make the operation deterministic (potentially at a performance cost) by setting\ntorch.backends.cudnn.deterministic\n=\nTrue\n. See\nReproducibility\nfor more information.\nParameters\n:\nquery\n(\nTensor\n) – Query tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\nq\n,\nL\n,\nE\n)\n(N, ..., Hq, L, E)\n(\nN\n,\n...\n,\nH\nq\n,\nL\n,\nE\n)\n.\nkey\n(\nTensor\n) – Key tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\n,\nS\n,\nE\n)\n(N, ..., H, S, E)\n(\nN\n,\n...\n,\nH\n,\nS\n,\nE\n)\n.\nvalue\n(\nTensor\n) – Value tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\n,\nS\n,\nE\nv\n)\n(N, ..., H, S, Ev)\n(\nN\n,\n...\n,\nH\n,\nS\n,\nE\nv\n)\n.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "shared-topic-gqa",
+        "claim_index": 0,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0007"
+        ]
+      }
+    },
+    {
+      "id": "actual-shared-topic-gqa-2",
+      "group": "shared-topic-gqa",
+      "split": "development",
+      "claim": "GQA is an experimental feature that works with FlashAttention, cuDNN attention, and the math kernel on CUDA tensors, but it does not support Nested tensors.",
+      "expected_label": "supported",
+      "rationale": "The excerpt states experimental status, the three listed working kernels on CUDA and lack of Nested tensor support. The answer does not claim this list is exhaustive; the extra memory-efficient backend is not contradicted.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 4259,
+          "end": 5069,
+          "excerpt": "nn.attention.sdpa_kernel()\n.\nIn the event that a fused implementation is not available, a warning will be raised with the\nreasons why the fused implementation cannot run.\nDue to the nature of fusing floating point operations, the output of this function may be different\ndepending on what backend kernel is chosen.\nThe c++ implementation supports torch.float64 and can be used when higher precision is required.\nFor math backend, all intermediates are kept in torch.float if inputs are in torch.half or torch.bfloat16.\nFor more information please see\nNumerical accuracy\nGrouped Query Attention (GQA) is an experimental feature. It works with FlashAttention,\ncuDNN attention, and the math kernel on CUDA tensors. Memory-efficient attention also supports\nGQA on NVIDIA CUDA. GQA does not support Nested tensors.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "shared-topic-gqa",
+        "claim_index": 1,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0006"
+        ]
+      }
+    },
+    {
+      "id": "actual-topic-plus-library-gqa-1",
+      "group": "topic-plus-library-gqa",
+      "split": "development",
+      "claim": "The PyTorch documentation specifies that for Grouped Query Attention (GQA), the following constraints must be met: the number of heads for the query must be a multiple of the number of heads for the key and value, and the number of heads for the key must equal the number of heads for the value. Specifically, it states: \"number_of_heads_query % number_of_heads_key_value == 0 and, number_of_heads_key == number_of_heads_value\".",
+      "expected_label": "supported",
+      "rationale": "The quoted equations and their prose interpretation agree with the cited documentation.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5069,
+          "end": 5905,
+          "excerpt": "Constraints for GQA:\nnumber_of_heads_query % number_of_heads_key_value == 0 and,\nnumber_of_heads_key == number_of_heads_value\nNote\nIn some circumstances when given tensors on a CUDA device and using CuDNN, this operator may select a nondeterministic algorithm to increase performance. If this is undesirable, you can try to make the operation deterministic (potentially at a performance cost) by setting\ntorch.backends.cudnn.deterministic\n=\nTrue\n. See\nReproducibility\nfor more information.\nParameters\n:\nquery\n(\nTensor\n) – Query tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\nq\n,\nL\n,\nE\n)\n(N, ..., Hq, L, E)\n(\nN\n,\n...\n,\nH\nq\n,\nL\n,\nE\n)\n.\nkey\n(\nTensor\n) – Key tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\n,\nS\n,\nE\n)\n(N, ..., H, S, E)\n(\nN\n,\n...\n,\nH\n,\nS\n,\nE\n)\n.\nvalue\n(\nTensor\n) – Value tensor; shape\n(\nN\n,\n.\n.\n.\n,\nH\n,\nS\n,\nE\nv\n)\n(N, ..., H, S, Ev)\n(\nN\n,\n...\n,\nH\n,\nS\n,\nE\nv\n)\n.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "topic-plus-library-gqa",
+        "claim_index": 0,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0007"
+        ]
+      }
+    },
+    {
+      "id": "actual-fresh-video-parallel-heads-1",
+      "group": "fresh-video-parallel-heads",
+      "split": "development",
+      "claim": "The attention block consists of many different heads run in parallel.",
+      "expected_label": "supported",
+      "rationale": "The cited timed cue explicitly says many different heads run in parallel.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 5123,
+          "end": 5295,
+          "excerpt": "What I'm about to describe is what we would call a single head of attention,\nand later we will see how the attention block consists of many different heads run in\nparallel.",
+          "page": null,
+          "start_ms": 287000,
+          "end_ms": 295420
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "fresh-video-parallel-heads",
+        "claim_index": 0,
+        "reference_ids": [
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r1403-14af"
+        ]
+      }
+    },
+    {
+      "id": "actual-fresh-video-no-lookahead-1",
+      "group": "fresh-video-no-lookahead",
+      "split": "development",
+      "claim": "In the GPT example, later tokens do not influence earlier ones due to a process called masking. This involves setting the entries that represent later tokens influencing earlier ones to negative infinity before applying the softmax function. As a result, after softmax, these entries become zero, ensuring that later tokens do not affect the attention given to earlier tokens while maintaining the normalization of the columns.",
+      "expected_label": "supported",
+      "rationale": "The four cited cues establish GPT-specific masking, negative infinity before softmax, zero afterward and preserved normalization. The answer keeps the GPT scope.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13056,
+          "end": 13178,
+          "excerpt": "So instead, a common way to do this is that before applying softmax,\nyou set all of those entries to be negative infinity.",
+          "page": null,
+          "start_ms": 733120,
+          "end_ms": 739020
+        },
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13179,
+          "end": 13291,
+          "excerpt": "If you do that, then after applying softmax, all of those get turned into zero,\nbut the columns stay normalized.",
+          "page": null,
+          "start_ms": 739680,
+          "end_ms": 745180
+        },
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13292,
+          "end": 13323,
+          "excerpt": "This process is called masking.",
+          "page": null,
+          "start_ms": 746000,
+          "end_ms": 747540
+        },
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13324,
+          "end": 13624,
+          "excerpt": "There are versions of attention where you don't apply it, but in our GPT example,\neven though this is more relevant during the training phase than it would be,\nsay, running it as a chatbot or something like that,\nyou do always apply this masking to prevent later tokens from influencing earlier ones.",
+          "page": null,
+          "start_ms": 747540,
+          "end_ms": 761460
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "fresh-video-no-lookahead",
+        "claim_index": 0,
+        "reference_ids": [
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r3300-337a",
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r337b-33eb",
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r33ec-340b",
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r340c-3538"
+        ]
+      }
+    },
+    {
+      "id": "actual-clear-mask-followup-1",
+      "group": "clear-mask-followup",
+      "split": "development",
+      "claim": "In the context of `scaled_dot_product_attention()`, a boolean mask where a value of True indicates that the element should participate in attention. This is the opposite of the behavior in `MultiheadAttention`, where True indicates values to be masked out (padding). Therefore, if migrating from `MultiheadAttention`, it is necessary to invert the boolean mask (e.g., using `~mask` or `mask.logical_not()`).",
+      "expected_label": "supported",
+      "rationale": "The documentation states both opposite boolean meanings and the requirement/example for inverting a migrated mask.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 2496,
+          "end": 3359,
+          "excerpt": "training\nelse\n0.0\n))\nNote\nThe boolean mask semantics for\nattn_mask\nare the inverse of\nMultiheadAttention\n’s\nkey_padding_mask\n.\nIn\nscaled_dot_product_attention()\n,\nTrue\nindicates values\nto\nparticipate\nin attention.\nIn\nMultiheadAttention\n,\nTrue\nindicates values\nto be\nmasked out\n(padding).\nIf migrating from MHA, ensure you invert your boolean mask (e.g.,\nusing\n~mask\nor\nmask.logical_not()\n).\nNote\nThere are currently three supported implementations of scaled dot product attention:\nFlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning\nMemory-Efficient Attention\nA PyTorch implementation defined in C++ matching the above formulation\nThe function may call optimized kernels for improved performance when using the CUDA backend.\nFor all other backends, the PyTorch implementation will be used.\nAll implementations are enabled by default. ",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5905,
+          "end": 6748,
+          "excerpt": "attn_mask\n(\noptional Tensor\n) – Attention mask; shape must be broadcastable to the shape of attention weights,\nwhich is\n(\nN\n,\n.\n.\n.\n,\nH\nq\n,\nL\n,\nS\n)\n(N,..., Hq, L, S)\n(\nN\n,\n...\n,\nH\nq\n,\nL\n,\nS\n)\n. Two types of masks are supported.\nA boolean mask where a value of True indicates that the element\nshould\ntake part in attention.\nA float mask of the same type as query, key, value that is added to the attention score.\ndropout_p\n(\nfloat\n) – Dropout probability; if greater than 0.0, dropout is applied\nis_causal\n(\nbool\n) – If set to true, the attention masking is a lower triangular matrix when the mask is a\nsquare matrix. The attention masking has the form of the upper left causal bias due to the alignment\n(see\ntorch.nn.attention.bias.CausalBias\n) when the mask is a non-square matrix.\nAn error is thrown if both attn_mask and is_causal are set.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "bbc5be18f810432b4f9c12271636c861b981e80f4f782edaaa206b62206b9728",
+        "answer_id": "clear-mask-followup",
+        "claim_index": 0,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0004",
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0008"
+        ]
+      }
+    },
+    {
+      "id": "actual-pdf-scaling-1",
+      "group": "pdf-scaling",
+      "split": "development",
+      "claim": "The dot products of the query and key vectors can grow large in magnitude for large values of dk, which pushes the softmax function into regions where it has extremely small gradients. To counteract this effect, the dot products are scaled by 1/√dk before applying the softmax function. This scaling helps maintain the gradients at a reasonable level, allowing for more effective learning during training.",
+      "expected_label": "not_addressed",
+      "rationale": "The small-gradient motivation and reciprocal square-root scaling are supported. The final effective-learning assertion is not established by these excerpts; the paper frames its gradient motivation as a suspicion. Conservative all-parts support policy flags this mixed block.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 1614,
+          "end": 2491,
+          "excerpt": "We suspect that for large values of\ndk, the dot products grow large in magnitude, pushing the softmax function into regions where it has\nextremely small gradients 4. To counteract this effect, we scale the dot products by 1√dk\n.\n3.2.2 Multi-Head Attention\nInstead of performing a single attention function withdmodel-dimensional keys, values and queries,\nwe found it beneficial to linearly project the queries, keys and valuesh times with different, learned\nlinear projections todk,dk anddv dimensions, respectively. On each of these projected versions of\nqueries, keys and values we then perform the attention function in parallel, yieldingdv-dimensional\n4To illustrate why the dot products get large, assume that the components of q and k are independent random\nvariables with mean 0 and variance 1. Then their dot product, q · k = Pdk\ni=1 qiki, has mean 0 and variance dk.\n4",
+          "page": 4,
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 0,
+          "end": 837,
+          "excerpt": "Scaled Dot-Product Attention\n Multi-Head Attention\nFigure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several\nattention layers running in parallel.\nof the values, where the weight assigned to each value is computed by a compatibility function of the\nquery with the corresponding key.\n3.2.1 Scaled Dot-Product Attention\nWe call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of\nqueries and keys of dimensiondk, and values of dimensiondv. We compute the dot products of the\nquery with all keys, divide each by√dk, and apply a softmax function to obtain the weights on the\nvalues.\nIn practice, we compute the attention function on a set of queries simultaneously, packed together\ninto a matrixQ. The keys and values are also packed together into matricesK andV . ",
+          "page": 4,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "pdf-scaling",
+        "claim_index": 0,
+        "reference_ids": [
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0003",
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0001"
+        ]
+      }
+    },
+    {
+      "id": "actual-article-mask-1",
+      "group": "article-mask",
+      "split": "development",
+      "claim": "In the context of the boolean `attn_mask`, a value of `True` indicates that the corresponding element should participate in attention. This is the opposite of the `key_padding_mask` used in `MultiheadAttention`, where `True` indicates that the value should be masked out (i.e., treated as padding). Therefore, when migrating from `MultiheadAttention`, it is necessary to invert the boolean mask (e.g., using `~mask` or `mask.logical_not()`).",
+      "expected_label": "supported",
+      "rationale": "The cited documentation explicitly supports participation for True, padding for True in MHA and mask inversion examples.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 2496,
+          "end": 3359,
+          "excerpt": "training\nelse\n0.0\n))\nNote\nThe boolean mask semantics for\nattn_mask\nare the inverse of\nMultiheadAttention\n’s\nkey_padding_mask\n.\nIn\nscaled_dot_product_attention()\n,\nTrue\nindicates values\nto\nparticipate\nin attention.\nIn\nMultiheadAttention\n,\nTrue\nindicates values\nto be\nmasked out\n(padding).\nIf migrating from MHA, ensure you invert your boolean mask (e.g.,\nusing\n~mask\nor\nmask.logical_not()\n).\nNote\nThere are currently three supported implementations of scaled dot product attention:\nFlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning\nMemory-Efficient Attention\nA PyTorch implementation defined in C++ matching the above formulation\nThe function may call optimized kernels for improved performance when using the CUDA backend.\nFor all other backends, the PyTorch implementation will be used.\nAll implementations are enabled by default. ",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 5905,
+          "end": 6748,
+          "excerpt": "attn_mask\n(\noptional Tensor\n) – Attention mask; shape must be broadcastable to the shape of attention weights,\nwhich is\n(\nN\n,\n.\n.\n.\n,\nH\nq\n,\nL\n,\nS\n)\n(N,..., Hq, L, S)\n(\nN\n,\n...\n,\nH\nq\n,\nL\n,\nS\n)\n. Two types of masks are supported.\nA boolean mask where a value of True indicates that the element\nshould\ntake part in attention.\nA float mask of the same type as query, key, value that is added to the attention score.\ndropout_p\n(\nfloat\n) – Dropout probability; if greater than 0.0, dropout is applied\nis_causal\n(\nbool\n) – If set to true, the attention masking is a lower triangular matrix when the mask is a\nsquare matrix. The attention masking has the form of the upper left causal bias due to the alignment\n(see\ntorch.nn.attention.bias.CausalBias\n) when the mask is a non-square matrix.\nAn error is thrown if both attn_mask and is_causal are set.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "article-mask",
+        "claim_index": 0,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0004",
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0008"
+        ]
+      }
+    },
+    {
+      "id": "actual-article-dropout-1",
+      "group": "article-dropout",
+      "split": "development",
+      "claim": "To disable dropout during evaluation in the context of functional attention, it is necessary to pass a value of 0.0 for the dropout probability when the module is not in training mode. This means that simply calling model.eval() is not sufficient on its own; you must also ensure that the dropout probability is set to 0.0 in the attention function call.",
+      "expected_label": "supported",
+      "rationale": "Always applying the supplied dropout_p and explicitly requiring 0.0 outside training supports the warning that model.eval alone is insufficient.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 1610,
+          "end": 2496,
+          "excerpt": "\nsize\n(\n-\n3\n)\n//\nkey\n.\nsize\n(\n-\n3\n),\n-\n3\n)\nvalue\n=\nvalue\n.\nrepeat_interleave\n(\nquery\n.\nsize\n(\n-\n3\n)\n//\nvalue\n.\nsize\n(\n-\n3\n),\n-\n3\n)\nattn_weight\n=\nquery\n@\nkey\n.\ntranspose\n(\n-\n2\n,\n-\n1\n)\n*\nscale_factor\nattn_weight\n+=\nattn_bias\nattn_weight\n=\ntorch\n.\nsoftmax\n(\nattn_weight\n,\ndim\n=-\n1\n)\nattn_weight\n=\ntorch\n.\ndropout\n(\nattn_weight\n,\ndropout_p\n,\ntrain\n=\nTrue\n)\nreturn\nattn_weight\n@\nvalue\nWarning\nThis function is beta and subject to change.\nWarning\nThis function always applies dropout according to the specified\ndropout_p\nargument.\nTo disable dropout during evaluation, be sure to pass a value of\n0.0\nwhen the module\nthat makes the function call is not in training mode.\nFor example:\nclass\nMyModel\n(\nnn\n.\nModule\n):\ndef\n__init__\n(\nself\n,\np\n=\n0.5\n):\nsuper\n()\n.\n__init__\n()\nself\n.\np\n=\np\ndef\nforward\n(\nself\n,\n...\n):\nreturn\nF\n.\nscaled_dot_product_attention\n(\n...\n,\ndropout_p\n=\n(\nself\n.\np\nif\nself\n.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "article-dropout",
+        "claim_index": 0,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0003"
+        ]
+      }
+    },
+    {
+      "id": "actual-video-alignment-1",
+      "group": "video-alignment",
+      "split": "development",
+      "claim": "To measure how well each key matches each query, you compute a dot product between each possible key-query pair. Larger dot products indicate a closer alignment between the keys and queries, while smaller or negative values suggest a lack of relation.",
+      "expected_label": "supported",
+      "rationale": "The three exact cues establish pairwise dot products, larger positive alignment and small/negative unrelated pairs.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 9112,
+          "end": 9224,
+          "excerpt": "To measure how well each key matches each query,\nyou compute a dot product between each possible key-query pair.",
+          "page": null,
+          "start_ms": 507200,
+          "end_ms": 514000
+        },
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 9383,
+          "end": 9641,
+          "excerpt": "For our adjective noun example, that would look a little more like this,\nwhere if the keys produced by fluffy and blue really do align closely with the query\nproduced by creature, then the dot products in these two spots would be some large\npositive numbers.",
+          "page": null,
+          "start_ms": 523280,
+          "end_ms": 538320
+        },
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 9777,
+          "end": 9965,
+          "excerpt": "By contrast to the dot product between the key for some other\nword like the and the query for creature would be some small\nor negative value that reflects that are unrelated to each other.",
+          "page": null,
+          "start_ms": 546040,
+          "end_ms": 556600
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "video-alignment",
+        "claim_index": 0,
+        "reference_ids": [
+          "59959ab5-6772-4661-b3ca-d20830c45e16:p0058",
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r24a7-25a9",
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r2631-26ed"
+        ]
+      }
+    },
+    {
+      "id": "actual-video-alignment-2",
+      "group": "video-alignment",
+      "split": "development",
+      "claim": "Visualizing this, a grid can be created where larger dots correspond to larger dot products, indicating where the keys and queries align closely. For example, if the keys produced by 'fluffy' and 'blue' align closely with the query produced by 'creature', the dot products in those spots would be large positive numbers.",
+      "expected_label": "supported",
+      "rationale": "The two cues support both the larger-dot visualization and the conditional fluffy/blue versus creature example.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 9225,
+          "end": 9382,
+          "excerpt": "I like to visualize a grid full of a bunch of dots,\nwhere the bigger dots correspond to the larger dot products,\nthe places where the keys and queries align.",
+          "page": null,
+          "start_ms": 514480,
+          "end_ms": 522559
+        },
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 9383,
+          "end": 9641,
+          "excerpt": "For our adjective noun example, that would look a little more like this,\nwhere if the keys produced by fluffy and blue really do align closely with the query\nproduced by creature, then the dot products in these two spots would be some large\npositive numbers.",
+          "page": null,
+          "start_ms": 523280,
+          "end_ms": 538320
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "video-alignment",
+        "claim_index": 1,
+        "reference_ids": [
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r2409-24a6",
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r24a7-25a9"
+        ]
+      }
+    },
+    {
+      "id": "actual-video-context-cost-1",
+      "group": "video-context-cost",
+      "split": "development",
+      "claim": "Increasing the context size can become an attention bottleneck because the size of the attention pattern is equal to the square of the context size, which means that as the context size increases, the computational requirements grow significantly. This makes scaling up context size non-trivial for large language models.",
+      "expected_label": "supported",
+      "rationale": "The cited cues link the quadratic attention-pattern size to context-size bottlenecks and non-trivial scaling; increased computational requirements paraphrase that relationship.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13754,
+          "end": 13874,
+          "excerpt": "So this is why context size can be a really huge bottleneck for large language models,\nand scaling it up is non-trivial.",
+          "page": null,
+          "start_ms": 769900,
+          "end_ms": 775620
+        },
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 13625,
+          "end": 13753,
+          "excerpt": "Another fact that's worth reflecting on about this attention\npattern is how its size is equal to the square of the context size.",
+          "page": null,
+          "start_ms": 762480,
+          "end_ms": 769500
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "video-context-cost",
+        "claim_index": 0,
+        "reference_ids": [
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r35ba-3632",
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r3539-35b9"
+        ]
+      }
+    },
+    {
+      "id": "actual-library-dropout-1",
+      "group": "library-dropout",
+      "split": "development",
+      "claim": "To turn off dropout during evaluation for `torch.nn.functional.scaled_dot_product_attention`, you should pass a value of `0.0` for the `dropout_p` argument when the module is not in training mode. This is indicated in the PyTorch documentation, which states that the function always applies dropout according to the specified `dropout_p` argument, and to disable it, you should set `dropout_p` to `0.0` during evaluation.",
+      "expected_label": "supported",
+      "rationale": "The documentation explicitly requires dropout_p = 0.0 during evaluation and states that the function always uses the supplied probability.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 0,
+          "end": 710,
+          "excerpt": "torch.nn.functional.scaled_dot_product_attention — PyTorch 2.14 documentation\nSkip to main content\nBack to top\nCtrl\n+\nK\nGo to\npytorch.org\nCtrl\n+\nK\nX\nGitHub\nPyTorch Forum\nPyPi\nRate this Page\n★\n★\n★\n★\n★\ntorch.nn.functional.scaled_dot_product_attention\n#\ntorch.nn.functional.\nscaled_dot_product_attention\n(\n)\n[source]\n#\nscaled_dot_product_attention(query, key, value, attn_mask=None, dropout_p=0.0,\nis_causal=False, scale=None, enable_gqa=False) -> Tensor:\nComputes scaled dot product attention on query, key and value tensors, using an optional attention mask if passed,\nand applying dropout if a probability greater than 0.0 is specified. The optional scale argument can only be\nspecified as a keyword argument.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "source_url": "https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.scaled_dot_product_attention.html",
+          "source_kind": "article",
+          "capture_sha256": "3c48809f128e4802981ce6ca50f5378fe38ea79a557e823eb4c0af02306cd311",
+          "start": 1610,
+          "end": 2496,
+          "excerpt": "\nsize\n(\n-\n3\n)\n//\nkey\n.\nsize\n(\n-\n3\n),\n-\n3\n)\nvalue\n=\nvalue\n.\nrepeat_interleave\n(\nquery\n.\nsize\n(\n-\n3\n)\n//\nvalue\n.\nsize\n(\n-\n3\n),\n-\n3\n)\nattn_weight\n=\nquery\n@\nkey\n.\ntranspose\n(\n-\n2\n,\n-\n1\n)\n*\nscale_factor\nattn_weight\n+=\nattn_bias\nattn_weight\n=\ntorch\n.\nsoftmax\n(\nattn_weight\n,\ndim\n=-\n1\n)\nattn_weight\n=\ntorch\n.\ndropout\n(\nattn_weight\n,\ndropout_p\n,\ntrain\n=\nTrue\n)\nreturn\nattn_weight\n@\nvalue\nWarning\nThis function is beta and subject to change.\nWarning\nThis function always applies dropout according to the specified\ndropout_p\nargument.\nTo disable dropout during evaluation, be sure to pass a value of\n0.0\nwhen the module\nthat makes the function call is not in training mode.\nFor example:\nclass\nMyModel\n(\nnn\n.\nModule\n):\ndef\n__init__\n(\nself\n,\np\n=\n0.5\n):\nsuper\n()\n.\n__init__\n()\nself\n.\np\n=\np\ndef\nforward\n(\nself\n,\n...\n):\nreturn\nF\n.\nscaled_dot_product_attention\n(\n...\n,\ndropout_p\n=\n(\nself\n.\np\nif\nself\n.\n",
+          "page": null,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "library-dropout",
+        "claim_index": 0,
+        "reference_ids": [
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0001",
+          "81d0b9b7-270b-49f7-b1c1-5dff30aa8b52:p0003"
+        ]
+      }
+    },
+    {
+      "id": "actual-library-theory-video-1",
+      "group": "library-theory-video",
+      "split": "development",
+      "claim": "The original paper explains scaling attention scores by stating that for large values of dk, the dot products grow large in magnitude, which pushes the softmax function into regions where it has extremely small gradients. To counteract this effect, they scale the dot products by 1/√dk.",
+      "expected_label": "not_addressed",
+      "rationale": "The original paper says we suspect before the small-gradient explanation. This answer reports the explanation as an unqualified assertion, dropping the original uncertainty. Under this conservative policy attribution alone does not preserve the qualifier.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "source_kind": "pdf",
+          "capture_sha256": "30f3f9ba20a5fa784870a3a5f23408cfacc2769fd594fa4e98adc760d05d0ee4",
+          "start": 1614,
+          "end": 2491,
+          "excerpt": "We suspect that for large values of\ndk, the dot products grow large in magnitude, pushing the softmax function into regions where it has\nextremely small gradients 4. To counteract this effect, we scale the dot products by 1√dk\n.\n3.2.2 Multi-Head Attention\nInstead of performing a single attention function withdmodel-dimensional keys, values and queries,\nwe found it beneficial to linearly project the queries, keys and valuesh times with different, learned\nlinear projections todk,dk anddv dimensions, respectively. On each of these projected versions of\nqueries, keys and values we then perform the attention function in parallel, yieldingdv-dimensional\n4To illustrate why the dot products get large, assume that the components of q and k are independent random\nvariables with mean 0 and variance 1. Then their dot product, q · k = Pdk\ni=1 qiki, has mean 0 and variance dk.\n4",
+          "page": 4,
+          "start_ms": null,
+          "end_ms": null
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "library-theory-video",
+        "claim_index": 0,
+        "reference_ids": [
+          "87bd138e-d2d9-4cde-b0a1-4d5f4fddf9d4:p0003"
+        ]
+      }
+    },
+    {
+      "id": "actual-library-theory-video-2",
+      "group": "library-theory-video",
+      "split": "development",
+      "claim": "In the video, it mentions that for numerical stability, it is helpful to divide all values by the square root of the dimension in the key-query space, which aligns with the original paper's reasoning for scaling.",
+      "expected_label": "not_addressed",
+      "rationale": "The video supports numerical stability and square-root scaling. This claim also asserts alignment with the original paper reasoning but cites only a video cue; that comparison is not established by its cited evidence.",
+      "reviewed": true,
+      "evidence": [
+        {
+          "source_url": "https://www.youtube.com/watch?v=eMlx5fFNoYc",
+          "source_kind": "video",
+          "capture_sha256": "ba03afe93fc471487103ab35d80162115469878b123ff7e1ce233cd1dca309c1",
+          "start": 11410,
+          "end": 11605,
+          "excerpt": "A small technical detail that I didn't mention is that for numerical stability,\nit happens to be helpful to divide all of these values by the\nsquare root of the dimension in that key query space.",
+          "page": null,
+          "start_ms": 644000,
+          "end_ms": 653960
+        }
+      ],
+      "origin": {
+        "report_sha256": "cf85b1feea791e781996b3638e873410bb1e017ee02643718e83af62b11b531c",
+        "answer_id": "library-theory-video",
+        "claim_index": 1,
+        "reference_ids": [
+          "59959ab5-6772-4661-b3ca-d20830c45e16:r2c92-2d55"
+        ]
+      }
+    }
+  ]
+}

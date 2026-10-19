@@ -1,5 +1,17 @@
 # Web learning library — feature specification
 
+## Later target: source-backed topic learning journeys — 2026-10-09
+
+The original source-note/library behavior below remains the baseline design.
+[GitHub #28](https://github.com/CloudKai/secondBrain/issues/28) adds a **target,
+not implemented** teaching layer: topic collections, editable goals, confirmable
+learning paths, interactive practice/feedback and durable difficulty-specific
+progress. Begin with one-source teaching; later phases grow collections, branch
+goals and add distinct learning indicators to the broader map. Learning-order
+links do not replace the evidence-backed shared-topic graph. See the
+[new specification](../docs/planning/topic-learning-journey-spec.md) for scope,
+quality gates and acceptance; no new application capability is claimed here.
+
 Status: product specification confirmed by the user, 2026-10-02.
 The decisions below describe target behavior. A separately authorized dark-mode
 frontend slice now exists in `web/`, with curated examples and verified browser
