@@ -261,7 +261,6 @@ test("the public question schema is strict and carries no key fields", () => {
   ]) {
     assert.throws(
       () => publicQuestionSchema.parse({ ...single, ...leak }),
-      undefined,
       JSON.stringify(leak),
     );
     assert.throws(() => publicQuestionSchema.parse({ ...short, ...leak }));
@@ -297,7 +296,6 @@ test("graded questions require the key; the redacted variant forbids it", () => 
   for (const key of ["correct_option_ids", "explanation", "citation_ids"])
     assert.throws(
       () => gradedQuestionSchema.parse(without(gradedChoice, key)),
-      undefined,
       key,
     );
   for (const field of [
@@ -311,7 +309,6 @@ test("graded questions require the key; the redacted variant forbids it", () => 
   ])
     assert.throws(
       () => gradedQuestionSchema.parse({ ...redacted, ...field }),
-      undefined,
       JSON.stringify(field),
     );
 });

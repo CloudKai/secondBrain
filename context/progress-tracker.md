@@ -5,6 +5,9 @@
 **Scope:** iOS/native progress. Web work is recorded separately in
 [web-progress-tracker.md](web-progress-tracker.md).
 
+**2026-10-20 web build fix:** full web TypeScript/Vite build, lint and 26 affected
+tests pass locally; deployment remains pending. No native status change.
+
 **2026-10-20 research runtime diagnosis:** missing real server keys and local Redis
 startup are recorded in the web tracker; no new native verification is claimed.
 Follow-up verifies supplied credentials, API/worker startup and authenticated

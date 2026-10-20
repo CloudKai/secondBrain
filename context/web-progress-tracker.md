@@ -1,5 +1,23 @@
 # Web Progress Tracker
 
+## Vercel web TypeScript build fix — 2026-10-20
+
+Reproduced the seven reported compiler errors with `cd web && npm run build`.
+Four assertion calls used the three-argument `assert.throws` overload with an
+undefined predicate; they now use its supported message-only overload. Three
+`createElement` calls now put required `children` in props. Runtime types and
+build inclusion remain strict and unchanged.
+
+Verified from `web/`:
+- `npm run build`: passes TypeScript and Vite production bundling; existing
+  bundle-size advisory remains.
+- `node --import tsx --test src/lib/quiz-copy.test.ts src/lib/quiz-schema.test.ts src/lib/ui-primitives.test.ts`: 26 passed.
+- `npm run lint`: passes.
+
+This supersedes earlier syntax-only web build evidence. Full web/persistence tests,
+hosted deployment, quiz migration and new quiz/backend live acceptance are not
+established by these focused checks. Fix is local pending commit/push/redeployment.
+
 ## Research/local runtime setup diagnosis — 2026-10-20
 
 **Credential follow-up verified:** user supplied real keys locally. Read-only

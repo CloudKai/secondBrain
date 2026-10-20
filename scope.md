@@ -1,5 +1,14 @@
 # Scope: AI Second Brain
 
+## Vercel web compile fix — verified locally, 2026-10-20
+
+Reproduced all seven reported TypeScript errors in `npm run build`. Corrected
+test calls to Node `assert.throws` and supplied required React `children` through
+the props object in primitive render tests. No runtime component or schema change.
+Web production build (including full TypeScript checking), lint and the 26 tests
+in the three affected files pass. Hosted redeployment and full web/persistence
+suite remain separate checks; quiz migration and backend acceptance gates remain.
+
 ## Research/local runtime diagnosis — 2026-10-20
 
 **Follow-up:** real keys passed storage/model access checks. API restarted and

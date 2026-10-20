@@ -23,14 +23,14 @@ test('icon-only button keeps its accessible name',()=>{
 });
 
 test('loading button is disabled and busy but keeps its label',()=>{
- const html=renderToStaticMarkup(createElement(Button,{loading:true},'Save note'));
+ const html=renderToStaticMarkup(createElement(Button,{loading:true,children:'Save note'}));
  assert.match(html,/aria-busy="true"/);
  assert.match(html,/disabled=""/);
  assert.match(html,/Save note/);
 });
 
 test('button link renders an anchor for hash navigation',()=>{
- const html=renderToStaticMarkup(createElement(ButtonLink,{href:'#topics',variant:'primary'},'Browse topics'));
+ const html=renderToStaticMarkup(createElement(ButtonLink,{href:'#topics',variant:'primary',children:'Browse topics'}));
  assert.match(html,/<a [^>]*href="#topics"/);
  assert.match(html,/ui-button--primary/);
 });
@@ -77,7 +77,7 @@ test('theme toggle is a labelled group with one pressed option',()=>{
 test('card and badge render their content',()=>{
  const card=renderToStaticMarkup(createElement(Card,{as:'section',tone:'raised'},'Body'));
  assert.match(card,/<section class="ui-card ui-card--raised ui-card--pad-md"/);
- const badge=renderToStaticMarkup(createElement(Badge,{tone:'success'},'Saved'));
+ const badge=renderToStaticMarkup(createElement(Badge,{tone:'success',children:'Saved'}));
  assert.match(badge,/ui-badge--success/);
  assert.match(badge,/Saved/);
 });

@@ -55,7 +55,7 @@ test("assertCopyIsCalm rejects outcome words, game words and typos", () => {
     "Level up",
     "Hello {nmae}",
   ])
-    assert.throws(() => assertCopyIsCalm({ bad }), undefined, bad);
+    assert.throws(() => assertCopyIsCalm({ bad }), bad);
 });
 
 test("the exact phrase 'not proof of mastery' is the only allowed use of the word", () => {
