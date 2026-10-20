@@ -6,7 +6,6 @@ import CollectionWorkspace from './components/CollectionWorkspace';
 import CollectionLibrary from './components/CollectionLibrary';
 import LibraryLearning from './components/LibraryLearning';
 import {noteTopicContext} from './lib/learning-continuity';
-import LearningHistory from './components/LearningHistory';
 import LearningTopicProgress from './components/LearningTopicProgress';
 import {citationMatchesSource, type AssistantReference} from "./lib/assistant-answer";
 import CaptureRangeFields from "./components/CaptureRangeFields";
@@ -16,12 +15,10 @@ import SavedSourceAssignments from "./components/SavedSourceAssignments";
 import { useTopicLibrary } from "./lib/use-topic-library";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
-  ArrowDownWideNarrow,
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
   BookOpen,
-  BrainCircuit,
   Check,
   ChevronRight,
   ExternalLink,
@@ -33,7 +30,6 @@ import {
   Network,
   PanelRightClose,
   Plus,
-  Search,
   Sparkles,
   Trash2,
   Upload,
@@ -66,9 +62,10 @@ import {
   type RevisionComparison,
   type SavedSource,
 } from "./lib/source-client";
-import { AttentionArt, Graph } from "./components/Graph";
+import { Graph } from "./components/Graph";
 import Modal from "./components/Modal";
 import Shell from "./components/Shell";
+import Home from "./components/Home";
 import Assistant from "./components/Assistant";
 import RecallCards from "./components/RecallCards";
 import StructuredStudy from "./components/StructuredStudy";
@@ -267,7 +264,7 @@ export default function App() {
       event.preventDefault();
       window.location.hash = "library";
       requestAnimationFrame(() =>
-        (document.getElementById("library-search") ?? document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
+        (document.getElementById("library-search") ?? document.getElementById("home-add-source"))?.focus(),
       );
     };
     window.addEventListener("keydown", search);
@@ -776,8 +773,7 @@ export default function App() {
           go("library");
           requestAnimationFrame(() =>
             (document.getElementById("library-search") ??
-              document.getElementById("home-add-source") ??
-              document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
+              document.getElementById("home-add-source"))?.focus(),
           );
         }}
         onSelectTopic={(id) => {
@@ -810,335 +806,51 @@ export default function App() {
             : <div className="collection-workspace"><header className="collection-heading"><span className="eyebrow">YOUR LEARNING HOME</span><h1>Pick up a path. Follow your curiosity.</h1></header><LibraryLearning client={sourceClient} onOpen={id=>void openLearning(id)}/><CollectionLibrary client={sourceClient}/></div>)}
           {route.page === 'collection' && storage === 'unavailable' && <p role="status">Reconnect your library to restore collections. Your saved progress stays on the server.</p>}
           {route.page === "library" && (
-            <div className="library-layout">
-              <section className="library-main">
-                {sourceClient&&storage==='ready'&&<LearningHistory client={sourceClient} onOpen={id=>void openLearning(id)}/>}
-                <div className="page-heading">
-                  <span className="eyebrow">
-                    YOUR PERSONAL LEARNING LIBRARY
-                  </span>
-                  <h1>
-                    A little curiosity.
-                    <br />
-                    <span>A lot of understanding.</span>
-                  </h1>
-                  <p>
-                    A home for what you find interesting — and what you learn
-                    from it.
-                  </p>
-                </div>
-                {notes.length > 0 && <div className="stat-strip">
-                  <span>
-                    <FileText size={16} />
-                    <strong>
-                      {notes.filter((note) => note.savedSource).length}
-                    </strong>{" "}
-                    saved sources
-                    {demo &&
-                      ` · ${notes.filter((note) => note.demo).length} examples`}
-                  </span>
-                  <span>
-                    <Network size={16} />
-                    <strong>{topics.length}</strong> topics to explore
-                  </span>
-
-                </div>
-                }
-                {sourceClient&&storage==='ready'&&<LibraryLearning client={sourceClient} onOpen={id=>void openLearning(id)}/>}
-                {sourceClient&&storage==='ready'&&<CollectionLibrary client={sourceClient}/>}
-                {currentNote ? (
-                  <section className="resume-card">
-                    <div className="resume-content">
-                      <span className="resume-label">
-                        <span className="dot mint" /> START FROM A SOURCE
-                      </span>
-                      <h2>{currentNote.title}</h2>
-                      <p>{currentNote.subtitle}</p>
-                      <div className="resume-meta">
-                        <BookOpen size={14} />
-                        {currentNote.concepts.length} key concepts{" "}
-                        <span>·</span>{" "}
-                        {currentNote.demo
-                          ? "Example study note"
-                          : `${currentNote.kind} study note`}
-                      </div>
-                      <button
-                        className="button primary"
-                        onClick={() => openNote(currentNote)}
-                      >
-                        Open source note <ArrowRight size={16} />
-                      </button>
-                    </div>
-                    <AttentionArt />
-                  </section>
-                ) : (
-                  <section className="resume-card empty-hero">
-                    <span className="assistant-icon">
-                      <BookOpen size={28} />
-                    </span>
-                    <h2>Give your curiosity a home.</h2>
-                    <p>
-                      Add an article, selectable-text PDF or video transcript
-                      to create a note and discover its topics.
-                    </p>
-                    <button
-                      className="button primary"
-                      onClick={() => showAdd()}
-                    >
-                      Add your first source <Plus size={16} />
-                    </button>
-                  </section>
-                )}
-                {notes.length > 0 && <>
-                <div className="section-heading">
-                  <div>
-                    <h2>
-                      {demo ? "Sources and examples" : "Your sources"} <span>{notes.length}</span>
-                    </h2>
-                    <p>Good ideas, ready to become understanding.</p>
-                  </div>
-                  <label className="sort-control">
-                    <ArrowDownWideNarrow size={15} />
-                    <span className="sr-only">Sort sources</span>
-                    <select
-                      value={sort}
-                      onChange={(e) => setSort(e.target.value)}
-                    >
-                      <option value="recent">Recently added</option>
-                      <option value="title">Title A–Z</option>
-                    </select>
-                  </label>
-                </div>
-                <div className="library-toolbar">
-                  <div className="filter-tabs" aria-label="Source filters">
-                    {["All sources", "Article", "PDF", "Video", "Paper"].map(
-                      (f) => (
-                        <button
-                          key={f}
-                          aria-pressed={filter === f}
-                          className={filter === f ? "active" : ""}
-                          onClick={() => setFilter(f)}
-                        >
-                          {f === "Article"
-                            ? "Articles"
-                            : f === "Paper"
-                              ? "Papers"
-                              : f}
-                        </button>
-                      ),
-                    )}
-                  </div>
-                  <label className="search-field">
-                    <Search size={15} />
-                    <span className="sr-only">Search sources</span>
-                    <input
-                      id="library-search"
-                      placeholder="Search sources…"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                    />
-                    {query && (
-                      <button
-                        className="icon-button"
-                        aria-label="Clear search"
-                        onClick={() => setQuery("")}
-                      >
-                        <X size={13} />
-                      </button>
-                    )}
-                  </label>
-                </div>
-                <div className="source-grid">
-                  {filtered.map((n) => (
-                    <button
-                      className={`source-card tone-${n.color}`}
-                      key={n.id}
-                      onClick={() => openNote(n)}
-                    >
-                      <div className="source-card-art">
-                        {n.id === "attention" ? (
-                          <AttentionArt small />
-                        ) : n.id === "annotated" ? (
-                          <div className="code-art">
-                            <span>class Transformer:</span>
-                            <span>
-                              {" "}
-                              attention = <b>all_you_need</b>
-                            </span>
-                            <span> context = learn(tokens)</span>
-                            <i>01 &nbsp; 02 &nbsp; 03 &nbsp; 04</i>
-                          </div>
-                        ) : (
-                          <div className="retrieval-art">
-                            <span>
-                              <FileText size={20} />
-                            </span>
-                            <i />
-                            <span>
-                              <BrainCircuit size={26} />
-                            </span>
-                            <i />
-                            <span>
-                              <Sparkles size={20} />
-                            </span>
-                          </div>
-                        )}
-                        <span className="source-type">
-                          <FileText size={11} />
-                          {n.kind}
-                        </span>
-                      </div>
-                      <div className="source-card-content">
-                        <small>
-                          {n.author} · {n.year}
-                        </small>
-                        <h3>
-                          {n.title}
-                          <ArrowUpRight size={16} />
-                        </h3>
-                        <p>{n.subtitle}</p>
-                        <div className="topic-chips">
-                          {n.topics.slice(0, 2).map((t) => (
-                            <span key={t}>{names[t] || t}</span>
-                          ))}
-                        </div>
-                        <div className="source-card-footer">
-                          <span>
-                            {n.demo
-                              ? "Example note"
-                              : n.savedSource
-                                ? "Saved privately"
-                                : "This session"}
-                          </span>
-                          <span>
-                            <BookOpen size={12} />
-                            {n.savedSource
-                              ? studyLabel(n.study)
-                              : `${n.concepts.length} concepts`}
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                {!filtered.length && notes.length > 0 && (
-                  <div className="empty-results">
-                    <Search size={28} />
-                    <h3>No matching sources</h3>
-                    <p>Try another title, author, or topic.</p>
-                    <button
-                      className="text-button"
-                      onClick={() => {
-                        setQuery("");
-                        setFilter("All sources");
-                      }}
-                    >
-                      Clear filters
-                    </button>
-                  </div>
-                )}
-                <button className="add-source-strip" onClick={() => showAdd()}>
-                  <span className="add-icon">
-                    <Plus size={19} />
-                  </span>
-                  <span>
-                    <strong>Found something worth understanding?</strong>
-                    <small>
-                      Add an article, selectable-text PDF or video transcript to
-                      your library.
-                    </small>
-                  </span>
-                  <ArrowRight size={18} />
-                </button>
-                </>}
-                <div className="library-footnote">
-                  <span>
-                    <Link2 size={13} />
-                    Every idea starts with a source.
-                  </span>
-                  <button onClick={() => setDialog("about")}>
-                    {demo
-                      ? "About the example workspace"
-                      : "About this session"}{" "}
-                    <ArrowUpRight size={12} />
-                  </button>
-                </div>
-              </section>
-              {notes.length > 0 && (              <aside className="library-aside">
-                <div className="aside-heading">
-                  <span className="eyebrow">THE BIGGER PICTURE</span>
-                  <h2>
-                    Your knowledge,
-                    <br />
-                    connected.
-                  </h2>
-                  <p>
-                    Small ideas build a bigger picture.
-                    <br />
-                    See how your sources fit together.
-                  </p>
-                </div>
-                <Graph
-                  cardsOnly={showingSavedGraph && !topicMaps.library.graph_ready}
-                  topics={topics}
-                  connections={connections}
-                  compact
-                  onSelect={(id) => {
-                    openTopic(id);
-                    go("topics");
-                  }}
-                />
-                <div className="map-legend">
-                  <span>
-                    <span className="dot mint" /> Topic
-                  </span>
-                  <span>
-                    <i /> Source-supported overlap
-                  </span>
-                </div>
-                <button
-                  className="button secondary full"
-                  onClick={() => go("topics")}
-                >
-                  Explore topic graph <ArrowUpRight size={15} />
-                </button>
-                <div className="aside-divider" />
-                <div className="aside-section-heading">
-                  <h3>Follow your curiosity</h3>
-                  <Sparkles size={16} />
-                </div>
-                {topics.slice(0, 3).map((t, i) => (
-                  <button
-                    className="curiosity-topic"
-                    key={t.id}
-                    onClick={() => {
-                      openTopic(t.id);
+            <Home
+              client={sourceClient}
+              storageReady={storage === "ready"}
+              notes={notes}
+              filtered={filtered}
+              topics={topics}
+              names={names}
+              demo={demo}
+              query={query}
+              filter={filter}
+              sort={sort}
+              setQuery={setQuery}
+              setFilter={setFilter}
+              setSort={setSort}
+              onOpenNote={openNote}
+              onOpenLearning={(id) => void openLearning(id)}
+              onAddSource={() => showAdd()}
+              onLoadExamples={() =>
+                changeLibrary({ type: "show-examples", notes: sampleNotes })
+              }
+              topicMap={
+                <>
+                  <Graph
+                    cardsOnly={
+                      showingSavedGraph && !topicMaps.library.graph_ready
+                    }
+                    topics={topics}
+                    connections={connections}
+                    compact
+                    onSelect={(id) => {
+                      openTopic(id);
                       go("topics");
                     }}
-                  >
-                    <span
-                      className={`topic-icon tone-${["mint", "purple", "peach"][i]}`}
-                    >
-                      <Network size={18} />
+                  />
+                  <div className="map-legend">
+                    <span>
+                      <span className="dot mint" /> Topic
                     </span>
                     <span>
-                      <strong>{t.title}</strong>
-                      <small>{t.notes.length} supporting sources</small>
+                      <i /> Source-supported overlap
                     </span>
-                    <ChevronRight size={16} />
-                  </button>
-                ))}
-                <div className="gentle-note">
-                  <span className="quote-mark">“</span>
-                  <p>
-                    Learning isn’t collecting more.
-                    <br />
-                    It’s connecting what you know.
-                  </p>
-                  <span>A SMALL REMINDER FROM SECOND BRAIN</span>
-                </div>
-              </aside>)}
-            </div>
+                  </div>
+                </>
+              }
+            />
           )}
           {route.page === "note" &&
             (currentNote ? (
