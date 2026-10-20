@@ -1,5 +1,69 @@
 # Web Progress Tracker
 
+## Research/local runtime setup diagnosis — 2026-10-20
+
+**Credential follow-up verified:** user supplied real keys locally. Read-only
+server study-storage and research-model access checks return 200. Live direct
+research returned five checked Python documentation resources (partial=true).
+Restarted the API on localhost:8000 and started `backend.study_worker`; API health
+returns 200, Redis responds and the ARQ worker heartbeat exists. Read-only study
+inventory shows 11 succeeded records and no error codes; this is existing work,
+not a new note-generation acceptance run.
+
+The existing VS Code browser initially returned 401 with a stale session.
+Its Retry connection restored sources/studies/topic-library HTTP 200 without
+clearing identity. Retrying “RAG evaluation” in that same authenticated preview
+renders six checked resources. No result was saved. No test account was created.
+No new generation, Qdrant or quiz-migration acceptance is claimed. API and worker
+were left running in agent terminal sessions; Redis runs through Docker Compose.
+
+`discover_resources` with local settings reproduces `ResearchFailure(configuration)`:
+`OPENAI_API_KEY=replace-me`. Missing/template-key HTTP tests went red on the
+generic error; the route now identifies `OPENAI_API_KEY`, `backend/.env` and restart
+while retaining 503 and the no-save guarantee. Real provider failures retain the
+existing generic response. The UI already renders the API detail.
+
+- `backend/.venv/bin/python -m pytest backend/tests/test_research.py backend/tests/test_sources.py backend/tests/test_api_environment.py -q`: 50 passed.
+- Required `uv run --project backend --extra dev pytest backend/tests -q` again
+  selects Anaconda pytest and fails collection (`langchain_openai` missing).
+- `backend/.venv/bin/python -m pytest backend/tests -q`: 698 passed, the same
+  3 previously isolated quiz failures remain.
+- Started installed Docker Desktop and `docker compose up -d redis`;
+  `docker compose exec -T redis redis-cli ping`: PONG.
+
+User must enter real OpenAI/Supabase server keys into ignored `backend/.env`.
+Worker not started with placeholders. Live authenticated search/save/generation
+acceptance remains pending credentials, API restart and worker startup. Qdrant
+placeholders were observed; indexing was not enabled or claimed verified.
+
+## Backend sources-list configuration fix — 2026-10-20
+
+Follow-up after API restart: local `backend/.env` still used the example URL/key,
+causing DNS `ConnectError`. Copied only the public project URL/key from
+`web/.env.local` into the ignored backend file. Read-only live
+`/auth/v1/settings` verification returns 200. Source dependency now explicitly
+rejects template settings with a replacement/restart instruction; updated
+startup/source suite: 21 passed. Authenticated library acceptance remains pending
+API restart and a real learner session.
+
+Reproduced `GET /api/v2/sources?offset=0` returning 503, "Library storage is not
+configured yet", despite settings in `backend/.env`. API startup now loads the
+adjacent file independently of cwd without overriding process settings. Regression
+tests exercise real startup and authenticated HTTP listing with mocked Supabase:
+file-only setup fails before the fix and passes after it; process overrides pass.
+
+- `backend/.venv/bin/python -m pytest backend/tests/test_api_environment.py backend/tests/test_sources.py -q`: 18 passed.
+- Required `uv run --project backend --extra dev pytest backend/tests -q` failed
+  collection because it selected Anaconda pytest without `langchain_openai`.
+- `backend/.venv/bin/python -m pytest backend/tests -q`: 693 passed, 3 failed.
+  Existing failures: quiz API grading-limit and oversized-answer assertions count
+  the prior quiz-generation provider call; quiz error-body test passes a datetime
+  string to strict `model_validate`. All three reproduce with the new load call
+  disabled. They are outside this configuration fix.
+
+API restart and live authenticated Supabase verification remain pending. No
+database changes or native acceptance changes. Existing path-quiz gates remain.
+
 ## Path quiz v1 (Slice 2) — implemented in development, 2026-10-20
 
 **Implemented but not build-verified.** An optional, non-gating end-of-path quiz

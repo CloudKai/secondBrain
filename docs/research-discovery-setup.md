@@ -23,6 +23,14 @@ used. The canonical template no longer includes `TINYFISH_API_KEY`. Never expose
 the OpenAI key through Vite or a client bundle. Existing Supabase/Redis settings
 remain needed for authentication and the saved-source note/topic pipeline.
 
+Local setup check (2026-10-20): a template `OPENAI_API_KEY=replace-me` was the
+cause of the reproduced research 503. The API now identifies this setting in its
+error response. Enter the real key locally and restart the API; repeated retries
+cannot fix a missing key. Do not put server credentials in chat or the web env.
+Research itself needs neither Redis nor a Supabase server secret. Generating
+notes after saving additionally needs a real `SUPABASE_SECRET_KEY`, running Redis,
+and the study worker; see [study setup](study-note-setup.md).
+
 OpenAI Responses uses `gpt-4.1-mini` and a required `web_search` tool call, with
 one tool call, 2,000 output tokens and `store: false`. Only URLs in completed
 search tool results become candidates. Generated prose URLs are ignored.

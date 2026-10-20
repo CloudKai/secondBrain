@@ -6,10 +6,9 @@ From the repository root:
 
 ```bash
 python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r backend/requirements.txt
+.venv/bin/python -m pip install -r backend/requirements.txt
 export OPENAI_API_KEY="your-key"
-uvicorn backend.main:app --reload
+.venv/bin/python -m uvicorn backend.main:app --reload
 ```
 
 Process a link:
@@ -25,7 +24,8 @@ Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 Run the test suite with `pytest backend/tests` from the repository root.
 
 Alternatively, `uv sync --project backend --extra dev` creates the environment
-directly from `pyproject.toml`.
+directly from `pyproject.toml`; start it with
+`uv run --project backend uvicorn backend.main:app --reload`.
 
 ## Owned browser articles (ticket #1)
 
@@ -37,7 +37,13 @@ All source routes require a verified Supabase bearer session. Owner IDs cannot
 be chosen in request bodies. Returned captures are read-only and carry pending
 study status, original/canonical URL, captured text/time, origin, and coverage.
 
-Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in the process environment.
+Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `backend/.env` (copy
+`backend/.env.example`) or in the process environment. The API loads this file
+at startup regardless of the working directory; process settings take precedence.
+Restart the API after changing local settings. A 503 with "Library storage is
+not configured yet" means one of these two settings is missing.
+The example URL/key must also be replaced with the same project settings used by
+the web app; placeholders now return an explicit configuration error.
 The source flow uses the public key plus the learner's verified bearer token,
 with application ownership filters and Postgres RLS. It uses no model call,
 service-role key, job queue, or native folder migration. See

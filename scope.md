@@ -1,5 +1,37 @@
 # Scope: AI Second Brain
 
+## Research/local runtime diagnosis — 2026-10-20
+
+**Follow-up:** real keys passed storage/model access checks. API restarted and
+study worker started; API health, Redis and worker heartbeat pass. Reconnecting
+the existing browser session restored authenticated library reads. Live research
+in that preview renders six resources for “RAG evaluation”; no source was saved.
+Existing studies are succeeded, but a new note-generation acceptance was not run.
+No Qdrant or quiz-migration acceptance is added by this runtime setup.
+
+Reproduced research failure `configuration`: local `OPENAI_API_KEY` is still the
+template value. The API now returns an explicit local configuration/restart
+instruction. Research/source/startup tests: 50 pass; full backend virtualenv suite:
+698 pass with the same 3 pre-existing quiz failures. Docker Desktop and the
+repository Redis container were started; Redis PING returns PONG. Real OpenAI
+and Supabase server keys remain required from the user before live search and
+study-worker acceptance. No live search, generated note, or new migration is claimed.
+
+## Backend local configuration fix — verified locally, 2026-10-20
+
+The API now loads `backend/.env` at startup, preserving process environment
+overrides. This fixes the reproduced sources-list 503 caused by configured local
+Supabase settings never reaching the API. Startup/source tests: 18 pass. Full
+backend virtualenv suite: 693 pass, 3 pre-existing quiz failures (also reproduced
+with the fix disabled). Live authenticated Supabase acceptance remains unverified;
+restart the API to load the settings. No migration or new product behavior.
+
+Follow-up: the local file still contained the template Supabase URL/key. Replaced
+those two ignored local values with the web app's public project settings and
+verified `/auth/v1/settings` returns HTTP 200. Example settings now produce an
+actionable configuration error. Updated startup/source checks: 21 pass. Live
+authenticated library loading still requires an API restart and learner session.
+
 ## Path quiz v1 (Slice 2) — implemented in development, not build-verified, 2026-10-20
 
 **Implemented in development, not build-verified.** The migration is not applied

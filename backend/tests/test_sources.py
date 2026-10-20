@@ -351,6 +351,21 @@ def test_unconfigured_storage_is_actionable(browser_client, monkeypatch):
     assert "not configured" in response.json()["detail"]
 
 
+@pytest.mark.parametrize("key,value", [
+    ("SUPABASE_URL", "https://your-project.supabase.co"),
+    ("SUPABASE_URL", "https://your-project.supabase.co/"),
+    ("SUPABASE_PUBLISHABLE_KEY", "sb_publishable_replace_me"),
+])
+def test_example_storage_settings_are_actionable(browser_client, monkeypatch, key, value):
+    monkeypatch.setenv(key, value)
+    response = browser_client.get(
+        "/api/v2/sources?offset=0", headers={"Authorization": "Bearer alice"}
+    )
+    assert response.status_code == 503
+    assert "Replace the example" in response.json()["detail"]
+    assert "backend/.env" in response.json()["detail"]
+
+
 def test_capture_preserves_query_values_and_keeps_distinct_resource_identity(
     browser_client,
 ):
