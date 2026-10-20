@@ -21,7 +21,7 @@ from backend.quiz_provider import get_quiz_model
 from backend.quiz_rules import canonical_answers_hash
 from backend.quiz_store import QuizStore
 from backend.tests.quiz_fakes import REFERENCES, FakeQuizModel, completed, generated_dict, incomplete, provider_error, refused
-from backend.tests.quiz_supabase import COLLECTION, OWNER, PLAN, FakeSupabase
+from backend.tests.quiz_supabase import COLLECTION, OWNER, PLAN, FakeSupabase, SqlError
 
 OTHER = "99999999-9999-4999-8999-999999999999"
 SENTINELS = ("SENTINEL-EXPLANATION", "SENTINEL-CRITERION", "SENTINEL-MODEL")
@@ -418,6 +418,17 @@ def test_an_outer_cancel_still_finishes_the_generation(api):
     assert "finish_quiz_generation" in api.fake.events and api.fake.used["generation"] == 1
     assert [q["status"] for q in api.fake.quizzes.values()] == ["ready"]
     assert api.get().json()["status"] == "ready"
+
+
+def test_output_lost_after_the_provider_ran_is_a_generation_error_that_says_it_was_charged(api):
+    def reject(**_body):
+        raise SqlError("22023", "quiz_invalid_output")
+
+    api.fake.fn_finish_quiz_generation = reject
+    response = api.generate(completed(sentinel_quiz()))
+    body = error(response)
+    assert response.status_code == 503 and body["code"] == "quiz_generation_unavailable" and body["charged"] is True
+    assert api.fake.used["generation"] == 1
 
 
 def test_a_cancelled_provider_call_still_releases_the_lease_and_keeps_the_charge(api):

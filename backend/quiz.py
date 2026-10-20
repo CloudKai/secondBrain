@@ -134,7 +134,11 @@ async def run_generation(store: QuizStore, model: QuizModel, quiz_id: UUID, leas
         raise QuizError("quiz_generation_unavailable", reason=failure.reason, charged=charged()) from failure
     except StaleQuiz as stale:
         raise QuizError("quiz_evidence_changed") from stale
-    except (QuizError, asyncio.CancelledError):
+    except QuizError as error:
+        if ledgers and error.code == "quiz_storage_unavailable":  # the provider ran: the output was lost on the way in
+            raise QuizError("quiz_generation_unavailable", reason="provider_unavailable", charged=charged()) from error
+        raise
+    except asyncio.CancelledError:
         raise
     except Exception as exc:  # noqa: BLE001 - never leak provider or internal text
         logger.error("Quiz generation failed unexpectedly: %s", type(exc).__name__)
