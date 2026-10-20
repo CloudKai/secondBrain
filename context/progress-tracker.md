@@ -5,6 +5,9 @@
 **Scope:** iOS/native progress. Web work is recorded separately in
 [web-progress-tracker.md](web-progress-tracker.md).
 
+**2026-10-20 Git cleanup:** invalid ref and exact duplicate additions cleaned up;
+web checks pass. Existing mobile files and native acceptance are unchanged.
+
 **2026-10-20 web build fix:** full web TypeScript/Vite build, lint and 26 affected
 tests pass locally; deployment remains pending. No native status change.
 

@@ -1,5 +1,14 @@
 # Scope: AI Second Brain
 
+## Local Git and duplicate-file cleanup — 2026-10-20
+
+Backed up and removed invalid local ref `refs/heads/main 2`; Git integrity check
+passes. Removed 27 exact redundant copies introduced by local commit `c169cb0`,
+after comparing every copy to its original and backing up the copies outside Git.
+Canonical files and the Vercel test fixes remain. Web build, lint and the 26
+affected tests pass. Cleanup uses a follow-up commit; existing history is retained.
+Hosted deployment and the existing quiz acceptance gates remain unchanged.
+
 ## Vercel web compile fix — verified locally, 2026-10-20
 
 Reproduced all seven reported TypeScript errors in `npm run build`. Corrected

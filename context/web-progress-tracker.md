@@ -1,5 +1,19 @@
 # Web Progress Tracker
 
+## Git push preparation and duplicate cleanup — 2026-10-20
+
+GitHub accepted a dry-run push, but local branch enumeration warned about invalid
+`refs/heads/main 2`; backed it up outside Git and removed it from active refs.
+`git fsck --no-reflogs --no-dangling` passes. Pending commit `c169cb0` also added
+27 ` 2` copies; each is byte-identical to its canonical file and unreferenced.
+Backed up and removed only these additions, preserving the original modules,
+existing mobile files and the three Vercel test fixes. No history rewrite.
+
+Post-cleanup checks from `web/`: `npm run build`, `npm run lint`, and
+`node --import tsx --test src/lib/quiz-copy.test.ts src/lib/quiz-schema.test.ts src/lib/ui-primitives.test.ts`
+pass (26 tests). Existing Vite bundle-size advisory remains. Hosted redeployment
+and quiz migration/backend acceptance are separate pending checks.
+
 ## Vercel web TypeScript build fix — 2026-10-20
 
 Reproduced the seven reported compiler errors with `cd web && npm run build`.
@@ -16,7 +30,8 @@ Verified from `web/`:
 
 This supersedes earlier syntax-only web build evidence. Full web/persistence tests,
 hosted deployment, quiz migration and new quiz/backend live acceptance are not
-established by these focused checks. Fix is local pending commit/push/redeployment.
+established by these focused checks. Fix is committed locally in `c169cb0`;
+push/redeployment remains pending.
 
 ## Research/local runtime setup diagnosis — 2026-10-20
 
