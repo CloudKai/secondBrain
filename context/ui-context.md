@@ -153,6 +153,30 @@ screenshots and assistive-technology checks have not run). The mobile-only
   (for example `.source-branch .text-button`) are still smaller. These are
   implemented in CSS but not checked in a browser.
 
+## Quiz (web) — implemented in development, not build-verified, 2026-10-20
+
+Typecheck, lint, build, rendering, browser, keyboard, screen-reader and zoom
+checks have not run; see the [web progress tracker](web-progress-tracker.md).
+
+- **Where:** a Quiz tab in the lesson workspace tabs (after Learn, Practice and
+  Review), shown only with a connected client, a collection id, quiz enabled and
+  a confirmed plan. It is absent in examples mode; if it disappears the workspace
+  returns to the Learn tab. The Learn tab gets only a non-focus end-of-path card.
+- **Components** (`web/src/components/quiz/`): `QuizPanel`, `QuizEntry`,
+  `QuizNotices`, `QuizRunner`, `QuizQuestion`, `QuizReviewStep`, `QuizResults`,
+  `QuizQuestionReview`, `QuizSkeleton`.
+- **One question at a time** with Back/Next, a progress bar reading "Question n
+  of m", and a "Check your answers" step before submitting.
+- **Focus callouts:** exactly two across the quiz UI, "Start the quiz"
+  (`QuizEntry`) and "Review these first" (`QuizResults`). Everything else uses
+  info or caution callouts or cards.
+- **Results:** "X of Y" with a "Looks solid" or "Worth reviewing" badge per
+  outcome (icon plus text). Evidence, not proof of mastery; never blocks
+  progress. Short-answer AI feedback is labelled "Provisional AI feedback".
+- **Styles:** `web/src/styles/quiz.css` (`.quiz-*` selectors, existing tokens
+  only) is imported in `main.tsx` after `workspace.css` and before `refresh.css`.
+  Interactive rows use `--target-min` (40px). It also holds `.quiz-end-prompt`.
+
 ## Separate browser UI slice — 2026-10-02
 
 `web/` implements the explicitly authorized web-first design independently of

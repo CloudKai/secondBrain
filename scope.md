@@ -1,11 +1,15 @@
 # Scope: AI Second Brain
 
-## Path quiz v1 (Slice 2) — design in development, 2026-10-20
+## Path quiz v1 (Slice 2) — implemented in development, not build-verified, 2026-10-20
 
-**Target, not implemented.** The design specification is
+**Implemented in development, not build-verified.** The migration is not applied
+and needs owner approval; the sandbox could not run the SQL, the pytest suites
+that need pydantic, fastapi or httpx, the zod and react web tests, typecheck,
+lint, build, a browser or a live model call. The exact ran / NOT run lists are in
+[the web progress tracker](context/web-progress-tracker.md). The design specification is
 [docs/planning/path-quiz-spec.md](docs/planning/path-quiz-spec.md) (revision 3:
 the first design review's findings are resolved in the spec, and the later
-amendments have had no second review round); design review precedes any code. The slice adds
+amendments have had no second review round). The slice adds
 an optional end-of-path quiz for one confirmed learning path revision:
 single-choice, true/false and multi-select questions
 graded deterministically on the server, plus one or two short answers with
@@ -21,12 +25,14 @@ request or exhausted quota); timeouts, rate limits and every completed response 
 counted.
 
 **Proposed, not applied:** one migration with a matching rollback
-(`202610200023_path_quiz`), a backend quiz module and a Quiz tab in the lesson
-workspace. No migration has been applied to any database.
+(`202610200023_path_quiz`). A backend quiz module and a Quiz tab in the lesson
+workspace are implemented in development. No migration has been applied to any
+database.
 
 **Out of scope:** spaced repetition, scheduling, due dates and a review queue
-(Slice 3); mastery claims; gamification; global spend caps (see U5). Nothing here is
-available yet, and no check has been run against it.
+(Slice 3); mastery claims; gamification; global spend caps (see U5). The quiz is
+not available to learners until the migration is approved and applied and the
+owner commands have been run.
 
 ## Web design foundation (Slice 1) — implemented in development, 2026-10-20
 

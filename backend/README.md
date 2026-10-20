@@ -77,6 +77,10 @@ apply it before running the matching worker in another environment. Exact limits
 
 ## Path quiz (Slice 2) — in development
 
+Status 2026-10-20: implemented in development, not build-verified. The exact ran
+and NOT run lists are in
+[`context/web-progress-tracker.md`](../context/web-progress-tracker.md).
+
 Design: [`docs/planning/path-quiz-spec.md`](../docs/planning/path-quiz-spec.md)
 (section 20, Revision 3, is binding). Not build-verified here: the migration
 `supabase/migrations/202610200023_path_quiz.sql` has **not** been applied to any

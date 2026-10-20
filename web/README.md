@@ -29,6 +29,30 @@ The implementation snapshots below describe earlier slices. Their preview,
 session-only and future-work statements are historical; use the tracker for
 current capability status.
 
+## Path quiz (Slice 2) — implemented in development, not build-verified, 2026-10-20
+
+Quiz files: `src/lib/quiz.ts` (zod schemas), `quiz-logic.ts`, `quiz-copy.ts`,
+`use-quiz.ts`, the quiz methods in `source-client.ts`, `src/components/quiz/*`
+and `src/styles/quiz.css`; the Quiz tab is wired in `LearningJourney.tsx`. The
+backend side and the not-yet-applied migration are described in the
+[backend README](../backend/README.md).
+
+Native tests that ran in the authoring sandbox (no npm packages needed), from the
+repository root:
+
+```sh
+node --experimental-strip-types --test web/src/lib/quiz-logic.test.ts web/src/lib/quiz-copy.test.ts
+```
+
+Written but not run there: `quiz-schema.test.ts`, `quiz-client.test.ts`,
+`quiz-persistence.test.ts` and every other suite, plus typecheck, lint, build and
+browser checks. Owner commands:
+
+```sh
+npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test
+uv run --project backend --extra dev python -m pytest backend/tests -q
+```
+
 ## Run
 
 For the prepared single-project Vercel services configuration, environment setup,

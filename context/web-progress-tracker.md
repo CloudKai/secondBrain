@@ -1,5 +1,88 @@
 # Web Progress Tracker
 
+## Path quiz v1 (Slice 2) — implemented in development, 2026-10-20
+
+**Implemented but not build-verified.** An optional, non-gating end-of-path quiz
+for one confirmed learning path revision: single-choice, true/false and
+multi-select questions graded on the server, plus up to two short answers with
+provisional AI feedback. Results are evidence, not proof of mastery. Design:
+[path-quiz-spec.md](../docs/planning/path-quiz-spec.md) (section 20, Revision 3,
+is binding; the Revision 3 amendments had no second design-review round). 12
+commits on branch `feat/path-quiz`, not pushed.
+
+- Database: migration `supabase/migrations/202610200023_path_quiz.sql` (6
+  tables, 19 functions incl. helpers, source-removal trigger, RLS) with a guarded
+  rollback, plus `quiz-database.ts` and `quiz-persistence.test.ts`.
+  **Migration 202610200023 is NOT applied anywhere and needs owner approval.**
+  The shared PGlite fixture loads every migration, so a mistake there would break
+  all persistence suites on the first owner run.
+- Backend: `quiz_rules`, `quiz_limits`, `quiz_grading`, `quiz_messages` (standard
+  library only), `quiz_models`, `quiz_provider`, `quiz_generation`,
+  `quiz_short_answer`, `quiz_store`, `quiz` router mounted under
+  `/api/v2/learning/collections/{collection_id}/plans/{plan_id}/quiz`;
+  `study_store.py` changed additively.
+- Web: `quiz.ts`, `quiz-logic.ts`, `quiz-copy.ts`, `use-quiz.ts`,
+  `source-client.ts` quiz methods, `components/quiz/*`, `styles/quiz.css`, a Quiz
+  tab in `LearningJourney.tsx` and a non-focus end-of-path prompt in
+  `LearningLessonView.tsx`.
+- Ran (from the repository root):
+  - SQL structure script (one-off, not committed): file sorts after
+    `202610100022`, `$$` pairing, one `begin;`/`commit;`, 19 functions each with a
+    matching revoke and grant, RLS and the 4 owner select policies, raise
+    messages equal the fixture, rollback drops everything with
+    `quiz_options_valid` last. This is a structural check; the SQL has not
+    executed.
+  - The three `backend/tests/fixtures/quiz_*.json` files parse with `python3`.
+  - `python3 -m unittest backend.tests.test_quiz_rules backend.tests.test_quiz_limits backend.tests.test_quiz_grading backend.tests.test_quiz_messages -v`:
+    84 tests, OK; those four modules import only the standard library.
+  - `python3 -m py_compile` on all new and changed backend files and
+    `python3 -m compileall -q backend`: exit 0.
+  - `.env.example` parity script: 12 `QUIZ_*` variables equal the defaults of
+    `load_quiz_config`.
+  - `node --experimental-strip-types --test web/src/lib/quiz-logic.test.ts web/src/lib/quiz-copy.test.ts`:
+    34 pass, 0 fail; `theme`, `shell-nav` and `home` native tests: 23 pass, 0 fail.
+  - `prettier --check` on the new web files (including the two SQL test files):
+    clean.
+  - `tsc -p web/tsconfig.json --noEmit` filtered to `TS1xxx` syntax errors:
+    nothing. Weak evidence: the repo config stops at a missing `vite/client`
+    type, so semantic checks never ran.
+  - Ad-hoc scans: `quiz-*` class names versus `quiz.css`, design tokens used,
+    no `any` or `@ts-ignore`, no forbidden vocabulary.
+  - Throw-away sanity scripts for the backend run against an in-memory fake with
+    permissive stand-ins for pydantic, httpx and fastapi. They are not a
+    substitute for pytest.
+  - Git identity check (CloudKai on both sides) and no `mobile/` or `.agents/`
+    path in any commit.
+- NOT run: the migration and rollback and `quiz-persistence.test.ts` (no
+  PGlite or Postgres); pytest files `test_quiz_models`, `test_quiz_generation`,
+  `test_quiz_short_answer`, `test_quiz_provider`, `test_study_store`,
+  `test_quiz_store`, `test_quiz_api` and the whole `backend/tests` suite (no
+  pydantic, fastapi, httpx or pytest); `quiz-schema.test.ts`,
+  `quiz-client.test.ts` and every existing zod, react or PGlite web suite; `npm
+  ci`, typecheck, lint, build and `npm test`; rendering of the React components;
+  browser, keyboard, screen-reader, 200% zoom, contrast and light/dark visual
+  checks; any real OpenAI call (model availability, strict-schema acceptance,
+  truncation at the output cap); hosted function duration of at least 120
+  seconds; a real backend round trip. The sandbox gets HTTP 403 from npm and
+  PyPI.
+- Owner commands: `npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test`
+  and `uv run --project backend --extra dev python -m pytest backend/tests -q`.
+- Environment (server-only, see `backend/.env.example`): `QUIZ_ENABLED`,
+  `QUIZ_GENERATIONS_PER_USER_PER_DAY`, `QUIZ_GRADINGS_PER_USER_PER_DAY`,
+  `QUIZ_MAX_QUESTIONS`, `QUIZ_MAX_SHORT_ANSWER`, `QUIZ_MAX_OUTPUT_TOKENS`,
+  `QUIZ_GRADING_MAX_OUTPUT_TOKENS`, `QUIZ_SHORT_ANSWER_MAX_CHARS`,
+  `QUIZ_REASONING_EFFORT`, `QUIZ_GENERATION_MODEL`, `QUIZ_FALLBACK_MODEL` and
+  `QUIZ_GRADING_MODEL`; `OPENAI_API_KEY` and
+  `SUPABASE_SECRET_KEY` must already be configured.
+- Models: `gpt-6-luna` by default, `gpt-6.1-sol` only after a completed but
+  invalid Luna output survived one repair; short-answer feedback uses the
+  separate `QUIZ_GRADING_MODEL`. **Model availability is unverified** (no live
+  call was made).
+- Default limits: 3 quiz generations and 20 AI feedback requests per user per UTC
+  day, 8 questions (up to 2 short answers), short answers capped at 1500
+  characters, 20 attempts per quiz. Raise `QUIZ_MAX_OUTPUT_TOKENS` to at least
+  6000 before raising `QUIZ_MAX_QUESTIONS` above 8.
+
 ## Web design foundation (Slice 1) — implemented in development, 2026-10-20
 
 **Implemented but not build-verified.**
