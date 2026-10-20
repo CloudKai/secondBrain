@@ -4,6 +4,8 @@ import {collectionDetailSchema,collectionListSchema} from './collections';
 import {indexStatusSchema} from "./index-status";
 import {learningSummarySchema,learningGraphSchema,learningCandidatesSchema,learningHistorySchema,learningSnapshotSchema,learningTutorSchema,type LearningRevisionInput,type LearningPreviewInput,type LearningAttemptInput,type LearningActivity,type LearningTutorQuestion} from './learning';
 import {researchResultsSchema} from "./research";
+import {quizStateSchema,quizAttemptResultSchema,quizErrorBodySchema,type QuizGenerateInput,type QuizSubmitInput} from './quiz';
+import {QUIZ_TIMEOUTS,QuizApiError,quizApiErrorFrom} from './quiz-logic';
 import {assistantAnswerSchema, type AssistantQuestion} from "./assistant-answer";
 import { type TopicCorrection, topicLibrarySchema, topicRecordSchema, topicAnalysisSchema } from "./topic-library";
 import { overviewSnapshotSchema } from "./topic-overview";
@@ -167,6 +169,8 @@ export class TranscriptFallbackError extends Error {
   }
 }
 
+function quizPath(collectionId:string,planId:string,suffix=''){return `/learning/collections/${encodeURIComponent(collectionId)}/plans/${encodeURIComponent(planId)}/quiz${suffix}`;}
+
 export function createSourceClient(
   settings: { url: string; publicKey: string },
   dependencies: { fetch?: typeof fetch; storage?: Storage } = {},
@@ -240,6 +244,7 @@ export function createSourceClient(
     if (response.status===404 && path.endsWith("/learning/collection")) return response;
     if (!response.ok) {
       if(response.status===409&&path.includes("/drafts/"))throw new DraftConflictError("This draft changed in another tab. Compare the saved version before replacing it.");
+      if(path.includes('/quiz')){const body:unknown=await response.json().catch(()=>null);const parsed=quizErrorBodySchema.safeParse(body);throw quizApiErrorFrom(response.status,parsed.success?parsed.data:null);}
       if(path.endsWith('/ask') || path === '/research' || path.includes('/learning')) {
         const body:unknown=await response.json().catch(()=>null);
         const detail=z.object({detail:boundedText(1,500)}).safeParse(body);
@@ -416,6 +421,28 @@ export function createSourceClient(
     },
     async learningTutor(sourceId:string,planId:string,input:LearningTutorQuestion) {
       return parse(await request(`/sources/${encodeURIComponent(sourceId)}/learning/plans/${encodeURIComponent(planId)}/tutor`,{method:'POST',body:JSON.stringify(input)}),learningTutorSchema);
+    },
+    async quizState(collectionId:string,planId:string,signal?:AbortSignal) {
+      return parse(await request(quizPath(collectionId,planId),{signal:signal??AbortSignal.timeout(QUIZ_TIMEOUTS.state)}),quizStateSchema);
+    },
+    // Generation can take about two minutes and the server keeps working if the page goes away: callers never abort it.
+    async generateQuiz(collectionId:string,planId:string,input:QuizGenerateInput) {
+      return parse(await request(quizPath(collectionId,planId),{method:'POST',body:JSON.stringify(input),signal:AbortSignal.timeout(QUIZ_TIMEOUTS.generate)}),quizStateSchema);
+    },
+    async submitQuizAttempt(collectionId:string,planId:string,input:QuizSubmitInput) {
+      const result=await parse(await request(quizPath(collectionId,planId,'/attempts'),{method:'POST',body:JSON.stringify(input),signal:AbortSignal.timeout(QUIZ_TIMEOUTS.submit)}),quizAttemptResultSchema);
+      if(result.plan_id!==planId||result.quiz_id!==input.quiz_id)throw new QuizApiError({status:200,code:'quiz_storage_unavailable'});
+      return result;
+    },
+    async quizAttempt(collectionId:string,planId:string,attemptId:string) {
+      const result=await parse(await request(quizPath(collectionId,planId,`/attempts/${encodeURIComponent(attemptId)}`),{signal:AbortSignal.timeout(QUIZ_TIMEOUTS.submit)}),quizAttemptResultSchema);
+      if(result.plan_id!==planId||result.attempt_id!==attemptId)throw new QuizApiError({status:200,code:'quiz_storage_unavailable'});
+      return result;
+    },
+    async quizShortAnswerFeedback(collectionId:string,planId:string,attemptId:string,questionId:string) {
+      const result=await parse(await request(quizPath(collectionId,planId,`/attempts/${encodeURIComponent(attemptId)}/feedback/${encodeURIComponent(questionId)}`),{method:'POST',signal:AbortSignal.timeout(QUIZ_TIMEOUTS.feedback)}),quizAttemptResultSchema);
+      if(result.plan_id!==planId||result.attempt_id!==attemptId)throw new QuizApiError({status:200,code:'quiz_storage_unavailable'});
+      return result;
     },
     ready,
     async indexStatus(id: string, version: number) {
