@@ -441,3 +441,21 @@
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+/* End-of-path prompt on the last lesson (a plain card, never a focus callout) */
+.quiz-end-prompt {
+  display: grid;
+  gap: var(--space-2);
+  max-width: var(--reading-width);
+  margin-top: var(--space-4);
+}
+.quiz-end-prompt p {
+  margin: 0;
+  color: var(--color-text);
+}
+.quiz-end-prompt__title {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}

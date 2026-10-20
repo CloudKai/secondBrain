@@ -19,6 +19,7 @@ import LearningVersions from './LearningVersions';
 import {learningPlanLabel} from '../lib/learning-continuity';
 import SharedLearningContext from './SharedLearningContext';
 import LearningCollection,{LearningRevisionSummary} from './LearningCollection';
+import {QuizPanel} from './quiz/QuizPanel';
 
 const levels:LearningDifficulty[]=['foundation','intermediate','advanced'];
 const levelLabel=(level:LearningDifficulty)=>level[0].toUpperCase()+level.slice(1);
@@ -27,12 +28,16 @@ interface Props {source:SavedSource;client:SourceClient;enabled:boolean;topicTit
 export default function LearningJourney({source,client,enabled,topicTitle,onCitation,onDiscover,initial,collectionId,workspace=false,sidePanelExtra}:Props){
  const startingPlan=initial?.plans.find(p=>p.id===initial.selected_plan_id)??[...(initial?.plans??[])].reverse().find(p=>p.active);
  const [data,setData]=useState<LearningSnapshot|null>(initial??null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[goal,setGoal]=useState(startingPlan?.goal??''),[difficulty,setDifficulty]=useState<LearningDifficulty>(startingPlan?.difficulty??'foundation'),[branchGoal,setBranchGoal]=useState('');
- const [selectedId,setSelectedId]=useState(startingPlan?.id??''),[lessonIndex,setLessonIndex]=useState(initial?.selected_plan_id===startingPlan?.id?initial?.selected_lesson_index??0:0),[mode,setMode]=useState<'teach'|'practice'|'review'>('teach'),[preview,setPreview]=useState<LearningPlan|null>(null),[backgroundIndex,setBackgroundIndex]=useState<number|null>(null);
+ const [selectedId,setSelectedId]=useState(startingPlan?.id??''),[lessonIndex,setLessonIndex]=useState(initial?.selected_plan_id===startingPlan?.id?initial?.selected_lesson_index??0:0),[mode,setMode]=useState<'teach'|'practice'|'review'|'quiz'>('teach'),[preview,setPreview]=useState<LearningPlan|null>(null),[backgroundIndex,setBackgroundIndex]=useState<number|null>(null);
  const [evidenceMode,setEvidenceMode]=useState<'capture'|'note'>('capture');
  const [responses,setResponses]=useState<Record<string,string>>({}),[attemptKeys,setAttemptKeys]=useState<Record<string,{answer:string;id:string}>>({});
  const mounted=useRef(false),working=useRef(false),previewKey=useRef<{fingerprint:string;id:string}|null>(null),fieldId=useId();
  const selected=data?.plans.find(plan=>plan.id===selectedId)??data?.plans.find(plan=>plan.active)??null;
  const lesson=selected?.content.lessons[lessonIndex];
+ // The quiz exists only for a confirmed path in the connected collection workspace; nothing is shown otherwise.
+ const quizAvailable=!!(workspace&&client&&collectionId&&enabled&&selected?.confirmed_at);
+ const currentVersion=selected&&!selected.active?data?.plans.find(plan=>plan.active&&plan.path_id===selected.path_id)??null:null;
+ useEffect(()=>{if(mode==='quiz'&&!quizAvailable)setMode('teach');},[mode,quizAvailable]);
  const answerKey=`${selected?.id}:${lessonIndex}`;
  const draft=useLearningDraft(client,collectionId&&selected?.confirmed_at?{collectionId,planId:selected.id,lessonIndex,kind:'answer'}:null);
  const answer=collectionId?draft.state.text:responses[answerKey]??'';
@@ -58,7 +63,7 @@ export default function LearningJourney({source,client,enabled,topicTitle,onCita
     try{const value=await client.learning(source.id);if(mounted.current){setData(value);if(value.selected_plan_id){setSelectedId(value.selected_plan_id);setLessonIndex(value.selected_lesson_index);}}}catch{/* Keep the last readable state and the learner input. */}
   }}finally{working.current=false;if(mounted.current)setBusy('');}
  }
- function move(plan:LearningPlan,index=0,nextMode:'teach'|'practice'|'review'='teach'){
+ function move(plan:LearningPlan,index=0,nextMode:'teach'|'practice'|'review'|'quiz'='teach'){
   choose(plan);setLessonIndex(index);setMode(nextMode);
   void run('Saving your place…',()=>collectionId?client.selectCollectionLesson(collectionId,plan.id,index,data?.selected_place_revision??0):client.selectLearningLesson(source.id,plan.id,index,data?.selected_place_revision??0));
  }
@@ -162,9 +167,9 @@ export default function LearningJourney({source,client,enabled,topicTitle,onCita
  );
  const teachActions=selected&&(<div className="learning-actions"><button className="button secondary" disabled={!!busy||!valid(selected)||hasActivity('read')} onClick={()=>activity('read')}><BookOpen size={16} aria-hidden="true"/>{hasActivity('read')?'Marked studied':'Mark this lesson studied'}</button><button className="button primary" disabled={!!busy||!valid(selected)} onClick={()=>setMode('practice')}>Try an understanding check</button></div>);
  const nextHint=(text:string,latest:boolean)=>{const body=<><h5>Try next</h5><ReadingText text={text}/></>;return workspace&&latest?<Callout variant="focus">{body}</Callout>:body;};
- const changeMode=(value:string)=>{if(value==='teach'||value==='practice'||value==='review')setMode(value);};
+ const changeMode=(value:string)=>{if(value==='teach'||value==='practice'||value==='review'||value==='quiz')setMode(value);};
  const teachBlock=selected?.confirmed_at&&lesson&&mode==='teach'&&<>
-    <LearningLessonView plan={selected} lessonIndex={lessonIndex} onCitation={id=>void cite(selected,id)} emphasis={workspace}/>
+    <LearningLessonView plan={selected} lessonIndex={lessonIndex} onCitation={id=>void cite(selected,id)} emphasis={workspace} onOpenQuiz={quizAvailable&&lessonIndex===selected.content.lessons.length-1?()=>setMode('quiz'):undefined}/>
     {workspace?<Callout variant="focus" title="Next step">{teachActions}</Callout>:teachActions}
     {selected.content.background.map((item,index)=><button className="text-button" key={index} disabled={!!busy||!valid(selected)} onClick={()=>setBackgroundIndex(index)}>Preview optional background: {item.title}</button>)}
    </>;
@@ -176,7 +181,7 @@ export default function LearningJourney({source,client,enabled,topicTitle,onCita
     {attempts.map((attempt,index)=><article key={attempt.id} className="learning-feedback"><h5>Attempt {index+1} · {levelLabel(attempt.difficulty)} · {attempt.status==='needs_review'?'Needs review':attempt.status==='failed'?'Feedback unavailable':'Answer saved'}</h5><ReadingText text={attempt.response}/>{attempt.feedback?<><p className="micro-copy">Provisional AI feedback; this is not a verified grade or topic mastery.</p><ReadingText text={attempt.feedback.summary}/>{attempt.feedback.criteria.map(item=><div key={item.criterion_index}><h5>{lesson.check.criteria[item.criterion_index]} · {item.assessment.replaceAll('_',' ')}</h5><ReadingText text={item.observation}><StudyCitations references={selected.teaching?selected.references:undefined} ids={item.citation_ids} onCitation={id=>void cite(selected,id)}/></ReadingText></div>)}{nextHint(attempt.feedback.next_hint,index===attempts.length-1)}<button className="text-button" disabled={!!busy||!valid(selected)} onClick={()=>{editAnswer(attempt.response);setAttemptKeys(previous=>{const next={...previous};delete next[answerKey];return next;});document.getElementById(`${fieldId}-answer`)?.focus();}}>Revise in a new attempt</button></>:<><p>Your answer is saved. You can retry feedback or write a new attempt.</p><button className="text-button" disabled={!!busy||!valid(selected)} onClick={()=>void run('Preparing feedback for your saved answer…',()=>client.learningFeedback(source.id,attempt.id))}>Retry feedback</button></>}</article>)}
    </section>;
  const reviewBlock=selected?.confirmed_at&&lesson&&mode==='review'&&<section className="learning-review"><h4>Your learning history</h4><p>Reading is activity. Practice feedback is evidence about an attempt, and currently requires review.</p>{openedPlans.map(plan=><details key={plan.id} open={plan.id===selected.id}><summary>{plan.content.title} · {levelLabel(plan.difficulty)}{plan.needs_review?' · Evidence changed':''}</summary>{plan.content.lessons.map((item,index)=><div key={index}><h5>{item.title}</h5><p>{data?.activities.some(activity=>activity.plan_id===plan.id&&activity.lesson_index===index&&activity.kind==='read')?'Marked studied':'Not marked studied'} · {data?.attempts.filter(attempt=>attempt.plan_id===plan.id&&attempt.lesson_index===index).length??0} attempts</p>{data?.attempts.filter(attempt=>attempt.plan_id===plan.id&&attempt.lesson_index===index).map(attempt=><div key={attempt.id}><small>{new Date(attempt.created_at).toLocaleString()} · {attempt.status.replaceAll('_',' ')}</small><ReadingText text={attempt.response}/>{attempt.feedback&&<ReadingText text={attempt.feedback.summary}/>}</div>)}<button className="text-button" disabled={!!busy} onClick={()=>move(plan,index,'practice')}>Revisit this check</button></div>)}</details>)}</section>;
- const modeItems=[{id:'teach',label:'Learn',disabled:!!busy},{id:'practice',label:'Practise',disabled:!!busy},{id:'review',label:'Review what I learned',disabled:!!busy}];
+ const modeItems=[{id:'teach',label:'Learn',disabled:!!busy},{id:'practice',label:'Practise',disabled:!!busy},{id:'review',label:'Review what I learned',disabled:!!busy},...(quizAvailable?[{id:'quiz',label:'Quiz',disabled:!!busy}]:[])];
  const lessonBody=selected?.confirmed_at&&lesson&&(<>
    {workspace?wsHeader:origHeader}
    {!selected.active&&valid(selected)&&<button className="button secondary" disabled={!!busy} onClick={()=>void run('Resuming this saved version…',()=>client.confirmLearning(source.id,selected.id))}>Make this the current version</button>}
@@ -189,6 +194,7 @@ export default function LearningJourney({source,client,enabled,topicTitle,onCita
     <TabPanel idPrefix={fieldId} value={mode} id="teach">{teachBlock}</TabPanel>
     <TabPanel idPrefix={fieldId} value={mode} id="practice">{practiceBlock}</TabPanel>
     <TabPanel idPrefix={fieldId} value={mode} id="review">{reviewBlock}</TabPanel>
+    {quizAvailable&&<TabPanel idPrefix={fieldId} value={mode} id="quiz">{mode==='quiz'&&collectionId&&<QuizPanel key={selected.id} client={client} collectionId={collectionId} plan={selected} currentPlan={currentVersion} onCitation={id=>void cite(selected,id)} onReviewLesson={index=>move(selected,index)} onOpenCurrentVersion={()=>{if(currentVersion)move(currentVersion,0,'quiz');}} onBackToLesson={()=>setMode('teach')}/>}</TabPanel>}
    </>:<>
    <div className="segmented" aria-label="Learning mode">{(['teach','practice','review'] as const).map(value=><button key={value} className={mode===value?'active':''} aria-pressed={mode===value} disabled={!!busy} onClick={()=>setMode(value)}>{value==='teach'?'Learn':value==='practice'?'Practise':'Review what I learned'}</button>)}</div>
    {teachBlock}{practiceBlock}{reviewBlock}
