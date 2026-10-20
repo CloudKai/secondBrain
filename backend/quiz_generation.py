@@ -197,7 +197,9 @@ def build_stored_quiz(generated: GeneratedQuiz, outcome_titles: Mapping[int, str
             if q.kind != "true_false":
                 rng.shuffle(items)
             else:
-                items.sort(key=lambda item: item[0].lower() != "true")
+                # The database accepts exactly True then False, whatever case the model used.
+                items = [("True" if text.lower() == "true" else "False", right) for text, right in items]
+                items.sort(key=lambda item: item[0] != "True")
             options = [{"id": _option_id(q.kind, n, text), "text": text} for n, (text, _) in enumerate(items, 1)]
             correct = [o["id"] for o, (_, right) in zip(options, items) if right]
         public.append({

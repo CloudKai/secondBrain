@@ -215,6 +215,18 @@ def test_option_ids_true_false_and_the_key_follow_the_shuffle():
     assert len(orders) > 1
 
 
+def test_true_false_options_are_stored_as_true_then_false_whatever_the_model_cased():
+    data = generated_dict()
+    for question in data["questions"]:
+        if question["kind"] == "true_false":
+            for option in question["options"]:
+                option["text"] = option["text"].upper()
+    value = g.build_stored_quiz(GeneratedQuiz.model_validate_json(json.dumps(data)), g.lesson_outcome_titles(CONTENT), random.Random(1))
+    expected = [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}]
+    assert [q["options"] for q in value["questions"] if q["kind"] == "true_false"] == [expected] * sum(
+        1 for q in data["questions"] if q["kind"] == "true_false")
+
+
 # --- the ladder -------------------------------------------------------------------------
 
 
