@@ -73,3 +73,53 @@ Hosted development checks pass for original PDF page/timed-caption selection
 and durable section processing/progress with retry. Migration 010 is applied;
 apply it before running the matching worker in another environment. Exact limits and rollback:
 [long-source setup](../docs/long-source-setup.md). Native/v1 behavior is unchanged.
+
+
+## Path quiz (Slice 2) — in development
+
+Design: [`docs/planning/path-quiz-spec.md`](../docs/planning/path-quiz-spec.md)
+(section 20, Revision 3, is binding). Not build-verified here: the migration
+`supabase/migrations/202610200023_path_quiz.sql` has **not** been applied to any
+database and the owner must approve applying it first. The pytest suites that need
+pydantic, fastapi and httpx were written but not run in the authoring sandbox.
+
+Endpoints, under `/api/v2/learning/collections/{collection_id}/plans/{plan_id}/quiz`
+(learner JWT on every route, `Cache-Control: no-store`):
+
+| Method and path | Purpose | Model call |
+| --- | --- | --- |
+| `GET ""` | Quiz state: eligibility, key-free quiz, attempts, today's generation usage | never |
+| `POST ""` | Generate (idempotent by `request_id`) or regenerate | yes, limit-checked |
+| `POST /attempts` | Submit answers; deterministic grading; idempotent by `attempt_key` | never |
+| `GET /attempts/{attempt_id}` | A graded attempt (heals an interrupted submit) | never |
+| `POST /attempts/{attempt_id}/feedback/{question_id}` | Provisional AI feedback for one short answer | yes, limit-checked |
+
+Errors are `{"detail", "error": {code, message, retryable, ...}}`; a 429 carries
+`limit`, `used`, `resets_at` and `Retry-After`. Codes and their HTTP status are
+listed in `backend/tests/fixtures/quiz_error_codes.json`; every learner-visible
+message is in `backend/quiz_messages.py`.
+
+Limits (all server-side, read only by `backend/quiz_limits.py::load_quiz_config`;
+see `backend/.env.example`):
+
+| Setting | Default | Range |
+| --- | --- | --- |
+| `QUIZ_GENERATIONS_PER_USER_PER_DAY` | 3 | 1-20, per user per UTC day |
+| `QUIZ_GRADINGS_PER_USER_PER_DAY` | 20 | 1-100, per user per UTC day |
+| `QUIZ_MAX_QUESTIONS` / `QUIZ_MAX_SHORT_ANSWER` | 8 / 2 | 4-10 / 0-2 |
+| `QUIZ_MAX_OUTPUT_TOKENS` / `QUIZ_GRADING_MAX_OUTPUT_TOKENS` | 4000 / 800 | 1000-8000 / 200-2000 |
+| `QUIZ_SHORT_ANSWER_MAX_CHARS` | 1500 | 100-5000 |
+| `QUIZ_ENABLED` | true | spend switch only |
+
+Fixed guards: at most 3 provider calls per generation and 2 per feedback, 20
+attempts per quiz, 20 ready quizzes per plan, 3 provider-bound feedback tries per
+answer. The counter is charged before any provider call and refunded only when the
+call is provably unspent (no request sent, connect errors, HTTP 400/401/403/404, and
+429 `invalid_request_error` or `insufficient_quota`); timeouts, cancellation, 5xx
+and every 2xx stay charged.
+
+Models: `gpt-6-luna` by default; `gpt-6.1-sol` only after a completed but invalid
+Luna output survived one repair (generation only). Short-answer feedback uses the
+separate `QUIZ_GRADING_MODEL`, one repair call, and no fallback rung. Generation runs
+in a detached task, so a reload or dropped connection does not lose the output.
+Confirm the hosting function allows at least 120 seconds before enabling generation.
