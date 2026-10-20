@@ -21,9 +21,13 @@ STUDY_COLUMNS = "sections_total,sections_completed,source_version,source_id,user
 
 
 class StudyStorageError(Exception):
-    def __init__(self, code: str = "unavailable"):
+    def __init__(self, code: str = "unavailable", *, sqlstate: str | None = None, message: str | None = None):
         super().__init__(code)
         self.code = code
+        # PostgREST's `code` and (truncated) `message`, kept for callers that map
+        # on a unique message; the coarse `code` above is unchanged.
+        self.sqlstate = sqlstate
+        self.message = message
 
 
 class StudyStore:
@@ -47,18 +51,23 @@ class StudyStore:
                 params=params,
             )
             if response.is_error:
-                code = response.json().get("code")
+                error = response.json()
+                code = error.get("code")
+                detail = {
+                    "sqlstate": code if isinstance(code, str) else None,
+                    "message": error["message"][:200] if isinstance(error.get("message"), str) else None,
+                }
                 if code == "40001":
-                    raise StudyStorageError("stale")
+                    raise StudyStorageError("stale", **detail)
                 if code == "P0002":
-                    raise StudyStorageError("not_found")
+                    raise StudyStorageError("not_found", **detail)
                 if code == "55P03":
-                    raise StudyStorageError("busy")
+                    raise StudyStorageError("busy", **detail)
                 if code == "54000":
-                    raise StudyStorageError("limit")
+                    raise StudyStorageError("limit", **detail)
                 if response.status_code in (401, 403):
-                    raise StudyStorageError("session")
-                raise StudyStorageError()
+                    raise StudyStorageError("session", **detail)
+                raise StudyStorageError(**detail)
             return response.json() if response.content else None
         except StudyStorageError:
             raise
