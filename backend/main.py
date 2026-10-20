@@ -13,6 +13,7 @@ from backend.assistant import router as assistant_router
 from backend.research import router as research_router
 from backend.retrieval import router as retrieval_router
 from backend.learning import router as learning_router
+from backend.quiz import QuizError, quiz_error_handler
 
 app = FastAPI(
     title="AI Second Brain API",
@@ -27,6 +28,7 @@ app.include_router(assistant_router)
 app.include_router(research_router)
 app.include_router(retrieval_router)
 app.include_router(learning_router)
+app.add_exception_handler(QuizError, quiz_error_handler)
 
 
 @app.get("/api/health", tags=["system"])
