@@ -1,5 +1,5 @@
 import { ListChecks } from "lucide-react";
-import { Button, Callout, Card, EmptyState } from "../ui";
+import { Button, Callout, Card } from "../ui";
 import { QUIZ_COPY, fill } from "../../lib/quiz-copy";
 import {
   formatLimitMessage,
@@ -17,12 +17,15 @@ export function QuizNotReady({
   reason: NonNullable<QuizState["not_ready_reason"]>;
 }) {
   return (
-    <EmptyState
-      headingLevel={3}
-      icon={<ListChecks size={22} />}
-      title={QUIZ_COPY.notReadyTitle}
-      description={<p role="status">{QUIZ_COPY.notReady[reason]}</p>}
-    />
+    <div className="ui-empty quiz-empty">
+      <span className="ui-empty__icon" aria-hidden="true">
+        <ListChecks size={22} />
+      </span>
+      <h5 className="ui-empty__title">{QUIZ_COPY.notReadyTitle}</h5>
+      <div className="ui-empty__description">
+        <p role="status">{QUIZ_COPY.notReady[reason]}</p>
+      </div>
+    </div>
   );
 }
 

@@ -60,6 +60,14 @@
   display: grid;
   gap: var(--space-3);
 }
+/* The empty state sits under the panel's h4, so its title is an h5 styled like the shared h3. */
+.quiz-empty .ui-empty__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 550;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
 .quiz-card__title {
   margin: 0;
   font-size: var(--text-md);
