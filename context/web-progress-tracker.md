@@ -41,7 +41,7 @@ work is on branch `feat/path-quiz`; the push is a separate step, so check
   - `.env.example` parity script: 12 `QUIZ_*` variables equal the defaults of
     `load_quiz_config`.
   - `node --experimental-strip-types --test web/src/lib/quiz-logic.test.ts web/src/lib/quiz-copy.test.ts`:
-    34 pass, 0 fail; `theme`, `shell-nav` and `home` native tests: 23 pass, 0 fail.
+    35 pass, 0 fail; `theme`, `shell-nav` and `home` native tests: 23 pass, 0 fail.
   - `prettier --check` on the new web files (including the two SQL test files):
     clean.
   - `tsc -p web/tsconfig.json --noEmit` filtered to `TS1xxx` syntax errors:
