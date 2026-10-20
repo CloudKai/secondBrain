@@ -1,9 +1,10 @@
 # Second Brain — browser workspace
 
 A separate React + TypeScript + Vite frontend for the web-first learning-library
-specification in `context/learning-library-design.md`. Dark mode is the default;
-the sidebar appearance control switches to a paired light theme. Mobile and
-native projects are untouched.
+specification in `context/learning-library-design.md`. The theme follows the
+system setting by default, and the sidebar appearance control sets system,
+light or dark; the choice is saved in the browser. Mobile and native projects
+are untouched.
 
 ## Current development status — 2026-10-08
 
@@ -51,15 +52,15 @@ uv run --project backend uvicorn backend.main:app --host 127.0.0.1 --port 8000 -
 uv run --project backend python -m backend.study_worker
 ```
 
-Open http://127.0.0.1:5173. Routes use the URL fragment: `#library`,
+Open http://127.0.0.1:5173. Home is the `#library` route and routes are
+unchanged. Routes use the URL fragment: `#library`,
 `#note/attention`, `#topics`, and `#discover`. The `/` keyboard shortcut focuses
 library search. Browser back/forward works between pages.
 
-The app opens an explicitly labelled example library. Use the workspace badge
-(or the profile/about control on small screens) to hide examples and see an
-empty library. Captured sources now use the owned-source API described below. Topic corrections,
-theme choice, recall progress, and example visibility remain session state and
-reset on reload. Without Supabase configuration, saving is disabled and the
+The library starts empty; load the labelled example material on request (and
+hide it again from the workspace badge or the about control on small screens). Captured sources now use the owned-source API described below. Topic corrections,
+recall progress, and example visibility remain session state and reset on
+reload; the theme choice persists. Without Supabase configuration, saving is disabled and the
 app explains that private-library setup is needed.
 
 ## Working browser slice

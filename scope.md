@@ -1,5 +1,22 @@
 # Scope: AI Second Brain
 
+## Web design foundation (Slice 1) — implemented in development, 2026-10-20
+
+Web-only visual and structural foundation: design tokens with light, dark and
+system themes (persisted override), shared UI primitives, a simplified sidebar,
+a calm Home and a lesson-first collection workspace. See
+[UI context](context/ui-context.md#design-system-web).
+
+**Verified locally:** prettier parse, TS syntax-only check, CSS selector
+comparison, contrast script and pure tests for theme, shell navigation and Home.
+
+**Pending:** typecheck, lint, build, `npm test`, browser screenshots,
+light/dark visual review and accessibility checks (npm was unreachable in the
+sandbox). Owner command: `npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test`
+
+Target work for later slices only: path quiz, spaced review, goal intake and
+recommendations. None of these is available yet.
+
 ## Vercel services configuration prepared — 2026-10-20
 
 Root configuration defines `backend` (FastAPI) and `web` (Vite), with public

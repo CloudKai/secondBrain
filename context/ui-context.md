@@ -106,6 +106,48 @@ These are planned states, not current functionality:
 - Do not apply web-only styling conventions to native components. React Native styles and centralized TypeScript tokens are authoritative.
 - Do not replace native navigation or bottom-sheet behavior with a browser-styled overlay.
 
+## Design system (web)
+
+**Status: implemented but not build-verified** (typecheck, lint, build, `npm test`,
+screenshots and assistive-technology checks have not run). The mobile-only
+"Do nots" above apply to native, not to `web/`.
+
+- **Stylesheets** (import order in `web/src/main.tsx`): `tokens`, `learning-base`,
+  `base`, `shell`, `components`, `pages`, `dialogs`, `responsive`, `refinements`,
+  `learning`, `ui`, `home`, `workspace`, `refresh`.
+- **Tokens** (`tokens.css`): `--color-*` (surface, text, accent, status and
+  soft variants, overlay), `--tone-*`, `--art-*` (always-dark decorative
+  surfaces), `--space-*`, `--radius-*`, `--shadow-*`, `--text-*` / `--leading-*`
+  / `--font-*`, `--motion-*` / `--ease`, `--target`, `--reading`, `--content`.
+  No font size below 12px (`--text-xs`).
+- **Theme:** follows the system by default; `data-theme="light|dark"` on the
+  root overrides it; the choice is stored under `secondbrain.theme`; a
+  pre-paint script in `index.html` applies it to avoid a flash. Selector
+  `ThemeToggle` offers system, light and dark.
+- **Contrast** (computed by the contrast script):
+
+  | Pair | Light | Dark |
+  | --- | --- | --- |
+  | text / bg | 14.78 | 16.13 |
+  | muted / bg | 6.59 | 8.18 |
+  | accent / bg | 6.49 | 10.55 |
+  | accent-ink / accent | 6.97 | 9.68 |
+  | border-strong / bg (non-text) | 3.46 | 3.86 |
+  | status on bg (success, warning, danger, info) | 6.15, 5.89, 6.81, 6.26 | 10.49, 9.85, 9.17, 9.72 |
+
+- **Primitives** (`components/ui`): `Button`/`ButtonLink` (variant
+  primary|secondary|ghost, size sm|md|lg, leading/trailing icon, fullWidth,
+  loading), `Badge` (tone, icon), `Callout` (variant focus|info|caution, title,
+  icon, as, role), `Card` (as, tone, padding), `EmptyState` (icon, title,
+  description, actions, headingLevel), `ProgressBar` (value, max, label,
+  valueText, size), `Tabs`/`TabPanel` (label, items, value, onValueChange),
+  `ThemeToggle`. Used in the Shell, Home (Continue learning, source library) and
+  the collection workspace and lesson view.
+- **Emphasis rule:** `Callout` variant `focus` is only for Start here /
+  Continue learning, the key idea and the next step, with at most two per view.
+- **Accessibility:** visible focus ring, 40px minimum targets, reduced-motion
+  support. These are implemented in CSS but not checked in a browser.
+
 ## Separate browser UI slice — 2026-10-02
 
 `web/` implements the explicitly authorized web-first design independently of

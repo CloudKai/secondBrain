@@ -1,5 +1,30 @@
 # Web Progress Tracker
 
+## Web design foundation (Slice 1) — implemented in development, 2026-10-20
+
+**Implemented but not build-verified.**
+
+- Split `styles.css` into ordered stylesheets with a token layer (light and dark
+  palettes), a system/light/dark theme with a persisted override, typed UI
+  primitives, a simplified Shell and sidebar, a calm Home (`#library`) and a
+  lesson-first collection workspace. Routes, API calls and data shapes are
+  unchanged.
+- Ran: prettier parse of changed files, `tsc --noEmit` filtered to syntax
+  errors (TS1xxx, none), CSS selector comparison (no selector removed), the
+  contrast script (all pairs pass in both themes) and the native pure tests
+  `theme`, `shell-nav` and `home` (23 pass, 0 fail).
+- NOT run: typecheck, lint, build, `npm test` (including
+  `ui-primitives.test.ts`, `learning-view` and `collection-workspace` tests),
+  Playwright screenshots, light/dark visual check, keyboard and screen-reader
+  checks, 200% zoom and narrow layout. The sandbox gets HTTP 403 from the npm
+  registry, so dependencies could not be installed.
+- Owner command: `npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test`
+- Example mode: the library now starts empty; curated examples load on request,
+  which differs from the earlier example-first start.
+- Continue learning uses only the existing learning summary: it shows saved
+  progress and the next lesson when present, never mastery, and shows an empty
+  state or the newest saved source otherwise.
+
 ## Vercel services configuration prepared — 2026-10-20
 
 - Added root `vercel.json`: FastAPI `backend` at `/api/*`, static Vite `web` for
