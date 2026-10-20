@@ -118,12 +118,13 @@ screenshots and assistive-technology checks have not run). The mobile-only
 - **Tokens** (`tokens.css`): `--color-*` (surface, text, accent, status and
   soft variants, overlay), `--tone-*`, `--art-*` (always-dark decorative
   surfaces), `--space-*`, `--radius-*`, `--shadow-*`, `--text-*` / `--leading-*`
-  / `--font-*`, `--motion-*` / `--ease`, `--target`, `--reading`, `--content`.
+  / `--font-*`, `--motion-*` / `--ease-standard`, `--target-min`,
+  `--reading-width`, `--content-width`.
   No font size below 12px (`--text-xs`).
 - **Theme:** follows the system by default; `data-theme="light|dark"` on the
   root overrides it; the choice is stored under `secondbrain.theme`; a
-  pre-paint script in `index.html` applies it to avoid a flash. Selector
-  `ThemeToggle` offers system, light and dark.
+  pre-paint script in `index.html` applies it to avoid a flash. The
+  `ThemeToggle` selector offers system, light and dark.
 - **Contrast** (computed by the contrast script):
 
   | Pair | Light | Dark |
@@ -145,8 +146,12 @@ screenshots and assistive-technology checks have not run). The mobile-only
   the collection workspace and lesson view.
 - **Emphasis rule:** `Callout` variant `focus` is only for Start here /
   Continue learning, the key idea and the next step, with at most two per view.
-- **Accessibility:** visible focus ring, 40px minimum targets, reduced-motion
-  support. These are implemented in CSS but not checked in a browser.
+- **Accessibility:** visible focus ring, reduced-motion support, and 40px
+  (`--target-min`) minimum targets for the new primitives, the shell, Home and
+  the lesson workspace (including `.icon-button`, `.text-button`, lesson
+  summaries and the Home search input). Some older controls on other pages
+  (for example `.source-branch .text-button`) are still smaller. These are
+  implemented in CSS but not checked in a browser.
 
 ## Separate browser UI slice — 2026-10-02
 

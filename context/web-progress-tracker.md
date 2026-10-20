@@ -19,11 +19,17 @@
   checks, 200% zoom and narrow layout. The sandbox gets HTTP 403 from the npm
   registry, so dependencies could not be installed.
 - Owner command: `npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test`
-- Example mode: the library now starts empty; curated examples load on request,
-  which differs from the earlier example-first start.
-- Continue learning uses only the existing learning summary: it shows saved
-  progress and the next lesson when present, never mastery, and shows an empty
-  state or the newest saved source otherwise.
+- README corrected: the library starts empty and curated examples load on
+  request.
+- Continue learning uses only the existing learning summary: it shows the saved
+  current lesson from the resume cursor when present, never mastery or a
+  recommendation, and shows an empty state or the newest saved source otherwise.
+- Home shows studied-lesson and practice-attempt counts only. The
+  `provisional_checks`, pending and failed feedback counts remain on the
+  collection learning summary (`#collection`), not on Home.
+- While example material is loaded, Home does not fetch the learning summary and
+  shows Start here instead of Continue learning, even if a saved path exists.
+  Remove the examples to see Continue learning.
 
 ## Vercel services configuration prepared — 2026-10-20
 
