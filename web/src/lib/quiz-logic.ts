@@ -392,9 +392,12 @@ export function attemptRowText(
         month: "short",
         day: "numeric",
       });
+  // An interrupted submit has no score yet; opening it finishes the checking.
+  if (attempt.correct === null)
+    return fill(QUIZ_COPY.attempts.checking, { date: shown });
   return fill(QUIZ_COPY.attempts.row, {
     date: shown,
-    correct: attempt.correct ?? 0,
+    correct: attempt.correct,
     total: attempt.total,
   });
 }

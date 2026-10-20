@@ -432,6 +432,22 @@ test("an attempt row shows the date and X of Y", () => {
     "UTC",
   );
   assert.equal(text, "Oct 21, 2026 — 4 of 6");
+  const interrupted = attemptRowText(
+    {
+      attempt_id: id(1),
+      quiz_id: id(2),
+      quiz_is_current: true,
+      status: "grading",
+      submitted_at: "2026-10-21T09:20:41Z",
+      correct: null,
+      total: 6,
+      short_answers_total: 0,
+      short_answers_pending: 0,
+    },
+    "en-US",
+    "UTC",
+  );
+  assert.equal(interrupted, "Oct 21, 2026 — checking answers…");
 });
 
 // --- feedback policy ---------------------------------------------------------------------------

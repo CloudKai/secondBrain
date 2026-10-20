@@ -36,6 +36,8 @@ export const QUIZ_COPY = {
     title: "Earlier attempts",
     row: "{date} — {correct} of {total}",
     open: "Open results",
+    checking: "{date} — checking answers…",
+    earlier: "Earlier question set",
   },
   retake: "Retake",
   retakeNote:
