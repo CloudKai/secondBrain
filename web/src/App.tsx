@@ -23,25 +23,18 @@ import {
   BookOpen,
   BrainCircuit,
   Check,
-  ChevronDown,
   ChevronRight,
-  CircleHelp,
   ExternalLink,
   FileText,
   Layers3,
-  Library,
   Link2,
   LoaderCircle,
   Maximize2,
-  Menu,
-  Monitor,
-  Moon,
   Network,
   PanelRightClose,
   Plus,
   Search,
   Sparkles,
-  Sun,
   Trash2,
   Upload,
   X,
@@ -75,6 +68,7 @@ import {
 } from "./lib/source-client";
 import { AttentionArt, Graph } from "./components/Graph";
 import Modal from "./components/Modal";
+import Shell from "./components/Shell";
 import Assistant from "./components/Assistant";
 import RecallCards from "./components/RecallCards";
 import StructuredStudy from "./components/StructuredStudy";
@@ -82,7 +76,6 @@ import SourceVersions from "./components/SourceVersions";
 import SavedTopicDetails from "./components/SavedTopicDetails";
 import { studyLabel, studyMessage } from "./lib/study-note";
 import { useSourceStudies } from "./lib/use-source-studies";
-import { nextThemePreference } from "./lib/theme";
 import { useThemePreference } from "./lib/use-theme";
 
 type Dialog = "add" | "about" | "delete" | "rename" | "assign" | "merge" | "versions" | null;
@@ -124,8 +117,7 @@ export default function App() {
     [panelOpen, setPanelOpen] = useState(true),
     [expanded, setExpanded] = useState(false),
     [combined, setCombined] = useState(true);
-  const [mobileNav, setMobileNav] = useState(false),
-    [dialog, setDialog] = useState<Dialog>(null),
+  const [dialog, setDialog] = useState<Dialog>(null),
     [toast, setToast] = useState("");
   const [themePreference, setThemePreference] = useThemePreference();
   const [researchSeed,setResearchSeed]=useState('');
@@ -159,10 +151,6 @@ export default function App() {
   const [revisionTarget,setRevisionTarget]=useState('');
   const [revisionComparison,setRevisionComparison]=useState<RevisionComparison|null>(null);
   const mainRef = useRef<HTMLElement>(null);
-  const sidebarRef = useRef<HTMLElement>(null);
-  const [narrow, setNarrow] = useState(
-    () => window.matchMedia("(max-width:760px)").matches,
-  );
   const {
     notes: baseNotes,
     names: exampleNames,
@@ -257,35 +245,12 @@ export default function App() {
   useEffect(() => {
     const handler = () => {
       setRoute(readRoute());
-      setMobileNav(false);
       mainRef.current?.focus();
       window.scrollTo(0, 0);
     };
     window.addEventListener("hashchange", handler);
     return () => window.removeEventListener("hashchange", handler);
   }, []);
-  useEffect(() => {
-    const media = window.matchMedia("(max-width:760px)");
-    const update = () => setNarrow(media.matches);
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-  useEffect(() => {
-    if (!narrow || !mobileNav) return;
-    sidebarRef.current
-      ?.querySelector<HTMLButtonElement>(".mobile-nav-close")
-      ?.focus();
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMobileNav(false);
-        requestAnimationFrame(() =>
-          document.querySelector<HTMLButtonElement>(".mobile-menu")?.focus(),
-        );
-      }
-    };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, [narrow, mobileNav]);
   useEffect(() => {
     const search = (event: KeyboardEvent) => {
       if (
@@ -315,7 +280,6 @@ export default function App() {
   function go(page: Page, id?: string) {
     window.location.hash =
       page === "note" ? `note/${id || currentNote?.id || ""}` : page === "collection" ? `collection${id ? `/${id}` : ""}` : page;
-    setMobileNav(false);
   }
   function openNote(n: Note) {
     setTopicExploration(null);
@@ -796,216 +760,34 @@ export default function App() {
   }
   return (
     <div className="app-shell">
-      <a
-        href="#main-content"
-        className="skip-link"
-        onClick={(e) => {
-          e.preventDefault();
-          mainRef.current?.focus();
+      <Shell
+        page={route.page}
+        collectionId={route.page === "collection" ? route.noteId : ""}
+        mainRef={mainRef}
+        recentTopics={topics.map((t) => ({
+          id: t.id,
+          title: t.title,
+          sourceCount: t.notes.length,
+        }))}
+        topicCount={topics.length}
+        noteCount={notes.length}
+        storage={storage}
+        demo={demo}
+        themePreference={themePreference}
+        onThemeChange={setThemePreference}
+        onAddSource={() => showAdd()}
+        onOpenAbout={() => setDialog("about")}
+        onSearchLibrary={() => {
+          go("library");
+          requestAnimationFrame(() =>
+            (document.getElementById("library-search") ?? document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
+          );
+        }}
+        onSelectTopic={(id) => {
+          openTopic(id);
+          go("topics");
         }}
       >
-        Skip to content
-      </a>
-      {mobileNav && (
-        <button
-          className="nav-backdrop"
-          aria-label="Close navigation"
-          onClick={() => setMobileNav(false)}
-        />
-      )}
-      <aside
-        ref={sidebarRef}
-        className={`sidebar ${mobileNav ? "mobile-open" : ""}`}
-        aria-hidden={narrow && !mobileNav}
-        inert={narrow && !mobileNav}
-      >
-        <button
-          className="icon-button mobile-nav-close"
-          aria-label="Close navigation"
-          onClick={() => {
-            setMobileNav(false);
-            requestAnimationFrame(() =>
-              document
-                .querySelector<HTMLButtonElement>(".mobile-menu")
-                ?.focus(),
-            );
-          }}
-        >
-          <X size={18} />
-        </button>
-        <a className="brand" href="#library">
-          <span className="brand-symbol">
-            <BrainCircuit size={24} />
-          </span>
-          <span>
-            second brain<span className="brand-period">.</span>
-            <small>A PLACE FOR YOUR CURIOSITY</small>
-          </span>
-        </a>
-        <button className="workspace-switch" onClick={() => setDialog("about")}>
-          <span className="workspace-avatar">S</span>
-          <span>
-            Personal workspace
-            <small>
-              {storage === "ready" ? "Private library" : "Example preview"}
-            </small>
-          </span>
-          <ChevronDown size={14} />
-        </button>
-        <button
-          className="sidebar-search"
-          onClick={() => {
-            go("library");
-            requestAnimationFrame(() =>
-              (document.getElementById("library-search") ?? document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
-            );
-          }}
-        >
-          <Search size={16} /> Search your library <span>/</span>
-        </button>
-        <span className="nav-label">WORKSPACE</span>
-        <nav aria-label="Main navigation">
-          {(
-            [
-              { page: "library", title: "My library", icon: Library },
-              { page: "topics", title: "Topic graph", icon: Network },
-              { page: "collection", title: "Learning collections", icon: BookOpen },
-              { page: "discover", title: "Reading list", icon: Sparkles },
-            ] as const
-          ).map(({ page, title, icon: Icon }) => (
-            <a
-              key={page}
-              href={
-                page === "collection" && route.page === "collection" && route.noteId ? `#collection/${route.noteId}` : `#${page}`
-              }
-              className={`nav-item ${route.page === page ? "active" : ""}`}
-              aria-current={route.page === page ? "page" : undefined}
-              onClick={() => setMobileNav(false)}
-            >
-              <Icon size={18} />
-              {title}
-              {page === "library" && (
-                <span className="nav-count">{notes.length}</span>
-              )}
-            </a>
-          ))}
-        </nav>
-        <div className="sidebar-topics">
-          <div className="nav-label">
-            YOUR TOPICS <span>{topics.length}</span>
-          </div>
-          {topics.map((t, i) => (
-            <button
-              key={t.id}
-              className="sidebar-topic"
-              onClick={() => {
-                openTopic(t.id);
-                go("topics");
-              }}
-            >
-              <span
-                className={`dot ${["mint", "purple", "peach", "blue"][i % 4]}`}
-              />
-              {t.title}
-              <span>{t.notes.length}</span>
-            </button>
-          ))}
-          {!topics.length && (
-            <p className="micro-copy">Topics grow from saved sources.</p>
-          )}
-        </div>
-        <div className="sidebar-bottom">
-          <div className="sidebar-tip">
-            <span className="tip-icon">
-              <Sparkles size={17} />
-            </span>
-            <strong>Stay curious.</strong>
-            <p>Your next big idea starts with one small question.</p>
-            <button onClick={() => showAdd()}>
-              Add something interesting <Plus size={14} />
-            </button>
-          </div>
-          <button
-            className="appearance"
-            onClick={() =>
-              setThemePreference(nextThemePreference(themePreference))
-            }
-          >
-            {themePreference === "dark" ? (
-              <Moon size={16} />
-            ) : themePreference === "light" ? (
-              <Sun size={16} />
-            ) : (
-              <Monitor size={16} />
-            )}
-            <span>
-              {themePreference === "dark"
-                ? "Dark"
-                : themePreference === "light"
-                  ? "Light"
-                  : "System"}{" "}
-              appearance
-            </span>
-            <span className="theme-switch">
-              <span />
-            </span>
-          </button>
-          <button className="profile" onClick={() => setDialog("about")}>
-            <span className="profile-avatar">Y</span>
-            <span>
-              Your workspace
-              <small>
-                {demo
-                  ? "Exploring example material"
-                  : "Learning, one idea at a time"}
-              </small>
-            </span>
-            <CircleHelp size={16} />
-          </button>
-        </div>
-      </aside>
-      <div className="app-main" inert={narrow && mobileNav}>
-        <header className="topbar">
-          <div className="breadcrumbs">
-            <button
-              className="icon-button mobile-menu"
-              aria-label="Open navigation"
-              onClick={() => setMobileNav(true)}
-            >
-              <Menu size={20} />
-            </button>
-            <span>Workspace</span>
-            <ChevronRight size={14} />
-            <strong>
-              {
-                {
-                  library: "My library",
-                  note: "Source note",
-                  collection: "Learning collections",
-                  topics: "Topic graph",
-                  discover: "Reading list",
-                }[route.page]
-              }
-            </strong>
-          </div>
-          <div className="topbar-actions">
-            <button
-              className="demo-indicator"
-              onClick={() => setDialog("about")}
-            >
-              <span className="dot mint" />
-              {demo ? "Includes examples" : "Private library"}
-            </button>
-            <button
-              className="button primary small-button"
-              onClick={() => showAdd()}
-            >
-              <Plus size={16} />
-              Add source
-            </button>
-          </div>
-        </header>
-        <main id="main-content" ref={mainRef} tabIndex={-1}>
           <div
             className="library-connection"
             role={storage === "unavailable" ? "alert" : "status"}
@@ -1798,8 +1580,7 @@ export default function App() {
             }}
           />}
 
-        </main>
-      </div>
+      </Shell>
       {toast && (
         <div className="toast" role="status">
           <Check size={16} />
