@@ -29,7 +29,6 @@
   collection learning summary (`#collection`), not on Home.
 - While example material is loaded, Home does not fetch the learning summary and
   shows Start here instead of Continue learning, even if a saved path exists.
-  Remove the examples to see Continue learning.
 
 ## Vercel services configuration prepared — 2026-10-20
 
