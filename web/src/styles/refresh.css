@@ -15,9 +15,16 @@
 .learning-journey .text-button {
   min-height: var(--target-min);
 }
+/*
+ * Keep display:list-item so the native disclosure marker stays visible.
+ * display:flex would remove it. Same pattern as .import-help summary.
+ */
 .learning-journey summary {
-  display: flex;
-  align-items: center;
+  display: list-item;
+  align-content: center;
+  min-height: var(--target-min);
+}
+.sort-control select {
   min-height: var(--target-min);
 }
 .search-field input {

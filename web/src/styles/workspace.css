@@ -59,8 +59,9 @@
   margin: var(--space-2) 0;
 }
 .learning-about summary {
-  display: flex;
-  align-items: center;
+  /* list-item keeps the native disclosure marker; flex would remove it. */
+  display: list-item;
+  align-content: center;
   min-height: var(--target-min);
   cursor: pointer;
   color: var(--color-muted);
@@ -158,8 +159,9 @@
   background: var(--color-surface);
 }
 .workspace-side > details > summary {
-  display: flex;
-  align-items: center;
+  /* list-item keeps the native disclosure marker; flex would remove it. */
+  display: list-item;
+  align-content: center;
   min-height: var(--target-min);
   cursor: pointer;
   color: var(--color-text);
