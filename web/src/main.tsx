@@ -11,6 +11,7 @@ import "./styles/dialogs.css";
 import "./styles/responsive.css";
 import "./styles/refinements.css";
 import "./styles/learning.css";
+import "./styles/ui.css";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
