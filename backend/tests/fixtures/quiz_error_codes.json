@@ -1,0 +1,34 @@
+[
+  {"code": "quiz_generation_limit_reached", "http": 429, "sqlstate": null, "sql_message": null},
+  {"code": "quiz_grading_limit_reached", "http": 429, "sqlstate": null, "sql_message": null},
+  {"code": "quiz_attempt_limit_reached", "http": 429, "sqlstate": "54000", "sql_message": "quiz_attempt_limit_reached"},
+  {"code": "quiz_plan_cap_reached", "http": 429, "sqlstate": "54000", "sql_message": "quiz_plan_cap_reached"},
+  {"code": "quiz_generation_attempts_capped", "http": 429, "sqlstate": "54000", "sql_message": "quiz_generation_attempts_capped"},
+  {"code": "quiz_grading_exhausted", "http": 429, "sqlstate": "54000", "sql_message": "quiz_grading_exhausted"},
+  {"code": "quiz_not_ready", "http": 422, "sqlstate": null, "sql_message": null},
+  {"code": "quiz_request_invalid", "http": 422, "sqlstate": null, "sql_message": null},
+  {"code": "quiz_answer_invalid", "http": 422, "sqlstate": "22023", "sql_message": "quiz_answer_invalid"},
+  {"code": "quiz_not_found", "http": 404, "sqlstate": "P0002", "sql_message": "quiz_not_found"},
+  {"code": "quiz_plan_not_current", "http": 409, "sqlstate": "40001", "sql_message": "quiz_plan_not_current"},
+  {"code": "quiz_evidence_changed", "http": 409, "sqlstate": "40001", "sql_message": "quiz_evidence_changed"},
+  {"code": "quiz_generation_in_progress", "http": 409, "sqlstate": "55P03", "sql_message": "quiz_generation_in_progress"},
+  {"code": "quiz_attempt_in_progress", "http": 409, "sqlstate": "55P03", "sql_message": "quiz_attempt_in_progress"},
+  {"code": "quiz_grading_busy", "http": 409, "sqlstate": "55P03", "sql_message": "quiz_grading_busy"},
+  {"code": "quiz_lease_lost", "http": 409, "sqlstate": "40001", "sql_message": "quiz_lease_lost"},
+  {"code": "quiz_request_changed", "http": 409, "sqlstate": "40001", "sql_message": "quiz_request_changed"},
+  {"code": "quiz_request_exhausted", "http": 409, "sqlstate": "54000", "sql_message": "quiz_request_exhausted"},
+  {"code": "quiz_attempt_conflict", "http": 409, "sqlstate": "40001", "sql_message": "quiz_attempt_conflict"},
+  {"code": "quiz_generation_unavailable", "http": 503, "sqlstate": null, "sql_message": null},
+  {"code": "quiz_disabled", "http": 503, "sqlstate": null, "sql_message": null},
+  {
+    "code": "quiz_storage_unavailable",
+    "http": 503,
+    "sqlstate": null,
+    "sql_message": null,
+    "extra_sql_messages": [
+      {"sqlstate": "22023", "sql_message": "quiz_invalid_output"},
+      {"sqlstate": "22023", "sql_message": "quiz_usage_invalid"}
+    ]
+  },
+  {"code": "quiz_session_expired", "http": 401, "sqlstate": null, "sql_message": null}
+]

@@ -1,0 +1,151 @@
+{
+  "questions": [
+    {
+      "position": 0,
+      "kind": "single_choice",
+      "prompt": "Which statement best describes how evidence relates to a conclusion?",
+      "options": [
+        {"id": "o1", "text": "A conclusion is supported when it sounds familiar."},
+        {"id": "o2", "text": "A conclusion is supported when the cited passage backs the specific claim."},
+        {"id": "o3", "text": "A conclusion is supported when many sources repeat it."},
+        {"id": "o4", "text": "A conclusion is supported when no source disagrees."}
+      ],
+      "outcome_index": 0,
+      "outcome_title": "Explain evidence support"
+    },
+    {
+      "position": 1,
+      "kind": "true_false",
+      "prompt": "Similarity between two passages is enough to show that one supports the other.",
+      "options": [
+        {"id": "true", "text": "True"},
+        {"id": "false", "text": "False"}
+      ],
+      "outcome_index": 0,
+      "outcome_title": "Explain evidence support"
+    },
+    {
+      "position": 2,
+      "kind": "multi_select",
+      "prompt": "Select all that apply: which checks help when judging a claim against its source?",
+      "options": [
+        {"id": "o1", "text": "Read the passage the claim cites."},
+        {"id": "o2", "text": "Count how many times the claim is repeated."},
+        {"id": "o3", "text": "Compare the wording of the claim with the passage."},
+        {"id": "o4", "text": "Prefer the longest explanation."},
+        {"id": "o5", "text": "Trust the first summary you read."}
+      ],
+      "outcome_index": 0,
+      "outcome_title": "Explain evidence support"
+    },
+    {
+      "position": 3,
+      "kind": "single_choice",
+      "prompt": "What should a learner do first when a conclusion needs checking?",
+      "options": [
+        {"id": "o1", "text": "Ask someone else to decide."},
+        {"id": "o2", "text": "Rewrite the conclusion in new words."},
+        {"id": "o3", "text": "Search for a different topic."},
+        {"id": "o4", "text": "Return to the original passage and read it."}
+      ],
+      "outcome_index": 1,
+      "outcome_title": "Revisit original sources"
+    },
+    {
+      "position": 4,
+      "kind": "true_false",
+      "prompt": "Revisiting the original source is only useful before a conclusion is written.",
+      "options": [
+        {"id": "true", "text": "True"},
+        {"id": "false", "text": "False"}
+      ],
+      "outcome_index": 1,
+      "outcome_title": "Revisit original sources"
+    },
+    {
+      "position": 5,
+      "kind": "short_answer",
+      "prompt": "In your own words, explain why a similar passage does not by itself establish support.",
+      "options": [],
+      "outcome_index": 0,
+      "outcome_title": "Explain evidence support"
+    },
+    {
+      "position": 6,
+      "kind": "short_answer",
+      "prompt": "Describe what you would look for when you revisit an original source to check a conclusion.",
+      "options": [],
+      "outcome_index": 1,
+      "outcome_title": "Revisit original sources"
+    }
+  ],
+  "key": [
+    {
+      "position": 0,
+      "correct_option_ids": ["o2"],
+      "explanation": "Support means the cited passage backs the specific claim, not that the claim sounds familiar or is repeated.",
+      "citation_ids": ["p0001"],
+      "criteria": null,
+      "model_answer": null
+    },
+    {
+      "position": 1,
+      "correct_option_ids": ["false"],
+      "explanation": "Similarity by itself does not establish support; the passage has to back the claim.",
+      "citation_ids": ["p0002"],
+      "criteria": null,
+      "model_answer": null
+    },
+    {
+      "position": 2,
+      "correct_option_ids": ["o1", "o3"],
+      "explanation": "Reading the cited passage and comparing its wording with the claim are the checks that show whether the claim is backed.",
+      "citation_ids": ["p0001", "p0002"],
+      "criteria": null,
+      "model_answer": null
+    },
+    {
+      "position": 3,
+      "correct_option_ids": ["o4"],
+      "explanation": "Learners can revisit the original evidence when checking a conclusion.",
+      "citation_ids": ["p0003"],
+      "criteria": null,
+      "model_answer": null
+    },
+    {
+      "position": 4,
+      "correct_option_ids": ["false"],
+      "explanation": "The original source stays useful after a conclusion is written, because it is what the conclusion is checked against.",
+      "citation_ids": ["p0004"],
+      "criteria": null,
+      "model_answer": null
+    },
+    {
+      "position": 5,
+      "correct_option_ids": null,
+      "explanation": "A similar passage can resemble a claim without backing it, so the claim must be checked against what the passage says.",
+      "citation_ids": ["p0002"],
+      "criteria": [
+        "Says that similarity alone is not support",
+        "Says the claim has to be checked against the passage"
+      ],
+      "model_answer": "Two passages can look alike without one backing the other, so the claim has to be checked against what the cited passage actually says."
+    },
+    {
+      "position": 6,
+      "correct_option_ids": null,
+      "explanation": "Revisiting the original source means reading what it says about the specific conclusion being checked.",
+      "citation_ids": ["p0003", "p0004"],
+      "criteria": [
+        "Mentions returning to the original passage",
+        "Mentions comparing the passage with the conclusion",
+        "Mentions noting where the passage does not back the conclusion"
+      ],
+      "model_answer": "Return to the original passage, compare what it says with the conclusion, and note anywhere the passage does not back the conclusion."
+    }
+  ],
+  "outcomes": [
+    {"index": 0, "title": "Explain evidence support"},
+    {"index": 1, "title": "Revisit original sources"}
+  ]
+}
