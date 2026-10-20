@@ -1,5 +1,33 @@
 # Scope: AI Second Brain
 
+## Path quiz v1 (Slice 2) — design in development, 2026-10-20
+
+**Target, not implemented.** The design specification is
+[docs/planning/path-quiz-spec.md](docs/planning/path-quiz-spec.md) (revision 3:
+the first design review's findings are resolved in the spec, and the later
+amendments have had no second review round); design review precedes any code. The slice adds
+an optional end-of-path quiz for one confirmed learning path revision:
+single-choice, true/false and multi-select questions
+graded deterministically on the server, plus one or two short answers with
+provisional AI feedback. Questions and explanations cite only passages the path
+already cites. The answer key stays server-side until an attempt is submitted.
+Results are shown as "X of Y" with a "Looks solid" or "Worth reviewing" label per
+outcome and are evidence, not proof of mastery; the quiz never blocks progress.
+A retake reuses the stored quiz with no model call; new questions are generated
+only on request, within server-side daily limits persisted in Postgres. A daily
+unit is refunded only when the AI request provably never reached the service or
+was rejected for an owner-side reason (HTTP 400, or HTTP 429 reporting an invalid
+request or exhausted quota); timeouts, rate limits and every completed response stay
+counted.
+
+**Proposed, not applied:** one migration with a matching rollback
+(`202610200023_path_quiz`), a backend quiz module and a Quiz tab in the lesson
+workspace. No migration has been applied to any database.
+
+**Out of scope:** spaced repetition, scheduling, due dates and a review queue
+(Slice 3); mastery claims; gamification; global spend caps (see U5). Nothing here is
+available yet, and no check has been run against it.
+
 ## Web design foundation (Slice 1) — implemented in development, 2026-10-20
 
 Web-only visual and structural foundation: design tokens with light, dark and

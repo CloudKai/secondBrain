@@ -50,6 +50,19 @@ A learner's response to an understanding check at a particular difficulty.
 Later retries are separate attempts, not replacements for earlier responses.
 _Avoid_: Generation attempt
 
+**Quiz**:
+A short set of questions that checks understanding of one learning path
+revision, written from the source passages that path cites. Its score and
+per-outcome labels are evidence about that quiz, not proof of mastery of the
+topic. Taking it is optional and never blocks progress.
+_Avoid_: Exam, test, final assessment
+
+**Quiz attempt**:
+A learner's submitted answers to a quiz, kept with their per-question results.
+A retake is a separate attempt on the same questions; the earlier attempt is
+retained. Short-answer feedback in an attempt is provisional AI feedback.
+_Avoid_: Quiz grade, quiz score record
+
 **Topic correction**:
 A learner's change to topic names, duplicate topics, source assignments, or
 topic connections to make their learning library reflect their understanding.
