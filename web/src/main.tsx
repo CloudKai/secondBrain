@@ -13,6 +13,7 @@ import "./styles/refinements.css";
 import "./styles/learning.css";
 import "./styles/ui.css";
 import "./styles/home.css";
+import "./styles/workspace.css";
 import "./styles/refresh.css";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

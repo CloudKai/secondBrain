@@ -1,13 +1,14 @@
 import ReadingText from './ReadingText';
+import {Callout} from './ui';
 import {StudyCitations} from './StructuredStudy';
 import type {LearningPlan} from '../lib/learning';
 
-export default function LearningLessonView({plan,lessonIndex,onCitation}:{plan:LearningPlan;lessonIndex:number;onCitation:(id:string)=>void}) {
+export default function LearningLessonView({plan,lessonIndex,onCitation,emphasis=false}:{plan:LearningPlan;lessonIndex:number;onCitation:(id:string)=>void;emphasis?:boolean}) {
   const lesson=plan.content.lessons[lessonIndex];
   if(!lesson)return null;
+  const outcome=<><span className="eyebrow">YOUR LEARNING OUTCOME</span><p className="learning-outcome">{lesson.outcome}</p></>;
   return <section className="learning-teaching" aria-label="Lesson explanation">
-    <span className="eyebrow">YOUR LEARNING OUTCOME</span>
-    <p className="learning-outcome">{lesson.outcome}</p>
+    {emphasis?<Callout variant="focus">{outcome}</Callout>:outcome}
     <h4>{lesson.title}</h4>
     <ReadingText text={lesson.explanation.text}><StudyCitations references={plan.teaching?plan.references:undefined} ids={lesson.explanation.citation_ids} onCitation={onCitation}/></ReadingText>
     {lesson.example&&<div className="learning-example">
