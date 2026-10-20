@@ -1,0 +1,5 @@
+/*
+ * Loaded last. Final overrides for the design refresh belong here.
+ * Sub-12px text was lifted in place (to var(--text-xs)) rather than overridden
+ * here, so the original cascade order between equal-specificity rules is kept.
+ */

@@ -27,13 +27,13 @@
     padding: 19px 20px 0;
   }
   .source-card-content > small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .source-card-footer {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .topic-chips > span {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
 }
 @media (max-width: 1250px) {
@@ -48,7 +48,7 @@
     font-size: 20px;
   }
   .brand small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .library-layout {
     grid-template-columns: minmax(0, 1fr) 245px;
@@ -90,7 +90,7 @@
     gap: 13px;
   }
   .stat-strip > span {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .study-layout {
     grid-template-columns: minmax(0, 1fr) 290px;
@@ -114,7 +114,7 @@
     grid-template-columns: minmax(0, 1fr) 265px;
   }
   .graph-node {
-    font-size: 10px;
+    font-size: var(--text-xs);
     min-width: 85px;
   }
   .graph-detail {
@@ -216,7 +216,7 @@
   .nav-backdrop {
     position: fixed;
     inset: 0;
-    background: #0009;
+    background: var(--color-overlay);
     z-index: 29;
   }
   .app-main {
@@ -231,7 +231,7 @@
   }
   .breadcrumbs {
     gap: 8px;
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .breadcrumbs > span:first-of-type,
   .breadcrumbs > svg {
@@ -241,7 +241,7 @@
     gap: 12px;
   }
   .demo-indicator {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .small-button {
     min-height: 37px;
@@ -261,7 +261,7 @@
     padding: 20px 0 25px;
   }
   .stat-strip > span {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .resume-card {
     padding: 24px;
@@ -285,13 +285,13 @@
     font-size: 15px;
   }
   .source-card-content > small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .source-card p {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .source-card-footer {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .library-toolbar {
     flex-wrap: wrap;
@@ -307,7 +307,7 @@
     font-size: 18px;
   }
   .section-heading p {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .note-main {
     padding: 22px 24px 30px;
@@ -368,7 +368,7 @@
     font-size: 14px;
   }
   .toast {
-    font-size: 11px;
+    font-size: var(--text-xs);
     min-width: 280px;
   }
   .modal {
@@ -389,13 +389,13 @@
     font-size: 16px;
   }
   .prompt-chips button {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .recall-card h3 {
     font-size: 17px;
   }
   .reading-card-top .badge {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
 }
 @media (max-width: 460px) {
@@ -447,7 +447,7 @@
     font-size: 12px;
   }
   .resume-meta {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .resume-card .button {
     min-height: 40px;
@@ -470,10 +470,10 @@
     font-size: 14px;
   }
   .source-card p {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .source-card-content > small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .source-card .attention-art {
     width: 170px;
@@ -483,10 +483,10 @@
   .source-type {
     top: 8px;
     left: 8px;
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .code-art {
-    font-size: 10px;
+    font-size: var(--text-xs);
     transform: rotate(-90deg);
     width: 155px;
     flex-shrink: 0;
@@ -513,19 +513,19 @@
     gap: 9px;
   }
   .add-source-strip strong {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .add-source-strip small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .library-footnote {
     flex-direction: column;
     gap: 8px;
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .library-footnote span,
   .library-footnote button {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .sort-control select {
     max-width: 105px;
@@ -551,10 +551,10 @@
     font-size: 32px;
   }
   .note-kicker .badge {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .note-byline {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .note-heading > p {
     font-size: 13px;
@@ -568,7 +568,7 @@
   .concept-number {
     width: 27px;
     height: 27px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .overview-block {
     padding: 17px;
@@ -589,13 +589,13 @@
     gap: 8px;
   }
   .recall-actions .button {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .assistant-heading h3 {
     font-size: 13px;
   }
   .assistant-heading .badge {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .assistant-heading {
     gap: 9px;
@@ -605,7 +605,7 @@
   }
   .scope-buttons > span,
   .scope-buttons button {
-    font-size: 10px;
+    font-size: var(--text-xs);
     min-height: 32px;
   }
   .assistant-input {
@@ -622,7 +622,7 @@
     padding: 15px;
   }
   .graph-node {
-    font-size: 10px;
+    font-size: var(--text-xs);
     min-width: 75px;
   }
   .node-orbit {
@@ -630,7 +630,7 @@
     height: 43px;
   }
   .graph-node small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .graph-node > span:nth-child(2) {
     max-width: 110px;
@@ -646,11 +646,11 @@
     gap: 8px;
   }
   .source-input-tabs button {
-    font-size: 11px;
+    font-size: var(--text-xs);
     padding: 10px;
   }
   .source-input-tabs small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .planned-source {
     padding: 7px;
@@ -665,7 +665,7 @@
     margin: auto;
   }
   .note-disclosure {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .badge {
     white-space: normal;

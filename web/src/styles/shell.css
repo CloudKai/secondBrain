@@ -45,7 +45,7 @@
 }
 .brand small {
   display: block;
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: 1.4px;
   font-weight: 500;
   color: var(--soft);
@@ -60,7 +60,7 @@
   gap: 8px;
   border-radius: 9px;
   text-align: left;
-  font-size: 11px;
+  font-size: var(--text-xs);
   width: 100%;
   font-weight: 500;
 }
@@ -82,7 +82,7 @@
 .workspace-switch small {
   display: block;
   color: var(--soft);
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .workspace-switch:hover {
   background: var(--raised);
@@ -92,21 +92,21 @@
   align-items: center;
   gap: 9px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--text-xs);
   padding: 17px 6px 25px;
   min-height: 44px;
 }
 .sidebar-search > span {
   margin-left: auto;
   border: 1px solid var(--border);
-  font-size: 10px;
+  font-size: var(--text-xs);
   line-height: 16px;
   width: 16px;
   border-radius: 3px;
   color: var(--soft);
 }
 .nav-label {
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: 1.5px;
   color: var(--soft);
   font-weight: 600;
@@ -137,7 +137,7 @@
 }
 .nav-count {
   margin-left: auto;
-  font-size: 10px;
+  font-size: var(--text-xs);
   min-width: 21px;
   text-align: center;
   padding: 0 4px;
@@ -166,7 +166,7 @@
 .sidebar-topic > span:last-child {
   margin-left: auto;
   color: var(--soft);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .dot {
   display: inline-block;
@@ -209,12 +209,12 @@
   font-weight: 550;
 }
 .sidebar-tip p {
-  font-size: 11px;
+  font-size: var(--text-xs);
   line-height: 1.7;
   margin: 6px 0 13px;
 }
 .sidebar-tip button {
-  font-size: 10px;
+  font-size: var(--text-xs);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -229,7 +229,7 @@
   gap: 10px;
   color: var(--muted);
   width: 100%;
-  font-size: 11px;
+  font-size: var(--text-xs);
   min-height: 52px;
   padding: 8px 2px;
 }
@@ -256,7 +256,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   text-align: left;
   width: 100%;
 }
@@ -268,11 +268,11 @@
   color: var(--accent);
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .profile small {
   display: block;
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--soft);
 }
 .profile > svg {
@@ -295,7 +295,7 @@
   display: flex;
   align-items: center;
   gap: 13px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--soft);
 }
 .breadcrumbs strong {
@@ -308,7 +308,7 @@
   align-items: center;
 }
 .demo-indicator {
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--muted);
   display: flex;
   align-items: center;

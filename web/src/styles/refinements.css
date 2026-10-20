@@ -16,7 +16,7 @@
   font-size: 13px;
 }
 .resume-meta {
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .resume-card .button {
   font-size: 12px;
@@ -31,10 +31,10 @@
   font-size: 16px;
 }
 .source-card-content > small {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .source-card-footer {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .aside-heading p {
   font-size: 12px;
@@ -43,7 +43,7 @@
   font-size: 12px;
 }
 .curiosity-topic small {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .panel-description {
   font-size: 12px;
@@ -55,17 +55,17 @@
   font-size: 12px;
 }
 .note-byline {
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .concept p,
 .overview-block p {
   font-size: 14px;
 }
 .library-footnote {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .topic-overview small {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .sidebar-tip p {
   font-size: 12px;
@@ -82,17 +82,17 @@
   overflow-wrap: anywhere;
 }
 .stat-strip > span {
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 @media (max-width: 760px) {
   .breadcrumbs {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .stat-strip {
     gap: 15px;
   }
   .stat-strip > span {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .page-heading > p {
     font-size: 14px;
@@ -104,7 +104,7 @@
     font-size: 13px;
   }
   .topic-chips > span {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .sidebar-tip p {
     font-size: 13px;
@@ -127,19 +127,19 @@
     font-size: 12px;
   }
   .source-card-content > small {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .source-card-footer {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .source-card-art {
     min-height: 225px;
   }
   .stat-strip > span {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .resume-meta {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .art-label {
     display: none;
@@ -150,18 +150,18 @@
   overflow-y: auto;
 }
 .brand small {
-  font-size: 8px;
+  font-size: var(--text-xs);
   letter-spacing: 1.3px;
 }
 @media (max-width: 1250px) {
   .brand small {
-    font-size: 7px;
+    font-size: var(--text-xs);
     letter-spacing: 1.1px;
   }
 }
 @media (max-width: 760px) {
   .brand small {
-    font-size: 8px;
+    font-size: var(--text-xs);
     letter-spacing: 1.3px;
   }
 }
@@ -225,7 +225,7 @@
 }
 .graph-topic-grid small {
   display: block;
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 .graph-topic-grid.compact {
@@ -293,7 +293,7 @@ main:focus-visible { outline: none; }
 .combined-overview h3, .branch-heading { font-size: 14px; margin: 18px 0 10px; }
 .source-branches { border-left: 1px solid var(--border); padding-left: 14px; margin-top: 16px; }
 .source-branch { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-.source-branch > .eyebrow { display: block; margin-bottom: 8px; font-size: 10px; }
+.source-branch > .eyebrow { display: block; margin-bottom: 8px; font-size: var(--text-xs); }
 .source-branch .text-button { display: block; min-height: 32px; text-align: left; }
 .source-branch .source-title { white-space: normal; text-align: left; overflow-wrap: anywhere; }
 

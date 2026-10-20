@@ -84,6 +84,19 @@
   --motion-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
+  /* Always-dark decorative art surfaces (resume card, source card art).
+     Identical in light and dark so text on those gradients stays legible. */
+  --art-border: #3a4d3e;
+  --art-text: #edf1eb;
+  --art-text-muted: #a8b9aa;
+  --art-text-soft: #a6b4aa;
+  --art-text-faint: #819f89;
+  --art-chip-text: #d7dfd6;
+  --art-accent: #b2dfba;
+  --art-purple: #c7b4e3;
+  --art-lime: #cddaa8;
+  --art-peach: #d6b694;
+
   /* Legacy names: aliases only, so they follow the semantic tokens. */
   --bg: var(--color-bg);
   --sidebar: var(--color-sidebar);
