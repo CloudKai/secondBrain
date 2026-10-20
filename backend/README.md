@@ -130,3 +130,13 @@ Luna output survived one repair (generation only). Short-answer feedback uses th
 separate `QUIZ_GRADING_MODEL`, one repair call, and no fallback rung. Generation runs
 in a detached task, so a reload or dropped connection does not lose the output.
 Confirm the hosting function allows at least 120 seconds before enabling generation.
+
+Before enabling spend:
+
+- Per-user daily limits can be bypassed by creating new anonymous accounts (spec
+  R1/U5). A global cap and per-IP limits are not built, so do not expose the quiz
+  endpoints publicly until they are; `QUIZ_ENABLED=false` keeps spending off.
+- Explanations are not overlap-checked against the cited excerpts (the guard covers
+  correct options, true/false prompts and short-answer model answers).
+- Run a two-connection smoke test of the daily counter against a real Postgres; the
+  PGlite burst test uses one connection.

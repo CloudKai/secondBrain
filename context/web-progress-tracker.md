@@ -7,8 +7,9 @@ for one confirmed learning path revision: single-choice, true/false and
 multi-select questions graded on the server, plus up to two short answers with
 provisional AI feedback. Results are evidence, not proof of mastery. Design:
 [path-quiz-spec.md](../docs/planning/path-quiz-spec.md) (section 20, Revision 3,
-is binding; the Revision 3 amendments had no second design-review round). 12
-commits on branch `feat/path-quiz`, not pushed.
+is binding; the Revision 3 amendments had no second design-review round). The
+work is on branch `feat/path-quiz`; the push is a separate step, so check
+`git log main..HEAD` for the current commits.
 
 - Database: migration `supabase/migrations/202610200023_path_quiz.sql` (6
   tables, 19 functions incl. helpers, source-removal trigger, RLS) with a guarded
@@ -78,6 +79,18 @@ commits on branch `feat/path-quiz`, not pushed.
   invalid Luna output survived one repair; short-answer feedback uses the
   separate `QUIZ_GRADING_MODEL`. **Model availability is unverified** (no live
   call was made).
+- Needs your attention before enabling spend:
+  - Per-user daily limits can be bypassed by creating new anonymous accounts
+    (spec R1/U5). A global cap and per-IP limits are not built, so do not expose
+    the quiz endpoints publicly until they are. Consider shipping with
+    `QUIZ_ENABLED=false` and switching it on when ready.
+  - Explanations are not overlap-checked against the cited excerpts (the guard
+    covers correct options, true/false prompts and model answers). Citation ids are
+    lesson-bound and the prompt is excerpt-only, and the UI says the quiz is
+    AI-generated, but an explanation can say more than its passage.
+  - The daily counter is one guarded upsert, but no test runs two parallel
+    connections (the PGlite burst test is single-connection). Run a two-connection
+    smoke test against a real Postgres before enabling.
 - Default limits: 3 quiz generations and 20 AI feedback requests per user per UTC
   day, 8 questions (up to 2 short answers), short answers capped at 1500
   characters, 20 attempts per quiz. Raise `QUIZ_MAX_OUTPUT_TOKENS` to at least
