@@ -11,15 +11,22 @@ import ReadingText from './ReadingText';
 import EvidenceDialog from './EvidenceDialog';
 import SourceEvidence from './SourceEvidence';
 
-export function CollectionOverview({data,onDiscover}:{data:CollectionDetail;onDiscover:(query:string)=>void}){
+export function CollectionHeading({data}:{data:CollectionDetail}){
+ const {collection}=data;
+ return <header className="collection-heading"><a className="text-button" href="#library">← Home</a><span className="eyebrow">YOUR LEARNING COLLECTION</span><h1>{collection.title}</h1><p className="collection-goal">{collection.goal||'Choose where to begin with your saved material.'}</p><p className="micro-copy">{collection.path_count} paths · {collection.source_count} saved sources · study activity and practice are separate from mastery.</p></header>;
+}
+export function CollectionResources({data,onDiscover}:{data:CollectionDetail;onDiscover:(query:string)=>void}){
  const {collection,sources}=data;
- return <>
-  <header className="collection-heading"><a className="text-button" href="#library">← Home</a><span className="eyebrow">YOUR LEARNING COLLECTION</span><h1>{collection.title}</h1><p className="collection-goal">{collection.goal||'Choose where to begin with your saved material.'}</p><p className="micro-copy">{collection.path_count} paths · {collection.source_count} saved sources · study activity and practice are separate from mastery.</p></header>
-  <details className="collection-resources"><summary>Collection sources & wider context</summary><p>Sources in a plan are a selected subset of this collection. Saving material does not add it to teaching until you preview and confirm its contribution.</p>
+ return <details className="collection-resources"><summary>Collection sources & wider context</summary><p>Sources in a plan are a selected subset of this collection. Saving material does not add it to teaching until you preview and confirm its contribution.</p>
    <ul>{sources.map(s=><li key={s.id}><a href={`#note/${s.id}`}>{s.title}</a><small> · {s.source_kind.toUpperCase()} · saved version {s.source_version}</small></li>)}</ul>
    {!collection.original_source_available&&<p role="note">Original source removed. Goals and saved practice stay accessible; missing captured evidence cannot support new teaching.</p>}
    <div className="learning-actions"><a className="button secondary" href="#topics">Topic graph</a><button className="text-button" onClick={()=>onDiscover(`${collection.title}: ${collection.goal}`)}>Find sources for this goal</button></div>
-  </details>
+  </details>;
+}
+export function CollectionOverview({data,onDiscover}:{data:CollectionDetail;onDiscover:(query:string)=>void}){
+ return <>
+  <CollectionHeading data={data}/>
+  <CollectionResources data={data} onDiscover={onDiscover}/>
  </>;
 }
 export function RetainedCollectionHistory({data,client}:{data:CollectionDetail;client?:SourceClient}){
@@ -51,7 +58,7 @@ export default function CollectionWorkspace({id,client,onDiscover}:{id:string;cl
  return <div className="collection-workspace">
   {error&&<div className="study-error" role="alert"><h1>Collection unavailable</h1><p>{error}</p><button className="button secondary" onClick={()=>setRetry(v=>v+1)}>Retry collection</button> <a href="#library">Return to my library</a></div>}
   {!loaded&&!error&&<p role="status">Restoring your collection and saved lesson…</p>}
-  {loaded&&<><CollectionOverview data={loaded.data} onDiscover={onDiscover}/>{loaded.source?<LearningJourney key={`${id}:${loaded.source.source_version??1}`} source={loaded.source} client={client} enabled={!error} initial={loaded.data.learning} collectionId={id} workspace onCitation={cite} onDiscover={onDiscover}/>:<RetainedCollectionHistory data={loaded.data} client={client}/>}</>}
+  {loaded&&(loaded.source?<><CollectionHeading data={loaded.data}/><LearningJourney key={`${id}:${loaded.source.source_version??1}`} source={loaded.source} client={client} enabled={!error} initial={loaded.data.learning} collectionId={id} workspace onCitation={cite} onDiscover={onDiscover} sidePanelExtra={<CollectionResources data={loaded.data} onDiscover={onDiscover}/>}/></>:<><CollectionOverview data={loaded.data} onDiscover={onDiscover}/><RetainedCollectionHistory data={loaded.data} client={client}/></>)}
   {evidence&&<EvidenceDialog origin={origin.current} onClose={()=>setEvidence(null)}><SourceEvidence note={noteFromSavedSource(evidence.source)} passage={evidence.full?undefined:evidence.reference.passage} onFullText={()=>setEvidence(v=>v?{...v,full:true}:null)}/></EvidenceDialog>}
  </div>;
 }

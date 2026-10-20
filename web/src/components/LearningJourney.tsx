@@ -1,6 +1,7 @@
 import {useLearningDraft} from '../lib/draft-workspace';
 import LearningDraftStatus from './LearningDraftStatus';
 import {useEffect,useId,useRef,useState} from 'react';
+import type {ReactNode} from 'react';
 import {BookOpen,ChevronRight,GraduationCap} from 'lucide-react';
 import type {SourceClient,SavedSource} from '../lib/source-client';
 import type {LearningSnapshot,LearningPlan,LearningDifficulty,LearningActivity,LearningCandidates} from '../lib/learning';
@@ -20,9 +21,9 @@ import LearningCollection,{LearningRevisionSummary} from './LearningCollection';
 
 const levels:LearningDifficulty[]=['foundation','intermediate','advanced'];
 const levelLabel=(level:LearningDifficulty)=>level[0].toUpperCase()+level.slice(1);
-interface Props {source:SavedSource;client:SourceClient;enabled:boolean;topicTitle?:string;onCitation:(reference:AssistantReference)=>Promise<void>;onDiscover:(query:string)=>void;initial?:LearningSnapshot;collectionId?:string;workspace?:boolean}
+interface Props {source:SavedSource;client:SourceClient;enabled:boolean;topicTitle?:string;onCitation:(reference:AssistantReference)=>Promise<void>;onDiscover:(query:string)=>void;initial?:LearningSnapshot;collectionId?:string;workspace?:boolean;sidePanelExtra?:ReactNode}
 
-export default function LearningJourney({source,client,enabled,topicTitle,onCitation,onDiscover,initial,collectionId,workspace=false}:Props){
+export default function LearningJourney({source,client,enabled,topicTitle,onCitation,onDiscover,initial,collectionId,workspace=false,sidePanelExtra}:Props){
  const startingPlan=initial?.plans.find(p=>p.id===initial.selected_plan_id)??[...(initial?.plans??[])].reverse().find(p=>p.active);
  const [data,setData]=useState<LearningSnapshot|null>(initial??null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[goal,setGoal]=useState(startingPlan?.goal??''),[difficulty,setDifficulty]=useState<LearningDifficulty>(startingPlan?.difficulty??'foundation'),[branchGoal,setBranchGoal]=useState('');
  const [selectedId,setSelectedId]=useState(startingPlan?.id??''),[lessonIndex,setLessonIndex]=useState(initial?.selected_plan_id===startingPlan?.id?initial?.selected_lesson_index??0:0),[mode,setMode]=useState<'teach'|'practice'|'review'>('teach'),[preview,setPreview]=useState<LearningPlan|null>(null),[backgroundIndex,setBackgroundIndex]=useState<number|null>(null);
@@ -138,6 +139,7 @@ export default function LearningJourney({source,client,enabled,topicTitle,onCita
   {!workspace&&<><div className="learning-header"><span className="learning-icon"><GraduationCap size={24} aria-hidden="true"/></span><div><span className="eyebrow">YOUR TOPIC COLLECTION</span><h2 id={`${fieldId}-heading`}>Learn {topicTitle??source.title}</h2><p>Turn this source into something you can explain and use.</p></div></div>
   <p className="micro-copy">Start with one saved source. Choose a path, learn through examples, and practise in your own words. Add related sources to strengthen a path through a preview you confirm. Your earlier learning stays saved.</p></>}
   {workspace&&<h2 id={`${fieldId}-heading`} className="sr-only">Your lesson workspace</h2>}
+  {workspace&&sidePanelExtra}
   <div className="learning-progress" aria-label="Learning activity and understanding checks"><span>{completedRead} lessons marked studied</span><span>{data?.attempts.length??0} practice attempts</span><span>{data?.attempts.filter(attempt=>attempt.status==='needs_review').length??0} checks need review</span></div>
   {busy&&<p role="status">{busy} Your saved progress is safe.</p>}
   {error&&<div className="study-error" role="alert"><p>{error}</p><button className="text-button" disabled={!!busy||!enabled} onClick={()=>void run('Restoring progress…',()=>client.learning(source.id))}>Reload learning progress</button></div>}
