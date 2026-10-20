@@ -16,9 +16,10 @@ import {
   quizView,
   serializeProgress,
   shouldPoll,
+  submitKeyFor,
   toQuizApiError,
 } from "./quiz-logic";
-import type { QuizAnswers, QuizEvent } from "./quiz-logic";
+import type { QuizAnswers, QuizEvent, SubmitKeyMemory } from "./quiz-logic";
 
 function browserStorage(): Storage | null {
   try {
@@ -51,6 +52,7 @@ export function useQuiz(
   const requested = useRef<Set<string>>(new Set());
   const autoRunning = useRef(false);
   const knownQuiz = useRef<string | null>(null);
+  const submitKey = useRef<SubmitKeyMemory | null>(null);
 
   useEffect(() => {
     live.current = true;
@@ -224,17 +226,26 @@ export function useQuiz(
     const quiz = current.server?.quiz;
     if (!quiz || !current.attemptKey || current.phase === "submitting") return;
     send({ type: "submit_started" });
+    const body = buildSubmitBody(
+      current.attemptKey,
+      quiz.id,
+      quiz.questions,
+      current.answers,
+    );
+    const signature = JSON.stringify(body.answers);
+    const key = submitKeyFor(
+      submitKey.current,
+      current.attemptKey,
+      signature,
+      () => crypto.randomUUID(),
+    );
+    submitKey.current = { attemptKey: current.attemptKey, signature, key };
     try {
-      const result = await client.submitQuizAttempt(
-        collectionId,
-        planId,
-        buildSubmitBody(
-          current.attemptKey,
-          quiz.id,
-          quiz.questions,
-          current.answers,
-        ),
-      );
+      const result = await client.submitQuizAttempt(collectionId, planId, {
+        ...body,
+        attempt_key: key,
+      });
+      submitKey.current = null;
       try {
         browserStorage()?.removeItem(progressKey(quiz.id));
       } catch {
@@ -249,7 +260,15 @@ export function useQuiz(
         .then((server) => send({ type: "loaded", server }))
         .catch(() => undefined);
     } catch (reason) {
-      send({ type: "submit_failed", error: toQuizApiError(reason) });
+      const error = toQuizApiError(reason);
+      // A conflicting key is spent for good: the next submit starts a new one.
+      if (error.code === "quiz_attempt_conflict")
+        submitKey.current = {
+          attemptKey: current.attemptKey,
+          signature: "",
+          key,
+        };
+      send({ type: "submit_failed", error });
     }
   }, [client, collectionId, planId, send]);
 

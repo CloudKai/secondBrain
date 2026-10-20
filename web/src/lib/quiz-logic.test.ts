@@ -33,6 +33,7 @@ import {
   serializeProgress,
   setText,
   shouldPoll,
+  submitKeyFor,
   shuffleSeeded,
   stepBack,
   stepNext,
@@ -1105,4 +1106,17 @@ test("blocked generation explains itself in calm words", () => {
     ),
     { limit: 3, remaining: 0 },
   );
+});
+
+test("submitKeyFor keeps the attempt key, replays the same answers and renews the key for edited ones", () => {
+  let minted = 0;
+  const mint = () => `minted-${++minted}`;
+  assert.equal(submitKeyFor(null, "attempt", "[a]", mint), "attempt");
+  const first = { attemptKey: "attempt", signature: "[a]", key: "attempt" };
+  assert.equal(submitKeyFor(first, "attempt", "[a]", mint), "attempt");
+  assert.equal(minted, 0);
+  assert.equal(submitKeyFor(first, "attempt", "[b]", mint), "minted-1");
+  const spent = { attemptKey: "attempt", signature: "", key: "attempt" };
+  assert.equal(submitKeyFor(spent, "attempt", "[a]", mint), "minted-2");
+  assert.equal(submitKeyFor(first, "other", "[a]", mint), "other");
 });

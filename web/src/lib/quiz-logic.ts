@@ -284,6 +284,28 @@ export function answeredCount(
   ).length;
 }
 
+/** The key the last submit used, and the answers it carried. */
+export interface SubmitKeyMemory {
+  attemptKey: string;
+  signature: string;
+  key: string;
+}
+
+/**
+ * The first submit of an attempt uses the attempt key and a retry with the same
+ * answers reuses it, so a lost response replays. Edited answers get a new key, or
+ * the server would see the old key with a different hash.
+ */
+export function submitKeyFor(
+  memory: SubmitKeyMemory | null,
+  attemptKey: string,
+  signature: string,
+  mint: () => string,
+): string {
+  if (!memory || memory.attemptKey !== attemptKey) return attemptKey;
+  return memory.signature === signature ? memory.key : mint();
+}
+
 /** Every question is sent; an empty entry means unanswered. */
 export function buildSubmitBody(
   attemptKey: string,
