@@ -15,7 +15,7 @@ from backend.tests.test_youtube_sources import youtube_http  # noqa: F401
 def model_response(request, draft):
     body = json.loads(request.content)
     name = body["tools"][0]["function"]["name"]
-    return httpx.Response(200, json={"id": "chat-long", "object": "chat.completion", "created": 1, "model": "gpt-4o-mini", "choices": [{"index": 0, "finish_reason": "tool_calls", "message": {"role": "assistant", "content": None, "tool_calls": [{"id": "call-long", "type": "function", "function": {"name": name, "arguments": json.dumps(draft)}}]}}]})
+    return httpx.Response(200, json={"id": "chat-long", "object": "chat.completion", "created": 1, "model": body["model"], "choices": [{"index": 0, "finish_reason": "tool_calls", "message": {"role": "assistant", "content": None, "tool_calls": [{"id": "call-long", "type": "function", "function": {"name": name, "arguments": json.dumps(draft)}}]}}]})
 
 
 def draft_for(ids):

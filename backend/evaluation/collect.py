@@ -16,6 +16,7 @@ from typing import Annotated, Literal
 import httpx
 from dotenv import load_dotenv
 from pydantic import Field
+from backend.core.model_settings import default_model
 from backend.core.schemas import StrictModel
 from backend.assistant.models import AssistantQuestion
 from backend.assistant.generation import AssistantGenerator
@@ -101,7 +102,7 @@ async def collect(case: BaselineCase, gateway: SourceGateway, generator: Assista
         'scope': {'topic': case.question.topic_id is not None, 'library': case.question.library},
         'source_kinds': ['pdf' if r.document else 'video' if r.transcript else 'article' for r in rows],
         'completion_seconds': elapsed, 'first_verified_streamed_text_seconds': None,
-        'generation_model': 'gpt-4o-mini', 'generation_usage': None,
+        'generation_model': default_model(), 'generation_usage': None,
         'generation_cost_usd': None, 'capture_sha256': case.capture_sha256,
     }
 

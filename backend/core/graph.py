@@ -11,6 +11,7 @@ import httpx
 from bs4 import BeautifulSoup
 from langchain_core.runnables import RunnableConfig
 from langchain_openai import ChatOpenAI
+from backend.core.model_settings import chat_model
 from langgraph.graph import END, START, StateGraph
 
 from backend.core.schemas import (
@@ -42,11 +43,7 @@ class DeepFeynmanState(TypedDict):
 def _model() -> ChatOpenAI:
     """Create the model lazily so the API can boot before a key is configured."""
 
-    return ChatOpenAI(
-        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-        temperature=0,
-        api_key=os.getenv("OPENAI_API_KEY"),
-    )
+    return chat_model(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def _source_url(config: RunnableConfig) -> str:

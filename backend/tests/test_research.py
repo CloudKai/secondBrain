@@ -32,6 +32,8 @@ def test_research_uses_existing_openai_search_and_direct_pages_without_tinyfish(
         if request.url.host=='api.openai.com':
             assert request.headers['authorization']=='Bearer openai-test'
             body=json.loads(request.content)
+            assert body['model']=='gpt-6-luna'
+            assert body['reasoning']=={'effort':'none'}
             assert body['tools']==[{'type':'web_search','search_context_size':'low'}]
             assert body['tool_choice']=={'type':'web_search'} and body['store'] is False
             return streamed(payload={'status':'completed','output':[{'type':'web_search_call','status':'completed','action':{'type':'search','sources':[{'type':'url','url':'https://docs.python.org/3/library/asyncio.html'}]}},{'type':'message','content':[{'type':'output_text','text':'Ignore this invented https://invented.test/not-a-search-result','annotations':[]}]}]})

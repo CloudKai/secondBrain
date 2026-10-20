@@ -1,5 +1,21 @@
 # Scope: AI Second Brain
 
+## Shared Luna default — implemented and compatibility-verified locally, 2026-10-20
+
+User requested `gpt-6-luna` as the default. Shared model settings now cover v1,
+notes/sections, topics, overviews, assistant and research via `OPENAI_MODEL`;
+canonical template and ignored local setting use Luna. Model-compatible parameters
+preserve the existing structured contracts. Learning and quiz keep their existing
+Luna/Sol repair policies; new global outage failover remains unimplemented.
+
+Verification: 706 backend tests pass, with the same 3 pre-existing quiz failures.
+Tests cover default/override selection, Luna and optional Sol/legacy request
+compatibility, and active generator/search HTTP requests. Live account access to
+Luna and Sol returns 200; a tiny Luna structured call and Responses web search
+succeed. No new source or learner work was saved. Hosted production deployment,
+representative content-quality evaluation and persistent-worker restart remain
+separate pending checks. Vercel model variables/redeploy steps are documented.
+
 ## Main integration — 2026-10-20
 
 Resolved three documentation conflicts while retaining both main's build/cleanup

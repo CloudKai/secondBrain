@@ -6,7 +6,7 @@ from typing import TypedDict
 from collections.abc import Awaitable, Callable
 
 import httpx
-from langchain_openai import ChatOpenAI
+from backend.core.model_settings import structured_chat_model
 from langgraph.graph import END, START, StateGraph
 from pydantic import ValidationError
 from openai import APITimeoutError
@@ -105,24 +105,17 @@ class GenerationState(TypedDict, total=False):
 
 class StudyGenerator:
     def __init__(
-        self, client: httpx.AsyncClient, *, api_key: str, model: str = "gpt-4o-mini"
+        self, client: httpx.AsyncClient, *, api_key: str, model: str | None = None
     ):
         if not api_key or api_key == "replace-me":
             raise GenerationFailure("setup_required")
-        model_client = ChatOpenAI(
-            api_key=api_key,
-            model=model,
-            temperature=0,
-            max_tokens=6_000,
-            timeout=60,
-            max_retries=0,
-            http_async_client=client,
-        ).with_structured_output(DraftStudyNote, method="function_calling", strict=True)
+        model_client = structured_chat_model(
+            DraftStudyNote, api_key=api_key, model=model, client=client, max_tokens=6_000,
+        )
         self.model_client = model_client
-        self.section_client = ChatOpenAI(
-            api_key=api_key, model=model, temperature=0, max_tokens=2_000,
-            timeout=60, max_retries=0, http_async_client=client,
-        ).with_structured_output(SectionSummary, method="function_calling", strict=True)
+        self.section_client = structured_chat_model(
+            SectionSummary, api_key=api_key, model=model, client=client, max_tokens=2_000,
+        )
 
         async def explain(state: GenerationState) -> dict:
             draft = await model_client.ainvoke(

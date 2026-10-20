@@ -49,6 +49,27 @@ Use separate preview credentials when preview data must be isolated.
 | `SUPABASE_SECRET_KEY` | `backend/.env` | Server-only learning/quiz persistence and generated writes |
 | `OPENAI_API_KEY` | `backend/.env` | Server-only research and AI generation |
 
+For the production Luna default, set these model variables explicitly:
+
+```dotenv
+OPENAI_MODEL=gpt-6-luna
+QUIZ_GENERATION_MODEL=gpt-6-luna
+QUIZ_FALLBACK_MODEL=gpt-6.1-sol
+QUIZ_GRADING_MODEL=gpt-6-luna
+QUIZ_REASONING_EFFORT=low
+```
+
+Replace an existing `OPENAI_MODEL=gpt-4o-mini` value; it overrides the code default.
+The shared default now covers v1 output, notes, topics, overviews, the saved-source
+assistant and research. Learning keeps its existing Luna/Sol medium-effort policy.
+Quiz generation keeps its existing repair ladder; grading has no automatic Sol
+fallback. Other features do not gain new automatic fallback by changing these
+variables. Embedding configuration remains separate.
+
+Save values for Production (and Preview if intended), then redeploy the updated
+code. Apply `OPENAI_MODEL=gpt-6-luna` on the persistent worker host and restart
+that worker as well. Local `.env` edits are not uploaded to Vercel automatically.
+
 Set these explicit initial feature flags until their separate acceptance gates
 are complete in the deployment's database:
 

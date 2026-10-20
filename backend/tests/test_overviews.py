@@ -148,6 +148,8 @@ async def synthesis_conflicts():
 
     def model_response(request):
         body = json.loads(request.content)
+        assert body["model"] == "gpt-6-luna"
+        assert body["reasoning_effort"] == "none" and "temperature" not in body
         assert "RAG reduced errors" in json.dumps(body)
         payload = json.loads(body["messages"][1]["content"])
         sources = payload["input"] if isinstance(payload, dict) else payload
@@ -157,7 +159,7 @@ async def synthesis_conflicts():
             200,
             json={
                 "id": "test",
-                "model": "gpt-4o-mini",
+                "model": body["model"],
                 "object": "chat.completion",
                 "choices": [
                     {

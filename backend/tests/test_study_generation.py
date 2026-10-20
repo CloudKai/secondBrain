@@ -62,7 +62,9 @@ DRAFT = {
 
 def completion(request, draft=DRAFT):
     body = json.loads(request.content)
-    assert body["model"] == "gpt-4o-mini"
+    assert body["model"] == "gpt-6-luna"
+    assert body["reasoning_effort"] == "none"
+    assert "temperature" not in body
     assert "p0001" in body["messages"][-1]["content"]
     schema = body["tools"][0]["function"]["parameters"]["properties"]
     assert body["tools"][0]["function"]["strict"] is True
@@ -75,7 +77,7 @@ def completion(request, draft=DRAFT):
             "id": "chatcmpl-study",
             "object": "chat.completion",
             "created": 1,
-            "model": "gpt-4o-mini",
+            "model": body["model"],
             "choices": [
                 {
                     "index": 0,

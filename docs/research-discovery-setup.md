@@ -31,12 +31,19 @@ Research itself needs neither Redis nor a Supabase server secret. Generating
 notes after saving additionally needs a real `SUPABASE_SECRET_KEY`, running Redis,
 and the study worker; see [study setup](study-note-setup.md).
 
-OpenAI Responses uses `gpt-4.1-mini` and a required `web_search` tool call, with
+OpenAI Responses uses `OPENAI_MODEL` (default `gpt-6-luna`) and a required
+`web_search` tool call, with
 one tool call, 2,000 output tokens and `store: false`. Only URLs in completed
 search tool results become candidates. Generated prose URLs are ignored.
 FastAPI directly downloads public HTML/plain-text/PDF bodies with DNS pinning,
 TLS verification and same-publisher redirects; it extracts readable text and
 page-provided metadata. Direct checks never send provider keys to source sites.
+
+The previous research model was pinned to `gpt-4.1-mini`; the 2026-10-20 model
+configuration change uses the shared default. Luna requests explicitly use
+reasoning effort `none`; search budgets, verification and no-save behavior stay
+the same. A live Luna tool-call compatibility check returned tool URLs; this is
+not a new search-quality evaluation or production deployment acceptance.
 
 Start the configured API and study worker using the existing setup instructions.
 The authenticated research endpoint is `POST /api/v2/research` with an explicit

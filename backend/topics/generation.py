@@ -6,7 +6,7 @@ from typing import TypedDict
 from uuid import UUID, uuid5
 import httpx
 from openai import APITimeoutError
-from langchain_openai import ChatOpenAI
+from backend.core.model_settings import structured_chat_model
 from langgraph.graph import StateGraph, START, END
 from backend.studies.generation import GenerationFailure
 from backend.core.generation_repair import repair_payload
@@ -29,15 +29,9 @@ class TopicGenerator:
     def __init__(self, client: httpx.AsyncClient, *, api_key: str):
         if not api_key or api_key == "replace-me":
             raise GenerationFailure("setup_required")
-        model = ChatOpenAI(
-            api_key=api_key,
-            model="gpt-4o-mini",
-            temperature=0,
-            max_tokens=6000,
-            timeout=60,
-            max_retries=0,
-            http_async_client=client,
-        ).with_structured_output(DraftTopicMap, method="function_calling", strict=True)
+        model = structured_chat_model(
+            DraftTopicMap, api_key=api_key, client=client, max_tokens=6000,
+        )
 
         async def extract(state: TopicGenerationState):
             draft = await model.ainvoke(

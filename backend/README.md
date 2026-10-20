@@ -36,6 +36,27 @@ backend and tests; the retained compatibility files are command entry points onl
 
 ## Local development
 
+Text generation defaults to `gpt-6-luna`. `OPENAI_MODEL` overrides the default
+for native v1 summaries/diagrams, study notes (including long-source sections),
+topics, combined overviews, saved-source assistant answers and external research.
+Shared settings live in `core/model_settings.py`; Luna Chat Completions use
+explicit `reasoning_effort=none` and omit temperature. A Sol 6.1 primary override
+uses schema-only structured output with low effort, rather than Chat Completions
+tool calling. Research keeps the Responses web-search contract.
+
+Learning/tutor/practice keep their existing Luna → Sol structural-repair policy
+at medium effort. Quiz generation keeps its configured Luna → one Luna repair →
+Sol ladder; short-answer grading uses `QUIZ_GRADING_MODEL` with one same-model
+repair. These remain separate policies: no new cross-model outage fallback is
+added to notes, topics, overviews, the assistant or research. Embeddings remain
+`text-embedding-3-small`.
+
+Restart the API and workers after changing local model settings. For Vercel,
+set `OPENAI_MODEL=gpt-6-luna` in Production (and Preview if intended), retain the
+explicit `QUIZ_*` model settings below, and create a new deployment. A configured
+old model value overrides the new code default. Update/restart the separate
+worker host too; Vercel does not run that worker.
+
 From the repository root:
 
 ```bash

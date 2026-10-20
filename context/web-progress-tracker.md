@@ -1,5 +1,29 @@
 # Web Progress Tracker
 
+## Shared Luna generation default — 2026-10-20
+
+Added shared `OPENAI_MODEL` selection (default `gpt-6-luna`) for v1 generation,
+study notes/sections, topics, overviews, saved-source assistant and research.
+Local ignored env and template use Luna. Chat Completions calls use explicit
+`reasoning_effort=none` for Luna and omit temperature; Sol 6.1 primary overrides
+use JSON-schema responses at low effort. Research stays on Responses web search.
+Learning and quiz model/repair policies and embedding models are unchanged.
+No new global Sol outage/quality fallback is claimed.
+
+- `backend/.venv/bin/python -m pytest backend/tests -q`: 706 passed, the same
+  3 existing quiz failures (two provider-call accounting assertions, strict
+  datetime test). Four new model-config/HTTP tests pass; generator fixtures assert
+  actual Luna requests. Tests isolate the primary model from local overrides.
+- Required `uv run --project backend --extra dev pytest backend/tests -q` still
+  invokes Anaconda pytest without `langchain_openai` and fails collection.
+- Live read-only model access: Luna/Sol both 200. A tiny Luna structured-output
+  call returned the expected status; Luna Responses search returned 16 tool URLs.
+  These are compatibility checks, not held-out accuracy or hosted acceptance.
+
+Updated Vercel guide with model env variables and redeployment/worker restart
+steps. Existing Vercel env overrides must be changed explicitly; local env files
+are not uploaded. Production and worker activation remain pending.
+
 ## Main integration and Vercel env guide — 2026-10-20
 
 Resolved stash-application conflicts in the native/web trackers and scope by

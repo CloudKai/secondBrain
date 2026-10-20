@@ -5,6 +5,10 @@
 **Scope:** iOS/native progress. Web work is recorded separately in
 [web-progress-tracker.md](web-progress-tracker.md).
 
+**2026-10-20 shared backend model default:** text generation now defaults to Luna;
+HTTP/model compatibility is verified locally and recorded in the web tracker.
+Mobile code is unchanged; no new simulator/device acceptance is claimed.
+
 **2026-10-20 backend organization:** feature packages and compatibility entry
 points are verified locally (702 passing tests; 3 unchanged quiz failures).
 Native files and native acceptance are unchanged; details are in the web tracker.

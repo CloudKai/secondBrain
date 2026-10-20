@@ -238,6 +238,8 @@ def test_model_topics_use_evidence_merge_clear_aliases_and_keep_uncertainty_dist
 
     def completion(request, draft):
         body = json.loads(request.content)
+        assert body["model"] == "gpt-6-luna"
+        assert body["reasoning_effort"] == "none" and "temperature" not in body
         assert body["tools"][0]["function"]["strict"] is True
         return httpx.Response(
             200,
@@ -245,7 +247,7 @@ def test_model_topics_use_evidence_merge_clear_aliases_and_keep_uncertainty_dist
                 "id": "topic-test",
                 "object": "chat.completion",
                 "created": 1,
-                "model": "gpt-4o-mini",
+                "model": body["model"],
                 "choices": [
                     {
                         "index": 0,

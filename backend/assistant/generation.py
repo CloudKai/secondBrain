@@ -6,7 +6,7 @@ from typing import TypedDict
 from collections.abc import Callable
 import httpx
 from openai import APITimeoutError
-from langchain_openai import ChatOpenAI
+from backend.core.model_settings import structured_chat_model
 from langgraph.graph import StateGraph, START, END
 from backend.studies.generation import GenerationFailure
 from backend.core.citation_grounding import citation_prose
@@ -29,9 +29,9 @@ class AssistantGenerator:
         if not api_key or api_key == 'replace-me':
             raise GenerationFailure('setup_required')
         self.client, self.api_key = client, api_key
-        model = ChatOpenAI(api_key=api_key, model='gpt-4o-mini', temperature=0,
-                           max_tokens=3500, timeout=60, max_retries=0,
-                           http_async_client=client).with_structured_output(DraftAssistantAnswer, method='function_calling', strict=True)
+        model = structured_chat_model(
+            DraftAssistantAnswer, api_key=api_key, client=client, max_tokens=3500,
+        )
         async def answer(state: AnswerState):
             draft = await model.ainvoke([
                 ('system',

@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from backend.sources.pdf_capture import capture_pdf
 from backend.sources.capture import public_source_address, canonical_source_url
 from backend.research.models import ResearchResource, ResearchResults
+from backend.core.model_settings import default_model, reasoning_effort
 
 
 class ResearchFailure(ValueError):
@@ -79,12 +80,15 @@ async def read_bounded(response: httpx.Response) -> bytes:
 
 
 async def search_links(client: httpx.AsyncClient, query: str, key: str) -> list[SearchLink]:
+    model = default_model()
+    effort = reasoning_effort(model)
     async with client.stream(
         'POST', 'https://api.openai.com/v1/responses',
         headers={'Authorization': f'Bearer {key}', 'Accept-Encoding': 'identity'},
         timeout=httpx.Timeout(35, connect=7),
         json={
-            'model': 'gpt-4.1-mini', 'store': False, 'max_output_tokens': 2000,
+            'model': model, 'store': False, 'max_output_tokens': 2000,
+            **({'reasoning': {'effort': effort}} if effort is not None else {}),
             'max_tool_calls': 1,
             'tools': [{'type': 'web_search', 'search_context_size': 'low'}],
             'tool_choice': {'type': 'web_search'},

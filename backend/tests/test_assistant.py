@@ -24,12 +24,14 @@ def assistant_client(monkeypatch):
         elif path.endswith('/validate_assistant_context'): value=state['valid']
         elif path=='/v1/chat/completions':
             body=json.loads(request.content)
+            assert body['model']=='gpt-6-luna'
+            assert body['reasoning_effort']=='none' and 'temperature' not in body
             for claim in state['draft']['claims']:
                 claim.setdefault('comparison_source_keys', [])
             if state.get('cite_each_source'):
                 context=json.loads(body['messages'][1]['content'])
                 state['draft']['claims'][0]['reference_ids']=[entry['evidence'][0]['id'] for entry in context['sources']]
-            value={'id':'test','model':'gpt-4o-mini','object':'chat.completion','choices':[{'index':0,'finish_reason':'tool_calls','message':{'role':'assistant','content':None,'tool_calls':[{'id':'test','type':'function','function':{'name':body['tools'][0]['function']['name'],'arguments':json.dumps(state['draft'])}}]}}]}
+            value={'id':'test','model':body['model'],'object':'chat.completion','choices':[{'index':0,'finish_reason':'tool_calls','message':{'role':'assistant','content':None,'tool_calls':[{'id':'test','type':'function','function':{'name':body['tools'][0]['function']['name'],'arguments':json.dumps(state['draft'])}}]}}]}
         else: raise AssertionError(str(request.url))
         return httpx.Response(200,json=value,request=request)
     monkeypatch.setattr(httpx.AsyncClient,'send',external)

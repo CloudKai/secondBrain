@@ -1,5 +1,22 @@
 # Architecture
 
+## Shared Luna text-generation default — 2026-10-20
+
+`backend/core/model_settings.py` supplies `OPENAI_MODEL`, default `gpt-6-luna`, to
+v1 generation, study notes/sections, topics, overviews, assistant and research.
+Existing constructor overrides remain available for studies. Luna's existing
+Chat Completions structured-tool format uses explicit reasoning `none` without
+temperature; a configured Sol 6.1 primary uses JSON-schema output at low effort.
+Research retains Responses web search with compatible reasoning parameters.
+The development collector records the configured generation model.
+
+Existing learning and quiz policies remain separate: learning Luna/Sol structural
+repair at medium effort; quiz's metered generation ladder and single-model grading
+at configured effort. No new automatic provider-failure fallback or semantic
+confidence routing is implemented. Embeddings and database model contracts stay
+unchanged. Production requires updated deployment and worker env/restarts; live
+compatibility checks are not held-out quality or production acceptance.
+
 ## Backend feature packages — 2026-10-20
 
 The existing backend implementation is organized into `sources`, `studies`,
