@@ -5,6 +5,16 @@
 **Scope:** iOS/native progress. Web work is recorded separately in
 [web-progress-tracker.md](web-progress-tracker.md).
 
+**2026-10-20 research runtime diagnosis:** missing real server keys and local Redis
+startup are recorded in the web tracker; no new native verification is claimed.
+Follow-up verifies supplied credentials, API/worker startup and authenticated
+browser research results. Native acceptance remains unchanged.
+
+**2026-10-20 backend configuration fix:** API `.env` loading and sources-list
+regression checks are recorded in the web tracker. Native acceptance is unchanged.
+The follow-up replaces local placeholder Supabase settings and verifies public
+connectivity; authenticated library acceptance still requires an API restart.
+
 **2026-10-20 deployment configuration:** API/web Vercel services preparation is
 recorded in the web tracker and `docs/vercel-deployment.md`. It does not deploy
 or change the mobile app; hosted acceptance and user confirmation remain pending.

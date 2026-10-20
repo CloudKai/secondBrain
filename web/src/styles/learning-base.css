@@ -1,0 +1,42 @@
+/* Learning rules stay second so later equal-specificity rules keep overriding them as before. */
+.learning-journey { margin: 28px 0 40px; padding: 24px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.learning-header { display: flex; gap: 16px; align-items: flex-start; }
+.learning-icon { color: var(--accent); background: var(--accent-bg); padding: 12px; border-radius: 12px; display: flex; }
+.learning-header h2 { margin: 4px 0 8px; }
+.learning-journey p, .learning-journey li { line-height: 1.75; overflow-wrap: anywhere; }
+.learning-journey h3, .learning-journey h4, .learning-journey h5 { margin: 24px 0 12px; }
+.learning-journey h5 { font-size: 15px; }
+.learning-progress { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 24px 0; font-size: 14px; color: var(--muted); }
+.learning-goal, .learning-review details { padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; }
+.learning-journey summary { cursor: pointer; min-height: 32px; padding: 4px 0; }
+.learning-journey form, .learning-opened, .learning-difficulty { display: grid; gap: 12px; margin: 16px 0; }
+.learning-journey label { display: block; font-size: 14px; font-weight: 600; }
+.learning-journey textarea, .learning-journey select { width: 100%; max-width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--bg); color: var(--text); font: inherit; min-height: 44px; }
+.learning-journey textarea { resize: vertical; line-height: 1.75; }
+.learning-journey .button { justify-self: start; min-height: 44px; white-space: normal; text-align: left; }
+.learning-path { padding: 20px; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--raised); }
+.learning-path.suggested { background: var(--surface); border-style: dashed; }
+.learning-path h4 { margin-top: 8px; }
+.learning-order { display: grid; gap: 8px; margin: 24px 0; }
+.learning-order button { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px; min-height: 44px; color: var(--text); background: var(--raised); border: 1px solid var(--border); border-radius: 10px; line-height: 1.5; }
+.learning-order button[aria-current] { border-color: var(--accent); background: var(--accent-bg); }
+.learning-order button span { flex-shrink: 0; color: var(--accent); }
+.learning-outcome { color: var(--accent); font-weight: 600; }
+.learning-example, .learning-hint, .learning-feedback { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 24px 0; }
+.learning-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0; }
+.learning-journey .segmented { display: flex; flex-wrap: wrap; max-width: 100%; }
+.learning-journey .segmented button { min-height: 44px; white-space: normal; flex: 1; }
+.learning-journey .text-button { min-height: 36px; white-space: normal; text-align: left; }
+.learning-help { border-top: 1px solid var(--border); padding-top: 20px; margin-top: 28px; }
+.learning-topic-entry { padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; }
+.learning-topic-entry .button { display: flex; margin: 12px 0; white-space: normal; text-align: left; }
+.learning-preview { max-height: 85dvh; overflow-y: auto; }
+@media (max-width: 640px) { .learning-journey { padding: 16px; } .learning-header { gap: 12px; } .learning-example, .learning-hint, .learning-feedback { padding: 16px; } .learning-journey .learning-actions .button { width: 100%; justify-content: center; } }
+
+/* Learning uses the shared reading projection without reflowing code or formulas. */
+.learning-journey .reading-text, .learning-history .reading-text { max-width: 70ch; min-width: 0; }
+.learning-journey .reading-paragraph, .learning-journey .reading-literal,
+.learning-history .reading-paragraph, .learning-history .reading-literal { font-size: 16px; line-height: 1.75; margin: 0 0 1em; white-space: pre-wrap; overflow-wrap: anywhere; }
+.learning-history .reading-text > :last-child, .learning-journey .reading-text > :last-child { margin-bottom: 0; }
+.learning-path-card { display: grid; gap: 8px; width: 100%; padding: 16px; margin: 12px 0; min-height: 44px; text-align: left; color: var(--text); background: var(--raised); border: 1px solid var(--border); border-radius: 12px; font: inherit; overflow-wrap: anywhere; }
+.learning-path-card span { font-size: 13px; color: var(--muted); }

@@ -83,6 +83,18 @@ def research_client(monkeypatch):
 def discover(client, **body):
     return client.post('/api/v2/research', headers={'Authorization': 'Bearer alice'}, json={'query': 'retrieval augmented generation', **body})
 
+@pytest.mark.parametrize('key', ['', 'replace-me'])
+def test_research_configuration_error_explains_local_setup(research_client, monkeypatch, key):
+    client, state = research_client
+    monkeypatch.setenv('OPENAI_API_KEY', key)
+    response = discover(client)
+    assert response.status_code == 503
+    assert 'OPENAI_API_KEY' in response.json()['detail']
+    assert 'backend/.env' in response.json()['detail']
+    assert 'restart' in response.json()['detail'].lower()
+    assert not any(r.url.host == 'api.openai.com' for r in state['calls'])
+    assert not any(r.url.path.startswith('/rest/v1') for r in state['calls'])
+
 def test_discovery_requires_a_learner_request_and_returns_verified_external_resources(research_client):
     client, state = research_client
     response = discover(client)

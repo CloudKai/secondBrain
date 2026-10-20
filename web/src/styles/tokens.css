@@ -1,0 +1,201 @@
+/*
+ * Design tokens. Light is the default; dark applies from the system preference
+ * when no explicit choice is stored, or when data-theme="dark" is set.
+ * The dark declarations appear twice (media query and explicit selector):
+ * keep both blocks in sync.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Colour (light) */
+  --color-bg: #f7f7f3;
+  --color-sidebar: #f1f1ec;
+  --color-surface: #ffffff;
+  --color-raised: #f0f0ea;
+  --color-hover: #e8e8e1;
+  --color-border: #d8d9d0;
+  --color-border-strong: #7d8780;
+  --color-text: #1c2420;
+  --color-muted: #505b55;
+  --color-accent: #2b6446;
+  --color-accent-ink: #ffffff;
+  --color-accent-soft: #e3efe7;
+  --color-focus: #2b6446;
+  --color-emphasis-bg: var(--color-accent-soft);
+  --color-emphasis-bar: var(--color-accent);
+  --color-success: #1f6a3a;
+  --color-success-soft: #e2f1e7;
+  --color-warning: #8a5300;
+  --color-warning-soft: #f6ecd9;
+  --color-danger: #a3262c;
+  --color-danger-soft: #f8e5e5;
+  --color-info: #2f5f8a;
+  --color-info-soft: #e3edf6;
+  --color-overlay: rgba(16, 19, 18, 0.55);
+  --tone-purple: #6a4e9b;
+  --tone-peach: #926237;
+  --tone-blue: #3f6890;
+
+  /* Type */
+  --font-sans:
+    Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --leading-tight: 1.25;
+  --leading-normal: 1.6;
+  --leading-reading: 1.75;
+
+  /* Spacing and layout */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --content-width: 1040px;
+  --reading-width: 70ch;
+  --target-min: 40px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Elevation (light) */
+  --shadow-sm: 0 1px 2px rgba(28, 36, 32, 0.08);
+  --shadow-md: 0 4px 14px rgba(28, 36, 32, 0.1);
+  --shadow-lg: 0 14px 36px rgba(28, 36, 32, 0.14);
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Always-dark decorative art surfaces (resume card, source card art).
+     Identical in light and dark so text on those gradients stays legible. */
+  --art-border: #3a4d3e;
+  --art-text: #edf1eb;
+  --art-text-muted: #a8b9aa;
+  --art-text-soft: #a6b4aa;
+  --art-text-faint: #819f89;
+  --art-chip-text: #d7dfd6;
+  --art-accent: #b2dfba;
+  --art-purple: #c7b4e3;
+  --art-lime: #cddaa8;
+  --art-peach: #d6b694;
+
+  /* Legacy names: aliases only, so they follow the semantic tokens. */
+  --bg: var(--color-bg);
+  --sidebar: var(--color-sidebar);
+  --surface: var(--color-surface);
+  --raised: var(--color-raised);
+  --hover: var(--color-hover);
+  --border: var(--color-border);
+  --text: var(--color-text);
+  --muted: var(--color-muted);
+  --soft: var(--color-muted);
+  --accent: var(--color-accent);
+  --accent-ink: var(--color-accent-ink);
+  --accent-bg: var(--color-accent-soft);
+  --purple: var(--tone-purple);
+  --peach: var(--tone-peach);
+  --blue: var(--tone-blue);
+  --danger: var(--color-danger);
+  --radius: var(--radius-lg);
+
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-bg: #101312;
+    --color-sidebar: #0d100f;
+    --color-surface: #171b19;
+    --color-raised: #1e2321;
+    --color-hover: #262d2a;
+    --color-border: #303733;
+    --color-border-strong: #6a746e;
+    --color-text: #ecefec;
+    --color-muted: #a4aea8;
+    --color-accent: #8fd1a8;
+    --color-accent-ink: #0d1f15;
+    --color-accent-soft: #1c3027;
+    --color-focus: #8fd1a8;
+    --color-success: #7fd49a;
+    --color-success-soft: #1a2e22;
+    --color-warning: #e3b567;
+    --color-warning-soft: #33281a;
+    --color-danger: #f2a0a0;
+    --color-danger-soft: #3a2222;
+    --color-info: #9bbfe0;
+    --color-info-soft: #1c2a38;
+    --color-overlay: rgba(2, 7, 4, 0.75);
+    --tone-purple: #c1b0e2;
+    --tone-peach: #deb794;
+    --tone-blue: #9bbbd6;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #101312;
+  --color-sidebar: #0d100f;
+  --color-surface: #171b19;
+  --color-raised: #1e2321;
+  --color-hover: #262d2a;
+  --color-border: #303733;
+  --color-border-strong: #6a746e;
+  --color-text: #ecefec;
+  --color-muted: #a4aea8;
+  --color-accent: #8fd1a8;
+  --color-accent-ink: #0d1f15;
+  --color-accent-soft: #1c3027;
+  --color-focus: #8fd1a8;
+  --color-success: #7fd49a;
+  --color-success-soft: #1a2e22;
+  --color-warning: #e3b567;
+  --color-warning-soft: #33281a;
+  --color-danger: #f2a0a0;
+  --color-danger-soft: #3a2222;
+  --color-info: #9bbfe0;
+  --color-info-soft: #1c2a38;
+  --color-overlay: rgba(2, 7, 4, 0.75);
+  --tone-purple: #c1b0e2;
+  --tone-peach: #deb794;
+  --tone-blue: #9bbbd6;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0.01ms;
+    --motion-base: 0.01ms;
+    --motion-slow: 0.01ms;
+  }
+}

@@ -1,9 +1,10 @@
 # Second Brain — browser workspace
 
 A separate React + TypeScript + Vite frontend for the web-first learning-library
-specification in `context/learning-library-design.md`. Dark mode is the default;
-the sidebar appearance control switches to a paired light theme. Mobile and
-native projects are untouched.
+specification in `context/learning-library-design.md`. The theme follows the
+system setting by default, and the sidebar appearance control sets system,
+light or dark; the choice is saved in the browser. Mobile and native projects
+are untouched.
 
 ## Current development status — 2026-10-08
 
@@ -28,6 +29,30 @@ The implementation snapshots below describe earlier slices. Their preview,
 session-only and future-work statements are historical; use the tracker for
 current capability status.
 
+## Path quiz (Slice 2) — implemented in development, not build-verified, 2026-10-20
+
+Quiz files: `src/lib/quiz.ts` (zod schemas), `quiz-logic.ts`, `quiz-copy.ts`,
+`use-quiz.ts`, the quiz methods in `source-client.ts`, `src/components/quiz/*`
+and `src/styles/quiz.css`; the Quiz tab is wired in `LearningJourney.tsx`. The
+backend side and the not-yet-applied migration are described in the
+[backend README](../backend/README.md).
+
+Native tests that ran in the authoring sandbox (no npm packages needed), from the
+repository root:
+
+```sh
+node --experimental-strip-types --test web/src/lib/quiz-logic.test.ts web/src/lib/quiz-copy.test.ts
+```
+
+Written but not run there: `quiz-schema.test.ts`, `quiz-client.test.ts`,
+`quiz-persistence.test.ts` and every other suite, plus typecheck, lint, build and
+browser checks. Owner commands:
+
+```sh
+npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test
+uv run --project backend --extra dev python -m pytest backend/tests -q
+```
+
 ## Run
 
 For the prepared single-project Vercel services configuration, environment setup,
@@ -51,15 +76,15 @@ uv run --project backend uvicorn backend.main:app --host 127.0.0.1 --port 8000 -
 uv run --project backend python -m backend.study_worker
 ```
 
-Open http://127.0.0.1:5173. Routes use the URL fragment: `#library`,
+Open http://127.0.0.1:5173. Home is the `#library` route and routes are
+unchanged. Routes use the URL fragment: `#library`,
 `#note/attention`, `#topics`, and `#discover`. The `/` keyboard shortcut focuses
 library search. Browser back/forward works between pages.
 
-The app opens an explicitly labelled example library. Use the workspace badge
-(or the profile/about control on small screens) to hide examples and see an
-empty library. Captured sources now use the owned-source API described below. Topic corrections,
-theme choice, recall progress, and example visibility remain session state and
-reset on reload. Without Supabase configuration, saving is disabled and the
+The library starts empty; load the labelled example material on request (and
+hide it again from the workspace badge or the about control on small screens). Captured sources now use the owned-source API described below. Topic corrections,
+recall progress, and example visibility remain session state and reset on
+reload; the theme choice persists. Without Supabase configuration, saving is disabled and the
 app explains that private-library setup is needed.
 
 ## Working browser slice

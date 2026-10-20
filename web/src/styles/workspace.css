@@ -1,0 +1,210 @@
+/*
+ * Lesson-first collection workspace. The lesson is the main column; path
+ * controls, the learning map and collection resources sit in a quieter side
+ * panel that follows the lesson on narrow screens. Earlier learning rules are
+ * kept; these only refine them (this file loads after them).
+ */
+.collection-workspace {
+  max-width: 1120px;
+}
+.collection-workspace .learning-journey {
+  margin-top: var(--space-5);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+.workspace-main,
+.workspace-side {
+  min-width: 0;
+}
+
+/* Main column: the current lesson */
+.workspace-main .learning-current {
+  margin-block: 0 var(--space-4);
+}
+.workspace-main .learning-current h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+.workspace-main .learning-current p {
+  margin: 0 0 var(--space-2);
+  max-width: var(--reading-width);
+  color: var(--color-text);
+}
+.learning-current-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 var(--space-3);
+}
+.workspace-main .ui-progress {
+  max-width: 360px;
+}
+.workspace-main .learning-current .learning-place {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+.learning-about {
+  margin: var(--space-2) 0;
+}
+.learning-about summary {
+  /* list-item keeps the native disclosure marker; flex would remove it. */
+  display: list-item;
+  align-content: center;
+  min-height: var(--target-min);
+  cursor: pointer;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+.learning-about summary:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.learning-journey .learning-about > p {
+  margin: 0 0 var(--space-2);
+  max-width: var(--reading-width);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+}
+
+.workspace-main .learning-order {
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+}
+.workspace-main .learning-order button {
+  min-height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.workspace-main .learning-order button[aria-current] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.workspace-main .learning-order button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.workspace-main .learning-order button span {
+  color: var(--color-accent);
+}
+
+.workspace-main .ui-tabs {
+  margin-top: var(--space-4);
+}
+.workspace-main .learning-teaching,
+.workspace-main .learning-practice,
+.workspace-main .learning-review {
+  margin-block: var(--space-4);
+  max-width: var(--reading-width);
+}
+.workspace-main .learning-practice,
+.workspace-main .learning-review {
+  max-width: none;
+}
+.workspace-main .ui-callout {
+  margin-block: var(--space-4);
+}
+.workspace-main .ui-callout .eyebrow {
+  display: block;
+}
+.workspace-main .ui-callout .learning-outcome {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+.workspace-main .ui-callout .learning-actions {
+  margin: var(--space-2) 0 0;
+}
+.workspace-main .ui-callout h5:first-child {
+  margin-top: 0;
+}
+.workspace-main .learning-example,
+.workspace-main .learning-hint,
+.workspace-main .learning-feedback {
+  border-color: var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-raised);
+}
+
+/* Side panel: quieter, secondary */
+.workspace-side {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+.workspace-side > * {
+  margin: 0;
+}
+.workspace-side > details {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.workspace-side > details > summary {
+  /* list-item keeps the native disclosure marker; flex would remove it. */
+  display: list-item;
+  align-content: center;
+  min-height: var(--target-min);
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+.workspace-side > details > summary:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.workspace-side .learning-progress {
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-raised);
+  font-size: var(--text-sm);
+}
+.workspace-side .learning-opened {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.workspace-side .learning-help {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.workspace-side .learning-help p {
+  margin: 0 0 var(--space-2);
+  line-height: var(--leading-normal);
+}
+.workspace-side .collection-resources a {
+  color: var(--color-accent);
+}
+
+@media (min-width: 960px) {
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--space-6);
+  }
+}

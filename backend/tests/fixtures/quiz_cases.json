@@ -1,0 +1,470 @@
+{
+  "outcome_cases": [
+    {
+      "name": "two correct choice questions",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "looks_solid",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "three correct choice questions",
+      "deterministic": [
+        "correct",
+        "correct",
+        "correct"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 3,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "looks_solid",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "one incorrect true/false",
+      "deterministic": [
+        "correct",
+        "incorrect"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 1,
+        "to_review": 1,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "partly correct multi-select counts as to review",
+      "deterministic": [
+        "correct",
+        "partly_correct"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 1,
+        "to_review": 1,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "two correct and one incorrect",
+      "deterministic": [
+        "correct",
+        "correct",
+        "incorrect"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 2,
+        "to_review": 1,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "one correct and one unanswered",
+      "deterministic": [
+        "correct",
+        "unanswered"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 1,
+        "to_review": 1,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "short answer addressed does not promote or demote",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [
+        "addressed"
+      ],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "looks_solid",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "short answer needs review demotes and is attributed to AI",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [
+        "needs_review"
+      ],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 1,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": true
+      }
+    },
+    {
+      "name": "blank short answer demotes without AI attribution",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [
+        "unanswered"
+      ],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 1,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "needs review plus blank short answers",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [
+        "needs_review",
+        "unanswered"
+      ],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 1,
+        "short_blank": 1,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": true
+      }
+    },
+    {
+      "name": "pending short answer is open and changes nothing yet",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [
+        "pending"
+      ],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 1,
+        "label": "looks_solid",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "unavailable short answer (limit) is open and changes nothing",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [
+        "unavailable"
+      ],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 1,
+        "label": "looks_solid",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "uncertain short answer is open and changes nothing",
+      "deterministic": [
+        "correct",
+        "correct"
+      ],
+      "short": [
+        "uncertain"
+      ],
+      "expected": {
+        "correct": 2,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 1,
+        "label": "looks_solid",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "everything unanswered",
+      "deterministic": [
+        "unanswered",
+        "unanswered"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 0,
+        "to_review": 2,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": false
+      }
+    },
+    {
+      "name": "one deterministic question only (corrupt data) can never look solid",
+      "deterministic": [
+        "correct"
+      ],
+      "short": [],
+      "expected": {
+        "correct": 1,
+        "to_review": 0,
+        "short_needs_review": 0,
+        "short_blank": 0,
+        "short_open": 0,
+        "label": "worth_reviewing",
+        "ai_contributed": false
+      }
+    }
+  ],
+  "short_answer_cases": [
+    {
+      "name": "two criteria both addressed",
+      "assessments": [
+        "addressed",
+        "addressed"
+      ],
+      "result": "addressed",
+      "signal": "positive",
+      "sql": true
+    },
+    {
+      "name": "three criteria all addressed",
+      "assessments": [
+        "addressed",
+        "addressed",
+        "addressed"
+      ],
+      "result": "addressed",
+      "signal": "positive",
+      "sql": true
+    },
+    {
+      "name": "one try_again among addressed",
+      "assessments": [
+        "addressed",
+        "try_again",
+        "addressed"
+      ],
+      "result": "needs_review",
+      "signal": "negative",
+      "sql": true
+    },
+    {
+      "name": "three criteria with one uncertain and no try_again",
+      "assessments": [
+        "addressed",
+        "uncertain",
+        "addressed"
+      ],
+      "result": "uncertain",
+      "signal": "neutral",
+      "sql": true
+    },
+    {
+      "name": "all try_again",
+      "assessments": [
+        "try_again",
+        "try_again"
+      ],
+      "result": "needs_review",
+      "signal": "negative",
+      "sql": true
+    },
+    {
+      "name": "addressed with one uncertain",
+      "assessments": [
+        "addressed",
+        "uncertain"
+      ],
+      "result": "uncertain",
+      "signal": "neutral",
+      "sql": true
+    },
+    {
+      "name": "all uncertain",
+      "assessments": [
+        "uncertain",
+        "uncertain"
+      ],
+      "result": "uncertain",
+      "signal": "neutral",
+      "sql": true
+    },
+    {
+      "name": "uncertain with try_again",
+      "assessments": [
+        "uncertain",
+        "try_again"
+      ],
+      "result": "needs_review",
+      "signal": "negative",
+      "sql": true
+    },
+    {
+      "name": "blank answer (no model call)",
+      "assessments": [],
+      "blank": true,
+      "result": "unanswered",
+      "signal": "negative",
+      "sql": false
+    },
+    {
+      "name": "grading unavailable (limit, provider, invalid output, timeout, setup)",
+      "assessments": [],
+      "unavailable": true,
+      "result": "unavailable",
+      "signal": "neutral",
+      "sql": false
+    }
+  ],
+  "overlap_cases": [
+    {
+      "name": "true/false prompt restating a cited sentence passes",
+      "kind": "true_false_prompt",
+      "text": "Similarity by itself does not establish support",
+      "excerpts": [
+        "A source provides evidence for a claim. Similarity by itself does not establish support. Learners can revisit original evidence when checking a conclusion."
+      ],
+      "pass": true
+    },
+    {
+      "name": "short text with fewer than three content tokens needs all of them",
+      "kind": "correct_option",
+      "text": "Original evidence",
+      "excerpts": [
+        "A source provides evidence for a claim. Learners can revisit original evidence when checking a conclusion."
+      ],
+      "pass": true
+    },
+    {
+      "name": "model answer sharing four tokens passes",
+      "kind": "model_answer",
+      "text": "Check the original evidence when checking a conclusion",
+      "excerpts": [
+        "Learners can revisit original evidence when checking a conclusion."
+      ],
+      "pass": true
+    },
+    {
+      "name": "case and punctuation are ignored",
+      "kind": "correct_option",
+      "text": "EVIDENCE, CLAIM; Conclusion!",
+      "excerpts": [
+        "A source provides evidence for a claim. Learners can revisit original evidence when checking a conclusion."
+      ],
+      "pass": true
+    },
+    {
+      "name": "one of several excerpts is enough",
+      "kind": "correct_option",
+      "text": "Similarity does not establish support",
+      "excerpts": [
+        "Photosynthesis converts light into chemical energy.",
+        "Similarity by itself does not establish support."
+      ],
+      "pass": true
+    },
+    {
+      "name": "no shared content tokens fails",
+      "kind": "correct_option",
+      "text": "Photosynthesis converts sunlight into chemical energy",
+      "excerpts": [
+        "A source provides evidence for a claim. Similarity by itself does not establish support."
+      ],
+      "pass": false
+    },
+    {
+      "name": "two shared tokens out of five fails",
+      "kind": "model_answer",
+      "text": "Learners revisit unrelated planets galaxies",
+      "excerpts": [
+        "Learners can revisit original evidence when checking a conclusion."
+      ],
+      "pass": false
+    },
+    {
+      "name": "tokens split across two excerpts do not add up",
+      "kind": "correct_option",
+      "text": "evidence claim conclusion",
+      "excerpts": [
+        "The evidence supports the claim.",
+        "Readers reach a conclusion."
+      ],
+      "pass": false
+    },
+    {
+      "name": "text with no content tokens fails",
+      "kind": "correct_option",
+      "text": "It is a to be",
+      "excerpts": [
+        "A source provides evidence for a claim."
+      ],
+      "pass": false
+    },
+    {
+      "name": "words shorter than three characters are not content tokens",
+      "kind": "true_false_prompt",
+      "text": "Do it as we go",
+      "excerpts": [
+        "Do it as we go: a source provides evidence for a claim."
+      ],
+      "pass": false
+    }
+  ]
+}

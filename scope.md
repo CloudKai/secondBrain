@@ -1,5 +1,88 @@
 # Scope: AI Second Brain
 
+## Research/local runtime diagnosis — 2026-10-20
+
+**Follow-up:** real keys passed storage/model access checks. API restarted and
+study worker started; API health, Redis and worker heartbeat pass. Reconnecting
+the existing browser session restored authenticated library reads. Live research
+in that preview renders six resources for “RAG evaluation”; no source was saved.
+Existing studies are succeeded, but a new note-generation acceptance was not run.
+No Qdrant or quiz-migration acceptance is added by this runtime setup.
+
+Reproduced research failure `configuration`: local `OPENAI_API_KEY` is still the
+template value. The API now returns an explicit local configuration/restart
+instruction. Research/source/startup tests: 50 pass; full backend virtualenv suite:
+698 pass with the same 3 pre-existing quiz failures. Docker Desktop and the
+repository Redis container were started; Redis PING returns PONG. Real OpenAI
+and Supabase server keys remain required from the user before live search and
+study-worker acceptance. No live search, generated note, or new migration is claimed.
+
+## Backend local configuration fix — verified locally, 2026-10-20
+
+The API now loads `backend/.env` at startup, preserving process environment
+overrides. This fixes the reproduced sources-list 503 caused by configured local
+Supabase settings never reaching the API. Startup/source tests: 18 pass. Full
+backend virtualenv suite: 693 pass, 3 pre-existing quiz failures (also reproduced
+with the fix disabled). Live authenticated Supabase acceptance remains unverified;
+restart the API to load the settings. No migration or new product behavior.
+
+Follow-up: the local file still contained the template Supabase URL/key. Replaced
+those two ignored local values with the web app's public project settings and
+verified `/auth/v1/settings` returns HTTP 200. Example settings now produce an
+actionable configuration error. Updated startup/source checks: 21 pass. Live
+authenticated library loading still requires an API restart and learner session.
+
+## Path quiz v1 (Slice 2) — implemented in development, not build-verified, 2026-10-20
+
+**Implemented in development, not build-verified.** The migration is not applied
+and needs owner approval; the sandbox could not run the SQL, the pytest suites
+that need pydantic, fastapi or httpx, the zod and react web tests, typecheck,
+lint, build, a browser or a live model call. The exact ran / NOT run lists are in
+[the web progress tracker](context/web-progress-tracker.md). The design specification is
+[docs/planning/path-quiz-spec.md](docs/planning/path-quiz-spec.md) (revision 3:
+the first design review's findings are resolved in the spec, and the later
+amendments have had no second review round). The slice adds
+an optional end-of-path quiz for one confirmed learning path revision:
+single-choice, true/false and multi-select questions
+graded deterministically on the server, plus one or two short answers with
+provisional AI feedback. Questions and explanations cite only passages the path
+already cites. The answer key stays server-side until an attempt is submitted.
+Results are shown as "X of Y" with a "Looks solid" or "Worth reviewing" label per
+outcome and are evidence, not proof of mastery; the quiz never blocks progress.
+A retake reuses the stored quiz with no model call; new questions are generated
+only on request, within server-side daily limits persisted in Postgres. A daily
+unit is refunded only when the AI request provably never reached the service or
+was rejected for an owner-side reason (HTTP 400, or HTTP 429 reporting an invalid
+request or exhausted quota); timeouts, rate limits and every completed response stay
+counted.
+
+**Proposed, not applied:** one migration with a matching rollback
+(`202610200023_path_quiz`). A backend quiz module and a Quiz tab in the lesson
+workspace are implemented in development. No migration has been applied to any
+database.
+
+**Out of scope:** spaced repetition, scheduling, due dates and a review queue
+(Slice 3); mastery claims; gamification; global spend caps (see U5). The quiz is
+not available to learners until the migration is approved and applied and the
+owner commands have been run.
+
+## Web design foundation (Slice 1) — implemented in development, 2026-10-20
+
+Web-only visual and structural foundation: design tokens with light, dark and
+system themes (persisted override), shared UI primitives, a simplified sidebar,
+a calm Home and a lesson-first collection workspace. See
+[UI context](context/ui-context.md#design-system-web).
+
+**Verified locally:** prettier parse, TS syntax-only check, CSS selector
+comparison, contrast script and pure tests for theme, shell navigation and Home.
+
+**Pending:** typecheck, lint, build, `npm test`, browser screenshots,
+light/dark visual review and accessibility checks (npm was unreachable in the
+sandbox). Owner command: `npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test`
+
+Target work for later slices only: path quiz, spaced review, goal intake and
+recommendations. None of these is available yet.
+
 ## Vercel services configuration prepared — 2026-10-20
 
 Root configuration defines `backend` (FastAPI) and `web` (Vite), with public

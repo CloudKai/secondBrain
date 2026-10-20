@@ -1,5 +1,195 @@
 # Web Progress Tracker
 
+## Research/local runtime setup diagnosis — 2026-10-20
+
+**Credential follow-up verified:** user supplied real keys locally. Read-only
+server study-storage and research-model access checks return 200. Live direct
+research returned five checked Python documentation resources (partial=true).
+Restarted the API on localhost:8000 and started `backend.study_worker`; API health
+returns 200, Redis responds and the ARQ worker heartbeat exists. Read-only study
+inventory shows 11 succeeded records and no error codes; this is existing work,
+not a new note-generation acceptance run.
+
+The existing VS Code browser initially returned 401 with a stale session.
+Its Retry connection restored sources/studies/topic-library HTTP 200 without
+clearing identity. Retrying “RAG evaluation” in that same authenticated preview
+renders six checked resources. No result was saved. No test account was created.
+No new generation, Qdrant or quiz-migration acceptance is claimed. API and worker
+were left running in agent terminal sessions; Redis runs through Docker Compose.
+
+`discover_resources` with local settings reproduces `ResearchFailure(configuration)`:
+`OPENAI_API_KEY=replace-me`. Missing/template-key HTTP tests went red on the
+generic error; the route now identifies `OPENAI_API_KEY`, `backend/.env` and restart
+while retaining 503 and the no-save guarantee. Real provider failures retain the
+existing generic response. The UI already renders the API detail.
+
+- `backend/.venv/bin/python -m pytest backend/tests/test_research.py backend/tests/test_sources.py backend/tests/test_api_environment.py -q`: 50 passed.
+- Required `uv run --project backend --extra dev pytest backend/tests -q` again
+  selects Anaconda pytest and fails collection (`langchain_openai` missing).
+- `backend/.venv/bin/python -m pytest backend/tests -q`: 698 passed, the same
+  3 previously isolated quiz failures remain.
+- Started installed Docker Desktop and `docker compose up -d redis`;
+  `docker compose exec -T redis redis-cli ping`: PONG.
+
+User must enter real OpenAI/Supabase server keys into ignored `backend/.env`.
+Worker not started with placeholders. Live authenticated search/save/generation
+acceptance remains pending credentials, API restart and worker startup. Qdrant
+placeholders were observed; indexing was not enabled or claimed verified.
+
+## Backend sources-list configuration fix — 2026-10-20
+
+Follow-up after API restart: local `backend/.env` still used the example URL/key,
+causing DNS `ConnectError`. Copied only the public project URL/key from
+`web/.env.local` into the ignored backend file. Read-only live
+`/auth/v1/settings` verification returns 200. Source dependency now explicitly
+rejects template settings with a replacement/restart instruction; updated
+startup/source suite: 21 passed. Authenticated library acceptance remains pending
+API restart and a real learner session.
+
+Reproduced `GET /api/v2/sources?offset=0` returning 503, "Library storage is not
+configured yet", despite settings in `backend/.env`. API startup now loads the
+adjacent file independently of cwd without overriding process settings. Regression
+tests exercise real startup and authenticated HTTP listing with mocked Supabase:
+file-only setup fails before the fix and passes after it; process overrides pass.
+
+- `backend/.venv/bin/python -m pytest backend/tests/test_api_environment.py backend/tests/test_sources.py -q`: 18 passed.
+- Required `uv run --project backend --extra dev pytest backend/tests -q` failed
+  collection because it selected Anaconda pytest without `langchain_openai`.
+- `backend/.venv/bin/python -m pytest backend/tests -q`: 693 passed, 3 failed.
+  Existing failures: quiz API grading-limit and oversized-answer assertions count
+  the prior quiz-generation provider call; quiz error-body test passes a datetime
+  string to strict `model_validate`. All three reproduce with the new load call
+  disabled. They are outside this configuration fix.
+
+API restart and live authenticated Supabase verification remain pending. No
+database changes or native acceptance changes. Existing path-quiz gates remain.
+
+## Path quiz v1 (Slice 2) — implemented in development, 2026-10-20
+
+**Implemented but not build-verified.** An optional, non-gating end-of-path quiz
+for one confirmed learning path revision: single-choice, true/false and
+multi-select questions graded on the server, plus up to two short answers with
+provisional AI feedback. Results are evidence, not proof of mastery. Design:
+[path-quiz-spec.md](../docs/planning/path-quiz-spec.md) (section 20, Revision 3,
+is binding; the Revision 3 amendments had no second design-review round). The
+work is on branch `feat/path-quiz`; the push is a separate step, so check
+`git log main..HEAD` for the current commits.
+
+- Database: migration `supabase/migrations/202610200023_path_quiz.sql` (6
+  tables, 19 functions incl. helpers, source-removal trigger, RLS) with a guarded
+  rollback, plus `quiz-database.ts` and `quiz-persistence.test.ts`.
+  **Migration 202610200023 is NOT applied anywhere and needs owner approval.**
+  The shared PGlite fixture loads every migration, so a mistake there would break
+  all persistence suites on the first owner run.
+- Backend: `quiz_rules`, `quiz_limits`, `quiz_grading`, `quiz_messages` (standard
+  library only), `quiz_models`, `quiz_provider`, `quiz_generation`,
+  `quiz_short_answer`, `quiz_store`, `quiz` router mounted under
+  `/api/v2/learning/collections/{collection_id}/plans/{plan_id}/quiz`;
+  `study_store.py` changed additively.
+- Web: `quiz.ts`, `quiz-logic.ts`, `quiz-copy.ts`, `use-quiz.ts`,
+  `source-client.ts` quiz methods, `components/quiz/*`, `styles/quiz.css`, a Quiz
+  tab in `LearningJourney.tsx` and a non-focus end-of-path prompt in
+  `LearningLessonView.tsx`.
+- Ran (from the repository root):
+  - SQL structure script (one-off, not committed): file sorts after
+    `202610100022`, `$$` pairing, one `begin;`/`commit;`, 19 functions each with a
+    matching revoke and grant, RLS and the 4 owner select policies, raise
+    messages equal the fixture, rollback drops everything with
+    `quiz_options_valid` last. This is a structural check; the SQL has not
+    executed.
+  - The three `backend/tests/fixtures/quiz_*.json` files parse with `python3`.
+  - `python3 -m unittest backend.tests.test_quiz_rules backend.tests.test_quiz_limits backend.tests.test_quiz_grading backend.tests.test_quiz_messages -v`:
+    84 tests, OK; those four modules import only the standard library.
+  - `python3 -m py_compile` on all new and changed backend files and
+    `python3 -m compileall -q backend`: exit 0.
+  - `.env.example` parity script: 12 `QUIZ_*` variables equal the defaults of
+    `load_quiz_config`.
+  - `node --experimental-strip-types --test web/src/lib/quiz-logic.test.ts web/src/lib/quiz-copy.test.ts`:
+    35 pass, 0 fail; `theme`, `shell-nav` and `home` native tests: 23 pass, 0 fail.
+  - `prettier --check` on the new web files (including the two SQL test files):
+    clean.
+  - `tsc -p web/tsconfig.json --noEmit` filtered to `TS1xxx` syntax errors:
+    nothing. Weak evidence: the repo config stops at a missing `vite/client`
+    type, so semantic checks never ran.
+  - Ad-hoc scans: `quiz-*` class names versus `quiz.css`, design tokens used,
+    no `any` or `@ts-ignore`, no forbidden vocabulary.
+  - Throw-away sanity scripts for the backend run against an in-memory fake with
+    permissive stand-ins for pydantic, httpx and fastapi. They are not a
+    substitute for pytest.
+  - Git identity check (CloudKai on both sides) and no `mobile/` or `.agents/`
+    path in any commit.
+- NOT run: the migration and rollback and `quiz-persistence.test.ts` (no
+  PGlite or Postgres); pytest files `test_quiz_models`, `test_quiz_generation`,
+  `test_quiz_short_answer`, `test_quiz_provider`, `test_study_store`,
+  `test_quiz_store`, `test_quiz_api` and the whole `backend/tests` suite (no
+  pydantic, fastapi, httpx or pytest); `quiz-schema.test.ts`,
+  `quiz-client.test.ts` and every existing zod, react or PGlite web suite; `npm
+  ci`, typecheck, lint, build and `npm test`; rendering of the React components;
+  browser, keyboard, screen-reader, 200% zoom, contrast and light/dark visual
+  checks; any real OpenAI call (model availability, strict-schema acceptance,
+  truncation at the output cap); hosted function duration of at least 120
+  seconds; a real backend round trip. The sandbox gets HTTP 403 from npm and
+  PyPI.
+- Owner commands: `npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test`
+  and `uv run --project backend --extra dev python -m pytest backend/tests -q`.
+- Environment (server-only, see `backend/.env.example`): `QUIZ_ENABLED`,
+  `QUIZ_GENERATIONS_PER_USER_PER_DAY`, `QUIZ_GRADINGS_PER_USER_PER_DAY`,
+  `QUIZ_MAX_QUESTIONS`, `QUIZ_MAX_SHORT_ANSWER`, `QUIZ_MAX_OUTPUT_TOKENS`,
+  `QUIZ_GRADING_MAX_OUTPUT_TOKENS`, `QUIZ_SHORT_ANSWER_MAX_CHARS`,
+  `QUIZ_REASONING_EFFORT`, `QUIZ_GENERATION_MODEL`, `QUIZ_FALLBACK_MODEL` and
+  `QUIZ_GRADING_MODEL`; `OPENAI_API_KEY` and
+  `SUPABASE_SECRET_KEY` must already be configured.
+- Models: `gpt-6-luna` by default, `gpt-6.1-sol` only after a completed but
+  invalid Luna output survived one repair; short-answer feedback uses the
+  separate `QUIZ_GRADING_MODEL`. **Model availability is unverified** (no live
+  call was made).
+- Needs your attention before enabling spend:
+  - Per-user daily limits can be bypassed by creating new anonymous accounts
+    (spec R1/U5). A global cap and per-IP limits are not built, so do not expose
+    the quiz endpoints publicly until they are. Consider shipping with
+    `QUIZ_ENABLED=false` and switching it on when ready.
+  - Explanations are not overlap-checked against the cited excerpts (the guard
+    covers correct options, true/false prompts and model answers). Citation ids are
+    lesson-bound and the prompt is excerpt-only, and the UI says the quiz is
+    AI-generated, but an explanation can say more than its passage.
+  - The daily counter is one guarded upsert, but no test runs two parallel
+    connections (the PGlite burst test is single-connection). Run a two-connection
+    smoke test against a real Postgres before enabling.
+- Default limits: 3 quiz generations and 20 AI feedback requests per user per UTC
+  day, 8 questions (up to 2 short answers), short answers capped at 1500
+  characters, 20 attempts per quiz. Raise `QUIZ_MAX_OUTPUT_TOKENS` to at least
+  6000 before raising `QUIZ_MAX_QUESTIONS` above 8.
+
+## Web design foundation (Slice 1) — implemented in development, 2026-10-20
+
+**Implemented but not build-verified.**
+
+- Split `styles.css` into ordered stylesheets with a token layer (light and dark
+  palettes), a system/light/dark theme with a persisted override, typed UI
+  primitives, a simplified Shell and sidebar, a calm Home (`#library`) and a
+  lesson-first collection workspace. Routes, API calls and data shapes are
+  unchanged.
+- Ran: prettier parse of changed files, `tsc --noEmit` filtered to syntax
+  errors (TS1xxx, none), CSS selector comparison (no selector removed), the
+  contrast script (all pairs pass in both themes) and the native pure tests
+  `theme`, `shell-nav` and `home` (23 pass, 0 fail).
+- NOT run: typecheck, lint, build, `npm test` (including
+  `ui-primitives.test.ts`, `learning-view` and `collection-workspace` tests),
+  Playwright screenshots, light/dark visual check, keyboard and screen-reader
+  checks, 200% zoom and narrow layout. The sandbox gets HTTP 403 from the npm
+  registry, so dependencies could not be installed.
+- Owner command: `npm --prefix web install && npm --prefix web run typecheck && npm --prefix web run lint && npm --prefix web run build && npm --prefix web test`
+- README corrected: the library starts empty and curated examples load on
+  request.
+- Continue learning uses only the existing learning summary: it shows the saved
+  current lesson from the resume cursor when present, never mastery or a
+  recommendation, and shows an empty state or the newest saved source otherwise.
+- Home shows studied-lesson and practice-attempt counts only. The
+  `provisional_checks`, pending and failed feedback counts remain on the
+  collection learning summary (`#collection`), not on Home.
+- While example material is loaded, Home does not fetch the learning summary and
+  shows Start here instead of Continue learning, even if a saved path exists.
+
 ## Vercel services configuration prepared — 2026-10-20
 
 - Added root `vercel.json`: FastAPI `backend` at `/api/*`, static Vite `web` for

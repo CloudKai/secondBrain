@@ -1,6 +1,6 @@
-import {useEffect,useState} from 'react';
 import type {SourceClient} from '../lib/source-client';
 import type {LearningSummary} from '../lib/learning';
+import {useLearningSummary} from '../lib/use-learning-summary';
 
 export function LearningSummaryView({data,onOpen}:{data:LearningSummary;onOpen:(id:string)=>void;client:SourceClient|null}){
  const place=data.resume;
@@ -17,10 +17,8 @@ export function LearningSummaryView({data,onOpen}:{data:LearningSummary;onOpen:(
  </section>;
 }
 export default function LibraryLearning({client,onOpen}:{client:SourceClient;onOpen:(id:string)=>void}){
- const [data,setData]=useState<LearningSummary|null>(null),[error,setError]=useState(''),[retry,setRetry]=useState(0);
- useEffect(()=>{const refresh=()=>setRetry(value=>value+1);window.addEventListener('learning-updated',refresh);return()=>window.removeEventListener('learning-updated',refresh);},[]);
- useEffect(()=>{let current=true;client.learningSummary().then(value=>{if(current){setData(value);setError('');}}).catch(e=>{if(current)setError(e instanceof Error?e.message:'Learning activity could not be loaded.');});return()=>{current=false;};},[client,retry]);
- if(error)return <section role="alert"><p>Saved learning activity is unavailable. {error}</p><button className="text-button" onClick={()=>{setError('');setRetry(value=>value+1);}}>Retry learning activity</button><p>Your source library is still available below.</p></section>;
+ const {data,error,retry}=useLearningSummary(client);
+ if(error)return <section role="alert"><p>Saved learning activity is unavailable. {error}</p><button className="text-button" onClick={retry}>Retry learning activity</button><p>Your source library is still available below.</p></section>;
  if(!data)return <p role="status">Restoring your learning place…</p>;
  return <LearningSummaryView data={data} client={client} onOpen={onOpen}/>;
 }

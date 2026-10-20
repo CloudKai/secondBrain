@@ -149,6 +149,13 @@ async def owned_sources(
     public_key = os.getenv("SUPABASE_PUBLISHABLE_KEY", "")
     if not project_url or not public_key:
         raise HTTPException(503, "Library storage is not configured yet.")
+    if (project_url.rstrip("/") == "https://your-project.supabase.co"
+            or public_key == "sb_publishable_replace_me"):
+        raise HTTPException(
+            503,
+            "Replace the example SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in "
+            "backend/.env with your web app's Supabase project settings, then restart the API.",
+        )
     async with httpx.AsyncClient(timeout=10, trust_env=False) as client:
         gateway = SourceGateway(client, project_url, public_key)
         await gateway.authenticate(credentials.credentials)

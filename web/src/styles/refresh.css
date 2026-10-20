@@ -1,0 +1,32 @@
+/*
+ * Loaded last. Final overrides for the design refresh belong here.
+ * Sub-12px text was lifted in place (to var(--text-xs)) rather than overridden
+ * here, so the original cascade order between equal-specificity rules is kept.
+ */
+
+/* Interactive controls on the shell, Home and lesson workspace meet --target-min. */
+.icon-button {
+  width: var(--target-min);
+  height: var(--target-min);
+}
+.text-button {
+  min-height: var(--target-min);
+}
+.learning-journey .text-button {
+  min-height: var(--target-min);
+}
+/*
+ * Keep display:list-item so the native disclosure marker stays visible.
+ * display:flex would remove it. Same pattern as .import-help summary.
+ */
+.learning-journey summary {
+  display: list-item;
+  align-content: center;
+  min-height: var(--target-min);
+}
+.sort-control select {
+  min-height: var(--target-min);
+}
+.search-field input {
+  height: var(--target-min);
+}
