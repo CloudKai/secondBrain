@@ -208,7 +208,7 @@ def build_stored_quiz(generated: GeneratedQuiz, outcome_titles: Mapping[int, str
         })
         keys.append({
             "position": position, "correct_option_ids": correct, "explanation": q.explanation.strip(),
-            "citation_ids": list(q.citation_ids),
+            "citation_ids": list(dict.fromkeys(q.citation_ids)),
             "criteria": [c.strip() for c in q.criteria] if q.kind == "short_answer" else None,
             "model_answer": q.model_answer.strip() if q.kind == "short_answer" and q.model_answer else None,
         })

@@ -156,6 +156,7 @@ def test_a_valid_quiz_passes():
     ("V5", lambda q: q[0].update(explanation="See p0003 for the answer")),
     ("V6", lambda q: q.__setitem__(4, {**q[5], "lesson_index": 1, "prompt": "Another short one about checking?"})),
     ("V7", lambda q: q[0].update(citation_ids=["p0003"])),
+    ("V7", lambda q: q[0].update(citation_ids=["p0001", "p0001"])),
     ("V8", lambda q: q[0].update(criteria=["unexpected"])),
     ("V9", lambda q: q[0]["options"][1].update(is_correct=True)),
     ("V10", lambda q: q[0]["options"][0].update(text="Photosynthesis converts sunlight into chemical energy")),
@@ -185,6 +186,13 @@ def test_stored_quiz_has_exactly_the_keys_of_the_shared_example():
     assert {frozenset(o) for o in value["outcomes"]} == {frozenset(o) for o in example["outcomes"]}
     assert {frozenset(o) for q in value["questions"] for o in q["options"]} == {frozenset({"id", "text"})}
     assert value["outcomes"] == example["outcomes"]
+
+
+def test_repeated_citation_ids_are_stored_once():
+    generated = GeneratedQuiz.model_validate_json(json.dumps(generated_dict()))
+    generated.questions[0].citation_ids = [generated.questions[0].citation_ids[0]] * 2
+    value = g.build_stored_quiz(generated, g.lesson_outcome_titles(CONTENT), random.Random(1))
+    assert all(len(set(k["citation_ids"])) == len(k["citation_ids"]) for k in value["key"])
 
 
 def test_public_and_key_rows_are_separate_and_the_public_rows_carry_no_key():

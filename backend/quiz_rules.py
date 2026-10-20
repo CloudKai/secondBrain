@@ -198,6 +198,8 @@ def check_generated(
         allowed = set(cited_by_lesson.get(lesson, ()))
         if not 1 <= len(cites) <= 3:
             reasons.append(f"V7: {tag} needs 1-3 citations")
+        elif len(set(cites)) != len(cites):
+            reasons.append(f"V7: {tag} repeats a citation")
         elif any(c not in admitted_ids for c in cites):
             reasons.append(f"V7: {tag} cites an evidence id that was not supplied")
         elif any(c not in allowed for c in cites):

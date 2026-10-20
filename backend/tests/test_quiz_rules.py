@@ -231,6 +231,7 @@ class CheckGeneratedTests(unittest.TestCase):
     def test_v7_citations(self):
         self.assertRule(self.mutated(lambda q: q[0].update(citation_ids=[])), "V7")
         self.assertRule(self.mutated(lambda q: q[0].update(citation_ids=["p0001", "p0002", "p0001", "p0002"])), "V7")
+        self.assertRule(self.mutated(lambda q: q[0].update(citation_ids=["p0001", "p0001"])), "V7")
         self.assertRule(self.mutated(lambda q: q[0].update(citation_ids=["p0009"])), "V7")
         self.assertRule(self.mutated(lambda q: q[0].update(citation_ids=["p0003"])), "V7")
 
