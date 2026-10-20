@@ -16,13 +16,13 @@ from typing import Annotated, Literal
 import httpx
 from dotenv import load_dotenv
 from pydantic import Field
-from backend.schemas import StrictModel
-from backend.assistant_models import AssistantQuestion
-from backend.assistant_generation import AssistantGenerator
-from backend.saved_answers import answer_saved_question, RetrievalMode
-from backend.sources import SourceGateway
-from backend.source_references import reference_matches_source
-from backend.assistant_store import AssistantStore
+from backend.core.schemas import StrictModel
+from backend.assistant.models import AssistantQuestion
+from backend.assistant.generation import AssistantGenerator
+from backend.assistant.answers import answer_saved_question, RetrievalMode
+from backend.sources.routes import SourceGateway
+from backend.sources.references import reference_matches_source
+from backend.assistant.store import AssistantStore
 from backend.evaluation.claim_evidence import EvidenceCapture, pair_claims
 
 

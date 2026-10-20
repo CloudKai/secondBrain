@@ -3,7 +3,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from backend.assistant_models import AssistantAnswer
+from backend.assistant.models import AssistantAnswer
 from backend.evaluation.claim_evidence import EvidenceCapture, pair_claims
 
 

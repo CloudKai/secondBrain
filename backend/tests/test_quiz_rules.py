@@ -1,11 +1,11 @@
-"""Native tests (standard library only) for backend/quiz_rules.py."""
+"""Native tests (standard library only) for backend/quiz/rules.py."""
 
 import copy
 import json
 import unittest
 from pathlib import Path
 
-from backend.quiz_rules import (
+from backend.quiz.rules import (
     canonical_answers_hash,
     check_generated,
     cited_ids,

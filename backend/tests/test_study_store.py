@@ -5,7 +5,7 @@ import asyncio
 import httpx
 import pytest
 
-from backend.study_store import StudyStorageError, StudyStore
+from backend.studies.store import StudyStorageError, StudyStore
 
 
 def request(status, body=None, raw=None):

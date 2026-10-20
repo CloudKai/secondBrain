@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Literal
 import httpx
 from pydantic import Field, HttpUrl, model_validator
-from backend.schemas import StrictModel
+from backend.core.schemas import StrictModel
 from backend.evaluation.grounding import LayaClassifier, Verdict, ClassifierFailure, LAYA_CODE, LAYA_WEIGHTS
 
 MINICHECK_CODE = 'b58b9fa69acbd1015ec970fa65dd752413a053d2'

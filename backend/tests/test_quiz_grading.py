@@ -1,11 +1,11 @@
-"""Native tests (standard library only) for backend/quiz_grading.py."""
+"""Native tests (standard library only) for backend/quiz/grading.py."""
 
 import itertools
 import json
 import unittest
 from pathlib import Path
 
-from backend.quiz_grading import (
+from backend.quiz.grading import (
     grade_choice,
     outcome_label,
     short_answer_result,

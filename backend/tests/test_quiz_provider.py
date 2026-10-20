@@ -6,9 +6,9 @@ import json
 import httpx
 import pytest
 
-from backend import quiz_provider as p
-from backend.quiz_limits import ProviderLedger, QuizConfig
-from backend.quiz_models import GeneratedQuiz
+from backend.quiz import provider as p
+from backend.quiz.limits import ProviderLedger, QuizConfig
+from backend.quiz.models import GeneratedQuiz
 from backend.tests.quiz_fakes import generated_dict
 
 OK_BODY = {"status": "completed", "usage": {"input_tokens": 120, "output_tokens": 340},

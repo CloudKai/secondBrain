@@ -12,7 +12,7 @@ TEXT = ('Position encodings carry sequence order. '*90)
 
 
 def test_pdf_index_uses_exact_page_spans_and_both_vectors():
-    from backend.retrieval_indexing import index_source
+    from backend.retrieval.indexing import index_source
     async def run():
         calls = []
         def external(request):
@@ -47,7 +47,7 @@ def test_pdf_index_uses_exact_page_spans_and_both_vectors():
 
 
 def test_expired_claim_is_cleaned_without_publishing_ready():
-    from backend.retrieval_indexing import index_source
+    from backend.retrieval.indexing import index_source
     async def run():
         calls = []
         def external(request):
@@ -94,7 +94,7 @@ def test_indexing_status_requires_learner_auth_and_validates_identity(monkeypatc
 
 
 def test_collection_setup_refuses_incompatible_existing_vectors():
-    from backend.retrieval_indexing import ensure_collection, IndexProviderError
+    from backend.retrieval.indexing import ensure_collection, IndexProviderError
     import pytest
     async def run():
         def external(request):
@@ -109,7 +109,7 @@ def test_collection_setup_refuses_incompatible_existing_vectors():
 
 
 def test_dispatch_is_opt_in_and_only_enqueues_stable_source_ids():
-    from backend.study_worker import dispatch_pending_indexes
+    from backend.workers.study import dispatch_pending_indexes
     async def run():
         dispatched=[]
         class Redis:
@@ -129,7 +129,7 @@ def test_dispatch_is_opt_in_and_only_enqueues_stable_source_ids():
 
 
 def test_timed_captions_keep_real_cue_locations_on_index_points():
-    from backend.retrieval_indexing import index_source
+    from backend.retrieval.indexing import index_source
     async def run():
         cue1 = 'First speaker explains retrieval. '*50
         cue2 = 'Second speaker explains generation. '*50
@@ -159,7 +159,7 @@ def test_timed_captions_keep_real_cue_locations_on_index_points():
 
 
 def test_embedding_outage_records_retry_without_a_qdrant_write():
-    from backend.retrieval_indexing import index_source
+    from backend.retrieval.indexing import index_source
     async def run():
         calls=[]
         def external(request):
@@ -183,7 +183,7 @@ def test_embedding_outage_records_retry_without_a_qdrant_write():
 def test_standalone_worker_exports_required_arq_lifecycle_configuration():
     """ARQ reads only declared settings; inherited callbacks are not exported."""
     from arq.worker import get_kwargs
-    from backend.retrieval_worker import RetrievalWorkerSettings
+    from backend.workers.retrieval import RetrievalWorkerSettings
     config = get_kwargs(RetrievalWorkerSettings)
     assert callable(config.get('on_startup')), 'ARQ must initialize server clients before dispatch'
     assert callable(config.get('on_shutdown')), 'ARQ must close server clients on shutdown'

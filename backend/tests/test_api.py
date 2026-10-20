@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from backend.main import app
-from backend.schemas import ProcessLinkResponse
+from backend.core.schemas import ProcessLinkResponse
 
 
 class StubGraph:

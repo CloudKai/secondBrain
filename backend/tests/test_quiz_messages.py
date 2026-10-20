@@ -1,11 +1,11 @@
-"""Native tests (standard library only) for backend/quiz_messages.py."""
+"""Native tests (standard library only) for backend/quiz/messages.py."""
 
 import json
 import re
 import unittest
 from pathlib import Path
 
-from backend.quiz_messages import QUIZ_MESSAGES, quiz_message
+from backend.quiz.messages import QUIZ_MESSAGES, quiz_message
 
 CODES = json.loads((Path(__file__).parent / "fixtures" / "quiz_error_codes.json").read_text(encoding="utf-8"))
 EXEMPT = "not proof of mastery"

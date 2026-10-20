@@ -6,17 +6,17 @@ import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
 
-from backend.graph import DeepFeynmanState, deep_feynman_graph
-from backend.schemas import ProcessLinkRequest, ProcessLinkResponse
-from backend.sources import router as sources_router
-from backend.studies import router as studies_router
-from backend.topics import router as topics_router
-from backend.revisions import router as revisions_router
-from backend.assistant import router as assistant_router
-from backend.research import router as research_router
-from backend.retrieval import router as retrieval_router
-from backend.learning import router as learning_router
-from backend.quiz import QuizError, quiz_error_handler
+from backend.core.graph import DeepFeynmanState, deep_feynman_graph
+from backend.core.schemas import ProcessLinkRequest, ProcessLinkResponse
+from backend.sources.routes import router as sources_router
+from backend.studies.routes import router as studies_router
+from backend.topics.routes import router as topics_router
+from backend.sources.revisions import router as revisions_router
+from backend.assistant.routes import router as assistant_router
+from backend.research.routes import router as research_router
+from backend.retrieval.routes import router as retrieval_router
+from backend.learning.routes import router as learning_router
+from backend.quiz.routes import QuizError, quiz_error_handler
 
 # Resolve local settings independently of the server's working directory.
 # Deployment-provided environment variables always take precedence.

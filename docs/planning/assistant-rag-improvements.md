@@ -69,10 +69,10 @@ this interview.
 Code evidence:
 
 - [Assistant SQL](../../supabase/migrations/202610050011_assistant_context.sql)
-- [Assistant generation](../../backend/assistant_generation.py)
-- [Assistant store and revision checks](../../backend/assistant_store.py)
-- [Note generation and reference pruning](../../backend/study_generation.py)
-- [Shared source reference construction](../../backend/source_references.py)
+- [Assistant generation](../../backend/assistant/generation.py)
+- [Assistant store and revision checks](../../backend/assistant/store.py)
+- [Note generation and reference pruning](../../backend/studies/generation.py)
+- [Shared source reference construction](../../backend/sources/references.py)
 - [Browser citation verification](../../web/src/lib/assistant-answer.ts)
 - [Web worker construction](../../backend/study_worker.py)
 
@@ -84,8 +84,8 @@ The assistant currently returns one complete JSON response after generation and
 revision checks; the browser renders it after receiving that response. Streaming
 requires a new validated backend/browser event contract. The existing `partial`
 field means evidence was omitted; it must not be reused to mean unfinished or
-unchecked output. See [API](../../backend/assistant.py),
-[answer contract](../../backend/assistant_models.py),
+unchecked output. See [API](../../backend/assistant/routes.py),
+[answer contract](../../backend/assistant/models.py),
 [client](../../web/src/lib/source-client.ts) and
 [assistant component](../../web/src/components/SavedAssistant.tsx).
 

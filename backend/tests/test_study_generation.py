@@ -7,7 +7,7 @@ import copy
 import httpx
 import pytest
 
-from backend.study_generation import (
+from backend.studies.generation import (
     GenerationFailure,
     StudyGenerator,
     captured_passages,
@@ -211,7 +211,7 @@ def test_generated_citation_ends_at_a_complete_paragraph_before_long_next_senten
 
 
 def test_pdf_citation_prefers_sentence_ending_across_soft_lines_and_keeps_original_page():
-    from backend.source_models import PDFDocument
+    from backend.sources.models import PDFDocument
     first = 'Dr. Lane explains how a derivative 🚀 measures\na rate of change. '
     text = first + 'An extended explanation ' + 'continues without punctuation ' * 40
     document = PDFDocument(filename='calculus.pdf', page_count=5, selected_pages={'start': 3, 'end': 3},

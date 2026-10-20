@@ -4,7 +4,7 @@ import json
 import math
 import httpx
 from pydantic import Field
-from backend.schemas import StrictModel
+from backend.core.schemas import StrictModel
 
 LAYA_URL = 'http://127.0.0.1:8767'
 LAYA_CODE = '3cf26cbcb18725dbc2d127bb8bb2c4c43243ae63'

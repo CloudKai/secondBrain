@@ -5,7 +5,7 @@ import json
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from backend import quiz_models as m
+from backend.quiz import models as m
 from backend.tests.quiz_fakes import generated_dict
 
 Q1 = "11111111-1111-4111-8111-111111111111"
@@ -295,7 +295,7 @@ def test_short_answer_feedback_bounds():
 
 
 def test_hash_and_normalisation_are_reexported_from_quiz_rules():
-    from backend import quiz_rules
+    from backend.quiz import rules as quiz_rules
 
     assert m.canonical_answers_hash is quiz_rules.canonical_answers_hash
     assert m.normalize_answer_text is quiz_rules.normalize_answer_text

@@ -1,10 +1,10 @@
-"""Native tests (standard library only) for backend/quiz_limits.py."""
+"""Native tests (standard library only) for backend/quiz/limits.py."""
 
 import asyncio
 import unittest
 from datetime import UTC, datetime
 
-from backend.quiz_limits import (
+from backend.quiz.limits import (
     ProviderLedger,
     QuizConfig,
     QuizLimitReached,
@@ -28,12 +28,12 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual((config.enabled, config.reasoning_effort), (True, "low"))
 
     def test_missing_empty_and_blank_use_the_default_without_a_warning(self):
-        with self.assertNoLogs("backend.quiz_limits", "WARNING"):
+        with self.assertNoLogs("backend.quiz.limits", "WARNING"):
             self.assertEqual(load_quiz_config({"QUIZ_MAX_QUESTIONS": "", "QUIZ_GRADING_MODEL": "  "}), QuizConfig())
 
     def test_garbage_falls_back_with_one_warning_naming_the_variable(self):
         for value in ("abc", "3.5", "1e3", "True", "--2"):
-            with self.assertLogs("backend.quiz_limits", "WARNING") as logs:
+            with self.assertLogs("backend.quiz.limits", "WARNING") as logs:
                 config = load_quiz_config({"QUIZ_MAX_QUESTIONS": value})
             self.assertEqual(config.max_questions, 8, value)
             self.assertEqual(len(logs.records), 1, value)
@@ -52,7 +52,7 @@ class ConfigTests(unittest.TestCase):
         }
         for name, (field, floor, ceiling) in table.items():
             for given, expected in ((str(floor - 1), floor), ("-5", floor), (str(ceiling + 1), ceiling), ("999999", ceiling)):
-                with self.assertLogs("backend.quiz_limits", "WARNING") as logs:
+                with self.assertLogs("backend.quiz.limits", "WARNING") as logs:
                     config = load_quiz_config({name: given})
                 self.assertEqual(getattr(config, field), expected, (name, given))
                 self.assertTrue(any(name in line for line in logs.output), (name, given))
@@ -61,7 +61,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_model_ids_are_checked_against_the_pattern(self):
         for bad in ("bad model", "a/b", "x" * 65, "モデル"):
-            with self.assertLogs("backend.quiz_limits", "WARNING") as logs:
+            with self.assertLogs("backend.quiz.limits", "WARNING") as logs:
                 config = load_quiz_config({"QUIZ_GENERATION_MODEL": bad, "QUIZ_FALLBACK_MODEL": bad, "QUIZ_GRADING_MODEL": bad})
             self.assertEqual((config.generation_model, config.fallback_model, config.grading_model), ("gpt-6-luna", "gpt-6.1-sol", "gpt-6-luna"))
             self.assertEqual(len(logs.records), 3)
@@ -73,20 +73,20 @@ class ConfigTests(unittest.TestCase):
             self.assertTrue(load_quiz_config({"QUIZ_ENABLED": text}).enabled, text)
         for text in ("false", "False", "0", "no", "off"):
             self.assertFalse(load_quiz_config({"QUIZ_ENABLED": text}).enabled, text)
-        with self.assertLogs("backend.quiz_limits", "WARNING"):
+        with self.assertLogs("backend.quiz.limits", "WARNING"):
             self.assertFalse(load_quiz_config({"QUIZ_ENABLED": "maybe"}).enabled)
 
     def test_reasoning_effort(self):
         self.assertEqual(load_quiz_config({"QUIZ_REASONING_EFFORT": "High"}).reasoning_effort, "high")
-        with self.assertLogs("backend.quiz_limits", "WARNING"):
+        with self.assertLogs("backend.quiz.limits", "WARNING"):
             self.assertEqual(load_quiz_config({"QUIZ_REASONING_EFFORT": "extreme"}).reasoning_effort, "low")
 
     def test_small_token_cap_for_many_questions_logs_one_warning(self):
-        with self.assertLogs("backend.quiz_limits", "WARNING") as logs:
+        with self.assertLogs("backend.quiz.limits", "WARNING") as logs:
             load_quiz_config({"QUIZ_MAX_QUESTIONS": "10", "QUIZ_MAX_OUTPUT_TOKENS": "3000"})
         self.assertEqual(len(logs.records), 1)
         self.assertIn("QUIZ_MAX_OUTPUT_TOKENS", logs.output[0])
-        with self.assertNoLogs("backend.quiz_limits", "WARNING"):
+        with self.assertNoLogs("backend.quiz.limits", "WARNING"):
             load_quiz_config({"QUIZ_MAX_QUESTIONS": "10", "QUIZ_MAX_OUTPUT_TOKENS": "6000"})
             load_quiz_config({})
 

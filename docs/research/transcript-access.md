@@ -14,7 +14,7 @@ transcript and an authorized access path. The details below support that
 constraint; they do not establish support for every link on these platforms.
 
 The current backend only ingests HTML/plain text plus shared-text fallback
-(`backend/graph.py`); all transcript behavior here is target work.
+(`backend/core/graph.py`); all transcript behavior here is target work.
 
 ## YouTube
 

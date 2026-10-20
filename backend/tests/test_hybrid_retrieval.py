@@ -14,7 +14,7 @@ def test_hybrid_query_filters_both_rankings_to_current_owned_generations():
     asyncio.run(hybrid_query_check())
 
 async def hybrid_query_check():
-    from backend.hybrid_retrieval import HybridRetriever, SearchSource
+    from backend.retrieval.hybrid import HybridRetriever, SearchSource
     requests=[]
     async def external(request):
         requests.append(request)

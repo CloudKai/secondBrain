@@ -78,9 +78,9 @@ def test_synthesis_preserves_conflicting_claims_and_exact_source_references():
 
 async def synthesis_conflicts():
     from uuid import UUID
-    from backend.overview_generation import OverviewGenerator
-    from backend.overview_models import OverviewInput
-    from backend.study_generation import GenerationFailure
+    from backend.overviews.generation import OverviewGenerator
+    from backend.overviews.models import OverviewInput
+    from backend.studies.generation import GenerationFailure
 
     second = "44444444-4444-4444-8444-444444444444"
 

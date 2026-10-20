@@ -4,8 +4,8 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
-from backend import graph
-from backend.schemas import GraphEdge, GraphNode, GraphVisualization
+from backend.core import graph
+from backend.core.schemas import GraphEdge, GraphNode, GraphVisualization
 
 
 def _nodes(*node_ids: str) -> list[GraphNode]:

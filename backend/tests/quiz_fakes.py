@@ -2,7 +2,7 @@
 
 import json
 
-from backend.quiz_provider import ModelResponse, ProviderError
+from backend.quiz.provider import ModelResponse, ProviderError
 from backend.tests.test_quiz_rules import EXCERPTS, valid_quiz
 
 FILLER = " Learners can compare what a passage says with what a claim says before they trust the claim." * 2

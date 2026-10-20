@@ -7,7 +7,7 @@ import asyncio
 import copy
 import json
 import httpx
-from backend.study_generation import StudyGenerator, GenerationFailure
+from backend.studies.generation import StudyGenerator, GenerationFailure
 from backend.tests.test_study_generation import DRAFT
 from backend.tests.test_youtube_sources import youtube_http  # noqa: F401
 
@@ -111,8 +111,8 @@ def test_long_source_uses_bounded_sections_then_coherent_grounded_synthesis():
 
 
 def test_worker_retry_keeps_successful_sections_and_never_publishes_failed_aggregate():
-    from backend.study_store import StudyStore
-    from backend.study_worker import build_source_study
+    from backend.studies.store import StudyStore
+    from backend.workers.study import build_source_study
     source = "33333333-3333-4333-8333-333333333333"
     lease = "44444444-4444-4444-8444-444444444444"
     text = "Calculus studies change and accumulation. " * 1100
@@ -189,8 +189,8 @@ def test_public_pdf_link_selection_keeps_original_pages(browser_client):
 
 @pytest.mark.parametrize("boundary", ["plan_source_study", "save_study_section"])
 def test_stale_worker_stops_without_publishing_sections_or_a_final_note(boundary):
-    from backend.study_store import StudyStore
-    from backend.study_worker import build_source_study
+    from backend.studies.store import StudyStore
+    from backend.workers.study import build_source_study
     calls = []
     def external(request):
         if request.url.host != "supabase.test":
@@ -209,7 +209,7 @@ def test_stale_worker_stops_without_publishing_sections_or_a_final_note(boundary
 
 
 def test_short_source_retry_retains_supporting_passages_after_checkpoint():
-    from backend.study_models import SectionSummary
+    from backend.studies.models import SectionSummary
     text = "Calculus studies change. " * 70
     calls, checkpoints = [], []
 
@@ -234,7 +234,7 @@ def test_short_source_retry_retains_supporting_passages_after_checkpoint():
 
 
 def test_dense_supported_transcript_generates_within_section_budget(browser_client, monkeypatch):
-    from backend.transcript_models import TranscriptDocument
+    from backend.sources.transcript_models import TranscriptDocument
     cues = []
     for index in range(2000):
         seconds = index * 2

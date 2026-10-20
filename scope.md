@@ -1,5 +1,31 @@
 # Scope: AI Second Brain
 
+## Main integration — 2026-10-20
+
+Resolved three documentation conflicts while retaining both main's build/cleanup
+records and the backend reorganization. Included the new package files and removed
+only exact redundant copies after backup. Combined web build/lint pass; backend
+tests remain 702 passed/3 known failures. Vercel project env setup is documented
+separately; no secret file, database migration or hosted acceptance is included.
+
+## Backend feature-folder reorganization — verified locally, 2026-10-20
+
+Moved 68 flat implementation modules into feature packages: sources, studies,
+topics, overviews, assistant, research, retrieval, learning and quiz; shared code
+is in core and worker implementations in workers. Imports, test patch targets
+and local documentation pointers use the new paths. HTTP contracts, database
+behavior and settings are unchanged. Root API/Vercel entry points and the existing
+study/retrieval worker and indexing-setup commands remain supported.
+
+Verification: baseline 698 passed/3 failed; after moves and four operational
+checks, 702 passed with the same 3 existing quiz failures. All 68 implementation
+moves match the expected import/path-only changes, including required env/PDF
+script location adjustments. The complete 48-path OpenAPI contract is identical.
+Vercel service-root bootstrap, existing command env resolution and PDF subprocess
+tests pass; 84 standard-library quiz tests pass separately. Required uv/pytest
+command still selects Anaconda pytest without LangChain; backend virtualenv Python
+runs the full suite. No new hosted deployment, native or quiz-migration acceptance.
+
 ## Local Git and duplicate-file cleanup — 2026-10-20
 
 Backed up and removed invalid local ref `refs/heads/main 2`; Git integrity check
@@ -750,9 +776,9 @@ Status: `not started` · `decided` · `built` · `verified` · `built, needs a p
 
 ### What got built
 
-- `backend/graph.py` — bounded ingestion, three-node LangGraph pipeline, summary,
+- `backend/core/graph.py` — bounded ingestion, three-node LangGraph pipeline, summary,
   typed graph output, and deterministic diagram compatibility.
-- `backend/main.py` and `backend/schemas.py` — strict FastAPI boundary.
+- `backend/main.py` and `backend/core/schemas.py` — strict FastAPI boundary.
 - `mobile/app/modal/share.tsx` — native share folder selection and submission.
 - `mobile/app/index.tsx` — learning dashboard, library status, recent ideas, and
   an immediately available demo lesson.

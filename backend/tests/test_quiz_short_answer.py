@@ -5,8 +5,8 @@ import json
 
 import pytest
 
-from backend import quiz_short_answer as s
-from backend.quiz_limits import ProviderLedger, QuizConfig, QuizLimitReached, metered_call
+from backend.quiz import short_answer as s
+from backend.quiz.limits import ProviderLedger, QuizConfig, QuizLimitReached, metered_call
 from backend.tests.quiz_fakes import FakeQuizModel, completed, incomplete, provider_error, refused
 
 CONFIG = QuizConfig()
@@ -142,7 +142,7 @@ def test_a_denied_charge_never_reaches_the_provider():
 
 
 def test_feedback_validation_helpers():
-    from backend.quiz_models import QuizShortAnswerFeedback
+    from backend.quiz.models import QuizShortAnswerFeedback
 
     good = QuizShortAnswerFeedback.model_validate(feedback("addressed", "try_again"))
     s.validate_feedback(good, 2, {"p0002"})

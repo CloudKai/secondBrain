@@ -6,12 +6,12 @@ import httpx
 import pytest
 from backend.tests.test_long_sources import model_response
 from backend.tests.test_study_generation import DRAFT, CAPTURE
-from backend.study_generation import GenerationFailure, captured_passages
-from backend.study_models import StudyNote
-from backend.topic_generation import TopicGenerator
-from backend.topic_models import TopicDescription
-from backend.overview_generation import OverviewGenerator
-from backend.overview_models import OverviewInput
+from backend.studies.generation import GenerationFailure, captured_passages
+from backend.studies.models import StudyNote
+from backend.topics.generation import TopicGenerator
+from backend.topics.models import TopicDescription
+from backend.overviews.generation import OverviewGenerator
+from backend.overviews.models import OverviewInput
 
 USER = UUID('11111111-1111-4111-8111-111111111111')
 SOURCE = UUID('33333333-3333-4333-8333-333333333333')

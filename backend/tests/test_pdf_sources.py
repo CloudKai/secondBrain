@@ -157,8 +157,8 @@ def test_long_pdf_reports_partial_capture_without_renumbering_pages(browser_clie
 def test_pdf_generation_references_never_cross_or_invent_page_boundaries(
     browser_client,
 ):
-    from backend.source_models import PDFDocument
-    from backend.study_generation import captured_passages
+    from backend.sources.models import PDFDocument
+    from backend.studies.generation import captured_passages
 
     source = browser_client.post(
         "/api/v2/sources/pdf?filename=learning.pdf",
@@ -177,8 +177,8 @@ def test_pdf_model_output_receives_server_derived_page_references():
     import asyncio
     import copy
     import httpx
-    from backend.source_models import PDFDocument
-    from backend.study_generation import StudyGenerator
+    from backend.sources.models import PDFDocument
+    from backend.studies.generation import StudyGenerator
     from backend.tests.test_study_generation import DRAFT, completion
 
     text = FIRST_PAGE.strip() + "\n\n" + THIRD_PAGE.strip()

@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from backend import quiz_generation as g
-from backend.quiz_limits import ProviderLedger, QuizConfig
-from backend.quiz_models import GeneratedQuiz
+from backend.quiz import generation as g
+from backend.quiz.limits import ProviderLedger, QuizConfig
+from backend.quiz.models import GeneratedQuiz
 from backend.tests.quiz_fakes import (
     CONTENT, FILLER, LESSONS, MATERIAL, REFERENCES, FakeQuizModel, completed, generated_dict, incomplete,
     provider_error, refused,

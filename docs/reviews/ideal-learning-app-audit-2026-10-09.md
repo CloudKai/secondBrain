@@ -30,11 +30,11 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 ## 3. What is good and should remain
 
-1. **Evidence is inspectable.** The lesson citation opened the original transcript span at 7:38.700–8:00.760, showed its upload provenance and offered the original video location. Source formatting does not need to destroy original offsets. [Evidence dialog](../../web/src/components/EvidenceDialog.tsx), [reference validation](../../backend/source_references.py).
-2. **Changes are deliberate.** Adding a source, changing difficulty and branching a goal use previews and confirmation. Old plans and answers remain available. This respects a learner's changing intent. [Learning generation](../../backend/learning_generation.py), [learning store](../../backend/learning_store.py).
+1. **Evidence is inspectable.** The lesson citation opened the original transcript span at 7:38.700–8:00.760, showed its upload provenance and offered the original video location. Source formatting does not need to destroy original offsets. [Evidence dialog](../../web/src/components/EvidenceDialog.tsx), [reference validation](../../backend/sources/references.py).
+2. **Changes are deliberate.** Adding a source, changing difficulty and branching a goal use previews and confirmation. Old plans and answers remain available. This respects a learner's changing intent. [Learning generation](../../backend/learning/generation.py), [learning store](../../backend/learning/store.py).
 3. **Progress is treated cautiously in the new learning flow.** Study activity, attempts and provisional feedback are separate. New application questions do not inherit a previous passing result. [Shared learning context](../../web/src/components/SharedLearningContext.tsx).
 4. **Ownership and freshness are architectural concerns.** Authenticated web routes, database ownership rules, source-version checks and worker fences provide a stronger base than client-only persistence. This is a code/acceptance observation, not a fresh penetration test. [Learning migrations](../../supabase/migrations/202610090017_learning_branches.sql).
-5. **Retrieval infrastructure is already useful.** The derived Qdrant index combines BM25 and dense search and checks retrieved evidence against authoritative source/version data. It can be reused for teaching. [Hybrid retrieval](../../backend/hybrid_retrieval.py).
+5. **Retrieval infrastructure is already useful.** The derived Qdrant index combines BM25 and dense search and checks retrieved evidence against authoritative source/version data. It can be reused for teaching. [Hybrid retrieval](../../backend/retrieval/hybrid.py).
 6. **Visual identity is coherent.** Charcoal/mint, source cards, evidence reading layout and clearly labelled generated examples give the app a recognizable character. Preserve these while simplifying hierarchy.
 
 ![Exact transcript evidence with timestamp and provenance](assets/ideal-learning-audit-2026-10-09/04-exact-evidence.jpg)
@@ -45,7 +45,7 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 **Observed:** A collection-like learning flow is mounted inside a source note. The route remains `#note/<source-id>`, and the learning API is source-rooted. The original source identity is also used to group saved learning places. Retained history exists, including deleted-anchor handling; this is not a claim that history is currently erased.
 
-**Evidence:** [App.tsx](../../web/src/App.tsx), `LearningJourney` placement; [learning.py](../../backend/learning.py), source learning routes; migrations 015–017 and [LearningHistory](../../web/src/components/LearningHistory.tsx).
+**Evidence:** [App.tsx](../../web/src/App.tsx), `LearningJourney` placement; [learning.py](../../backend/learning/routes.py), source learning routes; migrations 015–017 and [LearningHistory](../../web/src/components/LearningHistory.tsx).
 
 **Impact:** The learner has to remember which original document contains their ongoing journey. A source library is a weak home for a collection whose goal spans several documents.
 
@@ -111,7 +111,7 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 **Observed:** Initial lesson generation selects from `context.note.references`, up to 30,000 excerpt characters. Revisions round-robin `item.note.references`, bounded by 100 references and a roughly 30,000-character serialized request. This fairly bounds work but never retrieves uncited parts of the captured source. Tutor and feedback use a further subset of the selected lesson's references.
 
-**Evidence:** [learning_generation.py](../../backend/learning_generation.py), `preview`, `revision`, `feedback` and `tutor`. In contrast, [hybrid_retrieval.py](../../backend/hybrid_retrieval.py) searches indexed captures.
+**Evidence:** [learning_generation.py](../../backend/learning/generation.py), `preview`, `revision`, `feedback` and `tutor`. In contrast, [hybrid_retrieval.py](../../backend/retrieval/hybrid.py) searches indexed captures.
 
 **Impact:** Useful examples, caveats or prerequisites missing from the summary cannot reach teaching, even when saved. This directly limits “learn as much as possible from one document.”
 
@@ -123,7 +123,7 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 **Observed:** Each path has one to four lessons; each lesson has an outcome string, an explanation, optional example and one explain/apply/quick-question check. Feedback records criterion observations and an actionable hint, but stays provisional. Shared prior learning relies on exact outcome wording, matching difficulty and original evidence. There is no stable outcome identity or demonstrated adaptive next-action policy.
 
-**Evidence:** [learning_models.py](../../backend/learning_models.py), `PathDraft`, `LearningLesson`, `UnderstandingCheck`; [SharedLearningContext.tsx](../../web/src/components/SharedLearningContext.tsx), exact matching at line 22.
+**Evidence:** [learning_models.py](../../backend/learning/models.py), `PathDraft`, `LearningLesson`, `UnderstandingCheck`; [SharedLearningContext.tsx](../../web/src/components/SharedLearningContext.tsx), exact matching at line 22.
 
 **Impact:** Paraphrased revisions fragment learning history. A learner can receive feedback yet still need to decide unaided whether to retry, revisit a prerequisite or continue.
 
@@ -135,7 +135,7 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 **Observed:** “Your lesson tutor” generates explanations using Luna/Sol and lesson evidence. “A little help connecting the dots” uses a separate model and ultimately displays original source wording. The saved-evidence generator deliberately replaces drafted claims because semantic support is not calibrated.
 
-**Evidence:** [LearningTutor.tsx](../../web/src/components/LearningTutor.tsx), [SavedAssistant.tsx](../../web/src/components/SavedAssistant.tsx), [assistant_generation.py](../../backend/assistant_generation.py), replacement at lines 163–166 onward.
+**Evidence:** [LearningTutor.tsx](../../web/src/components/LearningTutor.tsx), [SavedAssistant.tsx](../../web/src/components/SavedAssistant.tsx), [assistant_generation.py](../../backend/assistant/generation.py), replacement at lines 163–166 onward.
 
 **Impact:** Similar questions yield different styles and scope depending on the box. The exact-excerpt fallback is a useful safety property, but users need a consistent explanation of what they are receiving.
 
@@ -147,7 +147,7 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 **Observed:** The live library has 11 topics. The graph presents up to six in a radial arrangement, filling unused places with other topics. The compact view can place Python and calculus nodes together without explaining their grouping. Group strings exist in the topic model, but are not a navigable subject hierarchy.
 
-**Evidence:** [Graph.tsx](../../web/src/components/Graph.tsx), `visibleIds` and filler loop around lines 56–69; [topic_models.py](../../backend/topic_models.py). Screenshot shows the broader topic screen.
+**Evidence:** [Graph.tsx](../../web/src/components/Graph.tsx), `visibleIds` and filler loop around lines 56–69; [topic_models.py](../../backend/topics/models.py). Screenshot shows the broader topic screen.
 
 **Impact:** The learner cannot readily see “my calculus work within mathematics” or inspect a growing field. Visually adjacent nodes may feel related even without an edge. Similar derivative labels deserve review, but this audit does not establish that they are all duplicates.
 
@@ -161,7 +161,7 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 **Observed:** Discovery receives a topic/goal query. Result relevance text is generic: found by web search, inspect the original. Readability and metadata checks are useful but are not a review of research quality or proof that a resource addresses a particular outcome.
 
-**Evidence:** [ResearchDiscovery.tsx](../../web/src/components/ResearchDiscovery.tsx), [research_provider.py](../../backend/research_provider.py), generic relevance at line 189; learning discovery callback in [LearningJourney.tsx](../../web/src/components/LearningJourney.tsx).
+**Evidence:** [ResearchDiscovery.tsx](../../web/src/components/ResearchDiscovery.tsx), [research_provider.py](../../backend/research/provider.py), generic relevance at line 189; learning discovery callback in [LearningJourney.tsx](../../web/src/components/LearningJourney.tsx).
 
 **Impact:** Learners still perform the hard work of deciding what the resource adds and where it belongs.
 
@@ -173,7 +173,7 @@ Severity: **High** materially disrupts the intended journey or blocks a dependab
 
 **Observed:** Models and deadlines are spread across generators. `OPENAI_MODELS` appears in the local environment names but has no located code consumer; singular `OPENAI_MODEL` controls the legacy graph, not the learning tasks. `/health` reports static OK. The legacy `/api/v1/process-link` route has no visible authentication dependency. Vite supplies a development `/api` proxy; a built frontend needs an explicit production route.
 
-**Evidence:** [learning_generation.py](../../backend/learning_generation.py), [graph.py](../../backend/graph.py), [main.py](../../backend/main.py), [vite.config.ts](../../web/vite.config.ts), environment templates and [compose.yaml](../../compose.yaml).
+**Evidence:** [learning_generation.py](../../backend/learning/generation.py), [graph.py](../../backend/core/graph.py), [main.py](../../backend/main.py), [vite.config.ts](../../web/vite.config.ts), environment templates and [compose.yaml](../../compose.yaml).
 
 **Impact:** Developers may believe a setting changes all models, mistake liveness for readiness, or expose a generation endpoint without suitable controls. No exploitation or live hosted configuration was tested.
 

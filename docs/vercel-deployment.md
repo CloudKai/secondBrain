@@ -34,6 +34,51 @@ declare its binding on the caller and read the injected URL in that function.
 
 ## Environment and background processing
 
+This repository uses one Vercel project with two services. Services share project
+environment variables. In **Project Settings → Environment Variables**, add the
+following union of the local web and backend settings for **Production**, and
+for **Preview** if preview deployments should use the same intended project.
+Use separate preview credentials when preview data must be isolated.
+
+| Variable | Copy its value from | Used by |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | `web/.env.local` | Browser build |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | `web/.env.local` | Browser build; public key |
+| `SUPABASE_URL` | `backend/.env` | API |
+| `SUPABASE_PUBLISHABLE_KEY` | `backend/.env` | API; same project/public key as the browser |
+| `SUPABASE_SECRET_KEY` | `backend/.env` | Server-only learning/quiz persistence and generated writes |
+| `OPENAI_API_KEY` | `backend/.env` | Server-only research and AI generation |
+
+Set these explicit initial feature flags until their separate acceptance gates
+are complete in the deployment's database:
+
+```dotenv
+QUIZ_ENABLED=false
+ENABLE_HYBRID_RETRIEVAL=false
+ENABLE_RETRIEVAL_INDEXING=false
+```
+
+`QUIZ_ENABLED=false` blocks generation/AI feedback; it does not install the quiz
+migration or enable reads against a database missing its tables/functions.
+Other `QUIZ_*` settings and `OPENAI_MODEL` can use the defaults documented in
+`backend/.env.example`. `QDRANT_URL` and `QDRANT_API_KEY` are server-only and are
+needed for configured retrieval/indexing and captured-evidence features, rather
+than ordinary library reads or external research. Enable these features only
+with their database/index setup and acceptance checks.
+
+Do not copy `EVAL_SESSION_TOKEN`, `EXPO_PUBLIC_*`, or development `WEB_API_URL`
+into this deployment. `REDIS_URL` belongs on the separately running worker host;
+the API commits jobs through the database outbox and does not connect to Redis.
+The worker also needs the same Supabase URL/server secret and OpenAI key. Its
+Redis URL must be reachable from that host; `127.0.0.1` points at the host itself.
+
+Enter real values in Vercel rather than uploading populated local env files.
+Server credentials must retain their unprefixed names; only the two public
+Supabase settings belong under `VITE_`. Redeploy after saving variables: existing
+deployments do not acquire changed values, and Vite embeds public settings at
+build time. See Vercel's [services](https://vercel.com/docs/services) and
+[environment variable](https://vercel.com/docs/environment-variables) documentation.
+
 - Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` before building the
   web service. These are public browser settings; redeploy after changing them.
 - Set backend values from `backend/.env.example` in the Vercel project, using

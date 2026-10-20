@@ -9,9 +9,9 @@ import httpx
 import pytest
 from arq.connections import ArqRedis
 
-from backend.study_generation import StudyGenerator
-from backend.study_store import StudyStorageError, StudyStore
-from backend.study_worker import build_source_study, dispatch_pending_studies
+from backend.studies.generation import StudyGenerator
+from backend.studies.store import StudyStorageError, StudyStore
+from backend.workers.study import build_source_study, dispatch_pending_studies
 from backend.tests.test_study_generation import CAPTURE, completion
 
 SOURCE = "33333333-3333-4333-8333-333333333333"

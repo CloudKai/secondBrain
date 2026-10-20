@@ -12,14 +12,14 @@ import pytest
 from fastapi import Response
 from fastapi.testclient import TestClient
 
-from backend import quiz
+from backend.quiz import routes as quiz
 from backend.main import app
-from backend.quiz_limits import QuizConfig, get_quiz_config
-from backend.quiz_models import QuizGenerateRequest
-from backend.quiz_models import QuizSubmitRequest
-from backend.quiz_provider import get_quiz_model
-from backend.quiz_rules import canonical_answers_hash
-from backend.quiz_store import QuizStore
+from backend.quiz.limits import QuizConfig, get_quiz_config
+from backend.quiz.models import QuizGenerateRequest
+from backend.quiz.models import QuizSubmitRequest
+from backend.quiz.provider import get_quiz_model
+from backend.quiz.rules import canonical_answers_hash
+from backend.quiz.store import QuizStore
 from backend.tests.quiz_fakes import REFERENCES, FakeQuizModel, completed, generated_dict, incomplete, provider_error, refused
 from backend.tests.quiz_supabase import COLLECTION, OWNER, PLAN, FakeSupabase, SqlError
 

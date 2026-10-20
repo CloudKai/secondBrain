@@ -1,5 +1,20 @@
 # Architecture
 
+## Backend feature packages — 2026-10-20
+
+The existing backend implementation is organized into `sources`, `studies`,
+`topics`, `overviews`, `assistant`, `research`, `retrieval`, `learning` and `quiz`
+packages. Each contains its routes/models/generation/store modules as applicable.
+Shared v1 schemas/pipeline and model-output validation live in `core`; worker
+implementations live in `workers`. Development evaluation and test locations stay
+separate. These are code organization changes, not new product capabilities.
+
+`backend.main:app`, `vercel_app:app` and the three existing worker/index-setup
+commands remain stable. Small root command files delegate to their implementations;
+feature imports use their new paths directly. All worker commands still resolve
+the canonical `backend/.env`. The PDF parser remains a disposable subprocess with
+its limits module alongside it. See [folder responsibilities](../backend/README.md#folder-layout).
+
 ## Web full-capture initial teaching previews — implemented in development, 2026-10-10
 
 Migration022 adds evidence_mode on preview requests and optional teaching metadata on immutable plans. The authenticated existing preview API accepts note (compatible default) or capture for initial paths only. Capture selection uses the existing owned BM25/dense index, one ready source, 24 references/16,000 excerpt characters/35 seconds; the generator receives exact original passages within its complete 30,000-character input cap. Luna-medium/one Sol-medium structural repair remains unchanged. Missing evidence never triggers escalation.
@@ -95,7 +110,7 @@ See [acceptance](../docs/reviews/learning-collections-acceptance-2026-10-09.md).
 
 ## Web one-source learning — implemented in development, 2026-10-09
 
-`backend/learning.py` exposes authenticated preview/confirmation, attempts,
+`backend/learning/routes.py` exposes authenticated preview/confirmation, attempts,
 feedback, activities, tutor and paginated history APIs. Postgres migration 015
 adds owned learning paths, leased previews, immutable plans, attempts and activity.
 Learner reads/mutations use the learner JWT. Only generated finish RPCs use a
@@ -151,8 +166,8 @@ submodule initialization. Generated native folders and dependencies remain local
 | Location | Owns | Must not own |
 | --- | --- | --- |
 | `backend/main.py` | HTTP translation and status mapping | Prompt or scraping logic |
-| `backend/schemas.py` | Strict request, response, and model-output validation | Network calls |
-| `backend/graph.py` | Fetching, fallbacks, prompts, and LangGraph orchestration | Mobile state |
+| `backend/core/schemas.py` | Strict request, response, and model-output validation | Network calls |
+| `backend/core/graph.py` | Fetching, fallbacks, prompts, and LangGraph orchestration | Mobile state |
 | `mobile/app/` | Routes, screens, and share workflow orchestration | Provider SDKs or secrets |
 | `mobile/lib/api.ts` | HTTP transport and runtime response validation | UI rendering |
 | `KnowledgeContext` | Transient items and folder filtering | Durable-storage claims |
@@ -674,7 +689,7 @@ unfinished. Native/iOS and its tracker remain untouched; no commit or push.
 
 ## Shared assistant evaluation path — 2026-10-08
 
-`backend/saved_answers.py` now coordinates owned note/topic/library retrieval,
+`backend/assistant/answers.py` now coordinates owned note/topic/library retrieval,
 generation and final snapshot validation for both the HTTP route and development
 collector. Retrieval overrides exist only in the collector; the browser request
 contract is unchanged. Expected-source annotations are checked against complete
@@ -686,7 +701,7 @@ sentences from rank-1 chunks. Question-aware passage selection is planned under
 
 ## Passage selection implemented locally — 2026-10-08
 
-`backend/passage_selection.py` orders expanded exact passages with bounded
+`backend/retrieval/passage_selection.py` orders expanded exact passages with bounded
 embedding similarity and original fused chunk ranks. Candidates are interleaved
 across owned selected sources (maximum 128 passages plus question, 10-second
 embedding timeout). Caption neighbors provide ranking and bounded continuation

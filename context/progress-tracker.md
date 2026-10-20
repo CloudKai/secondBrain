@@ -5,6 +5,10 @@
 **Scope:** iOS/native progress. Web work is recorded separately in
 [web-progress-tracker.md](web-progress-tracker.md).
 
+**2026-10-20 backend organization:** feature packages and compatibility entry
+points are verified locally (702 passing tests; 3 unchanged quiz failures).
+Native files and native acceptance are unchanged; details are in the web tracker.
+
 **2026-10-20 Git cleanup:** invalid ref and exact duplicate additions cleaned up;
 web checks pass. Existing mobile files and native acceptance are unchanged.
 

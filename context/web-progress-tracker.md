@@ -1,5 +1,49 @@
 # Web Progress Tracker
 
+## Main integration and Vercel env guide — 2026-10-20
+
+Resolved stash-application conflicts in the native/web trackers and scope by
+retaining both the backend organization notes and main's web build/Git cleanup
+records. Staged new feature package files alongside the old-path removals. A new
+set of 31 exact redundant ` 2.py` copies was backed up outside Git and excluded.
+Rechecked the combined tree: web build and lint pass; backend virtualenv tests
+remain 702 passed with the same 3 known quiz failures. No populated env is included.
+
+Updated `docs/vercel-deployment.md` with the six required project variables,
+their local sources, conservative feature flags and separate worker/Redis setup.
+Verified Vercel's official services/env documentation: services share project env,
+and env changes require a new deployment. Hosted env configuration and deployment
+acceptance remain user/deployment work; quiz migration is still a separate gate.
+
+## Backend feature packages — 2026-10-20
+
+Implemented a folder-only reorganization of 68 backend modules into feature
+packages plus core/workers. Routes, models, generation and storage sit together
+for each feature. Updated production/evaluation imports, test imports and string
+patch targets, and local documentation links. Runtime settings stay in
+`backend/.env`. Small root files preserve `backend.study_worker`,
+`backend.retrieval_worker` and `backend.retrieval_indexing` commands;
+`backend.main:app` and `vercel_app:app` stay unchanged as entry points.
+
+Verification:
+- `backend/.venv/bin/python -m pytest backend/tests -q`: baseline 698 passed/3
+  failed; after reorganization plus four new operational checks, 702 passed/3
+  failed. The unchanged failures are the two quiz API provider-call assertions
+  and strict-datetime quiz model test previously isolated.
+- Operational tests cover both existing worker commands and indexing setup from
+  another cwd with the canonical env path, and Vercel bootstrap with no enclosing
+  repository on Python's import path. No provider calls in these checks.
+- All 68 moved implementations match mechanical import replacements and needed
+  env/PDF-path adjustments. Full before/after OpenAPI is identical (48 paths).
+- `python3 -m unittest backend.tests.test_quiz_rules backend.tests.test_quiz_limits backend.tests.test_quiz_grading backend.tests.test_quiz_messages -q`: 84 passed.
+- Required `uv run --project backend --extra dev pytest backend/tests -q` was
+  attempted; it still uses Anaconda pytest without `langchain_openai`. The
+  existing backend virtualenv ran the actual full tests above.
+
+No new product behavior, migration, hosted acceptance or native change. Restart
+existing API/worker processes to load the reorganized modules. Folder guide:
+[`backend/README.md`](../backend/README.md#folder-layout).
+
 ## Git push preparation and duplicate cleanup — 2026-10-20
 
 GitHub accepted a dry-run push, but local branch enumeration warned about invalid

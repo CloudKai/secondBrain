@@ -204,10 +204,10 @@ def test_explained_relation_needs_two_sources_and_unrelated_topics_stay_separate
 def test_model_topics_use_evidence_merge_clear_aliases_and_keep_uncertainty_distinct():
     import asyncio
     from uuid import UUID
-    from backend.topic_generation import TopicGenerator
-    from backend.topic_models import TopicDescription
-    from backend.study_models import StudyNote
-    from backend.study_generation import captured_passages
+    from backend.topics.generation import TopicGenerator
+    from backend.topics.models import TopicDescription
+    from backend.studies.models import StudyNote
+    from backend.studies.generation import captured_passages
     from backend.tests.test_study_generation import DRAFT, CAPTURE
 
     note = StudyNote(**DRAFT, references=captured_passages(CAPTURE))
@@ -315,13 +315,13 @@ def test_model_topics_use_evidence_merge_clear_aliases_and_keep_uncertainty_dist
                 suggested_topic_id=None,
                 context="Computer graphics",
             )
-            from backend.study_generation import GenerationFailure
+            from backend.studies.generation import GenerationFailure
 
             result = await generator.generate(note, [candidate], UUID(ALICE), UUID(SOURCE))
             assert result.topics[0].context == candidate.context
             topic["context"] = None
             topic["citation_ids"] = ["p9999"]
-            from backend.study_generation import GenerationFailure
+            from backend.studies.generation import GenerationFailure
 
             with pytest.raises(GenerationFailure, match="invalid_output"):
                 await generator.generate(note, [candidate], UUID(ALICE), UUID(SOURCE))

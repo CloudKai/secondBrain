@@ -5,11 +5,11 @@ from uuid import UUID
 import httpx
 import pytest
 from backend.tests.test_assistant import assistant_client, SOURCE, TEXT  # noqa: F401
-from backend.assistant_generation import AssistantGenerator
-from backend.sources import SourceGateway
-from backend.assistant_models import AssistantQuestion
+from backend.assistant.generation import AssistantGenerator
+from backend.sources.routes import SourceGateway
+from backend.assistant.models import AssistantQuestion
 from backend.evaluation.collect import BaselineCase, collect
-from backend.study_store import StudyStorageError
+from backend.studies.store import StudyStorageError
 
 
 def test_evaluation_retains_actual_retrieval_and_rejects_stale_answers(assistant_client):

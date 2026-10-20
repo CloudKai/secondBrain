@@ -2,6 +2,40 @@
 
 Python 3.11 FastAPI service implementing the Deep Feynman LangGraph pipeline.
 
+## Folder layout
+
+Implementation is grouped by feature. Each feature keeps its HTTP routes,
+validated models, generation and storage modules together where applicable.
+
+| Folder | Responsibility |
+| --- | --- |
+| `core/` | Shared schemas, native v1 graph pipeline and generation validation |
+| `sources/` | Capture, PDF/transcript parsing, references, revisions and source ownership |
+| `studies/` | Study requests, note models, generation and persistence |
+| `topics/` | Topic extraction, corrections, library projection and persistence |
+| `overviews/` | Topic overview routes, synthesis and persistence |
+| `assistant/` | Grounded questions, answers, evidence checks and persistence |
+| `research/` | Explicit external search and public-resource verification |
+| `retrieval/` | Indexing, retrieval policy, hybrid search and passage selection |
+| `learning/` | Plans, collections, drafts, conversations and teaching evidence |
+| `quiz/` | Quiz routes, contracts, grading, limits, providers and persistence |
+| `workers/` | Study and retrieval worker implementations |
+| `evaluation/` | Development-only evaluation tools |
+| `tests/` | Backend tests and their fixtures/SQL checks |
+
+`main.py` remains the API composition root; `vercel_app.py` remains the Vercel
+entry point. The existing `python -m backend.study_worker`,
+`python -m backend.retrieval_worker` and `python -m backend.retrieval_indexing`
+commands remain supported through small entry points. Worker settings still load
+from `backend/.env`, regardless of the working directory.
+
+Use feature imports, for example `from backend.sources.models import CapturedSource`
+or `from backend.quiz.rules import ...`. Package `__init__.py` files have no startup
+side effects. Old flat implementation imports have been replaced throughout the
+backend and tests; the retained compatibility files are command entry points only.
+
+## Local development
+
 From the repository root:
 
 ```bash
@@ -107,9 +141,9 @@ Endpoints, under `/api/v2/learning/collections/{collection_id}/plans/{plan_id}/q
 Errors are `{"detail", "error": {code, message, retryable, ...}}`; a 429 carries
 `limit`, `used`, `resets_at` and `Retry-After`. Codes and their HTTP status are
 listed in `backend/tests/fixtures/quiz_error_codes.json`; every learner-visible
-message is in `backend/quiz_messages.py`.
+message is in `backend/quiz/messages.py`.
 
-Limits (all server-side, read only by `backend/quiz_limits.py::load_quiz_config`;
+Limits (all server-side, read only by `backend/quiz/limits.py::load_quiz_config`;
 see `backend/.env.example`):
 
 | Setting | Default | Range |

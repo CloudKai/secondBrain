@@ -11,12 +11,12 @@ from uuid import UUID, uuid4
 import httpx
 import pytest
 
-from backend import quiz_store as qs
-from backend.quiz import quiz_error_handler
-from backend.quiz_limits import QuizConfig
-from backend.quiz_messages import QUIZ_MESSAGES
-from backend.quiz_models import QuizErrorResponse
-from backend.study_store import StudyStorageError
+from backend.quiz import store as qs
+from backend.quiz.routes import quiz_error_handler
+from backend.quiz.limits import QuizConfig
+from backend.quiz.messages import QUIZ_MESSAGES
+from backend.quiz.models import QuizErrorResponse
+from backend.studies.store import StudyStorageError
 from backend.tests.quiz_supabase import COLLECTION, OWNER, PLAN, SERVER_KEY, TOKEN, FakeSupabase
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -192,7 +192,7 @@ def prepared(monkeypatch):
                         "answer": {"text": "mine"} if q["kind"] == "short_answer" else {"option_ids": key["correct_option_ids"]}})
     attempt = fake.fn_submit_quiz_attempt(COLLECTION, PLAN, quiz["id"], str(uuid4()), answers, "a" * 64)
     context = fake.fn_get_quiz_grading_context(attempt["attempt_id"], attempt["lease_token"])
-    from backend.quiz import build_results
+    from backend.quiz.routes import build_results
 
     fake.fn_finish_quiz_attempt(attempt["attempt_id"], attempt["lease_token"], build_results(context))
     store, _client = make_store(fake, monkeypatch)

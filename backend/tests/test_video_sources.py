@@ -78,8 +78,8 @@ def test_transcript_model_references_receive_only_supplied_cue_times():
     import asyncio
     import copy
     import httpx
-    from backend.study_generation import StudyGenerator
-    from backend.transcript_models import TranscriptDocument
+    from backend.studies.generation import StudyGenerator
+    from backend.sources.transcript_models import TranscriptDocument
     from backend.tests.test_study_generation import DRAFT, completion
 
     second = "Calculus studies how quantities change."
@@ -332,7 +332,7 @@ def test_panopto_presentation_parameters_reuse_the_recording(browser_client):
 
 
 def test_saved_video_contract_rejects_inconsistent_identity(browser_client):
-    from backend.source_models import CapturedSource
+    from backend.sources.models import CapturedSource
     from pydantic import ValidationError
     import json
 
@@ -529,8 +529,8 @@ def test_unreadable_panopto_export_can_be_corrected_without_saving_bad_input(bro
 def test_generated_reference_joins_caption_fragments_using_real_overlapping_times():
     import asyncio
     import httpx
-    from backend.study_generation import StudyGenerator
-    from backend.transcript_models import TranscriptDocument
+    from backend.studies.generation import StudyGenerator
+    from backend.sources.transcript_models import TranscriptDocument
     from backend.tests.test_study_generation import completion
 
     first = 'Retrieval pulls useful supporting documents from a knowledge store'
@@ -565,8 +565,8 @@ def test_model_receives_caption_groups_at_sentence_pause_speaker_and_duration_bo
     import asyncio
     import httpx
     import json
-    from backend.study_generation import StudyGenerator
-    from backend.transcript_models import TranscriptDocument
+    from backend.studies.generation import StudyGenerator
+    from backend.sources.transcript_models import TranscriptDocument
     from backend.tests.test_study_generation import completion
 
     # The extra sentence meets the capture floor without changing the tested cues.

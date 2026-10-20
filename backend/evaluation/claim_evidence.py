@@ -2,12 +2,12 @@
 import hashlib
 from uuid import UUID
 from pydantic import Field
-from backend.schemas import StrictModel
-from backend.assistant_models import AssistantAnswer
-from backend.capture_limits import MAX_CAPTURE_CHARS
-from backend.source_models import PDFDocument
-from backend.transcript_models import TranscriptDocument
-from backend.source_references import reference_matches_source
+from backend.core.schemas import StrictModel
+from backend.assistant.models import AssistantAnswer
+from backend.sources.limits import MAX_CAPTURE_CHARS
+from backend.sources.models import PDFDocument
+from backend.sources.transcript_models import TranscriptDocument
+from backend.sources.references import reference_matches_source
 
 
 class EvidenceCapture(StrictModel):
