@@ -113,7 +113,10 @@ see `backend/.env.example`):
 | `QUIZ_MAX_QUESTIONS` / `QUIZ_MAX_SHORT_ANSWER` | 8 / 2 | 4-10 / 0-2 |
 | `QUIZ_MAX_OUTPUT_TOKENS` / `QUIZ_GRADING_MAX_OUTPUT_TOKENS` | 4000 / 800 | 1000-8000 / 200-2000 |
 | `QUIZ_SHORT_ANSWER_MAX_CHARS` | 1500 | 100-5000 |
-| `QUIZ_ENABLED` | true | spend switch only |
+| `QUIZ_ENABLED` | true | spend switch only; a value that is not true or false switches it off |
+
+The per-day limits cannot be set to 0: a lower value is raised to 1. To stop spending, set
+`QUIZ_ENABLED=false`.
 
 Fixed guards: at most 3 provider calls per generation and 2 per feedback, 20
 attempts per quiz, 20 ready quizzes per plan, 3 provider-bound feedback tries per

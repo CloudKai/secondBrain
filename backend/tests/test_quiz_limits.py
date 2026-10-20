@@ -74,7 +74,7 @@ class ConfigTests(unittest.TestCase):
         for text in ("false", "False", "0", "no", "off"):
             self.assertFalse(load_quiz_config({"QUIZ_ENABLED": text}).enabled, text)
         with self.assertLogs("backend.quiz_limits", "WARNING"):
-            self.assertTrue(load_quiz_config({"QUIZ_ENABLED": "maybe"}).enabled)
+            self.assertFalse(load_quiz_config({"QUIZ_ENABLED": "maybe"}).enabled)
 
     def test_reasoning_effort(self):
         self.assertEqual(load_quiz_config({"QUIZ_REASONING_EFFORT": "High"}).reasoning_effort, "high")

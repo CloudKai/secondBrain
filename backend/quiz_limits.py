@@ -104,6 +104,7 @@ def load_quiz_config(env: Mapping[str, str]) -> QuizConfig:
         elif text.lower() in _FALSE:
             enabled = False
         else:
+            enabled = False  # a spend switch fails closed
             warn("QUIZ_ENABLED", "is not true or false")
     effort = DEFAULT_REASONING_EFFORT
     text = raw("QUIZ_REASONING_EFFORT")
