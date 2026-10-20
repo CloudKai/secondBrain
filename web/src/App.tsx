@@ -34,6 +34,7 @@ import {
   LoaderCircle,
   Maximize2,
   Menu,
+  Monitor,
   Moon,
   Network,
   PanelRightClose,
@@ -81,6 +82,8 @@ import SourceVersions from "./components/SourceVersions";
 import SavedTopicDetails from "./components/SavedTopicDetails";
 import { studyLabel, studyMessage } from "./lib/study-note";
 import { useSourceStudies } from "./lib/use-source-studies";
+import { nextThemePreference } from "./lib/theme";
+import { useThemePreference } from "./lib/use-theme";
 
 type Dialog = "add" | "about" | "delete" | "rename" | "assign" | "merge" | "versions" | null;
 // One auth client owns session recovery, including during StrictMode remounts.
@@ -123,8 +126,8 @@ export default function App() {
     [combined, setCombined] = useState(true);
   const [mobileNav, setMobileNav] = useState(false),
     [dialog, setDialog] = useState<Dialog>(null),
-    [theme, setTheme] = useState("dark"),
     [toast, setToast] = useState("");
+  const [themePreference, setThemePreference] = useThemePreference();
   const [researchSeed,setResearchSeed]=useState('');
   const [captureRange,setCaptureRange]=useState<RangeFields>(wholeSourceFields);
   const [pdfMode, setPdfMode] = useState("upload");
@@ -261,9 +264,6 @@ export default function App() {
     window.addEventListener("hashchange", handler);
     return () => window.removeEventListener("hashchange", handler);
   }, []);
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
   useEffect(() => {
     const media = window.matchMedia("(max-width:760px)");
     const update = () => setNarrow(media.matches);
@@ -927,10 +927,25 @@ export default function App() {
           </div>
           <button
             className="appearance"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() =>
+              setThemePreference(nextThemePreference(themePreference))
+            }
           >
-            {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
-            <span>{theme === "dark" ? "Dark" : "Light"} appearance</span>
+            {themePreference === "dark" ? (
+              <Moon size={16} />
+            ) : themePreference === "light" ? (
+              <Sun size={16} />
+            ) : (
+              <Monitor size={16} />
+            )}
+            <span>
+              {themePreference === "dark"
+                ? "Dark"
+                : themePreference === "light"
+                  ? "Light"
+                  : "System"}{" "}
+              appearance
+            </span>
             <span className="theme-switch">
               <span />
             </span>
