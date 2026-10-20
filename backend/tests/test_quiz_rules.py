@@ -266,6 +266,9 @@ class AnswerTextTests(unittest.TestCase):
         self.assertEqual(normalize_answer_text("a\r\nb\rc"), "a\nb\nc")
         self.assertEqual(normalize_answer_text("a\u2028b\u2029c"), "a\nb\nc")
         self.assertEqual(normalize_answer_text("a\x00b\x07c\u200bd\te"), "abcd\te")
+        family = "\U0001F468\u200d\U0001F469\u200d\U0001F467"
+        self.assertEqual(normalize_answer_text(family), family)
+        self.assertEqual(normalize_answer_text("\u0645\u06cc\u200c\u062e\u0648\u0627\u0647\u0645"), "\u0645\u06cc\u200c\u062e\u0648\u0627\u0647\u0645")
         self.assertEqual(normalize_answer_text("  \n\t "), "")
         self.assertEqual(normalize_answer_text("  hi  "), "hi")
 

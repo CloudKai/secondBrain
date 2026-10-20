@@ -233,12 +233,15 @@ def check_generated(
 
 
 def normalize_answer_text(text: str) -> str:
-    """NFC, LF newlines, no control characters except newline/tab, stripped."""
+    """NFC, LF newlines, no control characters except newline/tab, stripped.
+
+    The joiners U+200D and U+200C are kept: emoji sequences and Persian or Indic words need them.
+    """
     value = unicodedata.normalize("NFC", text)
     value = value.replace("\r\n", "\n").replace("\r", "\n")
     value = value.replace("\u2028", "\n").replace("\u2029", "\n")
     value = "".join(
-        ch for ch in value if ch in "\n\t" or unicodedata.category(ch) not in ("Cc", "Cf")
+        ch for ch in value if ch in "\n\t\u200c\u200d" or unicodedata.category(ch) not in ("Cc", "Cf")
     )
     return value.strip()
 
