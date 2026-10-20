@@ -1,26 +1,23 @@
 import {
   BookOpen,
   BrainCircuit,
-  ChevronDown,
   ChevronRight,
   CircleHelp,
-  Library,
+  House,
   Menu,
-  Monitor,
-  Moon,
   Network,
   Plus,
   Search,
   Sparkles,
-  Sun,
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
-import { nextThemePreference } from "../lib/theme";
 import type { ThemePreference } from "../lib/theme";
+import { PAGE_LABELS } from "../lib/shell-nav";
 import type { ShellTopic } from "../lib/shell-nav";
 import type { Page } from "../types";
+import { Button, ThemeToggle } from "./ui";
 
 export type { ShellTopic };
 
@@ -32,9 +29,6 @@ export interface ShellProps {
   mainRef: RefObject<HTMLElement | null>;
   recentTopics: ShellTopic[];
   topicCount: number;
-  /** Saved sources plus examples shown beside the Library link. */
-  noteCount: number;
-  storage: "loading" | "ready" | "unavailable";
   demo: boolean;
   themePreference: ThemePreference;
   onThemeChange: (pref: ThemePreference) => void;
@@ -45,17 +39,8 @@ export interface ShellProps {
   children: ReactNode;
 }
 
-// Breadcrumb names; "Home" replaces "My library" together with the nav label.
-const PAGE_LABELS: Record<Page, string> = {
-  library: "My library",
-  note: "Source note",
-  collection: "Learning collections",
-  topics: "Topic graph",
-  discover: "Reading list",
-};
-
 const NAV_ITEMS = [
-  { page: "library", title: "My library", icon: Library },
+  { page: "library", title: "Home", icon: House },
   { page: "topics", title: "Topic graph", icon: Network },
   { page: "collection", title: "Learning collections", icon: BookOpen },
   { page: "discover", title: "Reading list", icon: Sparkles },
@@ -67,8 +52,6 @@ export default function Shell({
   mainRef,
   recentTopics,
   topicCount,
-  noteCount,
-  storage,
   demo,
   themePreference,
   onThemeChange,
@@ -164,29 +147,14 @@ export default function Shell({
           </span>
           <span>
             second brain<span className="brand-period">.</span>
-            <small>A PLACE FOR YOUR CURIOSITY</small>
           </span>
         </a>
-        <button
-          className="workspace-switch"
-          onClick={closeThen(onOpenAbout)}
-        >
-          <span className="workspace-avatar">S</span>
-          <span>
-            Personal workspace
-            <small>
-              {storage === "ready" ? "Private library" : "Example preview"}
-            </small>
-          </span>
-          <ChevronDown size={14} />
-        </button>
         <button
           className="sidebar-search"
           onClick={closeThen(onSearchLibrary)}
         >
           <Search size={16} /> Search your library <span>/</span>
         </button>
-        <span className="nav-label">WORKSPACE</span>
         <nav aria-label="Main navigation">
           {NAV_ITEMS.map(({ page: itemPage, title, icon: Icon }) => (
             <a
@@ -204,15 +172,16 @@ export default function Shell({
             >
               <Icon size={18} />
               {title}
-              {itemPage === "library" && (
-                <span className="nav-count">{noteCount}</span>
-              )}
             </a>
           ))}
         </nav>
-        <div className="sidebar-topics">
-          <div className="nav-label">
-            YOUR TOPICS <span>{topicCount}</span>
+        <div
+          className="sidebar-topics"
+          role="group"
+          aria-labelledby="sidebar-topics-label"
+        >
+          <div className="nav-label" id="sidebar-topics-label">
+            Recent topics
           </div>
           {recentTopics.map((t, i) => (
             <button
@@ -223,59 +192,27 @@ export default function Shell({
               <span
                 className={`dot ${["mint", "purple", "peach", "blue"][i % 4]}`}
               />
-              {t.title}
+              <span className="sidebar-topic-title">{t.title}</span>
               <span>{t.sourceCount}</span>
             </button>
           ))}
-          {!recentTopics.length && (
+          {topicCount > 0 ? (
+            <a
+              className="sidebar-topics-all"
+              href="#topics"
+              onClick={() => setMobileNav(false)}
+            >
+              View all topics ({topicCount})
+            </a>
+          ) : (
             <p className="micro-copy">Topics grow from saved sources.</p>
           )}
         </div>
         <div className="sidebar-bottom">
-          <div className="sidebar-tip">
-            <span className="tip-icon">
-              <Sparkles size={17} />
-            </span>
-            <strong>Stay curious.</strong>
-            <p>Your next big idea starts with one small question.</p>
-            <button onClick={closeThen(onAddSource)}>
-              Add something interesting <Plus size={14} />
-            </button>
-          </div>
-          <button
-            className="appearance"
-            onClick={() => onThemeChange(nextThemePreference(themePreference))}
-          >
-            {themePreference === "dark" ? (
-              <Moon size={16} />
-            ) : themePreference === "light" ? (
-              <Sun size={16} />
-            ) : (
-              <Monitor size={16} />
-            )}
-            <span>
-              {themePreference === "dark"
-                ? "Dark"
-                : themePreference === "light"
-                  ? "Light"
-                  : "System"}{" "}
-              appearance
-            </span>
-            <span className="theme-switch">
-              <span />
-            </span>
-          </button>
-          <button className="profile" onClick={closeThen(onOpenAbout)}>
-            <span className="profile-avatar">Y</span>
-            <span>
-              Your workspace
-              <small>
-                {demo
-                  ? "Exploring example material"
-                  : "Learning, one idea at a time"}
-              </small>
-            </span>
+          <ThemeToggle value={themePreference} onChange={onThemeChange} />
+          <button className="sidebar-about" onClick={closeThen(onOpenAbout)}>
             <CircleHelp size={16} />
+            About this workspace
           </button>
         </div>
       </aside>
@@ -298,13 +235,14 @@ export default function Shell({
               <span className="dot mint" />
               {demo ? "Includes examples" : "Private library"}
             </button>
-            <button
-              className="button primary small-button"
+            <Button
+              variant="primary"
+              size="sm"
+              leadingIcon={<Plus size={16} />}
               onClick={onAddSource}
             >
-              <Plus size={16} />
               Add source
-            </button>
+            </Button>
           </div>
         </header>
         <main id="main-content" ref={mainRef} tabIndex={-1}>

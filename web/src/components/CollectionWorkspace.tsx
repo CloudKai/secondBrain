@@ -14,7 +14,7 @@ import SourceEvidence from './SourceEvidence';
 export function CollectionOverview({data,onDiscover}:{data:CollectionDetail;onDiscover:(query:string)=>void}){
  const {collection,sources}=data;
  return <>
-  <header className="collection-heading"><a className="text-button" href="#library">← My library</a><span className="eyebrow">YOUR LEARNING COLLECTION</span><h1>{collection.title}</h1><p className="collection-goal">{collection.goal||'Choose where to begin with your saved material.'}</p><p className="micro-copy">{collection.path_count} paths · {collection.source_count} saved sources · study activity and practice are separate from mastery.</p></header>
+  <header className="collection-heading"><a className="text-button" href="#library">← Home</a><span className="eyebrow">YOUR LEARNING COLLECTION</span><h1>{collection.title}</h1><p className="collection-goal">{collection.goal||'Choose where to begin with your saved material.'}</p><p className="micro-copy">{collection.path_count} paths · {collection.source_count} saved sources · study activity and practice are separate from mastery.</p></header>
   <details className="collection-resources"><summary>Collection sources & wider context</summary><p>Sources in a plan are a selected subset of this collection. Saving material does not add it to teaching until you preview and confirm its contribution.</p>
    <ul>{sources.map(s=><li key={s.id}><a href={`#note/${s.id}`}>{s.title}</a><small> · {s.source_kind.toUpperCase()} · saved version {s.source_version}</small></li>)}</ul>
    {!collection.original_source_available&&<p role="note">Original source removed. Goals and saved practice stay accessible; missing captured evidence cannot support new teaching.</p>}

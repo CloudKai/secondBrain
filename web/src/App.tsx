@@ -77,6 +77,7 @@ import SavedTopicDetails from "./components/SavedTopicDetails";
 import { studyLabel, studyMessage } from "./lib/study-note";
 import { useSourceStudies } from "./lib/use-source-studies";
 import { useThemePreference } from "./lib/use-theme";
+import { recentTopics } from "./lib/shell-nav";
 
 type Dialog = "add" | "about" | "delete" | "rename" | "assign" | "merge" | "versions" | null;
 // One auth client owns session recovery, including during StrictMode remounts.
@@ -764,14 +765,8 @@ export default function App() {
         page={route.page}
         collectionId={route.page === "collection" ? route.noteId : ""}
         mainRef={mainRef}
-        recentTopics={topics.map((t) => ({
-          id: t.id,
-          title: t.title,
-          sourceCount: t.notes.length,
-        }))}
+        recentTopics={recentTopics(topics, 5)}
         topicCount={topics.length}
-        noteCount={notes.length}
-        storage={storage}
         demo={demo}
         themePreference={themePreference}
         onThemeChange={setThemePreference}
@@ -780,7 +775,9 @@ export default function App() {
         onSearchLibrary={() => {
           go("library");
           requestAnimationFrame(() =>
-            (document.getElementById("library-search") ?? document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
+            (document.getElementById("library-search") ??
+              document.getElementById("home-add-source") ??
+              document.querySelector<HTMLButtonElement>(".empty-hero .button"))?.focus(),
           );
         }}
         onSelectTopic={(id) => {
