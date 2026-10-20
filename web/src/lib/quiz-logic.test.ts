@@ -547,7 +547,7 @@ test("limit messages carry the limit, the local reset time and the retake note",
   });
   assert.equal(
     text,
-    "You've used all 3 quiz generations for today. You can generate new questions again after 12:00 AM tomorrow (resets at midnight UTC). You can still retake this quiz as often as you like.",
+    "You've used all 3 quiz generations for today. You can generate new questions again after 12:00 AM tomorrow (resets at midnight UTC). You can still retake this quiz, up to 20 attempts in all.",
   );
   const without = formatLimitMessage(error, { now, timeZone: "UTC" });
   assert.ok(!without.includes("retake"));

@@ -166,7 +166,7 @@ export const QUIZ_COPY = {
   limit: {
     generation:
       "You've used all {limit} quiz generations for today. You can generate new questions again after {time}. {retakeNote}",
-    retakeNote: "You can still retake this quiz as often as you like.",
+    retakeNote: "You can still retake this quiz, up to 20 attempts in all.",
     grading:
       "You've used all {limit} AI-feedback requests for today. Feedback is available again after {time}.",
     attempts:

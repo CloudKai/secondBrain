@@ -2095,7 +2095,7 @@ errors say "couldn't", never "failed".
 | `notReady.not_enough_cited_material` | This path doesn't cite enough source material to write a fair quiz yet. Add or confirm a path with more cited lessons, then come back. |
 | `notReady.disabled` | Quizzes are turned off for now. (Also used for `generate_blocked: "disabled"`; `generate_blocked` values `plan_not_confirmed` and `not_enough_cited_material` reuse the matching `notReady.*` strings, Rev 3 #9.) |
 | `limit.generation` | You've used all {limit} quiz generations for today. You can generate new questions again after {time}. {retakeNote} |
-| `limit.generation.retakeNote` | You can still retake this quiz as often as you like. |
+| `limit.generation.retakeNote` | You can still retake this quiz, up to 20 attempts in all. |
 | `limit.grading` | You've used all {limit} AI-feedback requests for today. Feedback is available again after {time}. |
 | `limit.attempts` | This quiz has reached its limit of {n} attempts. Generate new questions to continue. |
 | `limit.planCap` | This path has reached its limit of {n} saved quizzes. |
