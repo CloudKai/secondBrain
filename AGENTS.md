@@ -11,6 +11,12 @@ Do not invent product behavior that is not written in `context/` or `scope.md`.
 Every roadmap document must label target behavior separately from the verified
 MVP; planned services are not current capabilities.
 
+Active product: `web/` plus `backend/` (not only the iOS MVP described in the
+stack table below). `context/web-progress-tracker.md` and
+`docs/planning/path-quiz-spec.md` are authoritative for it. The path quiz is in
+development and not build-verified; the web and backend sections of
+`context/web-progress-tracker.md` say what has and has not run.
+
 ## Index
 
 | File | Read when |
