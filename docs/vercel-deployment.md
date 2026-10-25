@@ -1,5 +1,9 @@
 # Vercel services deployment
 
+The current production configuration uses the Vercel-only queue transport
+described below. The original persistent ARQ/Redis instructions remain useful
+for local or separately hosted installations.
+
 ## Prepared configuration — 2026-10-20
 
 The root `vercel.json` defines `backend` (FastAPI in `backend/`) and `web`
@@ -156,11 +160,18 @@ References: [Services](https://vercel.com/docs/services),
 
 ## Vercel-only background processing — 2026-10-25
 
-The Python service now declares `vercel_tasks` under `tool.vercel.subscribers`.
-Vercel builds a private push subscriber for `secondbrain-work`; no public worker
-URL or separate always-running Redis/ARQ host is needed for this transport.
+The root configuration declares a separate `worker` service with the same
+Python dependencies and the `vercel_worker:app` entrypoint. Its service-local
+function has an explicit `queue/v2beta` trigger for `secondbrain-work`. No public
+rewrite points at this service, so only the queue infrastructure invokes it.
+This explicit trigger is used because the Services build did not emit an
+automatically discovered pyproject subscriber. No public worker URL or separate
+always-running Redis/ARQ host is needed for this transport.
 The pinned `vercel-queue[typed]==0.10.0` SDK authenticates with deployment OIDC.
-Do not add a queue token to browser configuration.
+Do not add a queue token to browser configuration. Set the non-secret production
+setting `SECOND_BRAIN_QUEUE_TRANSPORT=vercel` to enable API wakeups explicitly.
+The callback matches the platform-assigned consumer group and delegates receipt
+acceptance, lease renewal and acknowledgement to the SDK.
 
 After an authenticated request commits a study/topic/overview job, the API sends
 a small dispatch signal. Status reads also wake queued work, recovering jobs
@@ -172,7 +183,7 @@ deduplication. Database claims prevent duplicate model processing. Unfinished
 jobs retain their queue delivery, with 130-second redelivery and at most ten
 transport attempts. Database processing attempts retain the existing cap of
 three. Consumer concurrency is capped at two. Local installations continue to
-use ARQ when `VERCEL` is absent.
+use ARQ when the transport setting and Vercel runtime marker are absent.
 
 Each processing invocation stops at 240 seconds, leaving headroom under Hobby's
 300-second function limit. Persisted section checkpoints survive cancellation;
@@ -195,3 +206,15 @@ Rollback: redeploy the earlier HTTP build and run the existing ARQ worker if
 available. Postgres jobs and checkpoints remain authoritative; no schema change
 or user-data conversion is required. Hosted subscriber discovery and an actual
 source-to-note result must pass before marking the worker accepted.
+
+### Hosted acceptance — 25 October 2026
+
+Production source `f998073` is live in deployment
+`dpl_4diCFS38wjo8FgXW26jf3KDjxFeb`. The explicit private worker function was
+built, queue handoffs are accepted, and a queued test source succeeded on its
+first processing attempt. An independent browser saved a public article,
+received a complete study note in about 20 seconds, inspected recall and passage
+citations, saw eight mapped topics, and confirmed persistence after reload.
+[Browser verification](https://agent.tinyfish.ai/runs/1164c30b-e396-4353-b9f0-13f588dc4831).
+This accepts the tested article flow; it does not claim every long-source,
+learning, retrieval or quiz feature is tested.
