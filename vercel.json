@@ -9,16 +9,39 @@
     "web": {
       "root": "web",
       "framework": "vite"
+    },
+    "worker": {
+      "root": "backend",
+      "framework": "fastapi",
+      "entrypoint": "vercel_worker:app",
+      "functions": {
+        "vercel_worker.py": {
+          "maxDuration": 300,
+          "experimentalTriggers": [
+            {
+              "type": "queue/v2beta",
+              "topic": "secondbrain-work",
+              "maxDeliveries": 10,
+              "retryAfterSeconds": 130,
+              "maxConcurrency": 2
+            }
+          ]
+        }
+      }
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": { "service": "backend" }
+      "destination": {
+        "service": "backend"
+      }
     },
     {
       "source": "/(.*)",
-      "destination": { "service": "web" }
+      "destination": {
+        "service": "web"
+      }
     }
   ]
 }

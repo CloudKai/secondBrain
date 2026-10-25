@@ -1,5 +1,46 @@
 # Progress Tracker
 
+## Vercel-only worker — verified in production, 2026-10-25
+
+The user confirmed there is no separate worker host. Production now includes a
+private `worker` Python service with an explicit queue/v2beta trigger, plus
+`SECOND_BRAIN_QUEUE_TRANSPORT=vercel` for API handoffs. This Services build did
+not emit the pyproject-discovered subscriber, so the explicit service owns queue
+callback receipt handling. No public rewrite reaches the worker. Existing
+Postgres outboxes, ownership checks, claims, checkpoints and attempt limits stay
+authoritative. No plan upgrade, external server or database migration was needed.
+
+Live deployment `dpl_4diCFS38wjo8FgXW26jf3KDjxFeb` runs source commit `f998073`.
+An authenticated test source moved from queued to succeeded on its first attempt,
+with its note persisted. An independent anonymous browser saved Wikipedia's
+Spaced repetition article, saw a generated note in about 20 seconds, inspected
+concepts, examples, recall and passage citations, saw eight mapped topics, then
+reloaded and confirmed the source and note persisted. Browser evidence:
+https://agent.tinyfish.ai/runs/1164c30b-e396-4353-b9f0-13f588dc4831
+
+39 targeted worker/API/callback checks pass. The final complete backend run has
+717 passes and the same three documented quiz failures; no quiz fix is claimed.
+Queue concurrency is two; processing retains the existing database attempt cap
+and a 240-second invocation budget. This is article-flow acceptance, not proof
+of unlimited long-document processing or every learning/quiz feature. Pricing,
+rollback and limits are documented in docs/vercel-deployment.md.
+## Public demo connection repair — saving verified in production, 2026-10-25
+
+The public web bundle lacked its Supabase connection settings even though the
+Vercel project had the server-named URL and publishable key. The Vite build now
+maps exactly those two public settings, with explicit `VITE_*` overrides taking
+precedence. It does not expose server secrets or change API ownership rules.
+Regression checks reproduce the missing mapping and pass after the fix; the
+existing anonymous save/reopen client test, production web build and lint pass.
+
+Production commit `10a0ea8` is deployed as `dpl_AzgwWBEA3so2nErg2trAP3RPNKR3` at
+`https://secondbrain2u.vercel.app/`. A new anonymous session can list its library,
+save a synthetic source (201), and reopen it (200). An independent browser saves
+the public Wikipedia Spaced repetition article and sees it in the private
+library. The first hosted check found study requests queued with zero attempts.
+The Vercel-only worker follow-up recorded above resolves that missing transport;
+generated notes and topic mapping now pass the article-flow acceptance check.
+
 ## Current status
 
 **Scope:** iOS/native progress. Web work is recorded separately in

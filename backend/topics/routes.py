@@ -9,6 +9,7 @@ from backend.topics.models import TopicLibrary, TopicRecord, TopicPlacement
 from backend.topics.store import TopicStore
 from backend.topics.library import build_topic_library
 
+from backend.workers.vercel_queue import wake_worker
 from backend.overviews.routes import router as overview_router
 from backend.topics.corrections import router as correction_router
 
@@ -39,6 +40,8 @@ async def topic_library(gateway: SourceGateway = Depends(owned_sources)):
         )
         records = await store.list_owned(gateway.user_id)
         decisions = await store.decisions(gateway.user_id)
+        if any(r.status in ("queued", "processing") for r in records):
+            await wake_worker()
         return build_topic_library(records[:500], partial=len(records) > 500 or len(decisions) > 5000, decisions=decisions)
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
@@ -51,9 +54,11 @@ async def request_topics(
     gateway: SourceGateway = Depends(owned_sources),
 ):
     try:
-        return await TopicStore(
+        record = await TopicStore(
             gateway.client, gateway.project_url, gateway.headers
         ).accept(source_id, gateway.user_id, payload.retry)
+        await wake_worker()
+        return record
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
 

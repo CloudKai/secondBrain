@@ -1,5 +1,9 @@
 # Vercel services deployment
 
+The current production configuration uses the Vercel-only queue transport
+described below. The original persistent ARQ/Redis instructions remain useful
+for local or separately hosted installations.
+
 ## Prepared configuration — 2026-10-20
 
 The root `vercel.json` defines `backend` (FastAPI in `backend/`) and `web`
@@ -42,8 +46,8 @@ Use separate preview credentials when preview data must be isolated.
 
 | Variable | Copy its value from | Used by |
 | --- | --- | --- |
-| `VITE_SUPABASE_URL` | `web/.env.local` | Browser build |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | `web/.env.local` | Browser build; public key |
+| `VITE_SUPABASE_URL` | Optional browser override; otherwise `SUPABASE_URL` | Browser build |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Optional browser override; otherwise `SUPABASE_PUBLISHABLE_KEY` | Browser build; public key |
 | `SUPABASE_URL` | `backend/.env` | API |
 | `SUPABASE_PUBLISHABLE_KEY` | `backend/.env` | API; same project/public key as the browser |
 | `SUPABASE_SECRET_KEY` | `backend/.env` | Server-only learning/quiz persistence and generated writes |
@@ -100,8 +104,12 @@ deployments do not acquire changed values, and Vite embeds public settings at
 build time. See Vercel's [services](https://vercel.com/docs/services) and
 [environment variable](https://vercel.com/docs/environment-variables) documentation.
 
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` before building the
-  web service. These are public browser settings; redeploy after changing them.
+- The web build explicitly maps only `SUPABASE_URL` and
+  `SUPABASE_PUBLISHABLE_KEY` into the browser when the corresponding `VITE_*`
+  override is absent. Local `.env` files and explicit `VITE_*` settings still
+  work. Do not broaden `envPrefix`: private server settings must never be
+  published. The build rejects `sb_secret_` values in the public-key slot.
+  Redeploy after changing the settings.
 - Set backend values from `backend/.env.example` in the Vercel project, using
   server-only names. Never prefix privileged values with `VITE_` or
   `EXPO_PUBLIC_`. Do not upload populated environment files or evaluator tokens.
@@ -149,3 +157,64 @@ No project was deployed, and combined request routing is not verified.
 References: [Services](https://vercel.com/docs/services),
 [routing](https://vercel.com/docs/services/routing),
 [bindings](https://vercel.com/docs/services/bindings).
+
+## Vercel-only background processing — 2026-10-25
+
+The root configuration declares a separate `worker` service with the same
+Python dependencies and the `vercel_worker:app` entrypoint. Its service-local
+function has an explicit `queue/v2beta` trigger for `secondbrain-work`. No public
+rewrite points at this service, so only the queue infrastructure invokes it.
+This explicit trigger is used because the Services build did not emit an
+automatically discovered pyproject subscriber. No public worker URL or separate
+always-running Redis/ARQ host is needed for this transport.
+The pinned `vercel-queue[typed]==0.10.0` SDK authenticates with deployment OIDC.
+Do not add a queue token to browser configuration. Set the non-secret production
+setting `SECOND_BRAIN_QUEUE_TRANSPORT=vercel` to enable API wakeups explicitly.
+The callback matches the platform-assigned consumer group and delegates receipt
+acceptance, lease renewal and acknowledgement to the SDK.
+
+After an authenticated request commits a study/topic/overview job, the API sends
+a small dispatch signal. Status reads also wake queued work, recovering jobs
+accepted before queue configuration or during a publish failure. The private
+subscriber reuses the existing outbox dispatchers, database leases and generators.
+Messages contain task names and UUIDs only. Outboxes are acknowledged only after
+queue acceptance; refresh/retry messages are not suppressed by source-ID-only
+deduplication. Database claims prevent duplicate model processing. Unfinished
+jobs retain their queue delivery, with 130-second redelivery and at most ten
+transport attempts. Database processing attempts retain the existing cap of
+three. Consumer concurrency is capped at two. Local installations continue to
+use ARQ when the transport setting and Vercel runtime marker are absent.
+
+Each processing invocation stops at 240 seconds, leaving headroom under Hobby's
+300-second function limit. Persisted section checkpoints survive cancellation;
+the existing lease-recovery RPC resumes eligible work after lease expiry. Very
+long sources can still exhaust the existing three-attempt budget; this does not
+claim unlimited-duration document processing. Large, worst-case workloads need
+a separately scoped stepwise Workflow integration or an appropriate worker host.
+
+There is no plan upgrade or fixed server subscription in this change. Vercel
+Queues is Beta. Its published Hobby allowance includes the first 1,000,000 queue
+API operations; compute and model usage are still metered under their respective
+plans. Do not interpret that allowance as unlimited free AI processing.
+
+Sources checked 25 October 2026:
+- https://vercel.com/docs/queues/python-sdk
+- https://vercel.com/docs/queues/pricing
+- https://vercel.com/docs/functions/configuring-functions/duration
+
+Rollback: redeploy the earlier HTTP build and run the existing ARQ worker if
+available. Postgres jobs and checkpoints remain authoritative; no schema change
+or user-data conversion is required. Hosted subscriber discovery and an actual
+source-to-note result must pass before marking the worker accepted.
+
+### Hosted acceptance — 25 October 2026
+
+Production source `f998073` is live in deployment
+`dpl_4diCFS38wjo8FgXW26jf3KDjxFeb`. The explicit private worker function was
+built, queue handoffs are accepted, and a queued test source succeeded on its
+first processing attempt. An independent browser saved a public article,
+received a complete study note in about 20 seconds, inspected recall and passage
+citations, saw eight mapped topics, and confirmed persistence after reload.
+[Browser verification](https://agent.tinyfish.ai/runs/1164c30b-e396-4353-b9f0-13f588dc4831).
+This accepts the tested article flow; it does not claim every long-source,
+learning, retrieval or quiz feature is tested.
