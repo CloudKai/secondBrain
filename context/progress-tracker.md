@@ -1,6 +1,6 @@
 # Progress Tracker
 
-## Public demo connection repair — locally verified, 2026-10-25
+## Public demo connection repair — saving verified in production, 2026-10-25
 
 The public web bundle lacked its Supabase connection settings even though the
 Vercel project had the server-named URL and publishable key. The Vite build now
@@ -8,7 +8,16 @@ maps exactly those two public settings, with explicit `VITE_*` overrides taking
 precedence. It does not expose server secrets or change API ownership rules.
 Regression checks reproduce the missing mapping and pass after the fix; the
 existing anonymous save/reopen client test, production web build and lint pass.
-Hosted library/save/worker acceptance remains pending until deployment testing.
+
+Production commit `10a0ea8` is deployed as `dpl_AzgwWBEA3so2nErg2trAP3RPNKR3` at
+`https://secondbrain2u.vercel.app/`. A new anonymous session can list its library,
+save a synthetic source (201), and reopen it (200). An independent browser saves
+the public Wikipedia Spaced repetition article and sees it in the private
+library. Study requests are accepted (202) but remain queued with zero attempts:
+the separately hosted ARQ worker has not claimed these jobs. Generated notes,
+topics and their dependent features are not accepted as working in production.
+The worker-host location is required to finish that deployment; no database
+migration, new hosting subscription or architecture change was made.
 
 ## Current status
 
