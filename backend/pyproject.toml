@@ -29,6 +29,3 @@ pythonpath = [".."]
 
 [tool.uv]
 package = false
-
-[[tool.vercel.subscribers]]
-entrypoint = "vercel_tasks"

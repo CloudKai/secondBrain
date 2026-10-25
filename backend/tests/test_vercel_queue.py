@@ -101,3 +101,32 @@ def test_function_time_limit_retains_delivery_for_checkpoint_recovery(monkeypatc
         with pytest.raises(RetryAfter):
             await worker.run_job({"store":store}, {"task":"build_source_study", "id":SOURCE})
     asyncio.run(run())
+
+
+def test_explicit_worker_is_private_and_has_a_queue_trigger():
+    import json
+    from pathlib import Path
+    config = json.loads((Path(__file__).parents[2] / "vercel.json").read_text())
+    service = config["services"]["worker"]
+    assert service["entrypoint"] == "vercel_worker:app"
+    function = service["functions"]["vercel_worker.py"]
+    assert function["maxDuration"] == 300
+    assert function["experimentalTriggers"][0]["topic"] == worker.TOPIC
+    assert all(r["destination"]["service"] != "worker" for r in config["rewrites"])
+
+
+def test_queue_callback_uses_sdk_headers_and_receipt_handling(monkeypatch):
+    import importlib
+    from pathlib import Path
+    from fastapi.testclient import TestClient
+    monkeypatch.syspath_prepend(str(Path(__file__).parents[1]))
+    service = importlib.import_module("vercel_worker")
+    accept = AsyncMock()
+    monkeypatch.setattr(service, "accept_and_handle", accept)
+    client = TestClient(service.app)
+    assert client.post("/", json={}).status_code == 400
+    accept.assert_not_awaited()
+    headers = {"ce-vqsconsumergroup":"test-group", "ce-vqsqueuename":worker.TOPIC}
+    assert client.post("/", content=b'{}', headers=headers).status_code == 204
+    assert accept.await_args.args[0] == b'{}'
+    assert accept.await_args.kwargs["lease_duration"] == 300

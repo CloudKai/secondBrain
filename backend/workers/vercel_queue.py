@@ -29,11 +29,12 @@ STATUS = {
 
 
 async def wake_worker() -> None:
-    if os.getenv("VERCEL") != "1":
+    if os.getenv("SECOND_BRAIN_QUEUE_TRANSPORT") != "vercel" and os.getenv("VERCEL") != "1":
         return  # Local/self-hosted installations retain the existing ARQ worker.
     try:
         await send(TOPIC, {"task": "dispatch"},
                    idempotency_key=f"dispatch:{int(time.time()) // 10}")
+        logger.info("Queue dispatch accepted")
     except Exception as exc:
         # Acceptance already committed an outbox. Reads/retries can wake it again.
         logger.warning("Queue wakeup failed: %s", type(exc).__name__)
