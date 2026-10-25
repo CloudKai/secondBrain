@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from backend.sources.routes import SourceGateway, owned_sources
 from backend.studies.store import StudyStorageError
+from backend.workers.vercel_queue import wake_worker
 from backend.overviews.store import OverviewStore
 from backend.overviews.models import OverviewSnapshot, OverviewView
 
@@ -28,9 +29,12 @@ def storage_error(exc: StudyStorageError):
 @router.get("/{topic_id}/overview", response_model=OverviewSnapshot)
 async def get_overview(topic_id: UUID, gateway: SourceGateway = Depends(owned_sources)):
     try:
-        return await OverviewStore(
+        snapshot = await OverviewStore(
             gateway.client, gateway.project_url, gateway.headers
         ).snapshot(topic_id, user_id=gateway.user_id)
+        if snapshot.record and snapshot.record.status in ("queued", "processing"):
+            await wake_worker()
+        return snapshot
     except StudyStorageError as exc:
         raise storage_error(exc) from exc
 
@@ -42,8 +46,10 @@ async def set_view(
     gateway: SourceGateway = Depends(owned_sources),
 ):
     try:
-        return await OverviewStore(
+        snapshot = await OverviewStore(
             gateway.client, gateway.project_url, gateway.headers
         ).snapshot(topic_id, payload, user_id=gateway.user_id)
+        await wake_worker()
+        return snapshot
     except StudyStorageError as exc:
         raise storage_error(exc) from exc

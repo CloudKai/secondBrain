@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from backend.sources.routes import SourceGateway, owned_sources
+from backend.workers.vercel_queue import wake_worker
 from backend.studies.models import StudyPage, StudyRecord, StudyRequest
 from backend.studies.store import StudyStorageError, StudyStore
 
@@ -31,7 +32,9 @@ async def request_study(
 ) -> StudyRecord:
     store = StudyStore(gateway.client, gateway.project_url, gateway.headers)
     try:
-        return await store.accept(source_id, gateway.user_id, payload.retry)
+        record = await store.accept(source_id, gateway.user_id, payload.retry)
+        await wake_worker()
+        return record
     except StudyStorageError as exc:
         raise storage_failure(exc) from exc
 
@@ -45,6 +48,8 @@ async def list_studies(
     store = StudyStore(gateway.client, gateway.project_url, gateway.headers)
     try:
         records = await store.list_owned(gateway.user_id, limit + 1, offset)
+        if any(r.status in ("queued", "processing") for r in records):
+            await wake_worker()
         return StudyPage(
             studies=records[:limit],
             next_offset=offset + limit if len(records) > limit else None,

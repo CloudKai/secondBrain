@@ -1,5 +1,20 @@
 # Progress Tracker
 
+## Vercel queue transport — locally verified, hosted acceptance pending, 2026-10-25
+
+The user confirmed Vercel is the only host. Added a private Python queue
+subscriber and authenticated API wakeups for the existing outbox/claim workers.
+No external server, plan upgrade or database migration is introduced. Queue
+payloads carry stable task IDs; credentials stay in the worker environment.
+Retries retain database attempt limits and persisted section checkpoints.
+
+Targeted handoff/worker tests and subscriber import pass. The complete backend
+suite has 712 passes and the same three documented quiz failures (two provider
+call-count assertions and one strict datetime fixture). Hosted note generation
+is pending deployment; long sources remain bounded by the existing attempts and
+the 240-second invocation budget. See docs/vercel-deployment.md.
+
+
 ## Public demo connection repair — saving verified in production, 2026-10-25
 
 The public web bundle lacked its Supabase connection settings even though the

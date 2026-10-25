@@ -153,3 +153,45 @@ No project was deployed, and combined request routing is not verified.
 References: [Services](https://vercel.com/docs/services),
 [routing](https://vercel.com/docs/services/routing),
 [bindings](https://vercel.com/docs/services/bindings).
+
+## Vercel-only background processing — 2026-10-25
+
+The Python service now declares `vercel_tasks` under `tool.vercel.subscribers`.
+Vercel builds a private push subscriber for `secondbrain-work`; no public worker
+URL or separate always-running Redis/ARQ host is needed for this transport.
+The pinned `vercel-queue[typed]==0.10.0` SDK authenticates with deployment OIDC.
+Do not add a queue token to browser configuration.
+
+After an authenticated request commits a study/topic/overview job, the API sends
+a small dispatch signal. Status reads also wake queued work, recovering jobs
+accepted before queue configuration or during a publish failure. The private
+subscriber reuses the existing outbox dispatchers, database leases and generators.
+Messages contain task names and UUIDs only. Outboxes are acknowledged only after
+queue acceptance; refresh/retry messages are not suppressed by source-ID-only
+deduplication. Database claims prevent duplicate model processing. Unfinished
+jobs retain their queue delivery, with 130-second redelivery and at most ten
+transport attempts. Database processing attempts retain the existing cap of
+three. Consumer concurrency is capped at two. Local installations continue to
+use ARQ when `VERCEL` is absent.
+
+Each processing invocation stops at 240 seconds, leaving headroom under Hobby's
+300-second function limit. Persisted section checkpoints survive cancellation;
+the existing lease-recovery RPC resumes eligible work after lease expiry. Very
+long sources can still exhaust the existing three-attempt budget; this does not
+claim unlimited-duration document processing. Large, worst-case workloads need
+a separately scoped stepwise Workflow integration or an appropriate worker host.
+
+There is no plan upgrade or fixed server subscription in this change. Vercel
+Queues is Beta. Its published Hobby allowance includes the first 1,000,000 queue
+API operations; compute and model usage are still metered under their respective
+plans. Do not interpret that allowance as unlimited free AI processing.
+
+Sources checked 25 October 2026:
+- https://vercel.com/docs/queues/python-sdk
+- https://vercel.com/docs/queues/pricing
+- https://vercel.com/docs/functions/configuring-functions/duration
+
+Rollback: redeploy the earlier HTTP build and run the existing ARQ worker if
+available. Postgres jobs and checkpoints remain authoritative; no schema change
+or user-data conversion is required. Hosted subscriber discovery and an actual
+source-to-note result must pass before marking the worker accepted.
