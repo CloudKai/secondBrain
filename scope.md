@@ -1,5 +1,15 @@
 # Scope: AI Second Brain
 
+## Public demo connection repair — locally verified, 2026-10-25
+
+The public web bundle lacked its Supabase connection settings even though the
+Vercel project had the server-named URL and publishable key. The Vite build now
+maps exactly those two public settings, with explicit `VITE_*` overrides taking
+precedence. It does not expose server secrets or change API ownership rules.
+Regression checks reproduce the missing mapping and pass after the fix; the
+existing anonymous save/reopen client test, production web build and lint pass.
+Hosted library/save/worker acceptance remains pending until deployment testing.
+
 ## Shared Luna default — implemented and compatibility-verified locally, 2026-10-20
 
 User requested `gpt-6-luna` as the default. Shared model settings now cover v1,

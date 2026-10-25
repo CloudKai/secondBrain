@@ -42,8 +42,8 @@ Use separate preview credentials when preview data must be isolated.
 
 | Variable | Copy its value from | Used by |
 | --- | --- | --- |
-| `VITE_SUPABASE_URL` | `web/.env.local` | Browser build |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | `web/.env.local` | Browser build; public key |
+| `VITE_SUPABASE_URL` | Optional browser override; otherwise `SUPABASE_URL` | Browser build |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Optional browser override; otherwise `SUPABASE_PUBLISHABLE_KEY` | Browser build; public key |
 | `SUPABASE_URL` | `backend/.env` | API |
 | `SUPABASE_PUBLISHABLE_KEY` | `backend/.env` | API; same project/public key as the browser |
 | `SUPABASE_SECRET_KEY` | `backend/.env` | Server-only learning/quiz persistence and generated writes |
@@ -100,8 +100,12 @@ deployments do not acquire changed values, and Vite embeds public settings at
 build time. See Vercel's [services](https://vercel.com/docs/services) and
 [environment variable](https://vercel.com/docs/environment-variables) documentation.
 
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` before building the
-  web service. These are public browser settings; redeploy after changing them.
+- The web build explicitly maps only `SUPABASE_URL` and
+  `SUPABASE_PUBLISHABLE_KEY` into the browser when the corresponding `VITE_*`
+  override is absent. Local `.env` files and explicit `VITE_*` settings still
+  work. Do not broaden `envPrefix`: private server settings must never be
+  published. The build rejects `sb_secret_` values in the public-key slot.
+  Redeploy after changing the settings.
 - Set backend values from `backend/.env.example` in the Vercel project, using
   server-only names. Never prefix privileged values with `VITE_` or
   `EXPO_PUBLIC_`. Do not upload populated environment files or evaluator tokens.
